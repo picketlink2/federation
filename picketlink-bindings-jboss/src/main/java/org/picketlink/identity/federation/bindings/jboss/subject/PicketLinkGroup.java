@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.jboss.subject;
+package org.picketlink.identity.federation.bindings.jboss.subject;
 
 import java.security.Principal;
 import java.security.acl.Group;
@@ -33,13 +33,13 @@ import java.util.Set;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 16, 2009
  */
-public class JBossIdentityGroup extends JBossIdentityPrincipal implements Group
+public class PicketLinkGroup extends PicketLinkPrincipal implements Group
 { 
    private static final long serialVersionUID = 1L;
 
    private Set<Principal> roles = new HashSet<Principal>();
    
-   public JBossIdentityGroup(String name)
+   public PicketLinkGroup(String name)
    {
      super(name);   
    }

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.jboss.subject;
+package org.picketlink.identity.federation.bindings.jboss.subject;
 
 import java.io.Serializable;
 import java.security.Principal;
@@ -29,13 +29,13 @@ import java.security.Principal;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 16, 2009
  */
-public class JBossIdentityPrincipal implements Principal,Serializable
+public class PicketLinkPrincipal implements Principal,Serializable
 { 
    private static final long serialVersionUID = 1L;
 
    protected String name;
    
-   public JBossIdentityPrincipal(String name)
+   public PicketLinkPrincipal(String name)
    { 
       this.name = name;
    }
@@ -63,7 +63,7 @@ public class JBossIdentityPrincipal implements Principal,Serializable
          return false;
       if (getClass() != obj.getClass())
          return false;
-      JBossIdentityPrincipal other = (JBossIdentityPrincipal) obj;
+      PicketLinkPrincipal other = (PicketLinkPrincipal) obj;
       if (name == null)
       {
          if (other.name != null)

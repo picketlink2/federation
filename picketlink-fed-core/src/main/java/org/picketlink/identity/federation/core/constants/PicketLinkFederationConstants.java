@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.constants;
+package org.picketlink.identity.federation.core.constants;
 
 /**
  * Constants useful to the JBoss
@@ -27,10 +27,13 @@ package org.jboss.identity.federation.core.constants;
  * @author Anil.Saldhana@redhat.com
  * @since Feb 23, 2009
  */
-public interface JBossIdentityFederationConstants
+public interface PicketLinkFederationConstants
 {
    /**
     * Flag to indicate whether JAXB Schema Validation is turned on
     */
-   String JAXB_SCHEMA_VALIDATION = "org.jboss.identity.jaxb.schema.validation";
+   String JAXB_SCHEMA_VALIDATION = "org.picketlink.jaxb.schema.validation";
+   
+   String SCHEMA_IDFED = "schema/config/picketlink-fed.xsd";
+   String SCHEMA_IDFED_HANDLER = "schema/config/picketlink-fed-handler.xsd";
 }
