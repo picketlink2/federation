@@ -5,11 +5,11 @@
 
 <web-app>
    <servlet>
-     <servlet-name>JBossSTS</servlet-name>
-     <servlet-class>org.picketlink.identity.federation.core.wstrust.JBossSTS</servlet-class>
+     <servlet-name>PicketLinkSTS</servlet-name>
+     <servlet-class>org.picketlink.identity.federation.core.wstrust.PicketLinkSTS</servlet-class>
    </servlet>
    <servlet-mapping>
-      <servlet-name>JBossSTS</servlet-name>
+      <servlet-name>PicketLinkSTS</servlet-name>
       <url-pattern>/*</url-pattern>
    </servlet-mapping>
 
@@ -27,7 +27,7 @@
 
    <login-config>
       <auth-method>BASIC</auth-method>
-      <realm-name>JBossSTSRealm</realm-name>
+      <realm-name>PicketLinkSTSRealm</realm-name>
    </login-config>
 
    <security-role>

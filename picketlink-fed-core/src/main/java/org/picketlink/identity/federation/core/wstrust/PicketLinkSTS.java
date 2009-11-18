@@ -55,7 +55,7 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", 
-		targetNamespace = "http://org.picketlink.trust/sts", 
+		targetNamespace = "urn:picketlink:identity-federation:sts", 
 		wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
 public class PicketLinkSTS implements SecurityTokenService
@@ -200,7 +200,7 @@ public class PicketLinkSTS implements SecurityTokenService
       URL configurationFile = SecurityActions.getContextClassLoader().getResource(STS_CONFIG_FILE);
       if (configurationFile == null)
       {
-         logger.warn("jboss-sts.xml configuration file not found. Using default configuration values");
+         logger.warn("picketlink-sts.xml configuration file not found. Using default configuration values");
          return new PicketLinkSTSConfiguration();
       }
 
@@ -212,7 +212,7 @@ public class PicketLinkSTS implements SecurityTokenService
          STSType stsConfig = element.getValue();
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
          if(logger.isInfoEnabled())
-            logger.info("jboss-sts.xml configuration file loaded");
+            logger.info("picketlink-sts.xml configuration file loaded");
          return configuration;
       }
       catch (Exception e)
