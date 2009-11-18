@@ -35,8 +35,8 @@ import java.util.Properties;
  * Example:
  * <pre>{@code
  * Builder builder = new STSClientConfig.Builder();
- * builder.serviceName("JBossSTS");
- * builder.portName("JBossSTSPort");
+ * builder.serviceName("PicketLinkSTS");
+ * builder.portName("PicketLinkSTSPort");
  * ...
  * STSClientConfig config = builder.build();
  * }</pre>

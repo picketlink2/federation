@@ -115,7 +115,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * configuration file (picketlink-sts.xml) looks like the following:
     * 
     * <pre>
-    *    &lt;JBossSTS xmlns=&quot;urn:jboss:identity-federation:config:1.0&quot;
+    *    &lt;PicketLinkSTS xmlns=&quot;urn:picketlink:identity-federation:config:1.0&quot;
     *     STSName=&quot;Test STS&quot; TokenTimeout=&quot;7200&quot; EncryptToken=&quot;true&quot;&gt;
     *     &lt;KeyProvider ClassName=&quot;org.jboss.identity.federation.bindings.tomcat.KeyStoreKeyManager&quot;&gt;
     *         &lt;Auth Key=&quot;KeyStoreURL&quot; Value=&quot;keystore/sts_keystore.jks&quot;/&gt; 
@@ -138,7 +138,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     *         &lt;ServiceProvider Endpoint=&quot;http://services.testcorp.org/provider2&quot; TokenType=&quot;http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0&quot;
     *             TruststoreAlias=&quot;service2&quot;/&gt;
     *     &lt;/ServiceProviders&gt;
-    *    &lt;/JBossSTS&gt;    *
+    *    &lt;/PicketLinkSTS&gt;    *
     * </pre>
     * 
     * </p>
@@ -256,7 +256,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     *                  ID=&quot;ID-cc541137-74dc-4fc0-8bcc-7e9e3a4c899d&quot;
     *                  IssueInstant=&quot;2009-05-29T18:02:13.458Z&quot;&gt;
     *     &lt;saml2:Issuer&gt;
-    *         JBossSTS
+    *         PicketLinkSTS
     *     &lt;/saml2:Issuer&gt;
     *     &lt;saml2:Subject&gt;
     *         &lt;saml2:NameID NameQualifier=&quot;http://www.jboss.org&quot;&gt;
@@ -835,7 +835,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals(2, content.size());
       assertEquals("Unexpected type found", NameIDType.class, content.get(0).getDeclaredType());
       NameIDType nameID = (NameIDType) content.get(0).getValue();
-      assertEquals("Unexpected name id qualifier", "urn:jboss:identity-federation", nameID.getNameQualifier());
+      assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id value", "sguilhen", nameID.getValue());
       assertEquals("Unexpected type found", SubjectConfirmationType.class, content.get(1).getDeclaredType());
       SubjectConfirmationType subjType = (SubjectConfirmationType) content.get(1).getValue();

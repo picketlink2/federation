@@ -63,7 +63,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
 
    /**
     * <p>
-    * Creates an instance of {@code JBossSTSConfiguration} with default configuration values.
+    * Creates an instance of {@code PicketLinkSTSConfiguration} with default configuration values.
     * </p>
     */
    public PicketLinkSTSConfiguration()
@@ -75,7 +75,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
 
    /**
     * <p>
-    * Creates an instance of {@code JBossSTSConfiguration} with the specified configuration.
+    * Creates an instance of {@code PicketLinkSTSConfiguration} with the specified configuration.
     * </p>
     * 
     * @param config a reference to the object that holds the configuration of the STS.

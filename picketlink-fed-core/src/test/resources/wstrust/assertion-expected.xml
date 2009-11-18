@@ -1,7 +1,7 @@
 <Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_74414f7f-1339-4f80-b29a-c947d9177445" IssueInstant="2009-09-10T13:49:30.422Z" Version="2.0">
-    <Issuer>JBossSTS</Issuer>
+    <Issuer>PicketLinkSTS</Issuer>
     <Subject>
-        <NameID NameQualifier="urn:jboss:identity-federation">beve</NameID>
+        <NameID NameQualifier="urn:picketlink:identity-federation">beve</NameID>
         <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
     </Subject>
     <Conditions NotBefore="2009-09-10T13:49:30.422Z" NotOnOrAfter="2009-09-10T15:49:30.422Z"/>

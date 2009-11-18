@@ -188,9 +188,9 @@ public class STSClientUnitTestCase extends TestCase
       if(usetest == false)
          return;
       
-      String  serviceName = "JBossSTS";
-      String  portName = "JBossSTSPort";
-      String endpointAddress = "http://localhost:8080/jboss-sts/JBossSTS";
+      String  serviceName = "PicketLinkSTS";
+      String  portName = "PicketLinkSTSPort";
+      String endpointAddress = "http://localhost:8080/jboss-sts/PicketLinkSTS";
       Builder builder = new STSClientConfig.Builder();
       STSClientConfig config = builder.serviceName(serviceName).portName(portName).endpointAddress(endpointAddress).username("admin").password("admin").build();
       STSClient client = new STSClient(config);
@@ -207,9 +207,9 @@ public class STSClientUnitTestCase extends TestCase
          return;
       
       Builder stsConfigBuilder = new STSClientConfig.Builder();
-      stsConfigBuilder.serviceName("JBossSTS");
-      stsConfigBuilder.portName("JBossSTSPort");
-      stsConfigBuilder.endpointAddress("http://localhost:8080/jboss-sts/JBossSTS");
+      stsConfigBuilder.serviceName("PicketLinkSTS");
+      stsConfigBuilder.portName("PicketLinkSTSPort");
+      stsConfigBuilder.endpointAddress("http://localhost:8080/jboss-sts/PicketLinkSTS");
       stsConfigBuilder.username("admin").password("admin");
       STSClient client = new STSClient(stsConfigBuilder.build());
       
@@ -229,9 +229,9 @@ public class STSClientUnitTestCase extends TestCase
          return;
       
       Builder stsConfigBuilder = new STSClientConfig.Builder();
-      stsConfigBuilder.serviceName("JBossSTS");
-      stsConfigBuilder.portName("JBossSTSPort");
-      stsConfigBuilder.endpointAddress("http://localhost:8080/jboss-sts/JBossSTS");
+      stsConfigBuilder.serviceName("PicketLinkSTS");
+      stsConfigBuilder.portName("PicketLinkSTSPort");
+      stsConfigBuilder.endpointAddress("http://localhost:8080/jboss-sts/PicketLinkSTS");
       stsConfigBuilder.username("admin").password("admin");
       STSClient client = new STSClient(stsConfigBuilder.build());
       
@@ -251,9 +251,9 @@ public class STSClientUnitTestCase extends TestCase
    {
       // JBoss STS target information.
       String targetNS = "http://org.picketlink.trust/sts/";
-      QName serviceName = new QName(targetNS, "JBossSTS");
-      QName portName = new QName(targetNS, "JBossSTSPort");
-      URL endpointAddress = new URL("http://localhost:8080/jboss-sts/JBossSTS");
+      QName serviceName = new QName(targetNS, "PicketLinkSTS");
+      QName portName = new QName(targetNS, "PicketLinkSTSPort");
+      URL endpointAddress = new URL("http://localhost:8080/jboss-sts/PicketLinkSTS");
 //      URL securityConfigURL = new File("jboss-wsse-client.xml").toURI().toURL();
 
       Service service = Service.create(serviceName);

@@ -48,7 +48,7 @@ public class STSSaml20Handler extends STSSecurityHandler
     
     /*
      * (non-Javadoc)
-     * @see org.picketlink.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getSecurityElementQName()
+     * @see org.picketlink.identity.federation.api.wstrust.handlers.PicketLinkSTSSecurityHandler#getSecurityElementQName()
      */
     @Override
     public QName getSecurityElementQName()
@@ -58,7 +58,7 @@ public class STSSaml20Handler extends STSSecurityHandler
 
     /*
      * (non-Javadoc)
-     * @see org.picketlink.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getTokenElementQName()
+     * @see org.picketlink.identity.federation.api.wstrust.handlers.PicketLinkSTSSecurityHandler#getTokenElementQName()
      */
     @Override
     public QName getTokenElementQName()

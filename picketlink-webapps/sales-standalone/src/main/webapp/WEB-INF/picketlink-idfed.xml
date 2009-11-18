@@ -1,4 +1,4 @@
-<JBossSP xmlns="urn:jboss:identity-federation:config:1.0" ServerEnvironment="tomcat">
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" ServerEnvironment="tomcat">
  <IdentityURL>http://localhost:8080/idp-standalone/</IdentityURL>
  <ServiceURL>http://localhost:8080/sales-standalone/</ServiceURL>
  <KeyProvider ClassName="org.picketlink.identity.federation.bindings.tomcat.KeyStoreKeyManager">
@@ -10,4 +10,4 @@
     <ValidatingAlias Key="127.0.0.1" Value="servercert"/>
  </KeyProvider>
 
-</JBossSP>
+</PicketLinkSP>

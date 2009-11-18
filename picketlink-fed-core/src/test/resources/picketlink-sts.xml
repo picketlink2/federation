@@ -1,4 +1,4 @@
-<JBossSTS xmlns="urn:jboss:identity-federation:config:1.0"
+<PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
 	STSName="Test STS" TokenTimeout="7200" EncryptToken="false">
 	<KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
 		<Auth Key="KeyStoreURL" Value="keystore/sts_keystore.jks"/> 
@@ -28,4 +28,4 @@
 		<ServiceProvider Endpoint="http://services.testcorp.org/provider2" TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
 			TruststoreAlias="service2"/>
 	</ServiceProviders>
-</JBossSTS>
+</PicketLinkSTS>

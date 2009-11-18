@@ -31,9 +31,9 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _picketlinkIDP_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "picketlinkIDP");
-    private final static QName _picketlinkSTS_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "picketlinkSTS");
-    private final static QName _picketlinkSP_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "picketlinkSP");
+    private final static QName _picketlinkIDP_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "PicketLinkIDP");
+    private final static QName _PicketLinkSTS_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "PicketLinkSTS");
+    private final static QName _picketlinkSP_QNAME = new QName("urn:picketlink:identity-federation:config:1.0", "PicketLinkSP");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: picketlink.identity_federation.config._1
@@ -174,7 +174,7 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link IDPType }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "picketlinkIDP")
+    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "PicketLinkIDP")
     public JAXBElement<IDPType> createpicketlinkIDP(IDPType value) {
         return new JAXBElement<IDPType>(_picketlinkIDP_QNAME, IDPType.class, null, value);
     }
@@ -183,16 +183,16 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link STSType }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "picketlinkSTS")
-    public JAXBElement<STSType> createpicketlinkSTS(STSType value) {
-        return new JAXBElement<STSType>(_picketlinkSTS_QNAME, STSType.class, null, value);
+    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "PicketLinkSTS")
+    public JAXBElement<STSType> createPicketLinkSTS(STSType value) {
+        return new JAXBElement<STSType>(_PicketLinkSTS_QNAME, STSType.class, null, value);
     }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link SPType }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "picketlinkSP")
+    @XmlElementDecl(namespace = "urn:picketlink:identity-federation:config:1.0", name = "PicketLinkSP")
     public JAXBElement<SPType> createpicketlinkSP(SPType value) {
         return new JAXBElement<SPType>(_picketlinkSP_QNAME, SPType.class, null, value);
     }

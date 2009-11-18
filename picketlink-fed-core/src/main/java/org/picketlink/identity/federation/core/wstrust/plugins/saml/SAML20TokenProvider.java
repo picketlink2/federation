@@ -167,7 +167,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       // create a subject using the caller principal.
       Principal principal = context.getCallerPrincipal();
       String subjectName = principal == null ? "ANONYMOUS" : principal.getName();
-      NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:jboss:identity-federation", subjectName);
+      NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:picketlink:identity-federation", subjectName);
       SubjectType subject = SAMLAssertionFactory.createSubject(nameID, subjectConfirmation);
 
       // create the attribute statements if necessary.

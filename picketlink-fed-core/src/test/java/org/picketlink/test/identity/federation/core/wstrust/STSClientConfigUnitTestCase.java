@@ -33,9 +33,9 @@ import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
  */
 public class STSClientConfigUnitTestCase extends TestCase
 {
-    final String serviceName = "JBossSTS";
-    final String portName = "JBossSTSPort";
-    final String endpointAddress = "http://localhost:8080/jboss-sts/JBossSTS";
+    final String serviceName = "PicketLinkSTS";
+    final String portName = "PicketLinkSTSPort";
+    final String endpointAddress = "http://localhost:8080/picketlink-sts/PicketLinkSTS";
     final String username = "admin";
     final String password = "admin";
     

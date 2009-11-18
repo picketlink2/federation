@@ -1,4 +1,4 @@
-<JBossIDP xmlns="urn:jboss:identity-federation:config:1.0" >
+<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" >
 <IdentityURL>http://localhost:8080/idp-standalone/</IdentityURL>
 <Trust>
    <Domains>localhost,jboss.com,jboss.org</Domains>
@@ -12,4 +12,4 @@
   <ValidatingAlias Key="127.0.0.1" Value="servercert"/>
 </KeyProvider>
 
-</JBossIDP>
+</PicketLinkIDP>

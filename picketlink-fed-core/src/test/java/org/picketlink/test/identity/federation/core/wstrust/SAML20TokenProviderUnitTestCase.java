@@ -142,7 +142,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       JAXBElement<?> content = subject.getContent().get(0);
       assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
       NameIDType nameID = (NameIDType) content.getValue();
-      assertEquals("Unexpected name id qualifier", "urn:jboss:identity-federation", nameID.getNameQualifier());
+      assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
       content = subject.getContent().get(1);
       assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
@@ -229,7 +229,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       content = subject.getContent().get(0);
       assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
       nameID = (NameIDType) content.getValue();
-      assertEquals("Unexpected name id qualifier", "urn:jboss:identity-federation", nameID.getNameQualifier());
+      assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
       content = subject.getContent().get(1);
       assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
