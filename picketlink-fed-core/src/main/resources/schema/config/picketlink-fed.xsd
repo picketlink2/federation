@@ -34,7 +34,7 @@
 		</complexContent>
 	</complexType>
 
-	<element name="picketlinkIDP" type="tns:IDPType">
+	<element name="PicketLinkIDP" type="tns:IDPType">
     	<annotation>
     		<documentation>The root configuration for an Identity Provider(IDP) using picketlink Identity.</documentation>
     	</annotation>
