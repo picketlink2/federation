@@ -142,7 +142,7 @@
     	</complexContent>
     </complexType>
 
-    <element name="picketlinkSP" type="tns:SPType"></element>
+    <element name="PicketLinkSP" type="tns:SPType"></element>
 
     <simpleType name="EncAlgoType">
     	<restriction base="string">
@@ -249,6 +249,6 @@
 		<attribute name="TruststoreAlias" type="string" use="optional"/>
 	</complexType>
 	
-    <element name="picketlinkSTS" type="tns:STSType"/>
+    <element name="PicketLinkSTS" type="tns:STSType"/>
         
 </schema>
