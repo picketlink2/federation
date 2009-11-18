@@ -15,8 +15,8 @@
    </servlet>
 
    <servlet-mapping>
-     <url-pattern>/provider/*</url-pattern>
      <servlet-name>ProviderServlet</servlet-name>
+     <url-pattern>/provider/*</url-pattern>
    </servlet-mapping>
 
    <security-constraint>

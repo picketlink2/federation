@@ -13,7 +13,7 @@
      <servlet-class>org.picketlink.identity.federation.web.servlets.OpenIDConsumerServlet</servlet-class>
    </servlet>
    <servlet-mapping>
-     <url-pattern>/consumer/*</url-pattern>
      <servlet-name>ConsumerServlet</servlet-name>
+     <url-pattern>/consumer/*</url-pattern>
    </servlet-mapping>
 </web-app>
