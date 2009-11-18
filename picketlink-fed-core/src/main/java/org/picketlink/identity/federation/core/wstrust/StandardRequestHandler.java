@@ -47,6 +47,7 @@ import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.ObjectFactory;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
+import org.picketlink.identity.federation.ws.trust.RequestedTokenCancelledType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
@@ -290,9 +291,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       // first validate the provided token signature to make sure it has been issued by this STS and hasn't been tempered.
       if (trace)
          log.trace("Validating token for renew request " + request.getContext());
-      if (request.getRenewTarget() == null)
+      if (request.getRenewTargetElement() == null)
          throw new WSTrustException("Unable to renew token: renew target is null");
-      
+
       Node securityToken = request.getRenewTargetElement().getFirstChild();
       if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null)
       {
@@ -305,7 +306,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             if (!XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()))
                throw new WSTrustException("Validation failure during renewal: digital signature is invalid");
          }
-         catch (Exception e) 
+         catch (Exception e)
          {
             throw new WSTrustException("Validation failure during renewal: unable to verify digital signature", e);
          }
@@ -316,7 +317,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             log.trace("Security Token digital signature has NOT been verified. Either the STS has been configured"
                   + "not to sign tokens or the STS key pair has not been properly specified.");
       }
-      
+
       // set default values where needed.
       if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0)
       {
@@ -334,7 +335,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
                + securityToken.getLocalName());
       provider.renewToken(context);
-      
+
       // create the WS-Trust response with the renewed token.
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
       requestedSecurityToken.setAny(context.getSecurityToken().getTokenValue());
@@ -366,7 +367,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (rstDocument == null)
          throw new IllegalArgumentException("Request does not contain the DOM Document");
 
-      if (request.getValidateTarget() == null)
+      if (request.getValidateTargetElement() == null)
          throw new WSTrustException("Unable to validate token: validate target is null");
 
       if (request.getTokenType() == null)
@@ -449,12 +450,31 @@ public class StandardRequestHandler implements WSTrustRequestHandler
    public RequestSecurityTokenResponse cancel(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException
    {
+      // check if request contains all required elements.
       Document rstDocument = request.getRSTDocument();
       if (rstDocument == null)
          throw new IllegalArgumentException("Request does not contain the DOM Document");
+      if (request.getCancelTargetElement() == null)
+         throw new WSTrustException("Illegal cancel request: cancel target is null");
 
-      // TODO: implement cancel logic.
-      throw new UnsupportedOperationException();
+      // obtain the token provider that will handle the request.
+      Node securityToken = request.getCancelTargetElement().getFirstChild();
+      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
+            securityToken.getNamespaceURI());
+      if (provider == null)
+         throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
+               + securityToken.getLocalName());
+
+      // create a request context and dispatch to the provider.
+      WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
+      provider.cancelToken(context);
+      
+      // if no exception has been raised, the token has been successfully canceled.
+      RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
+      if (request.getContext() != null)
+         response.setContext(request.getContext());
+      response.setRequestedTokenCancelled(new RequestedTokenCancelledType());
+      return response;
    }
 
    public Document postProcess(Document rstrDocument, RequestSecurityToken request) throws WSTrustException

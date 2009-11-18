@@ -136,7 +136,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    private URI canonicalizationAlgorithm;
 
    private URI keyWrapAlgorithm;
-   
+
    private ProofEncryptionType proofEncryption;
 
    private UseKeyType useKey;
@@ -270,7 +270,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
          }
       }
    }
-   
+
    /**
     * Creates an instance of {@code RequestSecurityTokenType} and {@code Document}
     * @param delegate
@@ -279,7 +279,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    public RequestSecurityToken(RequestSecurityTokenType delegate, Document rstDocument)
    {
       this(delegate);
-      this.rstDocument = rstDocument; 
+      this.rstDocument = rstDocument;
    }
 
    /**
@@ -730,7 +730,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       return this.keyWrapAlgorithm;
    }
-   
+
    /**
     * <p>
     * Sets the key wrap algorithm in the request.
@@ -742,7 +742,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       this.keyWrapAlgorithm = keyWrapAlgorithm;
    }
-   
+
    /**
     * <p>
     * Obtains the {@code ProofEncryption} section of the request. The {@code ProofEncryption} indicates that the
@@ -1079,7 +1079,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       return this.validateTarget;
    }
-   
+
    /**
     * Return the element in the document that represents
     * the validate type
@@ -1087,14 +1087,14 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
     */
    public Element getValidateTargetElement()
    {
-      if(rstDocument == null)
+      if (rstDocument == null)
          throw new IllegalStateException("RST Document is null");
-      
+
       String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
       String localPart = "ValidateTarget";
-      
-      NodeList nodeList = rstDocument.getElementsByTagNameNS(ns,localPart);
-      if(nodeList != null && nodeList.getLength() > 0)
+
+      NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localPart);
+      if (nodeList != null && nodeList.getLength() > 0)
          return (Element) nodeList.item(0);
       else
          return null;
@@ -1110,21 +1110,43 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
     */
    public Element getRenewTargetElement()
    {
-      if(this.rstDocument == null)
+      if (this.rstDocument == null)
          throw new IllegalStateException("RST Document is null");
       String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
       String localName = "RenewTarget";
 
-      NodeList nodeList = rstDocument.getElementsByTagNameNS(ns,localName);
-      if(nodeList != null && nodeList.getLength() > 0)
+      NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localName);
+      if (nodeList != null && nodeList.getLength() > 0)
          return (Element) nodeList.item(0);
       else
          return null;
    }
-   
+
    /**
     * <p>
-    * Sets the {@code ValidateTarged} section of the request. This elements identifies the token that is to be
+    * Returns the element in the document that represents the cancel target type.
+    * </p>
+    * 
+    * @return the {@code Element} that represents the renew target type, or {@code null} if no renew target is found in
+    * the document.
+    */
+   public Element getCancelTargetElement()
+   {
+      if (this.rstDocument == null)
+         throw new IllegalStateException("RST Document is null");
+      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
+      String localName = "CancelTarget";
+
+      NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localName);
+      if (nodeList != null && nodeList.getLength() > 0)
+         return (Element) nodeList.item(0);
+      else
+         return null;
+   }
+
+   /**
+    * <p>
+    * Sets the {@code ValidateTarget} section of the request. This elements identifies the token that is to be
     * validated.
     * </p>
     * 
@@ -1173,7 +1195,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       return this.delegate;
    }
-   
+
    /**
     * Get the {@code Document} document representing the request
     * @return
@@ -1182,7 +1204,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       return this.rstDocument;
    }
-   
+
    public void setRSTDocument(Document rstDocument)
    {
       this.rstDocument = rstDocument;

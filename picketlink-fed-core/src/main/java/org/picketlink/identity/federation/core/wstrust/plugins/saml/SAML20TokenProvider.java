@@ -21,13 +21,20 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
@@ -55,7 +62,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
-import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.w3c.dom.Element;
 
@@ -71,7 +77,14 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
    private static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
 
-   @SuppressWarnings("unused")
+   private static final String CANCELED_IDS_FILE = "CanceledIdsFile";
+
+   // this set contains the ids of the assertions that have been canceled.
+   private Set<String> cancelledIds;
+
+   // file used to store the ids of the canceled assertions.
+   private File canceledIdsFile;
+
    private Map<String, String> properties;
 
    /*
@@ -82,6 +95,17 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    public void initialize(Map<String, String> properties)
    {
       this.properties = properties;
+      this.cancelledIds = new HashSet<String>();
+
+      // set up the canceled ids cache if the file that contains the canceled assertions has been specified.
+      String file = this.properties.get(CANCELED_IDS_FILE);
+      if (file == null && logger.isDebugEnabled())
+         logger.debug("File to store canceled ids has not been specified: ids will not be persisted!");
+      else
+      {
+         this.canceledIdsFile = new File(file);
+         this.loadCanceledIds();
+      }
    }
 
    /*
@@ -91,7 +115,17 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
-      // TODO: implement cancel logic.
+      // get the assertion that must be canceled.
+      Element token = (Element) context.getRequestSecurityToken().getCancelTargetElement();
+      if (token == null)
+         throw new WSTrustException("Invalid cancel request: missing required CancelTarget");
+      Element assertionElement = (Element) token.getFirstChild();
+      if (!this.isAssertion(assertionElement))
+         throw new WSTrustException("CancelTarget doesn't not contain a SAMLV2.0 assertion");
+
+      // get the assertion ID and add it to the canceled assertions set.
+      String assertionId = assertionElement.getAttribute("ID");
+      this.storeCanceledId(assertionId);
    }
 
    /*
@@ -103,163 +137,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    {
       // generate an id for the new assertion.
       String assertionID = IDGenerator.create("ID_");
-      issueToken(context, assertionID);
-   }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   public void renewToken(WSTrustRequestContext context) throws WSTrustException
-   {
-      // get the specified assertion that must be renewed.
-      Element token = (Element) context.getRequestSecurityToken().getRenewTargetElement();
-      if (token == null)
-         throw new WSTrustException("Invalid renew request: missing required RenewTarget");
-      Element oldAssertionElement = (Element) token.getFirstChild();
-      if (!this.isAssertion(oldAssertionElement))
-         throw new WSTrustException("RenewTarget doesn't not contain a SAMLV2.0 assertion");
-
-      // get the JAXB representation of the old assertion.
-      AssertionType oldAssertion = null;
-      try
-      {
-         oldAssertion = SAMLUtil.fromElement(oldAssertionElement);
-      }
-      catch (JAXBException je)
-      {
-         throw new WSTrustException("Error unmarshalling assertion", je);
-      }
-
-      // adjust the lifetime for the renewed assertion.
-      ConditionsType conditions = oldAssertion.getConditions();
-      conditions.setNotBefore(context.getRequestSecurityToken().getLifetime().getCreated());
-      conditions.setNotOnOrAfter(context.getRequestSecurityToken().getLifetime().getExpires());
-
-      // create a new unique ID for the renewed assertion.
-      String assertionID = IDGenerator.create("ID_");
-
-      // create the new assertion.
-      AssertionType newAssertion = SAMLAssertionFactory.createAssertion(assertionID, oldAssertion.getIssuer(), context
-            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), oldAssertion
-            .getStatementOrAuthnStatementOrAuthzDecisionStatement());
-
-      // create a security token with the new assertion.
-      Element assertionElement = null;
-      try
-      {
-         assertionElement = SAMLUtil.toElement(newAssertion);
-      }
-      catch (Exception e)
-      {
-         throw new WSTrustException("Failed to marshall SAMLV2 assertion", e);
-      }
-      SecurityToken securityToken = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType().toString(),
-            assertionElement, assertionID);
-      context.setSecurityToken(securityToken);
-
-      // set the SAML assertion attached reference.
-      KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, "#" + assertionID);
-      Map<QName, String> attributes = new HashMap<QName, String>();
-      attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType"), SAMLUtil.SAML2_TOKEN_TYPE);
-      RequestedReferenceType attachedReference = WSTrustUtil.createRequestedReference(keyIdentifier, attributes);
-      context.setAttachedReference(attachedReference);
-   }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   @SuppressWarnings("unchecked")
-   public void validateToken(WSTrustRequestContext context) throws WSTrustException
-   {
-      if (logger.isTraceEnabled())
-         logger.trace("SAML V2.0 token validation started");
-
-      // get the SAML assertion that must be validated.
-      ValidateTargetType validateTarget = context.getRequestSecurityToken().getValidateTarget();
-      if (validateTarget == null)
-         throw new WSTrustException("Bad validate request: missing required ValidateTarget");
-
-      String code = WSTrustConstants.STATUS_CODE_VALID;
-      String reason = "SAMLV2.0 Assertion successfuly validated";
-
-      AssertionType assertion = null;
-
-      Object assertionObj = validateTarget.getAny();
-      if (assertionObj instanceof JAXBElement)
-      {
-         JAXBElement<AssertionType> assertionType = (JAXBElement<AssertionType>) validateTarget.getAny();
-         assertion = assertionType.getValue();
-      }
-      else if (assertionObj instanceof Element)
-      {
-         Element assertionElement = (Element) assertionObj;
-
-         if (!this.isAssertion(assertionElement))
-         {
-            code = WSTrustConstants.STATUS_CODE_INVALID;
-            reason = "Validation failure: supplied token is not a SAMLV2.0 Assertion";
-         }
-         else
-         {
-            try
-            {
-               assertion = SAMLUtil.fromElement((Element) assertionObj);
-            }
-            catch (JAXBException e)
-            {
-               throw new WSTrustException("Unmarshalling error:", e);
-            }
-         }
-      }
-
-      // check the assertion lifetime.
-      try
-      {
-         if (AssertionUtil.hasExpired(assertion))
-         {
-            code = WSTrustConstants.STATUS_CODE_INVALID;
-            reason = "Validation failure: assertion expired or used before its lifetime period";
-         }
-      }
-      catch (Exception ce)
-      {
-         code = WSTrustConstants.STATUS_CODE_INVALID;
-         reason = "Validation failure: unable to verify assertion lifetime: " + ce.getMessage();
-      }
-
-      // construct the status and set it on the request context.
-      StatusType status = new StatusType();
-      status.setCode(code);
-      status.setReason(reason);
-      context.setStatus(status);
-   }
-
-   /**
-    * <p>
-    * Checks whether the specified element is a SAMLV2.0 assertion or not.
-    * </p>
-    *  
-    * @param element the {@code Element} being verified.
-    * @return {@code true} if the element is a SAMLV2.0 assertion; {@code false} otherwise.
-    */
-   private boolean isAssertion(Element element)
-   {
-      return element == null ? false : "Assertion".equals(element.getLocalName())
-            && WSTrustConstants.SAML2_ASSERTION_NS.equals(element.getNamespaceURI());
-   }
-
-   /**
-    * Issue a SAML assertion token with the provided ID
-    * @param context
-    * @param assertionID
-    * @throws WSTrustException
-    */
-   private void issueToken(WSTrustRequestContext context, String assertionID) throws WSTrustException
-   {
       // lifetime and audience restrictions.
       Lifetime lifetime = context.getRequestSecurityToken().getLifetime();
       AudienceRestrictionType restriction = null;
@@ -325,5 +203,212 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType"), SAMLUtil.SAML2_TOKEN_TYPE);
       RequestedReferenceType attachedReference = WSTrustUtil.createRequestedReference(keyIdentifier, attributes);
       context.setAttachedReference(attachedReference);
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    */
+   public void renewToken(WSTrustRequestContext context) throws WSTrustException
+   {
+      // get the specified assertion that must be renewed.
+      Element token = (Element) context.getRequestSecurityToken().getRenewTargetElement();
+      if (token == null)
+         throw new WSTrustException("Invalid renew request: missing required RenewTarget");
+      Element oldAssertionElement = (Element) token.getFirstChild();
+      if (!this.isAssertion(oldAssertionElement))
+         throw new WSTrustException("RenewTarget doesn't not contain a SAMLV2.0 assertion");
+
+      // get the JAXB representation of the old assertion.
+      AssertionType oldAssertion = null;
+      try
+      {
+         oldAssertion = SAMLUtil.fromElement(oldAssertionElement);
+      }
+      catch (JAXBException je)
+      {
+         throw new WSTrustException("Error unmarshalling assertion", je);
+      }
+
+      // canceled assertions cannot be renewed.
+      if (this.cancelledIds.contains(oldAssertion.getID()))
+         throw new WSTrustException("Assertion with id " + oldAssertion.getID() + " is canceled and cannot be renewed");
+
+      // adjust the lifetime for the renewed assertion.
+      ConditionsType conditions = oldAssertion.getConditions();
+      conditions.setNotBefore(context.getRequestSecurityToken().getLifetime().getCreated());
+      conditions.setNotOnOrAfter(context.getRequestSecurityToken().getLifetime().getExpires());
+
+      // create a new unique ID for the renewed assertion.
+      String assertionID = IDGenerator.create("ID_");
+
+      // create the new assertion.
+      AssertionType newAssertion = SAMLAssertionFactory.createAssertion(assertionID, oldAssertion.getIssuer(), context
+            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), oldAssertion
+            .getStatementOrAuthnStatementOrAuthzDecisionStatement());
+
+      // create a security token with the new assertion.
+      Element assertionElement = null;
+      try
+      {
+         assertionElement = SAMLUtil.toElement(newAssertion);
+      }
+      catch (Exception e)
+      {
+         throw new WSTrustException("Failed to marshall SAMLV2 assertion", e);
+      }
+      SecurityToken securityToken = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType()
+            .toString(), assertionElement, assertionID);
+      context.setSecurityToken(securityToken);
+
+      // set the SAML assertion attached reference.
+      KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, "#" + assertionID);
+      Map<QName, String> attributes = new HashMap<QName, String>();
+      attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType"), SAMLUtil.SAML2_TOKEN_TYPE);
+      RequestedReferenceType attachedReference = WSTrustUtil.createRequestedReference(keyIdentifier, attributes);
+      context.setAttachedReference(attachedReference);
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    */
+   public void validateToken(WSTrustRequestContext context) throws WSTrustException
+   {
+      if (logger.isTraceEnabled())
+         logger.trace("SAML V2.0 token validation started");
+
+      // get the SAML assertion that must be validated.
+      Element token = context.getRequestSecurityToken().getValidateTargetElement();
+      if (token == null)
+         throw new WSTrustException("Bad validate request: missing required ValidateTarget");
+
+      String code = WSTrustConstants.STATUS_CODE_VALID;
+      String reason = "SAMLV2.0 Assertion successfuly validated";
+
+      AssertionType assertion = null;
+      Element assertionElement = (Element) token.getFirstChild();
+      if (!this.isAssertion(assertionElement))
+      {
+         code = WSTrustConstants.STATUS_CODE_INVALID;
+         reason = "Validation failure: supplied token is not a SAMLV2.0 Assertion";
+      }
+      else
+      {
+         try
+         {
+            assertion = SAMLUtil.fromElement(assertionElement);
+         }
+         catch (JAXBException e)
+         {
+            throw new WSTrustException("Unmarshalling error:", e);
+         }
+      }
+
+      // check if the assertion has been canceled before.
+      if (this.cancelledIds.contains(assertion.getID()))
+      {
+         code = WSTrustConstants.STATUS_CODE_INVALID;
+         reason = "Validation failure: assertion with id " + assertion.getID() + " is canceled";
+      }
+
+      // check the assertion lifetime.
+      try
+      {
+         if (AssertionUtil.hasExpired(assertion))
+         {
+            code = WSTrustConstants.STATUS_CODE_INVALID;
+            reason = "Validation failure: assertion expired or used before its lifetime period";
+         }
+      }
+      catch (Exception ce)
+      {
+         code = WSTrustConstants.STATUS_CODE_INVALID;
+         reason = "Validation failure: unable to verify assertion lifetime: " + ce.getMessage();
+      }
+
+      // construct the status and set it on the request context.
+      StatusType status = new StatusType();
+      status.setCode(code);
+      status.setReason(reason);
+      context.setStatus(status);
+   }
+
+   /**
+    * <p>
+    * Checks whether the specified element is a SAMLV2.0 assertion or not.
+    * </p>
+    *  
+    * @param element the {@code Element} being verified.
+    * @return {@code true} if the element is a SAMLV2.0 assertion; {@code false} otherwise.
+    */
+   private boolean isAssertion(Element element)
+   {
+      return element == null ? false : "Assertion".equals(element.getLocalName())
+            && WSTrustConstants.SAML2_ASSERTION_NS.equals(element.getNamespaceURI());
+   }
+
+   /**
+    * <p>
+    * This method loads the ids of the canceled assertions from the file that has been configured for this provider.
+    * All retrieved ids are set in the local cache of canceled ids.
+    * </p>
+    */
+   private void loadCanceledIds()
+   {
+      try
+      {
+         if (!this.canceledIdsFile.exists())
+         {
+            if (logger.isDebugEnabled())
+               logger.debug("File " + this.canceledIdsFile.getCanonicalPath() + " doesn't exist and will be created");
+            this.canceledIdsFile.createNewFile();
+         }
+         // read the file contents and populate the local cache.
+         BufferedReader reader = new BufferedReader(new FileReader(this.canceledIdsFile));
+         String id = reader.readLine();
+         while(id != null)
+         {
+            this.cancelledIds.add(id);
+            id = reader.readLine();
+         }
+         reader.close();
+      }
+      catch (IOException ioe)
+      {
+         if (logger.isDebugEnabled())
+            logger.debug("Error opening canceled ids file: " + ioe.getMessage());
+         ioe.printStackTrace();
+      }
+   }
+   
+   /**
+    * <p>
+    * Stores the specified id in the cache of canceled ids. If a canceled ids file has been configured for this 
+    * provider, the id will also be written to the end of the file.
+    * </p>
+    * 
+    * @param id a {@code String} representing the canceled id that must be stored.
+    */
+   public synchronized void storeCanceledId(String id)
+   {
+      if (this.canceledIdsFile != null)
+      {
+         try
+         {
+            // write a new line with the canceled id at the end of the file. 
+            BufferedWriter writer = new BufferedWriter(new FileWriter(this.canceledIdsFile, true));
+            writer.write(id + "\n");
+            writer.close();
+         }
+         catch (IOException e)
+         {
+            e.printStackTrace();
+         }
+      }
+      // add the canceled id to the local cache.
+      this.cancelledIds.add(id);
    }
 }

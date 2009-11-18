@@ -23,6 +23,8 @@ package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.security.PrivilegedActionException;
 
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
@@ -83,12 +85,13 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
    public void testCreateTokenProvider() throws Exception
    {
       WSTrustServiceFactory factory = WSTrustServiceFactory.getInstance();
-      SecurityTokenProvider provider = factory
-            .createTokenProvider("org.picketlink.test.identity.federation.core.wstrust.SpecialTokenProvider", null);
+      SecurityTokenProvider provider = factory.createTokenProvider(
+            "org.picketlink.test.identity.federation.core.wstrust.SpecialTokenProvider", null);
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
-      provider = factory
-            .createTokenProvider("org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider", null);
+      provider = factory.createTokenProvider(
+            "org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider",
+            new HashMap<String, String>());
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SAML20TokenProvider);
 

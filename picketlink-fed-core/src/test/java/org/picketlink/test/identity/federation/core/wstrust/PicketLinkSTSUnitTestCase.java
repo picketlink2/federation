@@ -37,7 +37,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException; 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
@@ -66,6 +66,7 @@ import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
+import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
@@ -111,12 +112,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    /**
     * <p>
     * This test verifies that the STS service can read and load all configuration parameters correctly. The
-    * configuration file (jboss-sts.xml) looks like the following:
+    * configuration file (picketlink-sts.xml) looks like the following:
     * 
     * <pre>
     *    &lt;JBossSTS xmlns=&quot;urn:jboss:identity-federation:config:1.0&quot;
     *     STSName=&quot;Test STS&quot; TokenTimeout=&quot;7200&quot; EncryptToken=&quot;true&quot;&gt;
-    *     &lt;KeyProvider ClassName=&quot;org.picketlink.identity.federation.bindings.tomcat.KeyStoreKeyManager&quot;&gt;
+    *     &lt;KeyProvider ClassName=&quot;org.jboss.identity.federation.bindings.tomcat.KeyStoreKeyManager&quot;&gt;
     *         &lt;Auth Key=&quot;KeyStoreURL&quot; Value=&quot;keystore/sts_keystore.jks&quot;/&gt; 
     *         &lt;Auth Key=&quot;KeyStorePass&quot; Value=&quot;testpass&quot;/&gt;
     *         &lt;Auth Key=&quot;SigningKeyAlias&quot; Value=&quot;sts&quot;/&gt;
@@ -124,11 +125,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider1&quot; Value=&quot;service1&quot;/&gt;
     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider2&quot; Value=&quot;service2&quot;/&gt;
     *     &lt;/KeyProvider&gt;
-    *     &lt;RequestHandler&gt;org.picketlink.identity.federation.core.wstrust.StandardRequestHandler&lt;/RequestHandler&gt;
+    *     &lt;RequestHandler&gt;org.jboss.identity.federation.core.wstrust.StandardRequestHandler&lt;/RequestHandler&gt;
     *     &lt;TokenProviders&gt;
-    *         &lt;TokenProvider ProviderClass=&quot;org.picketlink.test.identity.federation.bindings.trust.SpecialTokenProvider&quot;
+    *         &lt;TokenProvider ProviderClass=&quot;org.jboss.test.identity.federation.bindings.trust.SpecialTokenProvider&quot;
     *             TokenType=&quot;http://www.tokens.org/SpecialToken&quot;/&gt;
-    *         &lt;TokenProvider ProviderClass=&quot;org.picketlink.identity.federation.core.wstrust.SAML20TokenProvider&quot;
+    *         &lt;TokenProvider ProviderClass=&quot;org.jboss.identity.federation.core.wstrust.SAML20TokenProvider&quot;
     *             TokenType=&quot;http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0&quot;/&gt;
     *     &lt;/TokenProviders&gt;
     *     &lt;ServiceProviders&gt;
@@ -209,7 +210,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This tests sends a security token request to JBossSTS custom {@code SpecialTokenProvider}. The returned response
+    * This tests sends a security token request to PicketLinkSTS custom {@code SpecialTokenProvider}. The returned response
     * is verified to make sure the expected tokens have been returned by the service. The token that is generated in
     * this test looks as follows:
     * 
@@ -245,7 +246,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This tests sends a SAMLV2.0 security token request to JBossSTS. This request should be handled by the standard
+    * This tests sends a SAMLV2.0 security token request to PicketLinkSTS. This request should be handled by the standard
     * {@code SAML20TokenProvider} and should result in a SAMLV2.0 assertion that looks like the following:
     * 
     * <pre>
@@ -606,6 +607,94 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
+    * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust cancel message to the STS to cancel
+    * the assertion. A canceled assertion cannot be renewed or considered valid anymore.
+    * </p>
+    * 
+    * @throws Exception
+    *            if an error occurs while running the test.
+    */
+   public void testInvokeSAML20Cancel() throws Exception
+   {
+      // create a simple token request.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+
+      // use the factory to marshall the request.
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service.
+      Source responseMessage = this.tokenService.invoke(requestMessage);
+      BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+
+      // validate the response and get the SAML assertion from the request.
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_BEARER_URI);
+      RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
+      Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
+            .getAny();
+
+      // now construct a WS-Trust cancel request with the generated assertion.
+      request = this.createRequest("cancelcontext", WSTrustConstants.CANCEL_REQUEST, null, null);
+      CancelTargetType cancelTarget = new CancelTargetType();
+      cancelTarget.setAny(assertion);
+      request.setCancelTarget(cancelTarget);
+
+      // invoke the token service.
+      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+
+      // validate the response contents.
+      assertNotNull("Unexpected null response", baseResponse);
+      assertTrue("Unexpected response type", baseResponse instanceof RequestSecurityTokenResponseCollection);
+      collection = (RequestSecurityTokenResponseCollection) baseResponse;
+      assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
+      RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
+      assertEquals("Unexpected response context", "cancelcontext", response.getContext());
+      assertNotNull("Cancel response should contain a RequestedTokenCancelled element", response
+            .getRequestedTokenCancelled());
+
+      // try to validate the canceled assertion.
+      request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, null, null);
+      ValidateTargetType validateTarget = new ValidateTargetType();
+      validateTarget.setAny(assertion);
+      request.setValidateTarget(validateTarget);
+
+      // the response should contain a status indicating that the token is not valid.
+      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      collection = (RequestSecurityTokenResponseCollection) factory.parseRequestSecurityTokenResponse(responseMessage);
+      assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
+      response = collection.getRequestSecurityTokenResponses().get(0);
+      assertEquals("Unexpected response context", "validatecontext", response.getContext());
+      assertEquals("Unexpected token type", WSTrustConstants.STATUS_TYPE, response.getTokenType().toString());
+      StatusType status = response.getStatus();
+      assertNotNull("Unexpected null status", status);
+      assertEquals("Unexpected status code", WSTrustConstants.STATUS_CODE_INVALID, status.getCode());
+      assertEquals("Unexpected status reason", "Validation failure: assertion with id " + assertion.getAttribute("ID")
+            + " is canceled", status.getReason());
+
+      // now try to renew the canceled assertion.
+      request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, null, null);
+      RenewTargetType renewTarget = new RenewTargetType();
+      renewTarget.setAny(assertion);
+      request.setRenewTarget(renewTarget);
+
+      // we should receive an exception when renewing the token.
+      try
+      {
+         this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+         fail("Renewing a canceled token should result in an exception being thrown");
+      }
+      catch (WebServiceException we)
+      {
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unexpected exception message", "Assertion with id " + assertion.getAttribute("ID")
+               + " is canceled and cannot be renewed", we.getCause().getMessage());
+      }
+   }
+
+   /**
+    * <p>
     * This test tries to request a token of an unknown type, checking if an exception is correctly thrown by the
     * security token service.
     * </p>
@@ -834,7 +923,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * Helper class that exposes the JBossSTS methods as public for the tests to work.
+    * Helper class that exposes the PicketLinkSTS methods as public for the tests to work.
     * </p>
     * 
     * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
@@ -856,7 +945,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * Helper class that mocks a {@code WebServiceContext}. It is used in the JBoss STS test cases.
+    * Helper class that mocks a {@code WebServiceContext}. It is used in the PicketLink STS test cases.
     * </p>
     * 
     * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>

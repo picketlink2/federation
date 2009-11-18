@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenResponseT
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
+import org.picketlink.identity.federation.ws.trust.RequestedTokenCancelledType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 
@@ -124,6 +125,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    private RequestedReferenceType requestedUnattachedReference;
 
    private RequestedProofTokenType requestedProofToken;
+
+   private RequestedTokenCancelledType requestedTokenCancelled;
 
    private EntropyType entropy;
 
@@ -231,6 +234,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
                   this.requestedUnattachedReference = (RequestedReferenceType) element.getValue();
                else if (localName.equalsIgnoreCase("RequestedProofToken"))
                   this.requestedProofToken = (RequestedProofTokenType) element.getValue();
+               else if (localName.equalsIgnoreCase("RequestedTokenCancelled"))
+                  this.requestedTokenCancelled = (RequestedTokenCancelledType) element.getValue();
                else if (localName.equalsIgnoreCase("Entropy"))
                   this.entropy = (EntropyType) element.getValue();
                else if (localName.equalsIgnoreCase("Lifetime"))
@@ -468,6 +473,35 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    {
       this.requestedProofToken = requestedProofToken;
       this.delegate.getAny().add(this.factory.createRequestedProofToken(requestedProofToken));
+   }
+
+   /**
+    * <p>
+    * Obtains the {@code RequestedTokenCancelled} section of the response, if it has been set. The presence of this
+    * element indicates that the security token specified in the cancel request has been successfully canceled by
+    * the STS.
+    * </p>
+    * 
+    * @return a reference to the {@code RequestedTokenCancelledType}, or {@code null} if the response doesn't have
+    * a {@code RequestedTokenCancelled} section.
+    */
+   public RequestedTokenCancelledType getRequestedTokenCancelled()
+   {
+      return this.requestedTokenCancelled;
+   }
+
+   /**
+    * <p>
+    * Sets the {@code RequestedTokenCancelled} section of the response. This element is used to inform the client that
+    * the token specified in a cancel request has been successfully canceled by the STS.
+    * </p>
+    * 
+    * @param requestedTokenCancelled a reference to the {@code RequestedTokenCancelledType}.
+    */
+   public void setRequestedTokenCancelled(RequestedTokenCancelledType requestedTokenCancelled)
+   {
+      this.requestedTokenCancelled = requestedTokenCancelled;
+      this.delegate.getAny().add(this.factory.createRequestedTokenCancelled(requestedTokenCancelled));
    }
 
    /**
@@ -1145,7 +1179,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    {
       return this.delegate.getAny();
    }
-   
+
    /**
     * <p>
     * Obtains a reference to the {@code RequestSecurityTokenResponseType} delegate.
