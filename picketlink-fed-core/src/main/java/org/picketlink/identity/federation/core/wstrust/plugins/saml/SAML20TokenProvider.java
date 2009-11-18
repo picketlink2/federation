@@ -111,7 +111,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
+    * 	cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -131,7 +132,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
+    * 	issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void issueToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -208,7 +210,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
+    * 	renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void renewToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -273,7 +276,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
+    * 	validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void validateToken(WSTrustRequestContext context) throws WSTrustException
    {
