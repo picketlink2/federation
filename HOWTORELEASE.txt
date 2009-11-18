@@ -1,0 +1,30 @@
+This cheatsheet assumes that you have understanding of maven and maven release plugin.
+
+Project: identity/identity-federation/trunk
+
+Step 1: Preparation
+
+$> mvn release:prepare
+
+Enter the release version you want such as 1.0.0.beta3  (look at for suggestions
+http://anonsvn.jboss.org/repos/jbossidentity/identity-federation/tags/ )
+
+For the next development version, you should do 1.0.0.beta3-SNAPSHOT
+which implies that is is a snapshot following the beta3 release.
+
+
+Step 2: Release Perform
+
+$> mvn release:perform
+
+
+After this, the archives are copied to your local repository on your machine where you will need to do the svn checkin of those files.
+
+
+Project: identity/consolidated-build
+Update the poms to include the latest idm and idfed components. Check repository.jboss.org/maven2/org/jboss/identity for latest jars.
+
+Do the release process as in idfed project.
+
+Again don't forget to svn checkin the released archives from local repo.
+

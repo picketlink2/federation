@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>org.jboss.identity</groupId>
+		<artifactId>jboss-identity-fed-parent</artifactId>
+		<version>1.0.0.beta3-SNAPSHOT</version>
+		<relativePath>../parent</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>jboss-identity-federation-webapps</artifactId>
+	<packaging>pom</packaging>
+	<name>JBoss Identity Federation Web Applications</name>
+	<url>http://labs.jboss.org/portal/jbosssecurity/</url>
+	<description>JBoss Identity Web Applications contains the web
+		applications for Federated Identity Needs.</description>
+	<licenses>
+		<license>
+			<name>lgpl</name>
+			<url>http://repository.jboss.com/licenses/lgpl.txt</url>
+		</license>
+	</licenses>
+	<organization>
+		<name>JBoss Inc.</name>
+		<url>http://www.jboss.org</url>
+	</organization>
+	<modules>
+		<module>sales</module>
+		<module>sales-sig</module>
+		<module>sales-post-sig</module>
+		<module>employee-post-sig</module>
+		<module>sales-standalone</module>
+		<module>employee</module>
+		<module>circleoftrust</module>
+		<module>idp</module>
+		<module>idp-sig</module>
+		<module>idp-sig-no-val</module>
+		<module>idp-standalone</module>
+		<module>metadata</module>
+		<module>openid-provider</module>
+		<module>openid-consumer</module>
+		<module>jboss-sts</module>
+		<module>pdp</module>
+		<module>seam-sp</module>
+		<module>fed-example</module>
+	</modules>
+</project>

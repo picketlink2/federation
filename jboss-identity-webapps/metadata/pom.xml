@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.jboss.identity</groupId>
+    <artifactId>jboss-identity-federation-webapps</artifactId>
+    <version>1.0.0.beta3-SNAPSHOT</version>
+    <relativePath>../</relativePath>
+  </parent>
+
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>metadata</artifactId>
+   <packaging>war</packaging>
+   <name>JBoss Identity Federation Metadata</name>
+   <url>http://labs.jboss.org/portal/jbosssecurity/</url>
+   <description>JBoss Identity Samples contains the samples for Federated Identity Needs.</description>
+   <licenses>
+      <license>
+         <name>lgpl</name>
+         <url>http://repository.jboss.com/licenses/lgpl.txt</url>
+      </license>
+   </licenses>
+   <organization>
+      <name>JBoss Inc.</name>
+      <url>http://www.jboss.org</url>
+   </organization>
+   <build>
+     <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.0.2</version>
+          <configuration>
+            <warName>metadata</warName>
+            <webappDirectory>${basedir}/resources/</webappDirectory>
+            <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+          </configuration>
+        </plugin>
+     </plugins>
+  </build>
+</project>

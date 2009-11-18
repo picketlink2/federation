@@ -1,0 +1,15 @@
+<JBossIDP xmlns="urn:jboss:identity-federation:config:1.0" >
+<IdentityURL>http://localhost:8080/idp-standalone/</IdentityURL>
+<Trust>
+   <Domains>localhost,jboss.com,jboss.org</Domains>
+</Trust>
+<KeyProvider ClassName="org.jboss.identity.federation.bindings.tomcat.KeyStoreKeyManager">
+  <Auth Key="KeyStoreURL" Value="jbid_test_keystore.jks" />
+  <Auth Key="KeyStorePass" Value="store123" />
+  <Auth Key="SigningKeyPass" Value="test123" />
+  <Auth Key="SigningKeyAlias" Value="servercert" />
+  <ValidatingAlias Key="localhost" Value="servercert"/>
+  <ValidatingAlias Key="127.0.0.1" Value="servercert"/>
+</KeyProvider>
+
+</JBossIDP>

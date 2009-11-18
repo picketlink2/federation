@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5"> 
+
+  <display-name>Standalone IDP</display-name>
+  <description>
+    IDP Standalone Application
+  </description>
+
+  <!-- Listeners -->
+  <listener>
+    <listener-class>org.jboss.identity.federation.web.core.IdentityServer</listener-class>
+  </listener>
+
+
+  <!-- Create the servlet -->
+  <servlet>
+    <servlet-name>IDPLoginServlet</servlet-name>
+    <servlet-class>org.jboss.identity.federation.web.servlets.IDPLoginServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>IDPServlet</servlet-name>
+    <servlet-class>org.jboss.identity.federation.web.servlets.IDPServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>IDPLoginServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>IDPServlet</servlet-name>
+    <url-pattern>/IDPServlet</url-pattern>
+  </servlet-mapping>
+
+</web-app>

@@ -1,0 +1,7 @@
+<Context>
+	<Valve
+		className="org.jboss.identity.federation.bindings.tomcat.idp.IDPSAMLDebugValve" />
+	<Valve
+		className="org.jboss.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve"
+		ignoreIncomingSignatures="false" />
+</Context>

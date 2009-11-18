@@ -1,0 +1,4 @@
+<Context>
+  <Valve className="org.jboss.identity.federation.bindings.tomcat.sp.SPPostFormAuthenticator"
+  />
+</Context>

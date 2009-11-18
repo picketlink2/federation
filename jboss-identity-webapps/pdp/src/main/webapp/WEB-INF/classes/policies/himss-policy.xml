@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os" 
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+           xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+           PolicySetId="urn:oasis:names:tc:xspa:1.0" 
+           PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Target />
+  <PolicySet PolicySetId="urn:oasis:names:tc:xspa:1.0:org" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+    <Description>Contains all organizational policies which are evaluated on all requests.</Description>
+    <Target />    
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:org:allowed:organizations" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        The organization denies the request if the subject is attempting to access 
+        a resource and is not a member of the allowed organizations.
+      </Description>
+      <Target />
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:org:allowed:organizations:deny" Effect="Deny">
+        <Description>Evaluates the allowed-organizations (if available) against the subject's locality.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:allowed-organizations" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:locality" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:allowed-organizations" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              </Apply>              
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:org:hoursofoperations" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        The organization denies the request if the subject is attempting to access
+        the resource outside of the alloted time.
+      </Description>
+      <Target />
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:org:hoursofoperation:deny" Effect="Deny">
+        <Description>Evaluates the environment time against the hours of operation start and end.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-greater-than-or-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                  <EnvironmentAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-time" DataType="http://www.w3.org/2001/XMLSchema#time" />
+                </Apply>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:hoursofoperation:start" DataType="http://www.w3.org/2001/XMLSchema#time" />
+                </Apply>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-less-than-or-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                  <EnvironmentAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-time" DataType="http://www.w3.org/2001/XMLSchema#time" />
+                </Apply>
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:hoursofoperation:end" DataType="http://www.w3.org/2001/XMLSchema#time" />
+                </Apply>
+              </Apply>
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+
+    <!-- SUBJECT.STRUCTURED-ROLE NOT IN ORG.REQUIRED-ROLES -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:org:required:roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        The organization denies the request if the subject is attempting to access 
+        a resource and they are not a member of the required role(s).
+      </Description>
+      <Target />
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:org:required:roles:deny" Effect="Deny">
+        <Description>Evaluates the organization roles (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">                
+                <!-- MAY NEED TO SWITCH ~~ Is this a one to many relationship?  Are all roles required or does the subject just need to be included? -->
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:role" DataType="http://www.w3.org/2001/XMLSchema#string" />                
+              </Apply>
+            </Apply>            
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+
+    <!-- SUBJECT.PERMISSIONS NOT IN ORG.RESOURCE.PERMISSIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:org.resource.permissions" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        The organization denies the request if the subject does not have adequate
+        permissions to access the resource.
+      </Description>
+      <Target />
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:org:resource.permissions:deny" Effect="Deny">
+        <Description>Evaluates the required permissions (if available) against the subject's permissions.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:hl7:permission" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:org:hl7:permission" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:hl7:permission" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              </Apply>                
+            </Apply>             
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:org.catch-all" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides">
+      <Description></Description>
+      <Target />
+      <Rule RuleId="" Effect="Permit"></Rule>
+    </Policy>
+  </PolicySet>
+
+  <PolicySet PolicySetId="urn:oasis:names:tc:xspa:1.0:patient" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+    <Description>These policies are patient consent directives and are invoked on medical-record requests.</Description>
+    <Target />
+
+    <!-- (RESOURCE.RESOURCETYPE IN PATIENT.MASKEDOBJECT) AND (SUBJECT.ROLE IN PATIENT.MA.DISSENTING-ROLES) -->
+    <!-- PROBLEMS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:problems:dissenting-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for problems from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:problems:dissenting-roles:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-roles for problems (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-role" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    <!-- MEDICATIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:medications:dissenting-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for medications from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:medications:dissenting-roles:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-roles for medications (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-role" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    <!-- ALERTS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:alerts:dissenting-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request alerts from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:alerts:dissenting-roles:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-roles for alerts (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-role" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+
+    <!-- IMMUNIZATIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:immunizations:dissenting-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for immunizations from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:immunizations:dissenting-roles:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-roles for immunizations (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-role" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+
+    <!-- (RESOURCE.RESOURCETYPE IN PATIENT.MASKEDOBJECT) AND (SUBJECT.ROLE IN PATIENT.MA.DISSENTING-ROLES) -->
+    <!-- PROBLEMS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:problems:dissenting-subject-ids" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for problems from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:problems:dissenting-subject-ids:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-subject-id's for problems (if available) against the subject's NPI.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Problems:dissenting-subject-id" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    <!-- MEDICATIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:medications:dissenting-subject-ids" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for medications from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:medications:dissenting-subject-ids:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-subject-id's for medications (if available) against the subject's NPI.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Medications:dissenting-subject-id" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    <!-- ALERTS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:alerts:dissenting-subject-ids" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for alerts from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:alerts:dissenting-subject-ids:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-subject-id's for alerts (if available) against the subject's NPI.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Alerts:dissenting-subject-id" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    <!-- IMMUNIZATIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:immunizations:dissenting-subject-ids" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request for immunizations from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:immunizations:dissenting-subject-ids:permit" Effect="Permit">
+        <Description>Evaluates the dissenting-subject-id's for immunizations (if available) against the subject's NPI.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>      
+      <Obligations>
+        <Obligation ObligationId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:Immunizations:dissenting-subject-id" FulfillOn="Permit"></Obligation>
+      </Obligations>
+    </Policy>
+    
+    <!-- SUBJECT.LOCALITY NOT IN PATIENT.ALLOWED-ORGANIZATIONS -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:patient:allowed:organizations" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request from the subject if their locality is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:patient:allowed:organizations:deny" Effect="Deny">
+        <Description>Evaluates the allowed-organizations (if available) against the subject's locality.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:allowed-organizations" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:locality" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:allowed-organizations" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              </Apply>
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+
+    <!-- SUBJECT.ROLE IN PATIENT.DISSENTING-ROLES -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:dissenting:role" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request from the subject if their role is not permitted by the patient.
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:patient:dissenting:roles:deny" Effect="Deny">
+        <Description>Evaluates the dissenting-role (if available) against the subject's role.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">                        
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:dissenting-role" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>            
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+
+    <!-- SUBJECT.ID IN PATIENT.DISSENTING-ID -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0:resource:patient:dissenting-subject-ids" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request from the subject if the NPI is not permitted by the patient.
+      </Description>
+      <Target />
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0:resource:patient:masked:problems:dissenting-subject-ids:deny" Effect="Deny">
+        <Description>Evaluates the dissenting-subject-id (if available) against the subject's NPI.</Description>
+        <Target>
+          <Resources>
+            <Resource>
+              <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+                <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              </ResourceMatch>
+            </Resource>
+          </Resources>
+        </Target>
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+              <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:integer-equal">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag-size">
+                  <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                </Apply>
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#integer">0</AttributeValue>
+              </Apply>
+            </Apply>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+              <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:patient:dissenting-subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+
+    <!-- CONFIDENTIALITY -->
+    <Policy PolicyId="urn:oasis:names:tc:xspa:1.0.resource:patient:hl7:confidentiality-codes" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+      <Description>
+        Denies the request from the subject if the confidentiality code is set to "Sensitive".  This policy
+        is acting as the "Catch-All".
+      </Description>
+      <Target>
+        <Resources>
+          <Resource>
+            <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oasis:names:tc:xspa:1.0:resource:hl7:type:medical-record</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:resource:hl7:type" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </ResourceMatch>
+          </Resource>
+        </Resources>
+      </Target>
+      <Rule RuleId="urn:oasis:names:tc:xspa:1.0.resource:patient:hl7:confidentiality-code:deny" Effect="Deny">
+        <Description>Evaluates the HL7 confidentiality-code.</Description>
+        <Target />
+        <Condition>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+              <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">S</AttributeValue>
+              <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0.resource:patient:hl7:confidentiality-code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+            </Apply>
+          </Apply>
+        </Condition>
+      </Rule>
+    </Policy>
+  </PolicySet>
+</PolicySet>
