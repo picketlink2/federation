@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.xmlsec.w3.xmldsig;
+package org.picketlink.identity.xmlsec.w3.xmldsig;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.wstrust;
+package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -37,28 +37,28 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.wstrust.StandardSecurityToken;
-import org.jboss.identity.federation.core.wstrust.WSTrustConstants;
-import org.jboss.identity.federation.core.wstrust.WSTrustRequestContext;
-import org.jboss.identity.federation.core.wstrust.WSTrustUtil;
-import org.jboss.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
-import org.jboss.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.Lifetime;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionsType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
-import org.jboss.identity.federation.ws.trust.RequestedReferenceType;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.ValidateTargetType;
-import org.jboss.identity.federation.ws.wss.secext.KeyIdentifierType;
-import org.jboss.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.jboss.identity.xmlsec.w3.xmldsig.X509DataType;
-import org.jboss.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
+import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
+import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
 import org.w3c.dom.Element;
 
 /**
@@ -93,7 +93,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       new SAML20TokenProvider().issueToken(context);
       assertNotNull("Unexpected null security token", context.getSecurityToken());
 
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.jboss.identity.federation.saml.v2.assertion");
+      JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.federation.saml.v2.assertion");
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       JAXBElement<?> parsedElement = (JAXBElement<?>) unmarshaller.unmarshal((Element) context.getSecurityToken()
             .getTokenValue());

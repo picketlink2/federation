@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.web.integration;
+package org.picketlink.test.identity.federation.web.integration;
 
 import javax.servlet.http.HttpSessionEvent;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.web.core.IdentityServer;
-import org.jboss.test.identity.federation.web.mock.MockHttpSession;
-import org.jboss.test.identity.federation.web.mock.MockServletContext;
+import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
+import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 
 /**
  * Unit test the Identity Server

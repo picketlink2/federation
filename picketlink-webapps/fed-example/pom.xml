@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>jboss-identity-federation-webapps</artifactId>
-		<groupId>org.jboss.identity</groupId>
+		<artifactId>picketlink-federation-webapps</artifactId>
+		<groupId>org.picketlink</groupId>
 		<version>1.0.0.beta3-SNAPSHOT</version>
 	</parent>
-	<groupId>org.jboss.identity</groupId>
+	<groupId>org.picketlink</groupId>
 	<artifactId>fed-example</artifactId>
 	<packaging>ear</packaging>
 	<name>fed-example JEE5 Assembly</name>
@@ -34,13 +34,13 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
+			<groupId>org.picketlink</groupId>
 			<artifactId>idp-sig-no-val</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
+			<groupId>org.picketlink</groupId>
 			<artifactId>seam-sp</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>

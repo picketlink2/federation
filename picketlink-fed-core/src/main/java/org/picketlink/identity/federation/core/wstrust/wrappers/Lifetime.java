@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.wrappers;
+package org.picketlink.identity.federation.core.wstrust.wrappers;
 
 import java.util.GregorianCalendar;
 
@@ -27,8 +27,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jboss.identity.federation.ws.trust.LifetimeType;
-import org.jboss.identity.federation.ws.wss.utility.AttributedDateTime;
+import org.picketlink.identity.federation.ws.trust.LifetimeType;
+import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 
 /**
  * <p>

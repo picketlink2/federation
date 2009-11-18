@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.ws.trust;
+package org.picketlink.test.identity.federation.ws.trust;
 
 import java.io.File;
 import java.net.URI;
@@ -31,8 +31,8 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenCollectionType;
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenType;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenCollectionType;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
 
 /**
  * <p>
@@ -54,7 +54,7 @@ public class UnmarshallingTestCase extends TestCase
    @SuppressWarnings("unchecked")
    public void testUnmarshallTokenRequest() throws Exception
    {
-      JAXBContext context = JAXBContext.newInstance("org.jboss.identity.federation.ws.policy:org.jboss.identity.federation.ws.trust");
+      JAXBContext context = JAXBContext.newInstance("org.picketlink.identity.federation.ws.policy:org.picketlink.identity.federation.ws.trust");
       Unmarshaller unmarshaller = context.createUnmarshaller();
       // this.setValidatingSchema("/schema/wstrust/v1_3/ws-trust-1.3.xsd", unmarshaller);
 
@@ -95,7 +95,7 @@ public class UnmarshallingTestCase extends TestCase
    @SuppressWarnings("unchecked")
    public void testUnmarshallTokenCollectionRequest() throws Exception
    {
-      JAXBContext context = JAXBContext.newInstance("org.jboss.identity.federation.ws.trust");
+      JAXBContext context = JAXBContext.newInstance("org.picketlink.identity.federation.ws.trust");
       Unmarshaller unmarshaller = context.createUnmarshaller();
       // this.setValidatingSchema("/schema/wstrust/v1_3/ws-trust-1.3.xsd", unmarshaller);
 

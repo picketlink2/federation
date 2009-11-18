@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.addressing;
+package org.picketlink.identity.federation.ws.addressing;
 
 import java.math.BigInteger;
 import java.util.HashMap;

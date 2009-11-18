@@ -19,17 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.saml.v2.metadata;
+package org.picketlink.identity.federation.api.saml.v2.metadata;
 
 import java.math.BigInteger;
 
-import org.jboss.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.KeyTypes;
-import org.jboss.identity.federation.saml.v2.metadata.ObjectFactory;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.jboss.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
+import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * MetaDataBuilder for the KeyDescriptor

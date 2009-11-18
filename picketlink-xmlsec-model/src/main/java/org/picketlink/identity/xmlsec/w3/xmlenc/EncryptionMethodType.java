@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.xmlsec.w3.xmlenc;
+package org.picketlink.identity.xmlsec.w3.xmlenc;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

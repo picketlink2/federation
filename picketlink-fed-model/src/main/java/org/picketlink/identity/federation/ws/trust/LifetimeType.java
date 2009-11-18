@@ -6,14 +6,14 @@
 //
 
 
-package org.jboss.identity.federation.ws.trust;
+package org.picketlink.identity.federation.ws.trust;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.federation.ws.wss.utility.AttributedDateTime;
+import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 
 
 /**

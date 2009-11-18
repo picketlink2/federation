@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.trust;
+package org.picketlink.identity.federation.ws.trust;
 
 import java.util.HashMap;
 import java.util.Map;

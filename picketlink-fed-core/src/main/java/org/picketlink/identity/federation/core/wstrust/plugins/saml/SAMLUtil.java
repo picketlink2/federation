@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.plugins.saml;
+package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -27,10 +27,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.dom.DOMResult;
 
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -69,7 +69,7 @@ public class SAMLUtil
    {
       Document document = DocumentUtil.createDocument();
       DOMResult result = new DOMResult(document);
-      Marshaller marshaller = JAXBUtil.getMarshaller("org.jboss.identity.federation.saml.v2.assertion");
+      Marshaller marshaller = JAXBUtil.getMarshaller("org.picketlink.identity.federation.saml.v2.assertion");
       marshaller.marshal(new ObjectFactory().createAssertion(assertion), result);
 
       // normalize the document to remove unused namespaces.
@@ -94,7 +94,7 @@ public class SAMLUtil
    @SuppressWarnings("unchecked")
    public static AssertionType fromElement(Element assertionElement) throws JAXBException
    {
-      Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.jboss.identity.federation.saml.v2.assertion");
+      Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.saml.v2.assertion");
       Object object = unmarshaller.unmarshal(assertionElement);
       if (object instanceof AssertionType)
          return (AssertionType) object;

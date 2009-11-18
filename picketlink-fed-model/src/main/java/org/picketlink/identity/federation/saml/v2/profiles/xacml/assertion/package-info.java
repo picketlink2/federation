@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:xacml:2.0:saml:assertion:schema:os", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.jboss.identity.federation.saml.v2.profiles.xacml.assertion;
+package org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion;

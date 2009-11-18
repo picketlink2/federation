@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
 	<display-name>IDP</display-name>
-	<description> IDP Web Application for the JBoss Identity project 
+	<description> IDP Web Application for the PicketLink project 
 	</description>
 	<!--
 		Define a security constraint that gives unlimted access to images
@@ -31,7 +31,7 @@
   <!-- Define the Login Configuration for this Application -->
 	<login-config>
 		<auth-method>FORM</auth-method>
-		<realm-name>JBoss Identity IDP Application</realm-name>
+		<realm-name>PicketLink IDP Application</realm-name>
 		<form-login-config>
 			<form-login-page>/jsp/login.jsp</form-login-page>
 			<form-error-page>/jsp/login-error.jsp</form-error-page>

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.seam.federation;
+package org.picketlink.identity.seam.federation;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;

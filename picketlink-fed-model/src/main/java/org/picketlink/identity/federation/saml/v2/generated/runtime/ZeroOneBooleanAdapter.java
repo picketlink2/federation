@@ -34,7 +34,7 @@
  * holder.
  */
 
-package org.jboss.identity.federation.saml.v2.generated.runtime;
+package org.picketlink.identity.federation.saml.v2.generated.runtime;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.XmlAdapter;

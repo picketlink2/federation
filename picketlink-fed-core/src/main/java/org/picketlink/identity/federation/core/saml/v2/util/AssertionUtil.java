@@ -19,21 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.util;
+package org.picketlink.identity.federation.core.saml.v2.util;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionsType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
 
 /**
  * Utility to deal with assertions

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.smartcardpki;
+package org.picketlink.identity.federation.saml.v2.ac.classes.smartcardpki;
 
 import java.util.ArrayList;
 import java.util.List;

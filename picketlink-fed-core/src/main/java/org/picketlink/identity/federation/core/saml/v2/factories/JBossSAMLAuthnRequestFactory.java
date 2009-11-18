@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.factories;
+package org.picketlink.identity.federation.core.saml.v2.factories;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -27,12 +27,12 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.jboss.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.xml.sax.SAXException;
 
 /**
@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
  */
 public class JBossSAMLAuthnRequestFactory
 { 
-   private static String pkgName = "org.jboss.identity.federation.saml.v2.protocol:org.jboss.identity.xmlsec.w3.xmldsig";
+   private static String pkgName = "org.picketlink.identity.federation.saml.v2.protocol:org.picketlink.identity.xmlsec.w3.xmldsig";
    private static String schemaLocation = "schema/saml/v2/saml-schema-protocol-2.0.xsd";
    
    /**

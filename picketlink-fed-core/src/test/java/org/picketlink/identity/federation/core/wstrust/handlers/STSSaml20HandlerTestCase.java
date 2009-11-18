@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.handlers;
+package org.picketlink.identity.federation.core.wstrust.handlers;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -37,11 +37,11 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig.Builder;
-import org.jboss.identity.federation.core.wstrust.handlers.STSSaml20Handler;
-import org.jboss.identity.federation.core.wstrust.handlers.STSSecurityHandler;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.handlers.STSSaml20Handler;
+import org.picketlink.identity.federation.core.wstrust.handlers.STSSecurityHandler;
 import org.w3c.dom.Element;
 
 /**

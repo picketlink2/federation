@@ -19,10 +19,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
-import org.jboss.identity.federation.saml.v2.SAML2Object;
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenType;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
 
 /**
  * A Security Token that is based on SAML2

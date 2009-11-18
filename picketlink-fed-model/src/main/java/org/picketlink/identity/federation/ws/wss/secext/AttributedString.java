@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.wss.secext;
+package org.picketlink.identity.federation.ws.wss.secext;
 
 import java.util.HashMap;
 import java.util.Map;

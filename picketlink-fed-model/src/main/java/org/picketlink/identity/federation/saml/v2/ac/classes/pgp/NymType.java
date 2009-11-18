@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.pgp;
+package org.picketlink.identity.federation.saml.v2.ac.classes.pgp;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;

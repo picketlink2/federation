@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.util;
+package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.io.StringReader;
 
@@ -30,12 +30,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.assertion.ObjectFactory;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.ObjectFactory;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Element;
 
 /**
@@ -46,18 +46,18 @@ import org.w3c.dom.Element;
  */
 public class SOAPSAMLXACMLUtil
 {   
-   private static String SOAP_PKG = "org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope";
-   private static String SAML_PROTO_PKG = "org.jboss.identity.federation.saml.v2.protocol";
+   private static String SOAP_PKG = "org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope";
+   private static String SAML_PROTO_PKG = "org.picketlink.identity.federation.saml.v2.protocol";
    private static String XACML_CTX_PKG = "org.jboss.security.xacml.core.model.context";
-   private static String XACML_SAMLPROTO_PKG = "org.jboss.identity.federation.saml.v2.profiles.xacml.protocol";
-   private static String XACML_SAMLASSERT_PKG = "org.jboss.identity.federation.saml.v2.profiles.xacml.assertion";
+   private static String XACML_SAMLPROTO_PKG = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
+   private static String XACML_SAMLASSERT_PKG = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
    
    private static String COLON = ":";
    
    private static String collectivePackage = getPackage();
    
-   private static org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory
-       queryTypeObjectFactory = new org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory();
+   private static org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory
+       queryTypeObjectFactory = new org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory();
    
    private static ObjectFactory statementObjectFactory = new ObjectFactory();
    

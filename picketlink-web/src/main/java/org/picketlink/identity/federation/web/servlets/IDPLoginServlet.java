@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.servlets;
+package org.picketlink.identity.federation.web.servlets;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -34,9 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.handlers.DefaultLoginHandler;
-import org.jboss.identity.federation.web.interfaces.ILoginHandler;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.handlers.DefaultLoginHandler;
+import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**
  * Handles login at the IDP

@@ -19,9 +19,9 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.xmlenc.factories;
+package org.picketlink.identity.federation.core.xmlenc.factories;
 
-import org.jboss.identity.xmlsec.w3.xmlenc.ObjectFactory;
+import org.picketlink.identity.xmlsec.w3.xmlenc.ObjectFactory;
  
 
 /**

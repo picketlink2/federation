@@ -19,20 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.wstrust;
+package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.wstrust.SecurityToken;
-import org.jboss.identity.federation.core.wstrust.SecurityTokenProvider;
-import org.jboss.identity.federation.core.wstrust.StandardSecurityToken;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
-import org.jboss.identity.federation.core.wstrust.WSTrustRequestContext;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.wstrust.SecurityToken;
+import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,7 +51,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
     */
    public void initialize(Map<String, String> properties)
    {
@@ -61,7 +61,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -70,7 +70,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void issueToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -113,7 +113,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void renewToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -122,7 +122,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void validateToken(WSTrustRequestContext context) throws WSTrustException
    {

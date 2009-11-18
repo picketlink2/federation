@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.profiles.sso.ecp;
+package org.picketlink.identity.federation.saml.v2.profiles.sso.ecp;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jboss.identity.federation.saml.v2.generated.runtime.ZeroOneBooleanAdapter;
+import org.picketlink.identity.federation.saml.v2.generated.runtime.ZeroOneBooleanAdapter;
 
 
 /**

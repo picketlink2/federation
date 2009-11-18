@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.web.openid;
+package org.picketlink.test.identity.federation.web.openid;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,12 +27,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-import org.jboss.identity.federation.api.openid.OpenIDAttributeMap;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycle;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycleEvent;
-import org.jboss.identity.federation.api.openid.OpenIDProtocolAdapter;
-import org.jboss.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
-import org.jboss.identity.federation.api.openid.exceptions.OpenIDProtocolException;
+import org.picketlink.identity.federation.api.openid.OpenIDAttributeMap;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycle;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent;
+import org.picketlink.identity.federation.api.openid.OpenIDProtocolAdapter;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
 
 /**
  * Adapter that is in memory or the same VM

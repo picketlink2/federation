@@ -19,20 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.api.saml.v2;
+package org.picketlink.test.identity.federation.api.saml.v2;
 
 import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.api.saml.v2.response.SAML2Response;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
-import org.jboss.identity.federation.core.saml.v2.holders.IDPInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.SPInfoHolder;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
+import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 
 
 /**

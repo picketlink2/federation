@@ -19,21 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.handlers.saml2;
+package org.picketlink.identity.federation.web.handlers.saml2;
  
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
  * Base Class for SAML2 handlers

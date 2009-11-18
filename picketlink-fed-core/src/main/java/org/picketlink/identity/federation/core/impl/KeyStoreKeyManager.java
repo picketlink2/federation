@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.impl;
+package org.picketlink.identity.federation.core.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,13 +43,13 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.config.AuthPropertyType;
-import org.jboss.identity.federation.core.config.KeyValueType;
-import org.jboss.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.jboss.identity.federation.core.interfaces.TrustKeyManager;
-import org.jboss.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.jboss.identity.federation.core.util.EncryptionKeyUtil;
-import org.jboss.identity.federation.core.util.KeyStoreUtil;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.util.EncryptionKeyUtil;
+import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 
 /**
  * KeyStore based Trust Key Manager
@@ -125,7 +125,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.bindings.interfaces.TrustKeyManager#getSigningKeyPair()
+    * @see org.picketlink.identity.federation.bindings.interfaces.TrustKeyManager#getSigningKeyPair()
     */
    public KeyPair getSigningKeyPair()
    throws TrustKeyConfigurationException, TrustKeyProcessingException

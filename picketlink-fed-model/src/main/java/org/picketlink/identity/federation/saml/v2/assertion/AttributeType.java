@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.assertion;
+package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.saml.v2.metadata.RequestedAttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
 
 
 /**

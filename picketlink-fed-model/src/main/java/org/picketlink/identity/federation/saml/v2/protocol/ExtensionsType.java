@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.protocol;
+package org.picketlink.identity.federation.saml.v2.protocol;
 
 import java.util.ArrayList;
 import java.util.List;

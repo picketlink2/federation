@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.handlers;
+package org.picketlink.identity.federation.web.handlers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import javax.security.auth.login.LoginException;
 
-import org.jboss.identity.federation.web.interfaces.ILoginHandler;
+import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**
  * Default LoginHandler that uses a properties file

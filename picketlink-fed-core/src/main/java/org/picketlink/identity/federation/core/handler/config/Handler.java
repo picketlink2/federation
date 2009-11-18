@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.core.handler.config;
+package org.picketlink.identity.federation.core.handler.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType; 
 
-import org.jboss.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
 
 
 /**

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.protocol;
+package org.picketlink.identity.federation.saml.v2.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.federation.saml.v2.assertion.ActionType;
-import org.jboss.identity.federation.saml.v2.assertion.EvidenceType;
+import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
+import org.picketlink.identity.federation.saml.v2.assertion.EvidenceType;
 
 
 /**

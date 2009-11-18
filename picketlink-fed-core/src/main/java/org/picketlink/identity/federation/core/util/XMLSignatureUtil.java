@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.util;
+package org.picketlink.identity.federation.core.util;
 
 import java.io.OutputStream;
 import java.security.AccessController;
@@ -60,11 +60,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.xmlsec.w3.xmldsig.ObjectFactory;
-import org.jboss.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -80,7 +80,7 @@ public class XMLSignatureUtil
    private static Logger log = Logger.getLogger(XMLSignatureUtil.class);
    private static boolean trace = log.isTraceEnabled();
    
-   private static String pkgName = "org.jboss.identity.federation.w3.xmldsig";
+   private static String pkgName = "org.picketlink.identity.federation.w3.xmldsig";
    private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd"; 
    
    private static ObjectFactory objectFactory = new ObjectFactory();

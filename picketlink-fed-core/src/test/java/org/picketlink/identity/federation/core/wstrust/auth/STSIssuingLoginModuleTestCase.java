@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.auth;
+package org.picketlink.identity.federation.core.wstrust.auth;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,11 +33,11 @@ import javax.security.auth.callback.CallbackHandler;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.wstrust.SamlCredential;
-import org.jboss.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.jboss.identity.federation.core.wstrust.auth.STSIssuingLoginModule;
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
+import org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.w3c.dom.Element;
 
 /**

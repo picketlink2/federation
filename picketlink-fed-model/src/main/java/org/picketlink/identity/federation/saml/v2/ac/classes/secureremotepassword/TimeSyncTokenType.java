@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.secureremotepassword;
+package org.picketlink.identity.federation.saml.v2.ac.classes.secureremotepassword;
 
 import java.math.BigInteger;
 

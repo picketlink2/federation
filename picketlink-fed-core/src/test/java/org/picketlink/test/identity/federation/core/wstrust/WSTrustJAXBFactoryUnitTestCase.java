@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.wstrust;
+package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.net.URI;
 
@@ -28,13 +28,13 @@ import javax.xml.transform.dom.DOMSource;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.wstrust.WSTrustJAXBFactory;
-import org.jboss.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.BaseRequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
+import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.w3c.dom.Document;
 
 /**

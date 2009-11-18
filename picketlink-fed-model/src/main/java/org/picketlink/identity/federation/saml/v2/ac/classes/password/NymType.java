@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.password;
+package org.picketlink.identity.federation.saml.v2.ac.classes.password;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;

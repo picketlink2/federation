@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.previoussession;
+package org.picketlink.identity.federation.saml.v2.ac.classes.previoussession;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

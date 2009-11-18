@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.assertion;
+package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.util.ArrayList;
 import java.util.HashMap;

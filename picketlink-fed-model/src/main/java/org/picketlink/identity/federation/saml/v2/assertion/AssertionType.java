@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.assertion;
+package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jboss.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
  
 
 

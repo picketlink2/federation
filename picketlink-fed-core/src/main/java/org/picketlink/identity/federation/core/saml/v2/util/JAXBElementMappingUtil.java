@@ -19,28 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.util;
+package org.picketlink.identity.federation.core.saml.v2.util;
 
 import javax.xml.bind.JAXBElement;
 
-import org.jboss.identity.federation.core.factories.SOAPFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.XACMLStatementFactory;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.jboss.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.jboss.identity.federation.saml.v2.protocol.ArtifactResolveType;
-import org.jboss.identity.federation.saml.v2.protocol.ArtifactResponseType;
-import org.jboss.identity.federation.saml.v2.protocol.AssertionIDRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.ManageNameIDRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.NameIDMappingRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.NameIDMappingResponseType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.core.factories.SOAPFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.XACMLStatementFactory;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
+import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.AssertionIDRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ManageNameIDRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.NameIDMappingRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.NameIDMappingResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 
 /**
  * Maps various saml/xacml types to their corresponding JAXBElement

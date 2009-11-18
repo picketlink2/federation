@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.jboss.identity.federation.saml.v2.profiles.sso.ecp;
+package org.picketlink.identity.federation.saml.v2.profiles.sso.ecp;

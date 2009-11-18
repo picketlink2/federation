@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.config;
+package org.picketlink.test.identity.federation.core.config;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,20 +29,20 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.config.AuthPropertyType;
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.config.KeyProviderType;
-import org.jboss.identity.federation.core.config.KeyValueType;
-import org.jboss.identity.federation.core.config.SPType;
-import org.jboss.identity.federation.core.config.STSType;
-import org.jboss.identity.federation.core.config.ServiceProviderType;
-import org.jboss.identity.federation.core.config.ServiceProvidersType;
-import org.jboss.identity.federation.core.config.TokenProviderType;
-import org.jboss.identity.federation.core.config.TokenProvidersType;
-import org.jboss.identity.federation.core.config.TrustType;
-import org.jboss.identity.federation.core.handler.config.Handler;
-import org.jboss.identity.federation.core.handler.config.Handlers;
-import org.jboss.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.config.STSType;
+import org.picketlink.identity.federation.core.config.ServiceProviderType;
+import org.picketlink.identity.federation.core.config.ServiceProvidersType;
+import org.picketlink.identity.federation.core.config.TokenProviderType;
+import org.picketlink.identity.federation.core.config.TokenProvidersType;
+import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.identity.federation.core.handler.config.Handler;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 
 /**
  * Unit Test the various config
@@ -63,7 +63,7 @@ public class ConfigUnitTestCase extends TestCase
 
       IDPType idp = ((JAXBElement<IDPType>) object).getValue();
       assertEquals("300000", 300000L, idp.getAssertionValidity());
-      assertEquals("org.jboss.identity.federation.bindings.tomcat.TomcatRoleGenerator", idp.getRoleGenerator());
+      assertEquals("org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator", idp.getRoleGenerator());
 
       TrustType trust = idp.getTrust();
       assertNotNull("Trust is not null", trust);
@@ -147,7 +147,7 @@ public class ConfigUnitTestCase extends TestCase
       // we don't verify all values of the key provider config as it has been done in the other test scenarios.
       assertNotNull("Unexpected null key provider", stsType.getKeyProvider());
       // request handler and configurations based on the token type.
-      assertEquals("Unexpected request handler class", "org.jboss.identity.federation.wstrust.Handler", stsType
+      assertEquals("Unexpected request handler class", "org.picketlink.identity.federation.wstrust.Handler", stsType
             .getRequestHandler());
       // configuration of the token providers.
       TokenProvidersType tokenProviders = stsType.getTokenProviders();
@@ -196,15 +196,15 @@ public class ConfigUnitTestCase extends TestCase
 
    private Object unmarshall(String configFile) throws Exception
    {
-      String[] schemas = new String[] { "schema/config/jboss-identity-fed.xsd",
-            "schema/config/jboss-identity-fed-handler.xsd"};
+      String[] schemas = new String[] { "schema/config/picketlink-fed.xsd",
+            "schema/config/picketlink-fed-handler.xsd"};
 
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(configFile);
       assertNotNull("Inputstream not null for config file:" + configFile, is);
 
-      String[] pkgNames = new String[] {"org.jboss.identity.federation.core.config",
-                                        "org.jboss.identity.federation.core.handler.config"};
+      String[] pkgNames = new String[] {"org.picketlink.identity.federation.core.config",
+                                        "org.picketlink.identity.federation.core.handler.config"};
       Unmarshaller un = JAXBUtil.getValidatingUnmarshaller(pkgNames,
             schemas);
       return un.unmarshal(is);

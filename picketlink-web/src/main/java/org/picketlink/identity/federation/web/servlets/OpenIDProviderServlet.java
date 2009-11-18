@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.servlets;
+package org.picketlink.identity.federation.web.servlets;
 
 import java.io.IOException;
 
@@ -31,9 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.jboss.identity.federation.api.openid.provider.OpenIDParameterList;
-import org.jboss.identity.federation.api.openid.provider.OpenIDProviderManager;
-import org.jboss.identity.federation.api.openid.provider.OpenIDProviderManager.OpenIDMessage;
+import org.picketlink.identity.federation.api.openid.provider.OpenIDParameterList;
+import org.picketlink.identity.federation.api.openid.provider.OpenIDProviderManager;
+import org.picketlink.identity.federation.api.openid.provider.OpenIDProviderManager.OpenIDMessage;
 
 /**
  * Servlet that provides the Provider functionality

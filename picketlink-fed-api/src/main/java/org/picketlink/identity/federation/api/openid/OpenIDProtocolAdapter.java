@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.openid;
+package org.picketlink.identity.federation.api.openid;
 
 import java.util.Map;
 
-import org.jboss.identity.federation.api.openid.exceptions.OpenIDProtocolException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
 
 /**
  * Callback adapter sent to the OpenIDManager

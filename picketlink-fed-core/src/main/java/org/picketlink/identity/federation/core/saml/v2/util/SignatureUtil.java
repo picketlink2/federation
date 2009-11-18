@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.util;
+package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -27,7 +27,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
 
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
  
 
 /**

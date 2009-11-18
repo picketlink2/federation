@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.util;
+package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,13 +28,13 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.core.constants.AttributeConstants;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeType;
-import org.jboss.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.core.constants.AttributeConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
 
 /**
  * Deals with SAML2 Statements

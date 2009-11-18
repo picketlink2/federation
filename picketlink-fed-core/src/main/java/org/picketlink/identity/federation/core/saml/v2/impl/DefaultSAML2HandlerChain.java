@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.impl;
+package org.picketlink.identity.federation.core.saml.v2.impl;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 
 /**
  * Default implementation of the SAML2 handler chain

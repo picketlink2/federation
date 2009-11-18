@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.wrappers;
+package org.picketlink.identity.federation.core.wstrust.wrappers;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,26 +31,26 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.ws.addressing.EndpointReferenceType;
-import org.jboss.identity.federation.ws.policy.AppliesTo;
-import org.jboss.identity.federation.ws.policy.Policy;
-import org.jboss.identity.federation.ws.policy.PolicyReference;
-import org.jboss.identity.federation.ws.trust.AllowPostdatingType;
-import org.jboss.identity.federation.ws.trust.AuthenticatorType;
-import org.jboss.identity.federation.ws.trust.DelegateToType;
-import org.jboss.identity.federation.ws.trust.EncryptionType;
-import org.jboss.identity.federation.ws.trust.EntropyType;
-import org.jboss.identity.federation.ws.trust.LifetimeType;
-import org.jboss.identity.federation.ws.trust.ObjectFactory;
-import org.jboss.identity.federation.ws.trust.OnBehalfOfType;
-import org.jboss.identity.federation.ws.trust.ProofEncryptionType;
-import org.jboss.identity.federation.ws.trust.RenewingType;
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenResponseType;
-import org.jboss.identity.federation.ws.trust.RequestedProofTokenType;
-import org.jboss.identity.federation.ws.trust.RequestedReferenceType;
-import org.jboss.identity.federation.ws.trust.RequestedSecurityTokenType;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.UseKeyType;
+import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.policy.Policy;
+import org.picketlink.identity.federation.ws.policy.PolicyReference;
+import org.picketlink.identity.federation.ws.trust.AllowPostdatingType;
+import org.picketlink.identity.federation.ws.trust.AuthenticatorType;
+import org.picketlink.identity.federation.ws.trust.DelegateToType;
+import org.picketlink.identity.federation.ws.trust.EncryptionType;
+import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.LifetimeType;
+import org.picketlink.identity.federation.ws.trust.ObjectFactory;
+import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
+import org.picketlink.identity.federation.ws.trust.ProofEncryptionType;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenResponseType;
+import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
+import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
+import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.UseKeyType;
 
 /**
  * <p>

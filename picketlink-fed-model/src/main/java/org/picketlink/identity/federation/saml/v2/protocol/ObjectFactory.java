@@ -6,14 +6,14 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.protocol;
+package org.picketlink.identity.federation.saml.v2.protocol;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 
 
 /**

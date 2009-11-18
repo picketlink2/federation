@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.util;
+package org.picketlink.identity.federation.api.util;
 
 import java.io.StringReader;
 import java.security.AccessController;
@@ -34,9 +34,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.jboss.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
 
 /**
  * Utility dealing with PublicKey/Certificates and xml-dsig KeyInfoType
@@ -112,7 +112,7 @@ public class KeyUtil
     */
    public static Unmarshaller getUnmarshaller() throws JAXBException  
    {
-      return JAXBUtil.getUnmarshaller("org.jboss.identity.xmlsec.w3.xmldsig");
+      return JAXBUtil.getUnmarshaller("org.picketlink.identity.xmlsec.w3.xmldsig");
    }
    
    /**
@@ -122,7 +122,7 @@ public class KeyUtil
     */
    public static Marshaller getMarshaller() throws JAXBException 
    {
-      return JAXBUtil.getMarshaller("org.jboss.identity.xmlsec.w3.xmldsig");
+      return JAXBUtil.getMarshaller("org.picketlink.identity.xmlsec.w3.xmldsig");
    }
    
    /**

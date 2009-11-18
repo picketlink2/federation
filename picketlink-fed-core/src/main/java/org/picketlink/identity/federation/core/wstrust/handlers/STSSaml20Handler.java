@@ -18,13 +18,13 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.handlers;
+package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.jboss.identity.federation.core.wstrust.WSTrustConstants.WSSE_NS;
-import static org.jboss.identity.federation.core.wstrust.WSTrustConstants.SAML2_ASSERTION_NS;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.WSSE_NS;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SAML2_ASSERTION_NS;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 
 
 /**
@@ -48,7 +48,7 @@ public class STSSaml20Handler extends STSSecurityHandler
     
     /*
      * (non-Javadoc)
-     * @see org.jboss.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getSecurityElementQName()
+     * @see org.picketlink.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getSecurityElementQName()
      */
     @Override
     public QName getSecurityElementQName()
@@ -58,7 +58,7 @@ public class STSSaml20Handler extends STSSecurityHandler
 
     /*
      * (non-Javadoc)
-     * @see org.jboss.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getTokenElementQName()
+     * @see org.picketlink.identity.federation.api.wstrust.handlers.JBossSTSSecurityHandler#getTokenElementQName()
      */
     @Override
     public QName getTokenElementQName()

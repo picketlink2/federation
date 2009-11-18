@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.api.saml.v2;
+package org.picketlink.test.identity.federation.api.saml.v2;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -28,16 +28,16 @@ import javax.xml.bind.JAXBElement;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionAbstractType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionsType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
-import org.jboss.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
  
 
 

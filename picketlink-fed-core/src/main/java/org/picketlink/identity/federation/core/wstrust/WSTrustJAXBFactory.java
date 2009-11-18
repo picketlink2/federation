@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
 import javax.xml.bind.Binder;
 import javax.xml.bind.JAXBElement;
@@ -30,18 +30,18 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.BaseRequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
-import org.jboss.identity.federation.ws.trust.ObjectFactory;
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenResponseCollectionType;
-import org.jboss.identity.federation.ws.trust.RequestSecurityTokenType;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.ws.trust.ObjectFactory;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenResponseCollectionType;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -106,11 +106,11 @@ public class WSTrustJAXBFactory
    private String getPackages()
    {
       StringBuilder packages = new StringBuilder();
-      packages.append("org.jboss.identity.federation.ws.addressing");
-      packages.append(":org.jboss.identity.federation.ws.policy");
-      packages.append(":org.jboss.identity.federation.ws.trust");
-      packages.append(":org.jboss.identity.federation.ws.wss.secext");
-      packages.append(":org.jboss.identity.federation.ws.wss.utility");
+      packages.append("org.picketlink.identity.federation.ws.addressing");
+      packages.append(":org.picketlink.identity.federation.ws.policy");
+      packages.append(":org.picketlink.identity.federation.ws.trust");
+      packages.append(":org.picketlink.identity.federation.ws.wss.secext");
+      packages.append(":org.picketlink.identity.federation.ws.wss.utility");
       return packages.toString();
    }
 

@@ -1,4 +1,4 @@
-package org.jboss.identity.federation.core.wstrust.exceptions;
+package org.picketlink.identity.federation.core.wstrust.exceptions;
 
 public class SamlCredentialParseException extends WSTrustGeneralException
 {

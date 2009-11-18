@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.servlets.saml;
+package org.picketlink.identity.federation.web.servlets.saml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,13 +38,13 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.jboss.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
-import org.jboss.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.jboss.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Circle of trust establishing servlet that accesses

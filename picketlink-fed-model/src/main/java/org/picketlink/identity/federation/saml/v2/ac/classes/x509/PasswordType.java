@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.x509;
+package org.picketlink.identity.federation.saml.v2.ac.classes.x509;
 
 import java.util.ArrayList;
 import java.util.List;

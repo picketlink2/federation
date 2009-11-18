@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.api.saml.v2.metadata;
+package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.jboss.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
-import org.jboss.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
-import org.jboss.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
+import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.junit.Test;
 
 

@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>org.jboss.identity</groupId>
-		<artifactId>jboss-identity-federation-webapps</artifactId>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-federation-webapps</artifactId>
 		<version>1.0.0.beta3-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
@@ -12,20 +12,20 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.jboss.identity</groupId>
-				<artifactId>jboss-identity-fed-model</artifactId>
+				<groupId>org.picketlink</groupId>
+				<artifactId>picketlink-fed-model</artifactId>
 				<version>1.0.0.beta3-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.identity</groupId>
-				<artifactId>jboss-identity-fed-api</artifactId>
+				<groupId>org.picketlink</groupId>
+				<artifactId>picketlink-fed-api</artifactId>
 				<version>1.0.0.beta3-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.identity</groupId>
-				<artifactId>jboss-identity-bindings</artifactId>
+				<groupId>org.picketlink</groupId>
+				<artifactId>picketlink-bindings</artifactId>
 				<version>1.0.0.beta3-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
@@ -33,8 +33,8 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
-			<artifactId>jboss-identity-seam</artifactId>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-seam</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

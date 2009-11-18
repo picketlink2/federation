@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.constants;
+package org.picketlink.identity.federation.web.constants;
 
 /**
  * Constants
@@ -35,12 +35,12 @@ public interface GeneralConstants
    String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
    
    String CONFIGURATION = "CONFIGURATION";
-   String CONFIG_FILE_LOCATION = "/WEB-INF/jboss-idfed.xml";
+   String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
    
    String GLOBAL_LOGOUT = "GLO";
    
 
-   String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/jbid-handlers.xml";
+   String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-handlers.xml";
    
    String IDENTITY_SERVER = "IDENTITY_SERVER";
    String IGNORE_SIGNATURES = "IGNORE_SIGNATURES";

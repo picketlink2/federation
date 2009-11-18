@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.servlets.saml;
+package org.picketlink.identity.federation.web.servlets.saml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,25 +40,25 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.response.SAML2Response;
-import org.jboss.identity.federation.core.factories.SOAPFactory;
-import org.jboss.identity.federation.core.factories.XACMLContextFactory;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.jboss.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
-import org.jboss.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.jboss.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Body;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.factories.SOAPFactory;
+import org.picketlink.identity.federation.core.factories.XACMLContextFactory;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Body;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.core.JBossRequestContext;
 import org.jboss.security.xacml.core.model.context.RequestType;

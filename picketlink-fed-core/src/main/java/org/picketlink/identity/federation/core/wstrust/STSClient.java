@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
 import java.net.URI;
 import java.util.Map;
@@ -36,16 +36,16 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.wstrust.WSTrustConstants;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
-import org.jboss.identity.federation.core.wstrust.WSTrustJAXBFactory;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
-import org.jboss.identity.federation.ws.trust.RenewTargetType;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.ValidateTargetType;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.ws.trust.RenewTargetType;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,7 +61,7 @@ public class STSClient
 {
     private ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
 
-    private String targetNS = "http://org.jboss.identity.trust/sts/";
+    private String targetNS = "http://org.picketlink.trust/sts/";
 
     public STSClient(STSClientConfig config)
     {

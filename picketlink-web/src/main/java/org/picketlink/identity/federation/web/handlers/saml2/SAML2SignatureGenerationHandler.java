@@ -19,16 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.handlers.saml2;
+package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.security.KeyPair;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.sig.SAML2Signature;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 
 /**

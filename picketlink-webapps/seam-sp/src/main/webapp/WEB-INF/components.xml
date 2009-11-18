@@ -9,7 +9,7 @@
 	<security:identity authenticate-method="#{authenticator.authenticate}" />
 	<!-- JBID IDP -->
 	<component
-		name="org.jboss.identity.seam.federation.samlAuthenticationFilter">
+		name="org.picketlink.seam.federation.samlAuthenticationFilter">
 		<property name="identityProviderURL">http://localhost:8080/idp-sig-no-val</property>
 		<property name="singleSignOnServiceURL">http://localhost:8080/idp-sig-no-val/</property>
 		<property name="keyStoreURL">classpath:/jbid_test_keystore.jks</property>

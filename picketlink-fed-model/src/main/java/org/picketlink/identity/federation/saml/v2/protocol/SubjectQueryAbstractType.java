@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.protocol;
+package org.picketlink.identity.federation.saml.v2.protocol;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 
 
 /**

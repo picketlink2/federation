@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.internetprotocolpassword;
+package org.picketlink.identity.federation.saml.v2.ac.classes.internetprotocolpassword;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

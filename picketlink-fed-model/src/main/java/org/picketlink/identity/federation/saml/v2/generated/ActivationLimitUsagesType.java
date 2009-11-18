@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.generated;
+package org.picketlink.identity.federation.saml.v2.generated;
 
 import java.math.BigInteger;
 

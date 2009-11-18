@@ -19,13 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.saml.v2;
+package org.picketlink.test.identity.federation.core.saml.v2;
 
-import org.jboss.identity.federation.saml.v2.SAML2Object;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.ObjectFactory;
-import org.jboss.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ObjectFactory;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 
 import junit.framework.TestCase;
 

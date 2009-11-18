@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.metadata.store;
+package org.picketlink.identity.federation.core.saml.v2.metadata.store;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,9 +35,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.ObjectFactory;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
 
 /**
  * File based metadata store that uses
@@ -55,7 +55,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    
    private String userHome = null;
    
-   private String pkgName = "org.jboss.identity.federation.saml.v2.metadata"; 
+   private String pkgName = "org.picketlink.identity.federation.saml.v2.metadata"; 
    
    public FileBasedMetadataConfigurationStore()
    {

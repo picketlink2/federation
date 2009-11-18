@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.servlets.saml;
+package org.picketlink.identity.federation.web.servlets.saml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,26 +38,26 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
-import org.jboss.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
-import org.jboss.identity.federation.api.util.KeyUtil; 
-import org.jboss.identity.federation.core.config.KeyProviderType;
-import org.jboss.identity.federation.core.config.KeyValueType;
-import org.jboss.identity.federation.core.config.MetadataProviderType;
-import org.jboss.identity.federation.core.config.ProviderType;
-import org.jboss.identity.federation.core.interfaces.IMetadataProvider;
-import org.jboss.identity.federation.core.interfaces.TrustKeyManager;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.jboss.identity.federation.core.util.XMLEncryptionUtil;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.util.ConfigurationUtil;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
+import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
+import org.picketlink.identity.federation.api.util.KeyUtil; 
+import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.config.MetadataProviderType;
+import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Metadata servlet for the IDP/SP

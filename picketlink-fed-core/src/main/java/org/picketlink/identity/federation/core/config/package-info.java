@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:jboss:identity-federation:config:1.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.jboss.identity.federation.core.config;
+package org.picketlink.identity.federation.core.config;

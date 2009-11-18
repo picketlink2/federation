@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorUnregistered", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.jboss.identity.federation.saml.v2.ac.classes.mobiletwofactorunregistered;
+package org.picketlink.identity.federation.saml.v2.ac.classes.mobiletwofactorunregistered;

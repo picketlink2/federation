@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.metadata;
+package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.List;

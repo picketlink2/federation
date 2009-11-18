@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.util;
+package org.picketlink.identity.federation.web.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,12 +29,12 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.util.Base64;
-import org.jboss.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.api.util.Base64;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Utility for the HTTP/Post binding

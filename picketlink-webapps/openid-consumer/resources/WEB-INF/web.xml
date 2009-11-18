@@ -10,7 +10,7 @@
   </description>
    <servlet>
      <servlet-name>ConsumerServlet</servlet-name>
-     <servlet-class>org.jboss.identity.federation.web.servlets.OpenIDConsumerServlet</servlet-class>
+     <servlet-class>org.picketlink.identity.federation.web.servlets.OpenIDConsumerServlet</servlet-class>
    </servlet>
    <servlet-mapping>
      <url-pattern>/consumer/*</url-pattern>

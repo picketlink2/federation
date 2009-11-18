@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.saml.v2.response;
+package org.picketlink.identity.federation.api.saml.v2.response;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,36 +35,36 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jboss.identity.federation.core.constants.JBossIdentityFederationConstants;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
-import org.jboss.identity.federation.core.saml.v2.holders.IDPInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.SPInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.SAML2Object;
-import org.jboss.identity.federation.saml.v2.assertion.ActionType;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AuthnContextType;
-import org.jboss.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.jboss.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
-import org.jboss.identity.federation.saml.v2.assertion.DecisionType;
-import org.jboss.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.jboss.identity.federation.saml.v2.assertion.EvidenceType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.ObjectFactory;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
+import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.DecisionType;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.saml.v2.assertion.EvidenceType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -352,7 +352,7 @@ public class SAML2Response
     */
    public void marshall(ResponseType responseType, OutputStream os) throws JAXBException, SAXException 
    {
-		String key = JBossIdentityFederationConstants.JAXB_SCHEMA_VALIDATION;
+		String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
 		boolean validate = Boolean.parseBoolean(SecurityActions
 				.getSystemProperty(key, "false"));
 

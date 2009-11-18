@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.util;
+package org.picketlink.identity.federation.web.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,12 +27,12 @@ import java.io.InputStream;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
- 
-import org.jboss.identity.federation.core.constants.JBossIdentityFederationConstants;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.config.SPType;
-import org.jboss.identity.federation.core.handler.config.Handlers;
+
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -56,7 +56,7 @@ public class ConfigurationUtil
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      String schema = "schema/config/jboss-identity-fed.xsd";
+      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
       
       Unmarshaller un = getUnmarshaller(schema);
       
@@ -79,7 +79,7 @@ public class ConfigurationUtil
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      String schema = "schema/config/jboss-identity-fed.xsd";
+      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
       
       Unmarshaller un = getUnmarshaller(schema);
       
@@ -100,8 +100,8 @@ public class ConfigurationUtil
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      String[] schemas = new String[] { "schema/config/jboss-identity-fed.xsd",
-                            "schema/config/jboss-identity-fed-handler.xsd"};
+      String[] schemas = new String[] { PicketLinkFederationConstants.SCHEMA_IDFED,
+    		  PicketLinkFederationConstants.SCHEMA_IDFED_HANDLER};
 
       Unmarshaller un = getUnmarshaller(schemas);
       JAXBElement<Handlers> handlers = (JAXBElement<Handlers>) un.unmarshal(is);
@@ -111,7 +111,7 @@ public class ConfigurationUtil
 
    private static Unmarshaller getUnmarshaller(String... schema) throws JAXBException, SAXException, IOException
    {
-      String key = JBossIdentityFederationConstants.JAXB_SCHEMA_VALIDATION;
+      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       String[] pkgName =  new String[] { IDPType.class.getPackage().getName(),

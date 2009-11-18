@@ -19,17 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.saml.v2.metadata;
+package org.picketlink.identity.federation.api.saml.v2.metadata;
 
 import java.util.List;
 
-import org.jboss.identity.federation.saml.v2.metadata.EndpointType;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.IndexedEndpointType;
-import org.jboss.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.SSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
 
 /**
  * Extract useful information out of metadata

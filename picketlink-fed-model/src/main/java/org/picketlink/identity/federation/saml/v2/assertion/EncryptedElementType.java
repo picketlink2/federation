@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.assertion;
+package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.xmlsec.w3.xmlenc.EncryptedDataType;
-import org.jboss.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedDataType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
 
 
 /**

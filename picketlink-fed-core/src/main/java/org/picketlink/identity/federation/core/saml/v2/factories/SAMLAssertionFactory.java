@@ -19,25 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.factories;
+package org.picketlink.identity.federation.core.saml.v2.factories;
 
 import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionAbstractType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionsType;
-import org.jboss.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.ObjectFactory;
-import org.jboss.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 
 /**
  * Get the SAML Assertion Object Factory
@@ -121,7 +121,7 @@ public class SAMLAssertionFactory
    public static KeyInfoConfirmationDataType createKeyInfoConfirmation(KeyInfoType keyInfo)
    {
       KeyInfoConfirmationDataType type = getObjectFactory().createKeyInfoConfirmationDataType();
-      type.getContent().add(new org.jboss.identity.xmlsec.w3.xmldsig.ObjectFactory().createKeyInfo(keyInfo));
+      type.getContent().add(new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory().createKeyInfo(keyInfo));
       return type;
    }
    

@@ -18,14 +18,14 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.auth;
+package org.picketlink.identity.federation.core.wstrust.auth;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.jboss.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
 
 /**

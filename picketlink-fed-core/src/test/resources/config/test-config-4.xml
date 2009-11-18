@@ -5,7 +5,7 @@
   		<ValidatingAlias Key="jboss.com" Value="jbossalias"/>
   		<SigningAlias>issueralias</SigningAlias>
 	</KeyProvider>
-	<RequestHandler>org.jboss.identity.federation.wstrust.Handler</RequestHandler>
+	<RequestHandler>org.picketlink.identity.federation.wstrust.Handler</RequestHandler>
 	<TokenProviders>
 		<TokenProvider 
 		    ProviderClass="org.jboss.SpecialTokenProvider" 

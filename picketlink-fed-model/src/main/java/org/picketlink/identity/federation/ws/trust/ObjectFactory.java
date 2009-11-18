@@ -6,14 +6,14 @@
 //
 
 
-package org.jboss.identity.federation.ws.trust;
+package org.picketlink.identity.federation.ws.trust;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.federation.ws.addressing.EndpointReferenceType;
+import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 
 
 /**

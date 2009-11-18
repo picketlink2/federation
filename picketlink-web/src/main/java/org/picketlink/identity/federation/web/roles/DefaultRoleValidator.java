@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.roles;
+package org.picketlink.identity.federation.web.roles;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.web.interfaces.IRoleValidator;
+import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 
 /**
  * @author Anil.Saldhana@redhat.com

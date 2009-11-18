@@ -19,19 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.wstrust;
+package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.security.PrivilegedActionException;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.wstrust.JBossSTSConfiguration;
-import org.jboss.identity.federation.core.wstrust.STSConfiguration;
-import org.jboss.identity.federation.core.wstrust.SecurityTokenProvider;
-import org.jboss.identity.federation.core.wstrust.StandardRequestHandler;
-import org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler;
-import org.jboss.identity.federation.core.wstrust.WSTrustServiceFactory;
-import org.jboss.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
+import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
+import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
+import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.wstrust.StandardRequestHandler;
+import org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler;
+import org.picketlink.identity.federation.core.wstrust.WSTrustServiceFactory;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
 
 /**
  * <p>
@@ -52,12 +52,12 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
     */
    public void testCreateRequestHandler() throws Exception
    {
-      STSConfiguration config = new JBossSTSConfiguration();
+      STSConfiguration config = new PicketLinkSTSConfiguration();
       WSTrustServiceFactory factory = WSTrustServiceFactory.getInstance();
 
       // tests the creation of the request handler.
       WSTrustRequestHandler handler = factory.createRequestHandler(
-            "org.jboss.identity.federation.core.wstrust.StandardRequestHandler", config);
+            "org.picketlink.identity.federation.core.wstrust.StandardRequestHandler", config);
       assertNotNull("Unexpected null request handler", handler);
       assertTrue("Unexpected request handler type", handler instanceof StandardRequestHandler);
 
@@ -84,11 +84,11 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
    {
       WSTrustServiceFactory factory = WSTrustServiceFactory.getInstance();
       SecurityTokenProvider provider = factory
-            .createTokenProvider("org.jboss.test.identity.federation.core.wstrust.SpecialTokenProvider", null);
+            .createTokenProvider("org.picketlink.test.identity.federation.core.wstrust.SpecialTokenProvider", null);
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
       provider = factory
-            .createTokenProvider("org.jboss.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider", null);
+            .createTokenProvider("org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider", null);
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SAML20TokenProvider);
 

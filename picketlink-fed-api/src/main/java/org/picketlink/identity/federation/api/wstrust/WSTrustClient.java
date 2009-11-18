@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.wstrust;
+package org.picketlink.identity.federation.api.wstrust;
 
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
-import org.jboss.identity.federation.core.wstrust.STSClientFactory;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.w3c.dom.Element;
 
 /**

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.timesynctoken;
+package org.picketlink.identity.federation.saml.v2.ac.classes.timesynctoken;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

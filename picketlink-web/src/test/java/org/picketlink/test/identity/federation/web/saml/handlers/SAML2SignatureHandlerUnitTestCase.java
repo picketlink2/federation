@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.web.saml.handlers;
+package org.picketlink.test.identity.federation.web.saml.handlers;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -28,31 +28,31 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
-import org.jboss.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
-import org.jboss.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
-import org.jboss.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.core.HTTPContext;
-import org.jboss.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
-import org.jboss.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler;
-import org.jboss.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler;
-import org.jboss.test.identity.federation.web.mock.MockHttpServletRequest;
-import org.jboss.test.identity.federation.web.mock.MockHttpServletResponse;
-import org.jboss.test.identity.federation.web.mock.MockHttpSession;
-import org.jboss.test.identity.federation.web.mock.MockServletContext;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
+import org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler;
+import org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler;
+import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
+import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
+import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
+import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
 
 /**

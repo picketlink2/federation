@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -38,20 +38,20 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.XMLEncryptionUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.Lifetime;
-import org.jboss.identity.federation.ws.addressing.AttributedURIType;
-import org.jboss.identity.federation.ws.addressing.EndpointReferenceType;
-import org.jboss.identity.federation.ws.addressing.ObjectFactory;
-import org.jboss.identity.federation.ws.policy.AppliesTo;
-import org.jboss.identity.federation.ws.trust.BinarySecretType;
-import org.jboss.identity.federation.ws.trust.EntropyType;
-import org.jboss.identity.federation.ws.trust.RequestedReferenceType;
-import org.jboss.identity.federation.ws.wss.secext.KeyIdentifierType;
-import org.jboss.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.jboss.identity.xmlsec.w3.xmldsig.X509DataType;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
+import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
+import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
+import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.BinarySecretType;
+import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -101,7 +101,7 @@ public class WSTrustUtil
    {
       SecurityTokenReferenceType securityTokenReference = new SecurityTokenReferenceType();
       securityTokenReference.getAny().add(
-            new org.jboss.identity.federation.ws.wss.secext.ObjectFactory().createKeyIdentifier(keyIdentifier));
+            new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory().createKeyIdentifier(keyIdentifier));
       securityTokenReference.getOtherAttributes().putAll(attributes);
       RequestedReferenceType reference = new RequestedReferenceType();
       reference.setSecurityTokenReference(securityTokenReference);
@@ -337,7 +337,7 @@ public class WSTrustUtil
          byte[] encodedCert = certificate.getEncoded();
 
          // first create a X509DataType that contains the encoded certificate.
-         org.jboss.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.jboss.identity.xmlsec.w3.xmldsig.ObjectFactory();
+         org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
          X509DataType dataType = factory.createX509DataType();
          dataType.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(
                factory.createX509DataTypeX509Certificate(encodedCert));

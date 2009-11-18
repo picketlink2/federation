@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.protocol;
+package org.picketlink.identity.federation.saml.v2.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.jboss.identity.federation.saml.v2.assertion.BaseIDAbstractType;
-import org.jboss.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
 
 /**

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.handlers;
+package org.picketlink.identity.federation.core.wstrust.handlers;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,11 +35,11 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
-import org.jboss.identity.federation.core.wstrust.STSClientFactory;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
 /**
@@ -75,7 +75,7 @@ import org.w3c.dom.Element;
  *   <jws:handler-chains>
  *     <jws:handler-chain>
  *       <jws:handler>
- *         <jws:handler-class>org.jboss.identity.federation.core.wstrust.handlers.STSSaml20Handler</jws:handler-class>
+ *         <jws:handler-class>org.picketlink.identity.federation.core.wstrust.handlers.STSSaml20Handler</jws:handler-class>
  *       </jws:handler>
  *     </jws:handler-chain>
  *   </jws:handler-chains>
@@ -114,12 +114,12 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
     /**
      * Constant that can be used by handlers to set the username in the SOAPMessageContext.
      */
-    public static final String USERNAME_MSG_CONTEXT_PROPERTY = "org.jboss.identity.federation.core.wstrust.handlers.username";
+    public static final String USERNAME_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.username";
     
     /**
      * Constant that can be used by handlers to set the password in the SOAPMessageContext.
      */
-    public static final String PASSWORD_MSG_CONTEXT_PROPERTY = "org.jboss.identity.federation.core.wstrust.handlers.password";
+    public static final String PASSWORD_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.password";
     
     /**
      * The path to the jboss-sts-client.properties file.

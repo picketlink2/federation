@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.telephony;
+package org.picketlink.identity.federation.saml.v2.ac.classes.telephony;
 
 import java.util.ArrayList;
 import java.util.List;

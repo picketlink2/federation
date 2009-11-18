@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
-     <groupId>org.jboss.identity</groupId>
-     <artifactId>jboss-identity-federation-webapps</artifactId>
+     <groupId>org.picketlink</groupId>
+     <artifactId>picketlink-federation-webapps</artifactId>
      <version>1.0.0.beta3-SNAPSHOT</version>
      <relativePath>../</relativePath>
    </parent>
@@ -10,9 +10,9 @@
    <artifactId>circleoftrust</artifactId>
    <version>1.0.0.beta3-SNAPSHOT</version>
    <packaging>war</packaging>
-   <name>JBoss Identity Federation Circle Of Trust</name>
-   <url>http://labs.jboss.org/portal/jbosssecurity/</url>
-   <description>JBoss Identity samples contains the samples for Federated Identity Needs.</description>
+   <name>PicketLink Federation Circle Of Trust</name>
+   <url>http://labs.jboss.org/portal/picketlink/</url>
+   <description>PicketLink samples contains the samples for Federated Identity Needs.</description>
    <licenses>
       <license>
          <name>lgpl</name>

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.util;
+package org.picketlink.test.identity.federation.core.util;
 
 import java.io.InputStream;
 
@@ -29,8 +29,8 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 
 /**
@@ -47,10 +47,10 @@ public class SAMLXACMLUnitTestCase extends TestCase
    public void testSAML_XACML_Read() throws Exception
    {
       String resourceName = "saml-xacml/saml-xacml-request.xml";
-      String samlPath = "org.jboss.identity.federation.saml.v2.protocol";
+      String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
       String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
-      String xsAssert = "org.jboss.identity.federation.saml.v2.profiles.xacml.assertion";
-      String xsProto = "org.jboss.identity.federation.saml.v2.profiles.xacml.protocol";
+      String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
+      String xsProto = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
       String path = samlPath + ":" + xacmlPath + ":" + xsAssert + ":" + xsProto;
       
       JAXBContext jaxb = JAXBContext.newInstance(path);
@@ -78,10 +78,10 @@ public class SAMLXACMLUnitTestCase extends TestCase
    public void testSAML_XACML_Read_2() throws Exception
    {
       String resourceName = "saml-xacml/saml-xacml-request-2.xml";
-      String samlPath = "org.jboss.identity.federation.saml.v2.protocol";
+      String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
       String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
-      String xsAssert = "org.jboss.identity.federation.saml.v2.profiles.xacml.assertion";
-      String xsProto = "org.jboss.identity.federation.saml.v2.profiles.xacml.protocol";
+      String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
+      String xsProto = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
       String path = samlPath + ":" + xacmlPath + ":" + xsAssert + ":" + xsProto;
       
       JAXBContext jaxb = JAXBContext.newInstance(path);

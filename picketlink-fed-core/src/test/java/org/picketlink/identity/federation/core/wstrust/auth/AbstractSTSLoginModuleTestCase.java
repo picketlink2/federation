@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.auth;
+package org.picketlink.identity.federation.core.wstrust.auth;
 
 import static org.mockito.Mockito.mock;
 import java.util.HashMap;
@@ -27,10 +27,10 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
 import junit.framework.TestCase;

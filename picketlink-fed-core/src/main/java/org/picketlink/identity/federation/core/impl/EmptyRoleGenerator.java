@@ -19,13 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.impl;
+package org.picketlink.identity.federation.core.impl;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
  * A Role Generator that generates no roles

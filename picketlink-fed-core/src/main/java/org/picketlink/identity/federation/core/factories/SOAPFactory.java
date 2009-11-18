@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.factories;
+package org.picketlink.identity.federation.core.factories;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.ObjectFactory;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.ObjectFactory;
 
 /**
  * Provides an handle to the ObjectFactory that is capable
@@ -45,11 +45,11 @@ public class SOAPFactory
    
    public static Marshaller getMarshaller() throws JAXBException
    {
-      return JAXBUtil.getMarshaller("org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope"); 
+      return JAXBUtil.getMarshaller("org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope"); 
    }
    
    public static Unmarshaller getUnmarshaller() throws JAXBException
    {
-      return JAXBUtil.getUnmarshaller("org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope"); 
+      return JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope"); 
    }
 }

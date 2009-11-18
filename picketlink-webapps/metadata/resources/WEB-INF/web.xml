@@ -11,7 +11,7 @@
 
   <servlet>
     <servlet-name>metadata</servlet-name>
-    <servlet-class>org.jboss.identity.federation.web.servlets.saml.MetadataServlet</servlet-class>
+    <servlet-class>org.picketlink.identity.federation.web.servlets.saml.MetadataServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

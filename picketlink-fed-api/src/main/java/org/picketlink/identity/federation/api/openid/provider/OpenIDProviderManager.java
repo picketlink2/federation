@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.openid.provider;
+package org.picketlink.identity.federation.api.openid.provider;
 
 import org.openid4java.message.AuthSuccess;
 import org.openid4java.message.DirectError;

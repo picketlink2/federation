@@ -1,6 +1,6 @@
 <Context>
 	<Valve
-		className="org.jboss.identity.federation.bindings.tomcat.idp.IDPSAMLDebugValve" />
+		className="org.picketlink.identity.federation.bindings.tomcat.idp.IDPSAMLDebugValve" />
 	<Valve
-		className="org.jboss.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve" />
+		className="org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve" />
 </Context>

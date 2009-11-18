@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.mobileonefactorunregistered;
+package org.picketlink.identity.federation.saml.v2.ac.classes.mobileonefactorunregistered;
 
 import java.util.ArrayList;
 import java.util.List;

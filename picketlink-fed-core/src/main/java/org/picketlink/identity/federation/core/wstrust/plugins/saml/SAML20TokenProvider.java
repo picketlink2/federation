@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.plugins.saml;
+package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -32,31 +32,31 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.jboss.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.jboss.identity.federation.core.saml.v2.util.StatementUtil;
-import org.jboss.identity.federation.core.wstrust.SecurityToken;
-import org.jboss.identity.federation.core.wstrust.SecurityTokenProvider;
-import org.jboss.identity.federation.core.wstrust.StandardSecurityToken;
-import org.jboss.identity.federation.core.wstrust.WSTrustConstants;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
-import org.jboss.identity.federation.core.wstrust.WSTrustRequestContext;
-import org.jboss.identity.federation.core.wstrust.WSTrustUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.Lifetime;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.jboss.identity.federation.saml.v2.assertion.ConditionsType;
-import org.jboss.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
-import org.jboss.identity.federation.ws.policy.AppliesTo;
-import org.jboss.identity.federation.ws.trust.RequestedReferenceType;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.ValidateTargetType;
-import org.jboss.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.core.wstrust.SecurityToken;
+import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
+import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.w3c.dom.Element;
 
 /**
@@ -77,7 +77,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
     */
    public void initialize(Map<String, String> properties)
    {
@@ -87,7 +87,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -97,7 +97,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void issueToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -109,7 +109,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void renewToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -170,7 +170,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.jboss.identity.federation.core.wstrust.WSTrustRequestContext)
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    @SuppressWarnings("unchecked")
    public void validateToken(WSTrustRequestContext context) throws WSTrustException

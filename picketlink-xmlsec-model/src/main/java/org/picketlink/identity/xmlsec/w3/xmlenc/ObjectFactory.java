@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.xmlsec.w3.xmlenc;
+package org.picketlink.identity.xmlsec.w3.xmlenc;
 
 import java.math.BigInteger;
 
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  
 
 

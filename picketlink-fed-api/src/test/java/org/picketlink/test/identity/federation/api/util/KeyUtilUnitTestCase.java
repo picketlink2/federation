@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.api.util;
+package org.picketlink.test.identity.federation.api.util;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -27,8 +27,8 @@ import java.security.cert.Certificate;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.api.util.KeyUtil;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.api.util.KeyUtil;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 
 /**
  * Unit test the Key Util

@@ -19,22 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.handlers.saml2;
+package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.config.SPType;
-import org.jboss.identity.federation.core.config.TrustType;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Handles Issuer trust

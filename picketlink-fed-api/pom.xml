@@ -9,7 +9,7 @@
    <artifactId>picketlink-fed-api</artifactId>
    <packaging>jar</packaging>
    <name>PicketLink Federation Consolidated API</name>
-   <url>http://labs.jboss.org/portal/jbosssecurity/</url>
+   <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink Federation API contains the API to be used by the users of PicketLink Federation.</description>
    <licenses>
       <license>

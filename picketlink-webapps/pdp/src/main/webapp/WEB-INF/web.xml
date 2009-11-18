@@ -6,7 +6,7 @@
 
    <display-name>PDP Endpoint</display-name>
    <description>
-     XACML PDP Web Application for the JBoss Identity project
+     XACML PDP Web Application for the PicketLink project
    </description>
 
    <context-param>
@@ -15,7 +15,7 @@
    </context-param>
    <servlet>
      <servlet-name>SOAPServlet</servlet-name>
-     <servlet-class>org.jboss.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet</servlet-class>
+     <servlet-class>org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet</servlet-class>
      <!-- Issuer is the string used in the issuer of saml messages/assertions/statements-->
      <init-param>
         <param-name>issuer</param-name>

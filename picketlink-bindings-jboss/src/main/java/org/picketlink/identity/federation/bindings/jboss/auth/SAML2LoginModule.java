@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.jboss.auth;
+package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.Principal;
 import java.security.acl.Group;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.security.auth.login.LoginException;
 
-import org.jboss.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
+import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.UsernamePasswordLoginModule;

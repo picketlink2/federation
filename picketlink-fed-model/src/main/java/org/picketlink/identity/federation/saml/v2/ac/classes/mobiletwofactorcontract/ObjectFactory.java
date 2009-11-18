@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.mobiletwofactorcontract;
+package org.picketlink.identity.federation.saml.v2.ac.classes.mobiletwofactorcontract;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

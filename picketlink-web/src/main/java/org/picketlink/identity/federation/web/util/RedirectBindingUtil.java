@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.util;
+package org.picketlink.identity.federation.web.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-import org.jboss.identity.federation.api.util.Base64;
-import org.jboss.identity.federation.api.util.DeflateUtil;
+import org.picketlink.identity.federation.api.util.Base64;
+import org.picketlink.identity.federation.api.util.DeflateUtil;
 
 /**
  * Utility class for SAML HTTP/Redirect binding

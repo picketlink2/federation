@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.openid;
+package org.picketlink.identity.federation.web.openid;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,14 +31,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.openid.OpenIDAttributeMap;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycle;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycleEvent;
-import org.jboss.identity.federation.api.openid.OpenIDProtocolAdapter;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycleEvent.OP;
-import org.jboss.identity.federation.api.openid.OpenIDLifecycleEvent.TYPE;
-import org.jboss.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
-import org.jboss.identity.federation.api.openid.exceptions.OpenIDProtocolException;
+import org.picketlink.identity.federation.api.openid.OpenIDAttributeMap;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycle;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent;
+import org.picketlink.identity.federation.api.openid.OpenIDProtocolAdapter;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.OP;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.TYPE;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
 
 /**
  * Protocol adapter for HTTP

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.xmlsec.w3.xmlenc;
+package org.picketlink.identity.xmlsec.w3.xmlenc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.xmlsec.w3.xmldsig.TransformType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.TransformType;
  
 
 

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.authenticatedtelephony;
+package org.picketlink.identity.federation.saml.v2.ac.classes.authenticatedtelephony;
 
 import java.math.BigInteger;
 

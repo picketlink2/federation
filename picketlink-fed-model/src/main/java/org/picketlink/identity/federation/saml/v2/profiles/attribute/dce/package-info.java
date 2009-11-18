@@ -6,4 +6,4 @@
 //
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:SAML:2.0:profiles:attribute:DCE")
-package org.jboss.identity.federation.saml.v2.profiles.attribute.dce;
+package org.picketlink.identity.federation.saml.v2.profiles.attribute.dce;

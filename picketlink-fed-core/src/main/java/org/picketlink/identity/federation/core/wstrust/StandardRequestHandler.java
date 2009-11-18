@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
 import java.net.URI;
 import java.security.KeyPair;
@@ -34,22 +34,22 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.XMLEncryptionUtil;
-import org.jboss.identity.federation.core.util.XMLSignatureUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.jboss.identity.federation.ws.policy.AppliesTo;
-import org.jboss.identity.federation.ws.trust.BinarySecretType;
-import org.jboss.identity.federation.ws.trust.ClaimsType;
-import org.jboss.identity.federation.ws.trust.EntropyType;
-import org.jboss.identity.federation.ws.trust.ObjectFactory;
-import org.jboss.identity.federation.ws.trust.RequestedProofTokenType;
-import org.jboss.identity.federation.ws.trust.RequestedSecurityTokenType;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.UseKeyType;
-import org.jboss.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.BinarySecretType;
+import org.picketlink.identity.federation.ws.trust.ClaimsType;
+import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.ObjectFactory;
+import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
+import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.UseKeyType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,8 +75,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler#initialize(
-    *   org.jboss.identity.federation.core.wstrust.STSConfiguration)
+    * @see org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler#initialize(
+    *   org.picketlink.identity.federation.core.wstrust.STSConfiguration)
     */
    public void initialize(STSConfiguration configuration)
    {
@@ -85,8 +85,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler#issue(
-    *   org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
+    * @see org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler#issue(
+    *   org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
     */
    public RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException
@@ -281,8 +281,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler#renew(
-    *   org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
+    * @see org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler#renew(
+    *   org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
     */
    public RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException
@@ -354,8 +354,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler#validate(
-    *   org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
+    * @see org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler#validate(
+    *   org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
     */
    public RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException
@@ -443,8 +443,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
    /*
     * (non-Javadoc)
-    * @see org.jboss.identity.federation.core.wstrust.WSTrustRequestHandler#cancel(
-    *   org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
+    * @see org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler#cancel(
+    *   org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
     */
    public RequestSecurityTokenResponse cancel(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.seam.federation;
+package org.picketlink.identity.seam.federation;
 
 import static org.jboss.seam.ScopeType.SESSION;
 
@@ -42,7 +42,7 @@ import org.jboss.seam.annotations.Startup;
  * @author Marcel Kolsteren
  */
 @Scope(SESSION)
-@Name("org.jboss.identity.seam.federation.relayStates")
+@Name("org.picketlink.identity.seam.federation.relayStates")
 @Startup
 public class RelayStates
 {

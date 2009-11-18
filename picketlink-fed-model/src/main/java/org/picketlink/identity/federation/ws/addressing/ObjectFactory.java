@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.addressing;
+package org.picketlink.identity.federation.ws.addressing;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;

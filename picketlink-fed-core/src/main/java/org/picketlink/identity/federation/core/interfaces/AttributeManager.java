@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.interfaces;
+package org.picketlink.identity.federation.core.interfaces;
 
 import java.security.Principal;
 import java.util.List;

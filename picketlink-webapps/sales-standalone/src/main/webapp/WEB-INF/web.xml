@@ -11,7 +11,7 @@
         The SP Filter intersects all requests at the SP and sees if there is a need to contact the IDP.
      </description>
      <filter-name>SPFilter</filter-name>
-     <filter-class>org.jboss.identity.federation.web.filters.SPFilter</filter-class>
+     <filter-class>org.picketlink.identity.federation.web.filters.SPFilter</filter-class>
      <init-param>
        <param-name>ROLES</param-name>
        <param-value>sales,manager</param-value>

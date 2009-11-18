@@ -18,9 +18,9 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
-import org.jboss.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 
 /**
  * Simple factory for creating {@link STSClient}s.

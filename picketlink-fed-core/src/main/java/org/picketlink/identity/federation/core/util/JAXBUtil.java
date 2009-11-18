@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.util;
+package org.picketlink.identity.federation.core.util;
 
 import java.io.IOException;
 import java.net.URL;
@@ -203,7 +203,7 @@ public class JAXBUtil
       SchemaFactory scFact = SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI);
       
       //Always install the resolver unless the system property is set
-      if(SecurityActions.getSystemProperty("org.jboss.identity.federation.jaxb.ls", null) == null)
+      if(SecurityActions.getSystemProperty("org.picketlink.identity.federation.jaxb.ls", null) == null)
         scFact.setResourceResolver( new IDFedLSInputResolver()); 
       
       scFact.setErrorHandler(new ErrorHandler()

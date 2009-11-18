@@ -19,12 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.v2.metadata.store;
+package org.picketlink.identity.federation.core.saml.v2.metadata.store;
 
 import java.io.IOException;
 import java.util.Map;
 
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Configuration Store for the metadata

@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.smartcard;
+package org.picketlink.identity.federation.saml.v2.ac.classes.smartcard;
 
 import java.math.BigInteger;
 

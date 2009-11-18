@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.saml.v2.metadata;
+package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -30,9 +30,9 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 
 /**
@@ -42,7 +42,7 @@ import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
  */
 public class FileBasedMetadataConfigurationStoreUnitTestCase extends TestCase
 {
-   String pkgName = "org.jboss.identity.federation.saml.v2.metadata";
+   String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
    String id = "test";
    
    @SuppressWarnings("unchecked")

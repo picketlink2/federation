@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.wstrust;
 
 import org.w3c.dom.Element;
 
@@ -64,7 +64,7 @@ public class StandardSecurityToken implements SecurityToken
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityToken#getTokenType()
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityToken#getTokenType()
     */
    public String getTokenType()
    {
@@ -74,7 +74,7 @@ public class StandardSecurityToken implements SecurityToken
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityToken#getTokenValue()
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityToken#getTokenValue()
     */
    public Object getTokenValue()
    {
@@ -84,7 +84,7 @@ public class StandardSecurityToken implements SecurityToken
    /*
     * (non-Javadoc)
     * 
-    * @see org.jboss.identity.federation.core.wstrust.SecurityToken#getTokenID()
+    * @see org.picketlink.identity.federation.core.wstrust.SecurityToken#getTokenID()
     */
    public String getTokenID()
    {

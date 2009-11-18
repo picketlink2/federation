@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.web.integration;
+package org.picketlink.test.identity.federation.web.integration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +29,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.identity.federation.api.openid.OpenIDManager;  
-import org.jboss.identity.federation.api.openid.OpenIDRequest; 
-import org.jboss.identity.federation.api.openid.OpenIDManager.OpenIDProviderInformation;
-import org.jboss.identity.federation.api.openid.OpenIDManager.OpenIDProviderList;
-import org.jboss.test.identity.federation.web.openid.InMemoryProtocolAdapter;
-import org.jboss.test.identity.federation.web.server.EmbeddedWebServerBase;
+import org.picketlink.identity.federation.api.openid.OpenIDManager;  
+import org.picketlink.identity.federation.api.openid.OpenIDRequest; 
+import org.picketlink.identity.federation.api.openid.OpenIDManager.OpenIDProviderInformation;
+import org.picketlink.identity.federation.api.openid.OpenIDManager.OpenIDProviderList;
+import org.picketlink.test.identity.federation.web.openid.InMemoryProtocolAdapter;
+import org.picketlink.test.identity.federation.web.server.EmbeddedWebServerBase;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.openid4java.message.AuthSuccess;

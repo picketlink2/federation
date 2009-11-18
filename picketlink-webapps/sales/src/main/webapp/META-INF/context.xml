@@ -1,4 +1,4 @@
 <Context>
-  <Valve className="org.jboss.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator"
+  <Valve className="org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator"
   />
 </Context>

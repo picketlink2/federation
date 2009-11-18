@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.ac.classes.kerberos;
+package org.picketlink.identity.federation.saml.v2.ac.classes.kerberos;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

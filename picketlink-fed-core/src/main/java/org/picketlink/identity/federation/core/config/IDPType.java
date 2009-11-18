@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.core.config;
+package org.picketlink.identity.federation.core.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,8 +33,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="Encryption" type="{urn:jboss:identity-federation:config:1.0}EncryptionType" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="AssertionValidity" type="{http://www.w3.org/2001/XMLSchema}long" default="300000" />
- *       &lt;attribute name="RoleGenerator" type="{http://www.w3.org/2001/XMLSchema}string" default="org.jboss.identity.federation.bindings.tomcat.TomcatRoleGenerator" />
- *       &lt;attribute name="AttributeManager" type="{http://www.w3.org/2001/XMLSchema}string" default="org.jboss.identity.federation.bindings.tomcat.TomcatAttributeManager" />
+ *       &lt;attribute name="RoleGenerator" type="{http://www.w3.org/2001/XMLSchema}string" default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator" />
+ *       &lt;attribute name="AttributeManager" type="{http://www.w3.org/2001/XMLSchema}string" default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager" />
  *       &lt;attribute name="Encrypt" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -124,7 +124,7 @@ public class IDPType
      */
     public String getRoleGenerator() {
         if (roleGenerator == null) {
-            return "org.jboss.identity.federation.bindings.tomcat.TomcatRoleGenerator";
+            return "org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator";
         } else {
             return roleGenerator;
         }
@@ -152,7 +152,7 @@ public class IDPType
      */
     public String getAttributeManager() {
         if (attributeManager == null) {
-            return "org.jboss.identity.federation.bindings.tomcat.TomcatAttributeManager";
+            return "org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager";
         } else {
             return attributeManager;
         }

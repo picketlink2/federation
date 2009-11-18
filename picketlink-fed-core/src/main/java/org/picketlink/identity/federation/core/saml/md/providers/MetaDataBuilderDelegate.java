@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.saml.md.providers;
+package org.picketlink.identity.federation.core.saml.md.providers;
 
 import java.util.List;
 
@@ -27,19 +27,19 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeType;
-import org.jboss.identity.federation.saml.v2.metadata.EndpointType;
-import org.jboss.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.LocalizedNameType;
-import org.jboss.identity.federation.saml.v2.metadata.LocalizedURIType;
-import org.jboss.identity.federation.saml.v2.metadata.ObjectFactory;
-import org.jboss.identity.federation.saml.v2.metadata.OrganizationType;
-import org.jboss.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.jboss.identity.federation.saml.v2.metadata.SSODescriptorType;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
+import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
+import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
+import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
 
 /**
  * SAML2 Metadata Builder API
@@ -50,7 +50,7 @@ public class MetaDataBuilderDelegate
 {
    private static ObjectFactory oFact = new ObjectFactory();
    
-   private static String pkgName = "org.jboss.identity.federation.saml.v2.metadata";
+   private static String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
    /**
     * Create an Endpoint (SingleSignOnEndpoint or SingleLogoutEndpoint)
     * @param binding

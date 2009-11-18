@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope;
+package org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

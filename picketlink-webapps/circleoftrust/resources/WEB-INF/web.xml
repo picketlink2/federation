@@ -9,7 +9,7 @@
 
    <servlet>
       <servlet-name>COTServlet</servlet-name>
-      <servlet-class>org.jboss.identity.federation.web.servlets.saml.CircleOfTrustServlet</servlet-class>
+      <servlet-class>org.picketlink.identity.federation.web.servlets.saml.CircleOfTrustServlet</servlet-class>
       <init-param>
         <param-name>issuer</param-name>
         <param-value>redhatPdpEntity</param-value>

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.core.wstrust;
+package org.picketlink.test.identity.federation.core.wstrust;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -47,20 +47,20 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.util.KeyStoreUtil;
-import org.jboss.identity.federation.core.util.XMLSignatureUtil;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
-import org.jboss.identity.federation.core.wstrust.WSTrustConstants;
-import org.jboss.identity.federation.core.wstrust.WSTrustJAXBFactory;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig.Builder;
-import org.jboss.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.jboss.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
-import org.jboss.identity.federation.ws.trust.StatusType;
-import org.jboss.identity.federation.ws.trust.ValidateTargetType;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.KeyStoreUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -250,7 +250,7 @@ public class STSClientUnitTestCase extends TestCase
    private  Dispatch<Source> createDispatch() throws MalformedURLException, JAXBException
    {
       // JBoss STS target information.
-      String targetNS = "http://org.jboss.identity.trust/sts/";
+      String targetNS = "http://org.picketlink.trust/sts/";
       QName serviceName = new QName(targetNS, "JBossSTS");
       QName portName = new QName(targetNS, "JBossSTSPort");
       URL endpointAddress = new URL("http://localhost:8080/jboss-sts/JBossSTS");

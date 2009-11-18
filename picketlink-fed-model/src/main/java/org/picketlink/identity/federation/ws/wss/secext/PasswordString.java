@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.wss.secext;
+package org.picketlink.identity.federation.ws.wss.secext;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

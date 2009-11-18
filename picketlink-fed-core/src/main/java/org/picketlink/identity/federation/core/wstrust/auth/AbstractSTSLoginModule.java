@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.auth;
+package org.picketlink.identity.federation.core.wstrust.auth;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,13 +34,13 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig;
-import org.jboss.identity.federation.core.wstrust.STSClientFactory;
-import org.jboss.identity.federation.core.wstrust.SamlCredential;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
-import org.jboss.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.w3c.dom.Element;
 
 /**
@@ -62,7 +62,7 @@ import org.w3c.dom.Element;
  * <pre>{@code
  * <application-policy name="saml-issue-token">
  *   <authentication>
- *     <login-module code="org.jboss.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
  *       <module-option name="configFile">/sts-client.properties</module-option>
  *     </login-module>
  *   </authentication>
@@ -73,7 +73,7 @@ import org.w3c.dom.Element;
  * <pre>{@code
  * <application-policy name="saml-issue-token">
  *   <authentication>
- *     <login-module code="org.jboss.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
  *       <module-option name="configFile">/sts-client.properties</module-option>
  *       <module-option name="useOptionsCredentials">true</module-option>
  *     </login-module>
@@ -85,7 +85,7 @@ import org.w3c.dom.Element;
  * <pre>{@code
  * <application-policy name="saml-issue-token">
  *   <authentication>
- *     <login-module code="org.jboss.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
  *       <module-option name="configFile">/sts-client.properties</module-option>
  *       <module-option name="password-stacking">useFirstPass</module-option>
  *     </login-module>
@@ -113,7 +113,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     /**
      * Key used in share state map when LMs are stacked. 
      */
-    public static final String SHARED_TOKEN = "org.jboss.identity.federation.core.wstrust.lm.stsToken";
+    public static final String SHARED_TOKEN = "org.picketlink.identity.federation.core.wstrust.lm.stsToken";
     
     /**
      * Options configuration name;

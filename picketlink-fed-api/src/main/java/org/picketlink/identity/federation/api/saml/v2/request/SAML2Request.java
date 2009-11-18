@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.api.saml.v2.request;
+package org.picketlink.identity.federation.api.saml.v2.request;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,25 +34,25 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jboss.identity.federation.core.constants.JBossIdentityFederationConstants;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
-import org.jboss.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.saml.v2.SAML2Object;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -189,7 +189,7 @@ public class SAML2Request
    {
       if(is == null)
          throw new IllegalStateException("InputStream is null");
-      String key = JBossIdentityFederationConstants.JAXB_SCHEMA_VALIDATION;
+      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Unmarshaller un = JBossSAMLAuthnRequestFactory.getValidatingUnmarshaller(validate);
@@ -215,8 +215,8 @@ public class SAML2Request
     */
    public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException 
    {
-      org.jboss.identity.federation.saml.v2.protocol.ObjectFactory of
-             = new org.jboss.identity.federation.saml.v2.protocol.ObjectFactory();
+      org.picketlink.identity.federation.saml.v2.protocol.ObjectFactory of
+             = new org.picketlink.identity.federation.saml.v2.protocol.ObjectFactory();
       LogoutRequestType lrt = of.createLogoutRequestType();
       lrt.setID(IDGenerator.create("ID_"));
       lrt.setIssueInstant(XMLTimeUtil.getIssueInstant());
@@ -254,10 +254,10 @@ public class SAML2Request
       if(is == null)
          throw new IllegalArgumentException("Inputstream is null");
       
-      String samlPath = "org.jboss.identity.federation.saml.v2.protocol";
+      String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
       String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
-      String xsAssert = "org.jboss.identity.federation.saml.v2.profiles.xacml.assertion";
-      String xsProto = "org.jboss.identity.federation.saml.v2.profiles.xacml.protocol";
+      String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
+      String xsProto = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
       String path = samlPath + ":" + xacmlPath + ":" + xsAssert + ":" + xsProto;
       
       JAXBContext jaxb = JAXBUtil.getJAXBContext(path);
@@ -317,7 +317,7 @@ public class SAML2Request
     */
    public void marshall(RequestAbstractType requestType, OutputStream os) throws SAXException, JAXBException 
    {
-      String key = JBossIdentityFederationConstants.JAXB_SCHEMA_VALIDATION;
+      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);
@@ -334,7 +334,7 @@ public class SAML2Request
     */
    public void marshall(RequestAbstractType requestType, Writer writer) throws SAXException, JAXBException 
    {
-      String key = JBossIdentityFederationConstants.JAXB_SCHEMA_VALIDATION;
+      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);

@@ -11,18 +11,18 @@
 
   <!-- Listeners -->
   <listener>
-    <listener-class>org.jboss.identity.federation.web.core.IdentityServer</listener-class>
+    <listener-class>org.picketlink.identity.federation.web.core.IdentityServer</listener-class>
   </listener>
 
 
   <!-- Create the servlet -->
   <servlet>
     <servlet-name>IDPLoginServlet</servlet-name>
-    <servlet-class>org.jboss.identity.federation.web.servlets.IDPLoginServlet</servlet-class>
+    <servlet-class>org.picketlink.identity.federation.web.servlets.IDPLoginServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>IDPServlet</servlet-name>
-    <servlet-class>org.jboss.identity.federation.web.servlets.IDPServlet</servlet-class>
+    <servlet-class>org.picketlink.identity.federation.web.servlets.IDPServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.core.wstrust.auth;
+package org.picketlink.identity.federation.core.wstrust.auth;
 
 import java.util.Map;
 
@@ -28,8 +28,8 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.identity.federation.core.wstrust.STSClient;
-import org.jboss.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
 /**
@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  * <pre>{@code
  * <application-policy name="saml-issue-token">
  *   <authentication>
- *     <login-module code="org.jboss.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
  *       <module-option name="configFile">/sts-client.properties</module-option>
  *       <module-option name="endpointURI"></module-option>
  *       <module-option name="tokenType"></module-option>

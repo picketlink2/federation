@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.core.handler.config;
+package org.picketlink.identity.federation.core.handler.config;
 
 import java.util.ArrayList;
 import java.util.List;

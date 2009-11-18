@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.saml.v2.profiles.xacml.protocol;
+package org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlType;
 
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.jboss.security.xacml.core.model.policy.IdReferenceType;
 import org.jboss.security.xacml.core.model.policy.TargetType;
 

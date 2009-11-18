@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.core.config;
+package org.picketlink.identity.federation.core.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

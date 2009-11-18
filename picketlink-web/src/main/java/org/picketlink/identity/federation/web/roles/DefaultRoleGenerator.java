@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.web.roles;
+package org.picketlink.identity.federation.web.roles;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
  
-import org.jboss.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
  * Simple Role Generator that looks

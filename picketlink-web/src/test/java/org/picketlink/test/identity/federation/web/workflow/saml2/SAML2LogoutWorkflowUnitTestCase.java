@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.web.workflow.saml2;
+package org.picketlink.test.identity.federation.web.workflow.saml2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,24 +36,24 @@ import javax.servlet.http.HttpSessionEvent;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.api.util.Base64;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.saml.v2.SAML2Object;
-import org.jboss.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.core.IdentityServer;
-import org.jboss.identity.federation.web.filters.SPFilter;
-import org.jboss.identity.federation.web.servlets.IDPServlet;
-import org.jboss.identity.federation.web.util.PostBindingUtil;
-import org.jboss.test.identity.federation.web.mock.MockContextClassLoader;
-import org.jboss.test.identity.federation.web.mock.MockFilterChain;
-import org.jboss.test.identity.federation.web.mock.MockFilterConfig;
-import org.jboss.test.identity.federation.web.mock.MockHttpServletRequest;
-import org.jboss.test.identity.federation.web.mock.MockHttpServletResponse;
-import org.jboss.test.identity.federation.web.mock.MockHttpSession;
-import org.jboss.test.identity.federation.web.mock.MockServletConfig;
-import org.jboss.test.identity.federation.web.mock.MockServletContext;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.util.Base64;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.filters.SPFilter;
+import org.picketlink.identity.federation.web.servlets.IDPServlet;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.test.identity.federation.web.mock.MockContextClassLoader;
+import org.picketlink.test.identity.federation.web.mock.MockFilterChain;
+import org.picketlink.test.identity.federation.web.mock.MockFilterConfig;
+import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
+import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
+import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
+import org.picketlink.test.identity.federation.web.mock.MockServletConfig;
+import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

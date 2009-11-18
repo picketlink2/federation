@@ -6,7 +6,7 @@
 //
 
 
-package org.jboss.identity.federation.ws.trust;
+package org.picketlink.identity.federation.ws.trust;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
