@@ -25,13 +25,13 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="KeyProvider" type="{urn:jboss:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
+ *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
  *         &lt;element name="RequestHandler" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="ClaimsProcessors" type="{urn:jboss:identity-federation:config:1.0}ClaimsProcessorsType" minOccurs="0"/>
- *         &lt;element name="TokenProviders" type="{urn:jboss:identity-federation:config:1.0}TokenProvidersType" minOccurs="0"/>
- *         &lt;element name="ServiceProviders" type="{urn:jboss:identity-federation:config:1.0}ServiceProvidersType" minOccurs="0"/>
+ *         &lt;element name="ClaimsProcessors" type="{urn:picketlink:identity-federation:config:1.0}ClaimsProcessorsType" minOccurs="0"/>
+ *         &lt;element name="TokenProviders" type="{urn:picketlink:identity-federation:config:1.0}TokenProvidersType" minOccurs="0"/>
+ *         &lt;element name="ServiceProviders" type="{urn:picketlink:identity-federation:config:1.0}ServiceProvidersType" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="STSName" type="{http://www.w3.org/2001/XMLSchema}string" default="JBossSTS" />
+ *       &lt;attribute name="STSName" type="{http://www.w3.org/2001/XMLSchema}string" default="picketlinkSTS" />
  *       &lt;attribute name="TokenTimeout" type="{http://www.w3.org/2001/XMLSchema}int" default="3600" />
  *       &lt;attribute name="SignToken" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" />
  *       &lt;attribute name="EncryptToken" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
@@ -201,7 +201,7 @@ public class STSType {
      */
     public String getSTSName() {
         if (stsName == null) {
-            return "JBossSTS";
+            return "picketlinkSTS";
         } else {
             return stsName;
         }

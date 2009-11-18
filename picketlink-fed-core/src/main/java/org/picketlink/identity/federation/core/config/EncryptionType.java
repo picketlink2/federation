@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="EncAlgo" type="{urn:jboss:identity-federation:config:1.0}EncAlgoType"/>
+ *         &lt;element name="EncAlgo" type="{urn:picketlink:identity-federation:config:1.0}EncAlgoType"/>
  *         &lt;element name="KeySize" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *       &lt;/sequence>
  *     &lt;/restriction>

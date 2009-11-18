@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Option" type="{urn:jboss:identity-federation:config:1.0}KeyValueType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="Option" type="{urn:picketlink:identity-federation:config:1.0}KeyValueType" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="ClassName" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>

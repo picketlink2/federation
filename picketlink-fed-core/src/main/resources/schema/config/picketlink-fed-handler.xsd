@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="urn:jboss:identity-federation:handler:config:1.0"
-	xmlns:tns="urn:jboss:identity-federation:handler:config:1.0"
-	xmlns:idfed="urn:jboss:identity-federation:config:1.0"
+	targetNamespace="urn:picketlink:identity-federation:handler:config:1.0"
+	xmlns:tns="urn:picketlink:identity-federation:handler:config:1.0"
+	xmlns:idfed="urn:picketlink:identity-federation:config:1.0"
 	elementFormDefault="qualified">
 
     <!--  Import the JBID configuration schema -->
-	<import schemaLocation="jboss-identity-fed.xsd" 
-	        namespace="urn:jboss:identity-federation:config:1.0">
+	<import schemaLocation="picketlink-fed.xsd" 
+	        namespace="urn:picketlink:identity-federation:config:1.0">
 	</import>
 	
 

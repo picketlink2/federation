@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;complexType name="SPType">
  *   &lt;complexContent>
- *     &lt;extension base="{urn:jboss:identity-federation:config:1.0}ProviderType">
+ *     &lt;extension base="{urn:picketlink:identity-federation:config:1.0}ProviderType">
  *       &lt;sequence>
  *         &lt;element name="ServiceURL" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>

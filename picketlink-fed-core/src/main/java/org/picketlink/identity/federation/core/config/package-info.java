@@ -5,5 +5,5 @@
 // Generated on: 2009.09.03 at 01:21:42 PM BRT  
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:jboss:identity-federation:config:1.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "urn:picketlink:identity-federation:config:1.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.picketlink.identity.federation.core.config;

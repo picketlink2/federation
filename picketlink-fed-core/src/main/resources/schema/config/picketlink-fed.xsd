@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:jboss:identity-federation:config:1.0"
-	xmlns:tns="urn:jboss:identity-federation:config:1.0"
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:picketlink:identity-federation:config:1.0"
+	xmlns:tns="urn:picketlink:identity-federation:config:1.0"
 	elementFormDefault="qualified" version="1.0">
 	<complexType name="IDPType">
 		<annotation>
@@ -21,11 +21,11 @@
 				</attribute>
 				<attribute name="RoleGenerator" type="string"
 					use="optional"
-					default="org.jboss.identity.federation.bindings.tomcat.TomcatRoleGenerator">
+					default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator">
 				</attribute>
 				<attribute name="AttributeManager" type="string"
 					use="optional"
-					default="org.jboss.identity.federation.bindings.tomcat.TomcatAttributeManager">
+					default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager">
 				</attribute>
 				<attribute name="Encrypt" type="boolean" use="optional"
 					default="false">
@@ -34,9 +34,9 @@
 		</complexContent>
 	</complexType>
 
-	<element name="JBossIDP" type="tns:IDPType">
+	<element name="picketlinkIDP" type="tns:IDPType">
     	<annotation>
-    		<documentation>The root configuration for an Identity Provider(IDP) using JBoss Identity.</documentation>
+    		<documentation>The root configuration for an Identity Provider(IDP) using picketlink Identity.</documentation>
     	</annotation>
     </element>
 
@@ -48,7 +48,7 @@
         <sequence>
     		<element name="Domains" type="string">
     			<annotation>
-    				<documentation>Comma Separated domain names such as localhost,jboss.com,jboss.org</documentation>
+    				<documentation>Comma Separated domain names such as localhost,picketlink.com,picketlink.org</documentation>
     			</annotation>
     	    </element>
     	</sequence>
@@ -113,10 +113,10 @@
     		<element name="MetaDataProvider" type="tns:MetadataProviderType" maxOccurs="1" minOccurs="0"></element>
     	</sequence>
     	<!-- Specify what is the server environment where the IDP or SP exists -->
-    	<attribute name="ServerEnvironment" use="optional" default="JBOSS">
+    	<attribute name="ServerEnvironment" use="optional" default="picketlink">
     	  <simpleType>
     	    <restriction base="string">
-    	     <enumeration value="JBOSS"></enumeration>
+    	     <enumeration value="picketlink"></enumeration>
     	     <enumeration value="TOMCAT"></enumeration>
     	    </restriction>
     	  </simpleType>
@@ -142,7 +142,7 @@
     	</complexContent>
     </complexType>
 
-    <element name="JBossSP" type="tns:SPType"></element>
+    <element name="picketlinkSP" type="tns:SPType"></element>
 
     <simpleType name="EncAlgoType">
     	<restriction base="string">
@@ -176,7 +176,7 @@
 			<element name="TokenProviders" type="tns:TokenProvidersType" minOccurs="0"/>
 			<element name="ServiceProviders" type="tns:ServiceProvidersType" minOccurs="0"/>
 		</sequence>
-		<attribute name="STSName" default="JBossSTS" type="string" use="optional"/>
+		<attribute name="STSName" default="picketlinkSTS" type="string" use="optional"/>
 		<attribute name="TokenTimeout" default="3600" type="int" use="optional"/>
 		<attribute name="SignToken" default="true" type="boolean" use="optional"/>
 		<attribute name="EncryptToken" default="false" type="boolean" use="optional"/>
@@ -249,6 +249,6 @@
 		<attribute name="TruststoreAlias" type="string" use="optional"/>
 	</complexType>
 	
-    <element name="JBossSTS" type="tns:STSType"/>
+    <element name="picketlinkSTS" type="tns:STSType"/>
         
 </schema>

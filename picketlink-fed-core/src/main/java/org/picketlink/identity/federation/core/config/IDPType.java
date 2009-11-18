@@ -28,9 +28,9 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;complexType name="IDPType">
  *   &lt;complexContent>
- *     &lt;extension base="{urn:jboss:identity-federation:config:1.0}ProviderType">
+ *     &lt;extension base="{urn:picketlink:identity-federation:config:1.0}ProviderType">
  *       &lt;sequence>
- *         &lt;element name="Encryption" type="{urn:jboss:identity-federation:config:1.0}EncryptionType" minOccurs="0"/>
+ *         &lt;element name="Encryption" type="{urn:picketlink:identity-federation:config:1.0}EncryptionType" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="AssertionValidity" type="{http://www.w3.org/2001/XMLSchema}long" default="300000" />
  *       &lt;attribute name="RoleGenerator" type="{http://www.w3.org/2001/XMLSchema}string" default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator" />

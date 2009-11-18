@@ -29,14 +29,14 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="IdentityURL" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="Trust" type="{urn:jboss:identity-federation:config:1.0}TrustType" minOccurs="0"/>
- *         &lt;element name="KeyProvider" type="{urn:jboss:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
- *         &lt;element name="MetaDataProvider" type="{urn:jboss:identity-federation:config:1.0}MetadataProviderType" minOccurs="0"/>
+ *         &lt;element name="Trust" type="{urn:picketlink:identity-federation:config:1.0}TrustType" minOccurs="0"/>
+ *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
+ *         &lt;element name="MetaDataProvider" type="{urn:picketlink:identity-federation:config:1.0}MetadataProviderType" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="ServerEnvironment" default="JBOSS">
+ *       &lt;attribute name="ServerEnvironment" default="picketlink">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *             &lt;enumeration value="JBOSS"/>
+ *             &lt;enumeration value="picketlink"/>
  *             &lt;enumeration value="TOMCAT"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
@@ -178,7 +178,7 @@ public class ProviderType {
      */
     public String getServerEnvironment() {
         if (serverEnvironment == null) {
-            return "JBOSS";
+            return "picketlink";
         } else {
             return serverEnvironment;
         }
