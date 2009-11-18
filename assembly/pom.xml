@@ -1,17 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <groupId>org.jboss.identity</groupId>
-    <artifactId>jboss-identity-fed-parent</artifactId>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-fed-parent</artifactId>
     <version>1.0.0.beta3-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.jboss.identity</groupId>
-  <artifactId>jboss-identity-fed</artifactId>
+  <groupId>org.picketlink</groupId>
+  <artifactId>picketlink-fed</artifactId>
   <packaging>pom</packaging>
-  <name>JBoss Identity Federation- Assembly</name>
-  <url>http://labs.jboss.org/portal/jbosssecurity/</url>
-  <description>JBoss Identity Federation</description>
+  <name>PicketLink Federation- Assembly</name>
+  <url>http://www.picketlink.org/</url>
+  <description>PicketLink Federation</description>
   <licenses>
     <license>
       <name>lgpl</name>
@@ -40,14 +40,14 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Specification-Title>JBoss Identity</Specification-Title>
+              <Specification-Title>PicketLink</Specification-Title>
               <Specification-Version>${project.version}</Specification-Version>
               <Specification-Vendor>Red Hat Middleware LLC</Specification-Vendor>
               <Implementation-Title>JBoss Identity</Implementation-Title>
               <Implementation-Version>${project.version}</Implementation-Version>
               <Implementation-VendorId>org.jboss.security</Implementation-VendorId>
               <Implementation-Vendor>Red Hat Middleware LLC</Implementation-Vendor>
-              <Implementation-URL>http://labs.jboss.org/portal/jbosssecurity/</Implementation-URL>
+              <Implementation-URL>http://picketlink.org/</Implementation-URL>
             </manifestEntries>
           </archive>
           <descriptors>

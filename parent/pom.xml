@@ -5,13 +5,13 @@
       <version>4</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.jboss.identity</groupId>
-   <artifactId>jboss-identity-fed-parent</artifactId>
+   <groupId>org.picketlink</groupId>
+   <artifactId>picketlink-fed-parent</artifactId>
    <packaging>pom</packaging>
    <version>1.0.0.beta3-SNAPSHOT</version>
-   <name>JBoss Identity Federation- Parent</name>
-   <url>http://labs.jboss.org/portal/jbosssecurity/</url>
-   <description>JBoss Identity is a cross-cutting project that handles identity  needs for the JEMS projects</description>
+   <name>PicketLink Federation- Parent</name>
+   <url>http://labs.jboss.org/portal/picketlink/</url>
+   <description>PicketLink is a cross-cutting project that handles identity  needs for the JEMS projects</description>
    <licenses>
       <license>
          <name>lgpl</name>
@@ -23,8 +23,8 @@
       <url>http://www.jboss.org</url>
    </organization>
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossidentity/identity-federation/tags/1.0.0.alpha1</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossidentity/identity-federation/tags/1.0.0.alpha1</developerConnection>
+      <connection>scm:svn:http://anonsvn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</developerConnection>
    </scm>
   
    <build>
@@ -32,7 +32,7 @@
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
           <configuration>
-            <tagBase>https://svn.jboss.org/repos/jbossidentity/identity-federation/tags</tagBase>
+            <tagBase>https://svn.jboss.org/repos/picketlink/federation/tags</tagBase>
           </configuration>
         </plugin>
      </plugins>

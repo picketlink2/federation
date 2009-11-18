@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>org.jboss.identity</groupId>
-		<artifactId>jboss-identity-fed-parent</artifactId>
+		<groupId>picketlink</groupId>
+		<artifactId>picketlink-fed-parent</artifactId>
 		<version>1.0.0.beta3-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>jboss-identity-federation-webapps</artifactId>
+	<artifactId>picketlink-federation-webapps</artifactId>
 	<packaging>pom</packaging>
-	<name>JBoss Identity Federation Web Applications</name>
+	<name>PicketLink Federation Web Applications</name>
 	<url>http://labs.jboss.org/portal/jbosssecurity/</url>
-	<description>JBoss Identity Web Applications contains the web
+	<description>PicketLink Web Applications contains the web
 		applications for Federated Identity Needs.</description>
 	<licenses>
 		<license>

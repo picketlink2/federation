@@ -5,23 +5,23 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}/../jboss-identity-xmlsec-model/target/classes</directory>
+      <directory>${basedir}/../picketlink-xmlsec-model/target/classes</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../jboss-identity-fed-model/target/classes</directory>
+      <directory>${basedir}/../picketlink-fed-model/target/classes</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../jboss-identity-fed-core/target/classes</directory>
+      <directory>${basedir}/../picketlink-fed-core/target/classes</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../jboss-identity-fed-api/target/classes/</directory>
+      <directory>${basedir}/../picketlink-fed-api/target/classes/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../jboss-identity-web/target/classes/</directory>
+      <directory>${basedir}/../picketlink-web/target/classes/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>

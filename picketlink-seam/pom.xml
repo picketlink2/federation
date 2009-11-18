@@ -1,18 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>org.jboss.identity</groupId>
-		<artifactId>jboss-identity-fed-parent 
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-fed-parent 
 		</artifactId>
 		<version>1.0.0.beta3-SNAPSHOT</version>
 		<relativePath>../parent</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>jboss-identity-seam</artifactId>
+	<artifactId>picketlink-seam</artifactId>
 	<packaging>jar</packaging>
-	<name>JBoss Identity Federation Bindings for Seam</name>
-	<url>http://labs.jboss.org/portal/jbossidentity/ 
+	<name>PicketLink Federation Bindings for Seam</name>
+	<url>http://labs.jboss.org/portal/picketlink/ 
 	</url>
-	<description>JBoss Identity Seam bindings contain the default
+	<description>PicketLink Seam bindings contain the default
 		bindings needed for Seam web applications.</description>
 	<licenses>
 		<license>
@@ -49,19 +49,19 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
-			<artifactId>jboss-identity-fed-model 
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-fed-model 
 			</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
-			<artifactId>jboss-identity-fed-api</artifactId>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-fed-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.identity</groupId>
-			<artifactId>jboss-identity-web</artifactId>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-web</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
