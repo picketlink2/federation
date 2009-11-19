@@ -1,6 +1,6 @@
 <%@ page session="true" %>
 
-<%@ page import="org.jboss.identity.federation.api.openid.OpenIDManager,org.jboss.identity.federation.bindings.web.openid.HTTPProtocolAdaptor, org.jboss.identity.federation.bindings.web.openid.HTTPOpenIDContext" %>
+<%@ page import="org.picketlink.identity.federation.api.openid.OpenIDManager,org.picketlink.identity.federation.web.openid.HTTPProtocolAdaptor, org.picketlink.identity.federation.web.openid.HTTPOpenIDContext" %>
 <html>
 <body>
 

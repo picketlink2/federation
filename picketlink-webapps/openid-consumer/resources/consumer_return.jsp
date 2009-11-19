@@ -1,5 +1,5 @@
 <%@ page session="true" %>
-<%@ page import="org.jboss.identity.federation.api.openid.*, org.jboss.identity.federation.bindings.web.openid.*" %>
+<%@ page import="org.picketlink.identity.federation.api.openid.*, org.picketlink.identity.federation.web.openid.*" %>
 
 <html>
 <body>
