@@ -22,7 +22,7 @@
 package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +48,7 @@ public class HandlerUtil
          throw new IllegalArgumentException("handlers is null");
       List<Handler> handlerList = handlers.getHandler();
 
-      Set<SAML2Handler> handlerSet = new HashSet<SAML2Handler>();
+      Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
 
       for(Handler handler : handlerList)
       {
@@ -91,6 +91,5 @@ public class HandlerUtil
       } 
       
       return handlerSet;
-   }
-
+   } 
 }

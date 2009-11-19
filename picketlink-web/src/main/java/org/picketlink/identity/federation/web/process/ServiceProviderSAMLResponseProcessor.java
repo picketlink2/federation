@@ -23,6 +23,9 @@ package org.picketlink.identity.federation.web.process;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.PublicKey;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -35,7 +38,9 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerR
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
@@ -47,7 +52,7 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
  * @since Oct 27, 2009
  */
 public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBaseProcessor
-{  
+{   
    /**
     * Construct
     * @param postBinding Whether it is the Post Binding
@@ -102,6 +107,25 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
       SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
 
       SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
+      
+      //Set some request options
+      if(spConfiguration != null)
+      {
+         Map<String,Object> requestOptions = new HashMap<String,Object>();
+         requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+         if(keyManager != null)
+         {
+            String remoteHost = httpContext.getRequest().getRemoteAddr();
+            if(trace)
+            {
+               log.trace("ServiceProviderSAMLResponseProcessor::Remote Host=" + remoteHost); 
+            }
+            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
+            requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey); 
+         }
+
+         saml2HandlerRequest.setOptions(requestOptions);
+      }
 
       chainProcessor.callHandlerChain(samlObject, saml2HandlerRequest, 
             saml2HandlerResponse, httpContext, chainLock);

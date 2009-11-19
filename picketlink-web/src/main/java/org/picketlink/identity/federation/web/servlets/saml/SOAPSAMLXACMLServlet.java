@@ -154,7 +154,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       {
          Document inputDoc = DocumentUtil.getDocument(req.getInputStream());
          if(debug && trace)
-            log.trace("Received SOAP:"+DocumentUtil.getDocumentAsString(inputDoc));
+            log.trace("Received SOAP:"+DocumentUtil.asString(inputDoc));
          
          Unmarshaller un = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage());
          if(debug)

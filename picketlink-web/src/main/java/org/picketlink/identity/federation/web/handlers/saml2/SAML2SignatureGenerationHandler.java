@@ -63,10 +63,55 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
          throw new ProcessingException("KeyPair not found");
       }
 
+      sign(samlDocument, keypair);
+   }
+
+   public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
+   { 
+      Document responseDocument = response.getResultingDocument();
+      if(responseDocument == null)
+      {
+         if(trace)
+         {
+            log.trace("handleRequestType:No response document found");
+         }
+         return;
+      } 
+
+      //Get the Key Pair
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+     
+      this.sign(responseDocument, keypair);
+   } 
+
+   @Override
+   public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
+         throws ProcessingException
+   {
+      Document responseDocument = response.getResultingDocument();
+      if(responseDocument == null)
+      {
+         if(trace)
+         {
+            log.trace("handleStatusResponseType:No response document found");
+         }
+         return;
+      } 
+
+      //Get the Key Pair
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+     
+      this.sign(responseDocument, keypair);
+   }
+   
+
+   
+   private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException
+   {
       SAML2Signature samlSignature = new SAML2Signature();
       //Get the ID from the root
       String id = samlDocument.getDocumentElement().getAttribute("ID");
-      
+ 
       try
       {
          samlSignature.sign(samlDocument, id, keypair);
@@ -77,9 +122,6 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
          throw new ProcessingException("Unable to sign");
       }
    }
-
-   public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
-   { 
-      //Nothing to do
-   }
+   
+   
 }

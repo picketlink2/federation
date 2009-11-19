@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.security.PublicKey;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -35,6 +36,7 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 
 /**
+ * Validates Signatures inside the SAML payload
  * @author Anil.Saldhana@redhat.com
  * @since Nov 13, 2009
  */
@@ -48,16 +50,16 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler
     */
    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
    {
+      Map<String,Object> requestOptions = request.getOptions();
+      Boolean ignoreSignatures =  (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+      if(ignoreSignatures == Boolean.TRUE)
+         return;
+      
       Document signedDocument = request.getRequestDocument();
+       
       if(trace)
       {
-         try
-         {
-            log.trace("Will validate :" + DocumentUtil.getDocumentAsString(signedDocument));
-         }
-         catch (ConfigurationException e)
-         { 
-         } 
+         log.trace("Will validate :" + DocumentUtil.asString(signedDocument));  
       }
       PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
       try
@@ -76,7 +78,17 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler
    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
          throws ProcessingException
    {  
+      Map<String,Object> requestOptions = request.getOptions();
+      Boolean ignoreSignatures =  (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+      if(ignoreSignatures == Boolean.TRUE)
+         return;
+      
       Document signedDocument = request.getRequestDocument();
+      if(trace)
+      {
+         log.trace("Document for validation=" + DocumentUtil.asString(signedDocument)); 
+      }
+      
       PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
       this.validateSender(signedDocument, publicKey);
    }

@@ -30,9 +30,11 @@ import java.util.concurrent.locks.Lock;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
@@ -53,10 +55,13 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 public class ServiceProviderBaseProcessor
 {
    protected static Logger log = Logger.getLogger(ServiceProviderBaseProcessor.class);
-   private boolean trace = log.isTraceEnabled();
+   protected boolean trace = log.isTraceEnabled();
    
    protected boolean postBinding;
    protected String serviceURL;
+   
+   protected SPType spConfiguration;
+   protected TrustKeyManager keyManager;
 
    /**
     * Construct
@@ -69,11 +74,32 @@ public class ServiceProviderBaseProcessor
       this.serviceURL = serviceURL;
    }
    
+   /**
+    * Set the SP configuration
+    * @param sp
+    */
+   public void setConfiguration(SPType sp)
+   {
+      this.spConfiguration = sp;
+   }
+   
+   /**
+    * Set the {@code TrustKeyManager}
+    * @param tkm
+    */
+   public void setTrustKeyManager(TrustKeyManager tkm)
+   {
+      this.keyManager = tkm;
+   }
+   
    public SAML2HandlerResponse process(HTTPContext httpContext,
          Set<SAML2Handler> handlers,
          Lock chainLock) 
    throws ProcessingException, IOException, ParsingException, ConfigurationException
    {
+      if(trace)
+         log.trace("Handlers are:" + handlers);
+      
       //Neither saml request nor response from IDP
       //So this is a user request
 
@@ -105,6 +131,8 @@ public class ServiceProviderBaseProcessor
             else   
                saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
             handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
+            if(trace)
+               log.trace("Finished Processing handler:" + handler.getClass().getCanonicalName());
          } 
       }
       catch(ProcessingException pe)

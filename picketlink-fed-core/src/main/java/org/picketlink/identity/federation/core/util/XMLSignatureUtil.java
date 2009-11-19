@@ -184,10 +184,7 @@ public class XMLSignatureUtil
          throw new IllegalArgumentException("Node to be signed is null");
       if(trace)
       {
-         try
-         {
-            log.trace("Document to be signed=" + DocumentUtil.getDocumentAsString(doc));
-         }catch (Exception e) {}
+         log.trace("Document to be signed=" + DocumentUtil.asString(doc)); 
       }
       
       Node parentNode = nodeToBeSigned.getParentNode();
@@ -231,13 +228,10 @@ public class XMLSignatureUtil
   {   
       if(trace)
       {
-         try
-         {
-            log.trace("Document to be signed=" + DocumentUtil.getDocumentAsString(doc));
-         }catch (Exception e) {}
+         log.trace("Document to be signed=" + DocumentUtil.asString(doc)); 
       }
-     PrivateKey signingKey = keyPair.getPrivate();
-     PublicKey publicKey = keyPair.getPublic();
+      PrivateKey signingKey = keyPair.getPrivate();
+      PublicKey publicKey = keyPair.getPublic();
       
      DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement());  
      dsc.setDefaultNamespacePrefix("dsig");

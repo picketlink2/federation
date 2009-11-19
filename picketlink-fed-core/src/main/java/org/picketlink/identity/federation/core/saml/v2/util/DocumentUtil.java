@@ -393,6 +393,25 @@ public class DocumentUtil
    }
    
    /**
+    * Get the document as a string while
+    * ignoring any exceptions
+    * @param doc
+    * @return
+    */
+   public static String asString(Document doc)
+   {
+      String str = null;
+      
+      try
+      {
+         str = getDocumentAsString(doc);   
+      }
+      catch(Exception ignore)
+      {}
+      return str;
+   }
+   
+   /**
     * Log the nodes in the document
     * @param doc
     */

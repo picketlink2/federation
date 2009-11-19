@@ -306,11 +306,7 @@ public class WSTrustJAXBFactory
          }
          if(trace)
          {
-            try
-            {
-               log.trace("Final RSTR doc:" + DocumentUtil.getDocumentAsString(result));
-               
-            }catch(Exception ignore){}
+            log.trace("Final RSTR doc:" + DocumentUtil.asString(result)); 
          }
             
       }
