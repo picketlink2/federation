@@ -26,6 +26,7 @@ import java.security.PublicKey;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -59,7 +60,16 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler
          } 
       }
       PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
-      this.validateSender(signedDocument, publicKey);
+      try
+      {
+          this.validateSender(signedDocument, publicKey); 
+      }
+      catch(ProcessingException pe)
+      {
+    	  response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, 
+    	        "Signature Validation Failed");
+    	  throw pe;
+      }
    }
 
    @Override
