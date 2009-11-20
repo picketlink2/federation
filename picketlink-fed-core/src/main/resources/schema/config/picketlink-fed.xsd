@@ -176,7 +176,7 @@
 			<element name="TokenProviders" type="tns:TokenProvidersType" minOccurs="0"/>
 			<element name="ServiceProviders" type="tns:ServiceProvidersType" minOccurs="0"/>
 		</sequence>
-		<attribute name="STSName" default="picketlinkSTS" type="string" use="optional"/>
+		<attribute name="STSName" default="PicketLinkSTS" type="string" use="optional"/>
 		<attribute name="TokenTimeout" default="3600" type="int" use="optional"/>
 		<attribute name="SignToken" default="true" type="boolean" use="optional"/>
 		<attribute name="EncryptToken" default="false" type="boolean" use="optional"/>
