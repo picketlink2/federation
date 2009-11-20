@@ -189,7 +189,7 @@ public class WSTrustClientUnitTestCase extends TestCase
       
       String  serviceName = "PicketLinkSTS";
       String  portName = "PicketLinkSTSPort";
-      String endpointAddress = "http://localhost:8080/jboss-sts/PicketLinkSTS";
+      String endpointAddress = "http://localhost:8080/picketlink-sts/PicketLinkSTS";
       WSTrustClient client = new WSTrustClient(serviceName, portName, endpointAddress, new SecurityInfo("admin", "admin") );
       Element token = client.issueToken(SAMLUtil.SAML2_TOKEN_TYPE);
       assertTrue("Token is valid" , client.validateToken(token));
@@ -202,10 +202,10 @@ public class WSTrustClientUnitTestCase extends TestCase
    private  Dispatch<Source> createDispatch() throws MalformedURLException, JAXBException
    {
       // JBoss STS target information.
-      String targetNS = "http://org.picketlink.trust/sts/";
+      String targetNS = "urn:picketlink:identity-federation:sts";
       QName serviceName = new QName(targetNS, "PicketLinkSTS");
       QName portName = new QName(targetNS, "PicketLinkSTSPort");
-      URL endpointAddress = new URL("http://localhost:8080/jboss-sts/PicketLinkSTS");
+      URL endpointAddress = new URL("http://localhost:8080/picketlink-sts/PicketLinkSTS");
 //      URL securityConfigURL = new File("jboss-wsse-client.xml").toURI().toURL();
 
       Service service = Service.create(serviceName);

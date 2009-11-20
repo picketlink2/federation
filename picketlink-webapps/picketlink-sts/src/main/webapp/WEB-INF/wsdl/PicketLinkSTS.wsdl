@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
-<wsdl:definitions name="JBossSTS" targetNamespace="urn:picketlink:identity-federation:sts"
+<wsdl:definitions name="PicketLinkSTS" targetNamespace="urn:picketlink:identity-federation:sts"
 	xmlns:tns="urn:picketlink:identity-federation:sts" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 	xmlns:wsap10="http://www.w3.org/2006/05/addressing/wsdl"
 	xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
   <wsdl:types>
-    <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:schema targetNamespace="urn:picketlink:identity-federation:sts" 
+      xmlns:tns="urn:picketlink:identity-federation:sts" 
+      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      version="1.0">
       <xs:complexType name="MessageBody">
         <xs:sequence>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any"/>

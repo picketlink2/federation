@@ -101,7 +101,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       String file = this.properties.get(CANCELED_IDS_FILE);
       if (file == null && logger.isDebugEnabled())
          logger.debug("File to store canceled ids has not been specified: ids will not be persisted!");
-      else
+      else if (file != null)
       {
          this.canceledIdsFile = new File(file);
          this.loadCanceledIds();
