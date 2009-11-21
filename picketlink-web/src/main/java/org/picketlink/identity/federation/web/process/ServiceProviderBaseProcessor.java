@@ -62,6 +62,8 @@ public class ServiceProviderBaseProcessor
    
    protected SPType spConfiguration;
    protected TrustKeyManager keyManager;
+   
+   protected boolean supportSignatures = false;
 
    /**
     * Construct
@@ -92,6 +94,15 @@ public class ServiceProviderBaseProcessor
       this.keyManager = tkm;
    }
    
+   /**
+    * Whether we support signatures during the current processing
+    * @param supportSignatures
+    */
+   public void setSupportSignatures(boolean supportSignatures)
+   {
+      this.supportSignatures = supportSignatures;
+   }
+
    public SAML2HandlerResponse process(HTTPContext httpContext,
          Set<SAML2Handler> handlers,
          Lock chainLock) 

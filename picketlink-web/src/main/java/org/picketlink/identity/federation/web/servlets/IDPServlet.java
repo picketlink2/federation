@@ -110,7 +110,7 @@ public class IDPServlet extends HttpServlet
 
    private transient TrustKeyManager keyManager;
 
-   private Boolean ignoreIncomingSignatures = true;
+   private Boolean ignoreIncomingSignatures = false;
 
    private Boolean signOutgoingMessages = true; 
    
@@ -516,8 +516,8 @@ public class IDPServlet extends HttpServlet
          {
             if(trace) log.trace(e);
          }
-       
-          return;
+
+         return;
       } 
    }
 

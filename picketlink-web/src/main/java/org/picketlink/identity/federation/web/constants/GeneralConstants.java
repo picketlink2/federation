@@ -32,7 +32,7 @@ public interface GeneralConstants
    
    String ATTRIBUTES = "ATTRIBUTES";
    String ATTRIBUTE_KEYS = "ATTRIBUTE_KEYS";
-   String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
+   String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER"; 
    
    String CONFIGURATION = "CONFIGURATION";
    String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";

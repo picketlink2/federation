@@ -31,6 +31,7 @@ import java.util.concurrent.locks.Lock;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -158,6 +159,12 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
          boolean willSendRequest)
    throws ProcessingException, ConfigurationException, IOException
    {
+      if(this.supportSignatures)
+      {
+         SAML2Signature ss = new SAML2Signature();
+         ss.signSAMLDocument(samlDocument, keyManager.getSigningKeyPair());
+      }
+      
       String samlMessage = DocumentUtil.getDocumentAsString(samlDocument); 
       samlMessage = PostBindingUtil.base64Encode(samlMessage);
       PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),

@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.api.saml.v2.sig;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PublicKey;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
@@ -37,6 +38,7 @@ import javax.xml.xpath.XPathException;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
@@ -212,5 +214,48 @@ public class SAML2Signature
             keypair, 
             digestMethod, signatureMethod, 
             referenceURI); 
+   }
+   
+   /**
+    * Sign a SAML Document
+    * @param samlDocument
+    * @param keypair
+    * @throws ProcessingException
+    */
+   public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException
+   {
+      //Get the ID from the root
+      String id = samlDocument.getDocumentElement().getAttribute("ID");
+      try
+      {
+         sign(samlDocument, id, keypair);
+      }
+      catch (Exception e)
+      {
+         throw new ProcessingException(e);
+      } 
+   }
+   
+   /**
+    * Validate the SAML2 Document
+    * @param signedDocument
+    * @param publicKey
+    * @return
+    * @throws ProcessingException
+    */
+   public boolean validate(Document signedDocument, PublicKey publicKey) throws ProcessingException
+   {
+      try
+      {
+         return XMLSignatureUtil.validate(signedDocument, publicKey); 
+      }
+      catch(MarshalException me)
+      {
+         throw new ProcessingException(me.getLocalizedMessage());
+      }
+      catch(XMLSignatureException xse)
+      {
+         throw new ProcessingException(xse.getLocalizedMessage());
+      }
    }
 }

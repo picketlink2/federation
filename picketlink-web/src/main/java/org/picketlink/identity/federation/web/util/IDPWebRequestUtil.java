@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.List;
@@ -266,7 +267,7 @@ public class IDPWebRequestUtil
          }
          catch (Exception e)
          {
-            log.trace(e);
+            if(trace)  log.trace(e);
          } 
       
       return samlResponseDocument; 
@@ -336,10 +337,11 @@ public class IDPWebRequestUtil
       if(responseDoc == null)
          throw new IllegalArgumentException("responseType is null");
 
-      byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
-       
+      
       if(redirectProfile)
       { 
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
+         
          String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
  
          if(trace) log.trace("IDP:Destination=" + destination);
@@ -354,8 +356,22 @@ public class IDPWebRequestUtil
       }  
       else
       {   
+         //If we support signature
+         if(supportSignature)
+         {
+            //Sign the document
+            SAML2Signature samlSignature = new SAML2Signature();
+
+            KeyPair keypair = keyManager.getSigningKeyPair();
+            samlSignature.signSAMLDocument(responseDoc, keypair); 
+            
+            if(trace)
+               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc)); 
+         }
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
+         
          String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
-          
+         
          PostBindingUtil.sendPost(new DestinationInfoHolder(destination, 
                samlResponse, relayState), response, sendRequest);
       }

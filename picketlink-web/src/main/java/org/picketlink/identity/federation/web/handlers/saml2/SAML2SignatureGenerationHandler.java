@@ -103,25 +103,11 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
      
       this.sign(responseDocument, keypair);
    }
-   
-
+    
    
    private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException
    {
       SAML2Signature samlSignature = new SAML2Signature();
-      //Get the ID from the root
-      String id = samlDocument.getDocumentElement().getAttribute("ID");
- 
-      try
-      {
-         samlSignature.sign(samlDocument, id, keypair);
-      }
-      catch (Exception e)
-      {
-         log.error("Unable to sign:",e);
-         throw new ProcessingException("Unable to sign");
-      }
-   }
-   
-   
+      samlSignature.signSAMLDocument(samlDocument, keypair); 
+   } 
 }

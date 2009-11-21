@@ -197,7 +197,10 @@ public class KeyStoreKeyManager implements TrustKeyManager
       try
       {
          if(ks == null)
-            this.setUpKeyStore();
+         {
+            if(trace) log.trace("getPublicKey::Keystore is null. so setting it up");
+            this.setUpKeyStore(); 
+         }
          
          if(ks == null)
             throw new IllegalStateException("KeyStore is null");
@@ -225,8 +228,11 @@ public class KeyStoreKeyManager implements TrustKeyManager
    } 
 
    /**
+    * Get the validating public key
+    * <b>Note:</b>: The domain is mapped to an alias in the keystore
     * @throws IOException 
     * @see TrustKeyManager#getValidatingKey(String)
+    * @see TrustKeyManager#getPublicKey(String)
     */
    public PublicKey getValidatingKey(String domain) 
    throws TrustKeyConfigurationException, TrustKeyProcessingException

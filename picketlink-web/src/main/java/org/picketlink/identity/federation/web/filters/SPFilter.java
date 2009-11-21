@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
@@ -99,6 +101,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -283,6 +286,12 @@ public class SPFilter implements Filter
                
                SAML2Object samlObject = saml2Response.getSAML2ObjectFromStream(is);
                SAMLDocumentHolder documentHolder = saml2Response.getSamlDocumentHolder();
+
+               if(!ignoreSignatures)
+               { 
+                  if(!verifySignature(documentHolder))
+                     throw new ServletException("Cannot verify sender"); 
+               }
                
                Set<SAML2Handler> handlers = chain.handlers();
                IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);
@@ -369,6 +378,12 @@ public class SPFilter implements Filter
                SAML2Request saml2Request = new SAML2Request();  
                SAML2Object samlObject = saml2Request.getSAML2ObjectFromStream(is);
                SAMLDocumentHolder documentHolder = saml2Request.getSamlDocumentHolder();
+               
+               if(!ignoreSignatures)
+               { 
+                  if(!verifySignature(documentHolder))
+                     throw new ServletException("Cannot verify sender"); 
+               }
                
                Set<SAML2Handler> handlers = chain.handlers();
                IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);
@@ -580,6 +595,12 @@ public class SPFilter implements Filter
          boolean request)
    throws IOException, SAXException, JAXBException,GeneralSecurityException
    {
+      if(!ignoreSignatures)
+      {
+         SAML2Signature samlSignature = new SAML2Signature();
+         KeyPair keypair = keyManager.getSigningKeyPair();
+         samlSignature.signSAMLDocument(samlDocument, keypair);
+      }
       String samlMessage = PostBindingUtil.base64Encode(DocumentUtil.getDocumentAsString(samlDocument));  
       PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
              response, request);
@@ -593,9 +614,17 @@ public class SPFilter implements Filter
    protected boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
    {   
       Document samlResponse = samlDocumentHolder.getSamlDocument();
-      ResponseType response = (ResponseType) samlDocumentHolder.getSamlObject();
+      SAML2Object samlObject =  samlDocumentHolder.getSamlObject();
       
-      String issuerID = response.getIssuer().getValue();
+      String issuerID = null;
+      if(samlObject instanceof StatusResponseType)
+      {
+         issuerID = ((StatusResponseType)samlObject).getIssuer().getValue();   
+      }
+      else
+      {
+         issuerID = ((RequestAbstractType)samlObject).getIssuer().getValue();
+      }
       
       if(issuerID == null)
          throw new IssuerNotTrustedException("Issue missing");
