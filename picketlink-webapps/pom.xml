@@ -24,11 +24,13 @@
 	</organization>
 	<modules>
 		<module>sales</module>
+		<module>employee</module>
 		<module>sales-sig</module>
+		<module>employee-sig</module>
 		<module>sales-post-sig</module>
 		<module>employee-post-sig</module>
 		<module>sales-standalone</module>
-		<module>employee</module>
+		<module>employee-standalone</module>
 		<module>circleoftrust</module>
 		<module>idp</module>
 		<module>idp-sig</module>

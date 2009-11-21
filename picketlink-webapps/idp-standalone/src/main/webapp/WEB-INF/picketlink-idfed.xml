@@ -3,7 +3,7 @@
 <Trust>
    <Domains>localhost,jboss.com,jboss.org</Domains>
 </Trust>
-<KeyProvider ClassName="org.picketlink.identity.federation.bindings.tomcat.KeyStoreKeyManager">
+<KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
   <Auth Key="KeyStoreURL" Value="jbid_test_keystore.jks" />
   <Auth Key="KeyStorePass" Value="store123" />
   <Auth Key="SigningKeyPass" Value="test123" />
