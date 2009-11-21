@@ -117,6 +117,8 @@ public class JBossSAMLAuthnResponseFactory
       SubjectConfirmationDataType subjectConfirmationData = 
            JBossSAMLBaseFactory.createSubjectConfirmationData(sp.getRequestID(), 
                  responseDestinationURI, issueInstant);
+      subjectConfirmationData.setRecipient(sp.getResponseDestinationURI());
+      
       subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
       
       JAXBElement<SubjectConfirmationType> jaxbSubjectConfirmationType = 
