@@ -30,14 +30,18 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.seam.annotations.Logger;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.annotations.Startup;
+import org.jboss.seam.log.Log;
 
 /**
- * Session scoped component that stores relay states. Each relay state corresponds to an uncompleted authorization request 
- * that has been sent to the IDP. The state is used to store the URL of the page that has been requested by the user.
- * Each state has an integer number that can be used as the RelayState parameter in the SAMLv2 authentication protocol.
+ * Session scoped component that stores relay states. Each relay state
+ * corresponds to an uncompleted authorization request that has been sent to the
+ * IDP. The state is used to store the URL of the page that has been requested
+ * by the user. Each state has an integer number that can be used as the
+ * RelayState parameter in the SAMLv2 authentication protocol.
  * 
  * @author Marcel Kolsteren
  */
@@ -49,6 +53,9 @@ public class RelayStates
    private Map<Integer, String> states = new HashMap<Integer, String>();
 
    private int nextIndex = 0;
+
+   @Logger
+   private Log log;
 
    public int saveState(HttpServletRequest request)
    {
@@ -67,8 +74,16 @@ public class RelayStates
    public void restoreState(int index, HttpServletResponse response)
    {
       String requestURL = states.get(index);
+      if (requestURL == null)
+      {
+         throw new RuntimeException("Couldn't find URL for relayState " + index + " in the session");
+      }
       try
       {
+         if (log.isDebugEnabled())
+         {
+            log.debug("Redirecting to {0}", requestURL);
+         }
          response.sendRedirect(requestURL);
       }
       catch (IOException e)

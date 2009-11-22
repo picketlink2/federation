@@ -53,26 +53,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
-import org.picketlink.identity.federation.web.util.PostBindingUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.jboss.seam.annotations.Logger;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
@@ -87,19 +67,41 @@ import org.jboss.seam.servlet.ContextualHttpServletRequest;
 import org.jboss.seam.servlet.ServletRequestSessionMap;
 import org.jboss.seam.util.Base64;
 import org.jboss.seam.web.AbstractFilter;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * Seam Servlet Filter supporting SAMLv2 authentication. It implements the Web Browser SSO
- * Profile. For outgoing authentication requests it can use either HTTP Post or HTTP Redirect 
- * binding. For the responses, it uses HTTP Post binding, with signature validation.
+ * Seam Servlet Filter supporting SAMLv2 authentication. It implements the Web
+ * Browser SSO Profile. For outgoing authentication requests it can use either
+ * HTTP Post or HTTP Redirect binding. For the responses, it uses HTTP Post
+ * binding, with signature validation.
  * 
  * Properties that configure this component:
  * 
  * <dl>
- * <dt>identityProviderURL</dt>
- * <dd>URL of the identity provider.</dd>
+ * <dt>serviceProviderEntityId</dt>
+ * <dd>Identifier of this SP (sent to the IDP as issuer).</dd>
  * <dt>singleSignOnServiceURL</dt>
  * <dd>URL of the SSO Service of the identity provider.</dd>
  * <dt>keyStoreURL</dt>
@@ -107,11 +109,14 @@ import org.xml.sax.SAXException;
  * <dt>keyStorePass</dt>
  * <dd>Password that gives access to the keystore.</dd>
  * <dt>idpCertificateAlias</dt>
- * <dd>The alias of the keystore entry that contains the certificate of the IDP.</dd>
+ * <dd>The alias of the keystore entry that contains the certificate of the IDP.
+ * </dd>
  * <dt>binding</dt>
- * <dd>Method for sending the authentication request: HTTP_Redirect or HTTP_Post. Default: HTTP_Post.</dd>
+ * <dd>Method for sending the authentication request: HTTP_Redirect or
+ * HTTP_Post. Default: HTTP_Post.</dd>
  * <dt>signatureRequired</dt>
- * <dd>Specifies whether IDP responses are required to have a valid signature. Default: true.</dd>
+ * <dd>Specifies whether IDP responses are required to have a valid signature.
+ * Default: true.</dd>
  * </dl>
  * 
  * @author Marcel Kolsteren
@@ -127,7 +132,7 @@ public class SamlAuthenticationFilter extends AbstractFilter
       HTTP_Redirect, HTTP_Post
    };
 
-   private String identityProviderURL;
+   private String serviceProviderEntityId;
 
    private String singleSignOnServiceURL;
 
@@ -181,19 +186,22 @@ public class SamlAuthenticationFilter extends AbstractFilter
          AuthenticatedUser user = processIDPResponse((HttpServletRequest) request);
          if (user != null)
          {
-            // Login the user. This ends with a redirect to the URL that was requested by the user.
+            // Login the user. This ends with a redirect to the URL that was
+            // requested by the user.
             loginUser(httpRequest, httpResponse, user);
          }
       }
       else if (request.getParameter("newRelayState") != null)
       {
-         // User requested a page for which login is required. Return a page that instructs the browser to post an
+         // User requested a page for which login is required. Return a page
+         // that instructs the browser to post an
          // authentication request to the IDP.
          sendRequestToIDP(httpRequest, httpResponse);
       }
       else
       {
-         // Request is not related to SAMLv2 authentication. Pass it on to the next chain.
+         // Request is not related to SAMLv2 authentication. Pass it on to
+         // the next chain.
          chain.doFilter(request, response);
       }
    }
@@ -261,7 +269,7 @@ public class SamlAuthenticationFilter extends AbstractFilter
       catch (GeneralSecurityException e)
       {
          throw new RuntimeException(e);
-      } 
+      }
 
       if (signatureRequired && !validateSignature(saml2Response.getSamlDocumentHolder()))
       {
@@ -447,23 +455,33 @@ public class SamlAuthenticationFilter extends AbstractFilter
 
       try
       {
-         /* Derive the service provider URL from the current request URL. Replace the last part with a place holder, 
-          * because we do not want the IDP to know what page the user requested. */
-         String serviceProviderURL = request.getScheme() + "://" + request.getServerName() + ":"
+         /*
+          * Derive the assertion consumer service URL from the current
+          * request URL. Replace the last part with a place holder, because
+          * we do not want the IDP to know what page the user requested.
+          */
+         String assertionConsumerServiceURL = request.getScheme() + "://" + request.getServerName() + ":"
                + request.getServerPort() + request.getContextPath() + "/SamlAuthenticationFilter.seam";
 
-         AuthnRequestType authnRequest = createSAMLRequest(serviceProviderURL, identityProviderURL);
+         AuthnRequestType authnRequest = createSAMLRequest(assertionConsumerServiceURL, singleSignOnServiceURL,
+               serviceProviderEntityId);
 
          SAML2Request saml2Request = new SAML2Request();
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
          saml2Request.marshall(authnRequest, baos);
+
+         if (log.isDebugEnabled())
+         {
+            log.debug("Sending over to SP: {0}", DocumentUtil.asString(saml2Request.convert(authnRequest)));
+         }
 
          String samlMessage = PostBindingUtil.base64Encode(baos.toString());
          if (binding == Binding.HTTP_Redirect)
          {
             String deflatedRequest = RedirectBindingUtil.deflateBase64URLEncode(baos.toByteArray());
             StringBuilder sb = new StringBuilder();
-            sb.append("?SAMLRequest=").append(deflatedRequest);
+            sb.append(singleSignOnServiceURL.contains("?") ? '&' : '?');
+            sb.append("SAMLRequest=").append(deflatedRequest);
             sb.append("&RelayState=").append(relayState);
             HTTPRedirectUtil.sendRedirectForRequestor(singleSignOnServiceURL + sb.toString(), response);
          }
@@ -492,15 +510,19 @@ public class SamlAuthenticationFilter extends AbstractFilter
       }
    }
 
-   private AuthnRequestType createSAMLRequest(String serviceURL, String identityURL) throws ConfigurationException
+   private AuthnRequestType createSAMLRequest(String assertionConsumerServiceURL, String singleSignOnServiceURL,
+         String serviceProviderEntityId) throws ConfigurationException
    {
-      if (serviceURL == null)
-         throw new IllegalArgumentException("serviceURL is null");
-      if (identityURL == null)
-         throw new IllegalArgumentException("identityURL is null");
+      if (assertionConsumerServiceURL == null)
+         throw new IllegalArgumentException("assertionConsumerServiceURL is null");
+      if (singleSignOnServiceURL == null)
+         throw new IllegalArgumentException("singleSignOnServiceURL is null");
+      if (serviceProviderEntityId == null)
+         throw new IllegalArgumentException("serviceProviderEntityId is null");
 
       SAML2Request saml2Request = new SAML2Request();
       String id = IDGenerator.create("ID_");
-      return saml2Request.createAuthnRequestType(id, serviceURL, identityURL, serviceURL);
+      return saml2Request.createAuthnRequestType(id, assertionConsumerServiceURL, singleSignOnServiceURL,
+            serviceProviderEntityId);
    }
 }
