@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.web.process;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -47,6 +45,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
 
 /**
@@ -128,11 +127,17 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
          }
          else
          {
+            boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
             String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
 
             String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-            String destinationURL = destination + 
-                   getDestination(base64Request, relayState, saml2HandlerResponse.getSendRequest()); 
+            
+            String destinationQuery = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
+            
+            RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+            holder.setDestination(destination).setDestinationQueryString(destinationQuery);
+            
+            String destinationURL = RedirectBindingUtil.getDestinationURL(holder); 
 
             HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, httpContext.getResponse());
          }
@@ -169,18 +174,5 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
       samlMessage = PostBindingUtil.base64Encode(samlMessage);
       PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
             response, willSendRequest);
-   }
-   
-   private String getDestination(String urlEncodedRequest, String urlEncodedRelayState,
-         boolean sendRequest)
-   {
-      StringBuilder sb = new StringBuilder();
-      if(sendRequest)
-        sb.append("?SAMLRequest=").append(urlEncodedRequest);
-      else
-         sb.append("?SAMLResponse=").append(urlEncodedRequest);
-      if(isNotNull(urlEncodedRelayState))
-         sb.append("&RelayState=").append(urlEncodedRelayState);
-      return sb.toString();
    }
 }

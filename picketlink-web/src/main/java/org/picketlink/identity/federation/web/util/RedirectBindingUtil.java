@@ -21,8 +21,11 @@
  */
 package org.picketlink.identity.federation.web.util;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -138,5 +141,70 @@ public class RedirectBindingUtil
    {
       byte[] base64decodedMsg = Base64.decode(encodedString);
       return DeflateUtil.decode(base64decodedMsg);
+   }
+   
+   /**
+    * Get the Query String for the destination url
+    * @param urlEncodedRequest
+    * @param urlEncodedRelayState
+    * @param sendRequest either going to be saml request or response
+    * @return
+    */
+   public static String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState,
+         boolean sendRequest)
+   {
+      StringBuilder sb = new StringBuilder();
+      if(sendRequest)
+        sb.append("SAMLRequest=").append(urlEncodedRequest);
+      else
+         sb.append("SAMLResponse=").append(urlEncodedRequest);
+      if(isNotNull(urlEncodedRelayState))
+         sb.append("&RelayState=").append(urlEncodedRelayState);
+      return sb.toString();
+   }
+    
+   /**
+    * Get the destination url
+    * @param holder
+    * @return
+    * @throws UnsupportedEncodingException
+    * @throws IOException
+    */
+   public static String getDestinationURL(RedirectBindingUtilDestHolder holder) throws UnsupportedEncodingException, IOException
+   { 
+      String destination = holder.destination;
+      StringBuilder destinationURL = new StringBuilder(destination);
+
+      if(destination.contains("?"))
+         destinationURL.append("&");
+      else
+         destinationURL.append("?");
+
+      destinationURL.append( holder.destinationQueryString);  
+
+      return destinationURL.toString();
+   } 
+   
+   /**
+    * A Destination holder that holds
+    * the destination host url and the destination query
+    * string 
+    */
+   public static class RedirectBindingUtilDestHolder
+   {   
+      private String destination;
+      private String destinationQueryString;
+      
+      public RedirectBindingUtilDestHolder setDestinationQueryString(String dest)
+      {
+         destinationQueryString = dest;
+         return this;
+      }  
+      
+      public RedirectBindingUtilDestHolder setDestination(String dest)
+      {
+         destination = dest;
+         return this;
+      } 
    }
 }
