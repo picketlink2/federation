@@ -1,16 +1,16 @@
-README for workspace for Identity Federation
+README for workspace for Picketlink Federation
 ==============================================
-1) identity-xmlsecmodel: Contains the JAXB model for XML Digital Signature and XML Encryption.
+1) picketlink-xmlsecmodel: Contains the JAXB model for XML Digital Signature and XML Encryption.
 
-2) identity-fed-model: JAXB model for spec of SAMLv2 and WS-Trust1.3. Do not put any other JAXB stuff here.
+2) picketlink-fed-model: JAXB model for spec of SAMLv2 and WS-Trust1.3. Do not put any other JAXB stuff here.
 
-3) identity-fed-core: This is the workspace where JBID project developers (not the users) will build the code using the model.
+3) picketlink-fed-core: This is the workspace where JBID project developers (not the users) will build the code using the model.
 
-4) identity-fed-api: This is the API that the end users should use.
+4) picketlink-fed-api: This is the API that the end users should use.
 
-5) identity-bindings: This is the server bindings for a non-JBAS environment such as Apache Tomcat. This is where the JAXB model for the IDFed configuration exists.
+5) picketlink-bindings: This is the server bindings for a non-JBAS environment such as Apache Tomcat. This is where the JAXB model for the IDFed configuration exists.
 
-6) identity-bindings-jboss: This is any JBAS specific codebase that builds on the identity bindings.
+6) picketlink-bindings-jboss: This is any JBAS specific codebase that builds on the identity bindings.
 
 7) assembly: Builds up the models, core and api consolidated jars. DOES NOT CONTAIN THE BINDINGS (please look at the platform-build project of JBID where zips are built).
 
