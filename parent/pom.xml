@@ -8,7 +8,7 @@
    <groupId>org.picketlink</groupId>
    <artifactId>picketlink-fed-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.0.0</version>
+   <version>1.0.1-SNAPSHOT</version>
    <name>PicketLink Federation- Parent</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink is a cross-cutting project that handles identity  needs for the JEMS projects</description>
@@ -23,8 +23,8 @@
       <url>http://www.jboss.org</url>
    </organization>
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossidentity/migration/picketlink/federation/tags/1.0.0</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossidentity/migration/picketlink/federation/tags/1.0.0</developerConnection>
+      <connection>scm:svn:http://anonsvn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</developerConnection>
    </scm>
   
    <build>
