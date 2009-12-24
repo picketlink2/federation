@@ -170,6 +170,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             
             response.setDestination(destination);
             response.setResultingDocument(samlResponse); 
+            response.setRelayState(request.getRelayState());
          }
          catch(Exception e)
          {
