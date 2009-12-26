@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>org.picketlink</groupId>
 		<artifactId>picketlink-federation-webapps</artifactId>
@@ -9,33 +10,25 @@
 	<artifactId>seam-sp</artifactId>
 	<packaging>war</packaging>
 	<name>Seam Service Provider</name>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.picketlink</groupId>
-				<artifactId>picketlink-fed-model</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.picketlink</groupId>
-				<artifactId>picketlink-fed-api</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.picketlink</groupId>
-				<artifactId>picketlink-bindings</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-seam</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>sun-jaxb</groupId>
+					<artifactId>jaxb-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>sun-jaxb</groupId>
+					<artifactId>jaxb-impl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>stax</groupId>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.seam</groupId>

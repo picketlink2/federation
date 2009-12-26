@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>picketlink-federation-webapps</artifactId>
@@ -35,7 +36,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.picketlink</groupId>
-			<artifactId>idp-sig-no-val</artifactId>
+			<artifactId>idp-standalone</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
@@ -44,6 +45,25 @@
 			<artifactId>seam-sp</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-web</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>sun-jaxb</groupId>
+					<artifactId>jaxb-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>sun-jaxb</groupId>
+					<artifactId>jaxb-impl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>stax</groupId>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>

@@ -11,7 +11,7 @@
 	<component
 		name="org.picketlink.identity.seam.federation.samlAuthenticationFilter">
 		<property name="serviceProviderEntityId">http://localhost:8080/idp</property>
-		<property name="singleSignOnServiceURL">http://localhost:8080/idp-sig-no-val/</property>
+		<property name="singleSignOnServiceURL">http://localhost:8080/idp-standalone/</property>
 		<property name="keyStoreURL">classpath:/jbid_test_keystore.jks</property>
 		<property name="keyStorePass">store123</property>
 		<property name="idpCertificateAlias">servercert</property>
