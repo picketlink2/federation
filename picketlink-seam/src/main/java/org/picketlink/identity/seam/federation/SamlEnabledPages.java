@@ -21,6 +21,9 @@
  */
 package org.picketlink.identity.seam.federation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -58,8 +61,17 @@ public class SamlEnabledPages extends Pages
       RelayStates relayStates = (RelayStates) Component.getInstance(RelayStates.class);
       int relayState = relayStates.saveState(httpRequest);
 
-      String authenticationFilterURL = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":"
-            + httpRequest.getServerPort() + httpRequest.getContextPath() + "/SamlAuthenticationFilter.seam";
-      FacesManager.instance().redirectToExternalURL(authenticationFilterURL + "?newRelayState=" + relayState);
+      if (getLoginViewId() != null)
+      {
+         Map<String, Object> parameters = new HashMap<String, Object>();
+         parameters.put("relayState", relayState);
+         FacesManager.instance().redirect(getLoginViewId(), parameters, false);
+      }
+      else
+      {
+         ExternalAuthenticator externalAuthenticator = (ExternalAuthenticator) Component
+               .getInstance(ExternalAuthenticator.class);
+         externalAuthenticator.startAuthentication(relayState);
+      }
    }
 }
