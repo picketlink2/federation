@@ -162,7 +162,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             Document samlResponse = this.getResponse(destination,
                   userPrincipal, roles, request.getIssuer().getValue(),
                   attribs,
-                  assertionValidity);
+                  assertionValidity, art.getID());
             
             //Update the Identity Server
             IdentityServer identityServer = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
@@ -184,7 +184,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             List<String> roles, 
             String identityURL,
             Map<String, Object> attribs, 
-            long assertionValidity) 
+            long assertionValidity, String requestID) 
       throws ConfigurationException, IssueInstantMissingException
       {
          Document samlResponseDocument = null;
@@ -208,6 +208,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
          SPInfoHolder sp = new SPInfoHolder();
          sp.setResponseDestinationURI(assertionConsumerURL);
+         sp.setRequestID(requestID);
          responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
          
          //Add information on the roles
