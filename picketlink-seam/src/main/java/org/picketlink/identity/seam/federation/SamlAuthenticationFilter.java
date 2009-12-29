@@ -117,6 +117,8 @@ import org.xml.sax.SAXException;
  * <dt>signatureRequired</dt>
  * <dd>Specifies whether IDP responses are required to have a valid signature.
  * Default: true.</dd>
+ * <dt>unsolicitedAuthenticationViewId</dt>
+ * <dd>View id to which the browser should be redirected by default after succesful unsolicited authentication (IDP initiated login).</dd>
  * </dl>
  * 
  * @author Marcel Kolsteren
@@ -147,6 +149,8 @@ public class SamlAuthenticationFilter extends AbstractFilter
    private Binding binding = Binding.HTTP_Post;
 
    private boolean signatureRequired = true;
+
+   private String unsolicitedAuthenticationViewId;
 
    protected static class AuthenticatedUser
    {
@@ -182,13 +186,16 @@ public class SamlAuthenticationFilter extends AbstractFilter
       if (request.getParameter("SAMLResponse") != null)
       {
          // Received an authentication response from the IDP.
+         ResponseType responseType = getResponseType(request);
 
-         AuthenticatedUser user = processIDPResponse((HttpServletRequest) request);
+         AuthenticatedUser user = processIDPResponse(responseType);
          if (user != null)
          {
-            // Login the user. This ends with a redirect to the URL that was
-            // requested by the user.
-            loginUser(httpRequest, httpResponse, user);
+            // Determine whether this is a solicited login (SP initiated) or an unsolicited login (IDP initiated).
+            boolean unsolicited = responseType.getInResponseTo() == null;
+
+            // Login the user, and redirect to the requested page.
+            loginUser(httpRequest, httpResponse, user, unsolicited);
          }
       }
       else if (request.getParameter("newRelayState") != null)
@@ -206,8 +213,31 @@ public class SamlAuthenticationFilter extends AbstractFilter
       }
    }
 
-   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse, AuthenticatedUser user)
-         throws ServletException, IOException
+   private ResponseType getResponseType(ServletRequest request)
+   {
+      String samlResponse = request.getParameter("SAMLResponse");
+
+      // deal with SAML response from IDP
+      byte[] base64DecodedResponse = Base64.decode(samlResponse);
+      InputStream is = new ByteArrayInputStream(base64DecodedResponse);
+
+      SAML2Response saml2Response = new SAML2Response();
+      ResponseType responseType;
+      try
+      {
+         responseType = saml2Response.getResponseType(is);
+      }
+      catch (GeneralSecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      validateSignature(saml2Response);
+
+      return responseType;
+   }
+
+   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse, AuthenticatedUser user,
+         boolean unsolicitedLogin) throws ServletException, IOException
    {
       // Force session creation
       httpRequest.getSession();
@@ -228,11 +258,33 @@ public class SamlAuthenticationFilter extends AbstractFilter
       authenticate(httpRequest, user);
       RelayStates relayStates = (RelayStates) ctx.get(RelayStates.class);
       String relayState = httpRequest.getParameter("RelayState");
-      if (relayState == null)
+      if (unsolicitedLogin)
       {
-         throw new RuntimeException("RelayState parameter is missing");
+         if (relayState != null)
+         {
+            httpResponse.sendRedirect(relayState);
+         }
+         else
+         {
+            if (unsolicitedAuthenticationViewId != null)
+            {
+               httpResponse.sendRedirect(unsolicitedAuthenticationViewId);
+            }
+            else
+            {
+               throw new RuntimeException(
+                     "Unsolicited login could not be handled because the unsolicitedAuthenticationViewId property has not been configured");
+            }
+         }
       }
-      relayStates.restoreState(Integer.parseInt(relayState), httpResponse);
+      else
+      {
+         if (relayState == null)
+         {
+            throw new RuntimeException("RelayState parameter is missing");
+         }
+         relayStates.restoreState(Integer.parseInt(relayState), httpResponse);
+      }
    }
 
    private void authenticate(HttpServletRequest request, final AuthenticatedUser user) throws ServletException,
@@ -251,32 +303,17 @@ public class SamlAuthenticationFilter extends AbstractFilter
       }.run();
    }
 
-   private AuthenticatedUser processIDPResponse(HttpServletRequest request)
+   private void validateSignature(SAML2Response saml2Response)
    {
-      String samlResponse = request.getParameter("SAMLResponse");
-
-      // deal with SAML response from IDP
-      byte[] base64DecodedResponse = Base64.decode(samlResponse);
-      InputStream is = new ByteArrayInputStream(base64DecodedResponse);
-
-      SAML2Response saml2Response = new SAML2Response();
-
-      ResponseType responseType;
-      try
-      {
-         responseType = saml2Response.getResponseType(is);
-      }
-      catch (GeneralSecurityException e)
-      {
-         throw new RuntimeException(e);
-      }
-
       if (signatureRequired && !validateSignature(saml2Response.getSamlDocumentHolder()))
       {
          log.error("Invalid signature");
          throw new RuntimeException("Validity Checks failed");
       }
+   }
 
+   private AuthenticatedUser processIDPResponse(ResponseType responseType)
+   {
       StatusType statusType = responseType.getStatus();
       if (statusType == null)
       {
@@ -286,7 +323,7 @@ public class SamlAuthenticationFilter extends AbstractFilter
       String statusValue = statusType.getStatusCode().getValue();
       if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
       {
-         throw new RuntimeException("IDP forbid the user");
+         throw new RuntimeException("IDP returned status " + statusValue);
       }
 
       List<Object> assertions = responseType.getAssertionOrEncryptedAssertion();
@@ -295,6 +332,17 @@ public class SamlAuthenticationFilter extends AbstractFilter
          throw new RuntimeException("IDP response does not contain assertions");
       }
 
+      AuthenticatedUser user = getAuthenticatedUser(responseType);
+      if (user == null)
+      {
+         log.warn("No authenticated users found in assertions.");
+      }
+
+      return user;
+   }
+
+   private AuthenticatedUser getAuthenticatedUser(ResponseType responseType)
+   {
       AuthenticatedUser user = null;
 
       for (Object assertion : responseType.getAssertionOrEncryptedAssertion())
@@ -317,11 +365,6 @@ public class SamlAuthenticationFilter extends AbstractFilter
             log.warn("Encountered encrypted assertion. Skipping it because decryption is not yet supported.");
          }
       }
-      if (user == null)
-      {
-         log.warn("No authenticated users found in assertions.");
-      }
-
       return user;
    }
 
