@@ -38,6 +38,8 @@ import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
@@ -79,6 +81,7 @@ import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceTy
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -730,6 +733,232 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
+    * This test verifies if the token service is correctly identifying invalid issue requests.
+    * </p>
+    * 
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvalidIssueRequests() throws Exception
+   {
+      // lets create an issue request that container neither an applies-to nor a token type.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null, null);
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service. A WSTrustException should be raised.
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Either AppliesTo or TokenType must be present in a security token request", we.getCause()
+               .getMessage());
+      }
+
+      // a request that asks for a public key to be used as proof key will fail if the public key is not available.
+      request.setTokenType(URI.create(SAMLUtil.SAML2_TOKEN_TYPE));
+      request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
+      requestMessage = factory.marshallRequestSecurityToken(request);
+
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unexpected exception message", "Unable to locate client public key", we.getCause().getMessage());
+      }
+   }
+
+   /**
+    * <p>
+    * This test verifies if the token service is correctly identifying invalid renew requests.
+    * </p>
+    * 
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvalidRenewRequests() throws Exception
+   {
+      // first create a request that doesn't have a renew target element.
+      RequestSecurityToken request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service.
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to renew token: request does not have a renew target", we.getCause().getMessage());
+      }
+
+      // a request with an empty renew target should also result in a failure.
+      request.setRenewTarget(new RenewTargetType());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to renew token: security token is null", we.getCause().getMessage());
+      }
+
+      // a request to renew an unknown token (i.e. there's no provider can handle the token) should also fail.
+      request.getRenewTarget().setAny(this.createUnknownToken());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
+               we.getCause().getMessage());
+      }
+   }
+
+   /**
+    * <p>
+    * This test verifies if the token service is correctly identifying invalid validate requests.
+    * </p>
+    * 
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvalidValidateRequests() throws Exception
+   {
+      // first create a request that doesn't have a validate target element.
+      RequestSecurityToken request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service.
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to validate token: request does not have a validate target", we.getCause().getMessage());
+      }
+
+      // a request with an empty validate target should also result in a failure.
+      request.setValidateTarget(new ValidateTargetType());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to validate token: security token is null", we.getCause().getMessage());
+      }
+      
+      // a request to validate an unknown token (i.e. there's no provider can handle the token) should also fail.
+      request.getValidateTarget().setAny(this.createUnknownToken());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
+               we.getCause().getMessage());
+      }
+   }
+
+   /**
+    * <p>
+    * This test verifies if the token service is correctly identifying invalid cancel requests.
+    * </p>
+    * 
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvalidCancelRequests() throws Exception
+   {
+      // first create a request that doesn't have a cancel target element.
+      RequestSecurityToken request = this.createRequest("cancelcontext", WSTrustConstants.CANCEL_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service.
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to cancel token: request does not have a cancel target", we.getCause().getMessage());
+      }
+
+      // a request with an empty cancel target should also result in a failure.
+      request.setCancelTarget(new CancelTargetType());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("Unable to cancel token: security token is null", we.getCause().getMessage());
+      }
+      
+      // a request to cancel an unknown token (i.e. there's no provider can handle the token) should also fail.
+      request.getCancelTarget().setAny(this.createUnknownToken());
+      requestMessage = factory.marshallRequestSecurityToken(request);
+      try
+      {
+         this.tokenService.invoke(requestMessage);
+         fail("An exception should have been raised by the security token service");
+      }
+      catch (WebServiceException we)
+      {
+         assertNotNull("Unexpected null cause", we.getCause());
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
+               we.getCause().getMessage());
+      }
+   }
+   
+   /**
+    * <p>
     * Validates the contents of a WS-Trust response message that contains a custom token issued by the test {@code
     * SpecialTokenProvider}.
     * </p>
@@ -919,6 +1148,26 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          request.setAppliesTo(appliesTo);
       }
       return request;
+   }
+
+   /**
+    * <p>
+    * Creates a simple token that is not known to the STS for testing purposes.
+    * </p>
+    * 
+    * @return an {@code Element} representing the unknown token.
+    * @throws Exception if an error occurs while creating the token.
+    */
+   private Element createUnknownToken() throws Exception
+   {
+      Document doc = DocumentUtil.createDocument();
+      String namespaceURI = "http://www.unknowntoken.org";
+      Element root = doc.createElementNS(namespaceURI, "token:UnknownToken");
+      root.appendChild(doc.createTextNode("Unknown content"));
+      String id = IDGenerator.create("ID_");
+      root.setAttributeNS(namespaceURI, "ID", id);
+
+      return root;
    }
 
    /**

@@ -292,9 +292,18 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (trace)
          log.trace("Validating token for renew request " + request.getContext());
       if (request.getRenewTargetElement() == null)
-         throw new WSTrustException("Unable to renew token: renew target is null");
+         throw new WSTrustException("Unable to renew token: request does not have a renew target");
 
       Node securityToken = request.getRenewTargetElement().getFirstChild();
+      if (securityToken == null)
+    	  throw new WSTrustException("Unable to renew token: security token is null");
+
+      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
+            securityToken.getNamespaceURI());
+      if (provider == null)
+         throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
+               + securityToken.getLocalName());
+
       if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null)
       {
          KeyPair keyPair = this.configuration.getSTSKeyPair();
@@ -329,11 +338,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       // create a context and dispatch to the proper security token provider for renewal.
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
-      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
-            securityToken.getNamespaceURI());
-      if (provider == null)
-         throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
-               + securityToken.getLocalName());
       provider.renewToken(context);
 
       // create the WS-Trust response with the renewed token.
@@ -368,12 +372,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          throw new IllegalArgumentException("Request does not contain the DOM Document");
 
       if (request.getValidateTargetElement() == null)
-         throw new WSTrustException("Unable to validate token: validate target is null");
+         throw new WSTrustException("Unable to validate token: request does not have a validate target");
 
       if (request.getTokenType() == null)
          request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
 
       Node securityToken = request.getValidateTargetElement().getFirstChild();
+      if (securityToken == null)
+    	  throw new WSTrustException("Unable to validate token: security token is null");
+      
       SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
@@ -455,10 +462,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (rstDocument == null)
          throw new IllegalArgumentException("Request does not contain the DOM Document");
       if (request.getCancelTargetElement() == null)
-         throw new WSTrustException("Illegal cancel request: cancel target is null");
+         throw new WSTrustException("Unable to cancel token: request does not have a cancel target");
 
       // obtain the token provider that will handle the request.
       Node securityToken = request.getCancelTargetElement().getFirstChild();
+      if (securityToken == null)
+    	  throw new WSTrustException("Unable to cancel token: security token is null");
+    	  
       SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)

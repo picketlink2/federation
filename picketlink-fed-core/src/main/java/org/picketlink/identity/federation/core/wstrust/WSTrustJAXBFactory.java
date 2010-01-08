@@ -220,17 +220,17 @@ public class WSTrustJAXBFactory
       Element targetElement = null;
       // if the request has a validate, cancel, or renew target, we must preserve it from JAXB marshaling.
       String requestType = request.getRequestType().toString();
-      if (requestType.equalsIgnoreCase(WSTrustConstants.VALIDATE_REQUEST))
+      if (requestType.equalsIgnoreCase(WSTrustConstants.VALIDATE_REQUEST) && request.getValidateTarget() != null)
       {
          targetElement = (Element) request.getValidateTarget().getAny();
          request.getValidateTarget().setAny(null);
       }
-      else if (requestType.equalsIgnoreCase(WSTrustConstants.RENEW_REQUEST))
+      else if (requestType.equalsIgnoreCase(WSTrustConstants.RENEW_REQUEST) && request.getRenewTarget() != null)
       {
          targetElement = (Element) request.getRenewTarget().getAny();
          request.getRenewTarget().setAny(null);
       }
-      else if (requestType.equalsIgnoreCase(WSTrustConstants.CANCEL_REQUEST))
+      else if (requestType.equalsIgnoreCase(WSTrustConstants.CANCEL_REQUEST) && request.getCancelTarget() != null)
       {
          targetElement = (Element) request.getCancelTarget().getAny();
          request.getCancelTarget().setAny(null);
