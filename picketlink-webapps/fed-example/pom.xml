@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>picketlink-federation-webapps</artifactId>
 		<groupId>org.picketlink</groupId>
-		<version>1.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	<groupId>org.picketlink</groupId>
 	<artifactId>fed-example</artifactId>
