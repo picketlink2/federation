@@ -8,7 +8,7 @@
    <groupId>org.picketlink</groupId>
    <artifactId>picketlink-fed-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.0.1-SNAPSHOT</version>
+   <version>1.0.1</version>
    <name>PicketLink Federation- Parent</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink is a cross-cutting project that handles identity  needs for the JEMS projects</description>
