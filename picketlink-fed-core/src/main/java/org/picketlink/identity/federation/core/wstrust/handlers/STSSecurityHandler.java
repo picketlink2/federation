@@ -20,6 +20,10 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.INVALID_SECURITY;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.FAILED_AUTHENTICATION;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -28,17 +32,20 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -173,61 +180,99 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
         try
         {
             final Element securityToken = extractSecurityToken(messageContext, getSecurityElementQName(), getTokenElementQName());
+            if (securityToken == null)
+            {
+                throwSecurityTokenUnavailable();
+            }
             
             setUsernameFromMessageContext(messageContext, configBuilder);
             setPasswordFromMessageContext(messageContext, configBuilder);
             final STSClient stsClient = createSTSClient(configBuilder);
-            final boolean valid = stsClient.validateToken(securityToken);
-            if (valid)
-            {
-                return true;
-            }
             
-            throw new WebServiceException("Could not validate security token "+ securityToken);
-        }
-        catch (final SOAPException e)
-        {
-            throw new WebServiceException(e.getMessage(), e);
+            if (stsClient.validateToken(securityToken) == false)
+            {
+	            throwFailedAuthentication();
+            }
         }
         catch (final WSTrustException e)
         {
-            throw new WebServiceException(e.getMessage(), e);
+            throwInvalidSecurity();
         }
         catch (ParsingException e)
         {
-            throw new WebServiceException(e.getMessage(), e);
+            throwInvalidSecurity();
         }
+        
+        return true;
     }
     
     @SuppressWarnings("unchecked")
-    private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName, final QName tokenQName) throws SOAPException
+    private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName, final QName tokenQName) 
     {
-        if (securityQName == null)
-            throw new IllegalStateException("securityQName from subclass cannot be null!");
-        if (tokenQName == null)
-            throw new IllegalStateException("tokenQName from subclass cannot be null!");
-        
-        final SOAPHeader soapHeader = messageContext.getMessage().getSOAPHeader();
-        final Iterator securityHeaders = soapHeader.getChildElements(securityQName);
-        while (securityHeaders.hasNext())
+        try
         {
-            final SOAPHeaderElement elem = (SOAPHeaderElement) securityHeaders.next();
-            // Check if the header is equal to the one this Handler is configured for.
-            if (elem.getElementQName().equals(securityQName))
-            {
-                final Iterator childElements = elem.getChildElements(tokenQName);
-                while (childElements.hasNext())
-                {
-                    return (Element) childElements.next();
-                }
-            }
+	        if (securityQName == null)
+	            throw new IllegalStateException("securityQName from subclass cannot be null!");
+	        if (tokenQName == null)
+	            throw new IllegalStateException("tokenQName from subclass cannot be null!");
+	        
+	        final SOAPHeader soapHeader = messageContext.getMessage().getSOAPHeader();
+	        final Iterator securityHeaders = soapHeader.getChildElements(securityQName);
+	        while (securityHeaders.hasNext())
+	        {
+	            final SOAPHeaderElement elem = (SOAPHeaderElement) securityHeaders.next();
+	            // Check if the header is equal to the one this Handler is configured for.
+	            if (elem.getElementQName().equals(securityQName))
+	            {
+	                final Iterator childElements = elem.getChildElements(tokenQName);
+	                while (childElements.hasNext())
+	                {
+	                    return (Element) childElements.next();
+	                }
+	            }
+	        }
+        }
+        catch (final SOAPException e)
+        {
+            throwInvalidSecurity();
         }
         return null;
     }
 
+    private void throwSecurityTokenUnavailable () throws SOAPFaultException
+    {
+        SOAPFault soapFault = createSoapFault("No security token could be found in the SOAP Header", SECURITY_TOKEN_UNAVAILABLE);
+        throw new SOAPFaultException(soapFault);
+    }
+    
+    private void throwFailedAuthentication () throws SOAPFaultException
+    {
+        SOAPFault soapFault = createSoapFault("The security token could not be authenticated or authorized", FAILED_AUTHENTICATION);
+        throw new SOAPFaultException(soapFault);
+    }
+
+    private void throwInvalidSecurity () throws SOAPFaultException
+    {
+        SOAPFault soapFault = createSoapFault("An error occurred while processing the security header", INVALID_SECURITY);
+        throw new SOAPFaultException(soapFault);
+    }
+    
+    private SOAPFault createSoapFault(final String msg, final QName qname)
+    {
+        try
+        {
+	        SOAPFactory soapFactory = SOAPFactory.newInstance();
+	        return soapFactory.createFault(msg, qname);
+        }
+        catch (SOAPException e)
+        {
+            throw new WebServiceException("Exception while trying to create SOAPFault", e);
+        }
+    }
+
     /**
      * If a property was set for the key {@link #USERNAME_MSG_CONTEXT_PROPERTY} it will be 
-     * retrieved by this method and set on the passed-in builder instace.
+     * retrieved by this method and set on the passed-in builder instance.
      * 
      * @param context The SOAPMessageContext which might contain a username property.
      * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the username property.
@@ -241,7 +286,7 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
     
     /**
      * If a property was set for the key {@link #PASSWORD_MSG_CONTEXT_PROPERTY} it will be 
-     * retrieved by this method and set on the passed-in builder instace.
+     * retrieved by this method and set on the passed-in builder instance.
      * 
      * @param context The SOAPMessageContext which might contain a password property.
      * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the password property.

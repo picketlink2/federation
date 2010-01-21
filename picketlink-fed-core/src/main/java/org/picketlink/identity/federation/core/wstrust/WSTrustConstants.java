@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import javax.xml.namespace.QName;
+
 /**
  * <p>
  * This class defines the constants used throughout the WS-Trust implementation code.
@@ -64,4 +66,10 @@ public class WSTrustConstants
    public static final String XENC_NS = "http://www.w3.org/2001/04/xmlenc#";
    public static final String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
    public static final String SAML2_ASSERTION_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
+   
+   // WSS Fault codes
+   public static final QName SECURITY_TOKEN_UNAVAILABLE = new QName(WSSE_NS, "SecurityTokenUnavailable");
+   public static final QName INVALID_SECURITY_TOKEN = new QName(WSSE_NS, "InvalidSecurityToken");
+   public static final QName INVALID_SECURITY = new QName(WSSE_NS, "InvalidSecurity");
+   public static final QName FAILED_AUTHENTICATION = new QName(WSSE_NS, "FailedAuthentication");
 }
