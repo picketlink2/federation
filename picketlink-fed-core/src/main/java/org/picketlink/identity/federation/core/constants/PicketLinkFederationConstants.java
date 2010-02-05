@@ -36,4 +36,6 @@ public interface PicketLinkFederationConstants
    
    String SCHEMA_IDFED = "schema/config/picketlink-fed.xsd";
    String SCHEMA_IDFED_HANDLER = "schema/config/picketlink-fed-handler.xsd";
+   String DSA_SIGNATURE_ALGORITHM = "SHA1withDSA";
+   String RSA_SIGNATURE_ALGORITHM = "SHA1withRSA";
 }

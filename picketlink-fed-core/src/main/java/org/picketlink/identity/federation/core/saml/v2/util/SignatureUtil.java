@@ -27,6 +27,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
 
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
  
 
@@ -140,19 +141,16 @@ public class SignatureUtil
    private static Signature getSignature(String algo) throws GeneralSecurityException 
    {
       Signature sig = null;
-      String xmlSignatureAlgo = getXMLSignatureAlgorithmURI(algo);
-      if(xmlSignatureAlgo == null)
-         throw new GeneralSecurityException("Signing Algorithm invalid:" + algo);
       
       if("DSA".equalsIgnoreCase(algo))
       {
-         sig = Signature.getInstance(xmlSignatureAlgo); 
+    	  sig = Signature.getInstance(PicketLinkFederationConstants.DSA_SIGNATURE_ALGORITHM); 
       }
-      else
-         if("RSA".equalsIgnoreCase(algo))
-         {
-            sig = Signature.getInstance(xmlSignatureAlgo);  
-         } 
+      else if("RSA".equalsIgnoreCase(algo))
+      {
+    	  sig = Signature.getInstance(PicketLinkFederationConstants.RSA_SIGNATURE_ALGORITHM);  
+      }
+      else throw new RuntimeException("Unknown signature algorithm:" + algo);
       return sig; 
    }
 }
