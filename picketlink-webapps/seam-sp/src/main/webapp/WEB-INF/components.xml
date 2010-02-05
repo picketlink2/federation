@@ -6,16 +6,8 @@
 		http://jboss.com/products/seam/core http://jboss.com/products/seam/core-2.1.xsd
                 http://jboss.com/products/seam/security http://jboss.com/products/seam/security-2.1.xsd">
 	<core:init debug="false" />
+	<import>org.picketlink.identity.seam.federation</import>
 	<security:identity authenticate-method="#{authenticator.authenticate}" />
 	<!-- JBID IDP -->
-	<component
-		name="org.picketlink.identity.seam.federation.samlAuthenticationFilter">
-		<property name="serviceProviderEntityId">http://localhost:8080/seam-sp</property>
-		<property name="singleSignOnServiceURL">http://localhost:8080/idp-standalone/</property>
-		<property name="keyStoreURL">classpath:/jbid_test_keystore.jks</property>
-		<property name="keyStorePass">store123</property>
-		<property name="idpCertificateAlias">servercert</property>
-		<property name="binding">HTTP_Post</property>
-		<property name="signatureRequired">true</property>
-	</component>
+	<component name="urlToRedirectToAfterLogin" class="java.lang.String" />
 </components>

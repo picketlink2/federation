@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pages xmlns="http://jboss.com/products/seam/pages" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://jboss.com/products/seam/pages http://jboss.com/products/seam/pages-2.1.xsd">
+	xsi:schemaLocation="http://jboss.com/products/seam/pages http://jboss.com/products/seam/pages-2.1.xsd"
+	login-view-id="/Login.xhtml">
 	<page view-id="/PrivatePage1.xhtml" login-required="true" />
 	<page view-id="/PrivatePage2.xhtml" login-required="true" />
+	<page view-id="/Login.xhtml">
+		<param name="returnUrl" value="#{externalAuthenticator.returnUrl}" />
+	</page>
 </pages>

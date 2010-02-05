@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExternalAuthenticationConfig
+	xmlns="urn:picketlink:identity-federation:seam:config:1.0" xmlns:tns="urn:picketlink:identity-federation:seam:config:1.0">
+	<ServiceProvider protocol="http" hostname="localhost"
+		unsolicitedAuthenticationUrl="PublicPage.seam"
+		loggedOutUrl="http://localhost:8080/seam-sp/PublicPage.seam"
+		failedAuthenticationUrl="http://localhost:8080/seam-sp/FailedAuthenticationPage.seam"
+		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
+		<SamlConfig serviceProviderEntityId="http://localhost:8080/seam-sp"
+			authnRequestsSigned="false" defaultIdentityProvider="http://localhost:8080/idp-standalone/"
+			keyStoreUrl="classpath:/picketlink_test_keystore.jks" keyStorePass="store456"
+			signingKeyAlias="servercert" signingKeyPass="pass456">
+			<SamlIdentityProvider entityId="http://idp.ssocircle.com" />
+			<SamlIdentityProvider entityId="http://localhost:8888/opensso" />
+		</SamlConfig>
+		<OpenIdConfig>
+			<Attribute Alias="name" TypeUri="http://schema.openid.net/namePerson"
+				Required="true" />
+			<Attribute Alias="email" TypeUri="http://schema.openid.net/contact/email"
+				Required="true" />
+		</OpenIdConfig>
+	</ServiceProvider>
+</ExternalAuthenticationConfig>

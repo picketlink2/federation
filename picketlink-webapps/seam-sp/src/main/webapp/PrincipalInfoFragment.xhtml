@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+	<c:choose>
+		<c:when
+			test="#{identity.principal.getClass().getSimpleName() == 'SamlPrincipal'}">
+			<h2>Logged on via SAML</h2>
+			<h:panelGrid columns="2">
+				<h:outputText value="User" />
+				<h:outputText value="#{identity.principal.name}" />
+				<h:outputText value="Identity provider" />
+				<h:outputText
+					value="#{identity.principal.identityProvider.entityId}" />
+				<h:outputText value="Session index" />
+				<h:outputText value="#{identity.principal.sessionIndex}" />
+				<h:outputText value="Attributes" />
+				<h:dataTable value="#{identity.principal.attributes}"
+					var="attribute"
+					rendered="#{identity.principal.attributes.size > 0}">
+					<h:column>
+						<f:facet name="header">Name</f:facet>
+						<h:outputText value="#{attribute.name}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Friendly name</f:facet>
+						<h:outputText value="#{attribute.friendlyName}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Value(s)</f:facet>
+						<h:outputText value="#{attribute.attributeValue}" />
+					</h:column>
+				</h:dataTable>
+				<h:outputText value="[no attributes]"
+					rendered="#{identity.principal.attributes.size == 0}" />
+			</h:panelGrid>
+			<p><h:commandLink action="#{externalAuthenticator.singleLogout}"
+				value="Single logout" /></p>
+		</c:when>
+		<c:otherwise>
+			<h2>Logged on via OpenID</h2>
+			<h:panelGrid columns="2">
+				<h:outputText value="Identifier" />
+				<h:outputText value="#{identity.principal.identifier}" />
+				<h:outputText value="Provider" />
+				<h:outputText value="#{identity.principal.openIdProvider}" />
+				<h:outputText value="Attributes" />
+				<h:panelGroup>
+					<ul>
+						<c:forEach
+							items="#{identity.principal.attributes.keySet.toArray()}"
+							var="alias">
+							<li><h:outputText
+								value="#{alias} = #{identity.principal.attributes.get(alias)}" />
+							</li>
+						</c:forEach>
+					</ul>
+				</h:panelGroup>
+			</h:panelGrid>
+		</c:otherwise>
+	</c:choose>
+	<p><h:commandLink action="#{identity.logout}" value="Local logout" /></p>
+</ui:composition>

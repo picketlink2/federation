@@ -21,11 +21,11 @@
  */
 package org.picketlink.identity.seam.federation;
 
+import java.security.Principal;
 import java.util.List;
 
-import org.picketlink.identity.seam.federation.SamlIdentity;
-import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 
 /**
 * @author Marcel Kolsteren
@@ -33,23 +33,36 @@ import org.jboss.seam.annotations.Name;
 @Name("authenticator")
 public class Authenticator
 {
-
-   @In
-   SamlIdentity identity;
-
-   public boolean authenticate()
+   public Boolean internalAuthenticate(Principal principal, List<String> roles)
    {
-      /* User has already been authenticated. Only thing we need to do here is the translation of attribute values to roles. */
-
-      List<String> roles = identity.getAttributeValues("role");
-      if (roles != null)
+      if (principal instanceof SamlPrincipal)
       {
-         for (String role : roles)
+         SamlPrincipal samlPrincipal = (SamlPrincipal) principal;
+
+         if (samlPrincipal.getName().equals("employee"))
          {
-            identity.addRole(role);
+            return false;
+         }
+         else
+         {
+            for (AttributeType attribute : samlPrincipal.getAttributes())
+            {
+               if (attribute.getName().equals("role"))
+               {
+                  List<Object> value = attribute.getAttributeValue();
+                  if (value != null && value.size() > 0)
+                  {
+                     roles.add((String) value.get(0));
+                  }
+               }
+            }
+
+            return true;
          }
       }
-
-      return true;
+      else
+      {
+         return true;
+      }
    }
 }

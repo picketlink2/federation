@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.jboss.seam.Component;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Install;
 import org.jboss.seam.annotations.Name;
@@ -36,6 +35,7 @@ import org.jboss.seam.annotations.Startup;
 import org.jboss.seam.annotations.intercept.BypassInterceptors;
 import org.jboss.seam.faces.FacesManager;
 import org.jboss.seam.navigation.Pages;
+import org.picketlink.identity.seam.federation.configuration.Configuration;
 
 /**
  * Override of Seam's Pages component. It replaces the login page redirection method with a version
@@ -58,20 +58,22 @@ public class SamlEnabledPages extends Pages
       HttpServletRequest httpRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
             .getRequest();
 
-      RelayStates relayStates = (RelayStates) Component.getInstance(RelayStates.class);
-      int relayState = relayStates.saveState(httpRequest);
+      StringBuffer returnUrl = httpRequest.getRequestURL();
 
       if (getLoginViewId() != null)
       {
          Map<String, Object> parameters = new HashMap<String, Object>();
-         parameters.put("relayState", relayState);
+
+         parameters.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
+
          FacesManager.instance().redirect(getLoginViewId(), parameters, false);
       }
       else
       {
-         ExternalAuthenticator externalAuthenticator = (ExternalAuthenticator) Component
-               .getInstance(ExternalAuthenticator.class);
-         externalAuthenticator.startAuthentication(relayState);
+         ExternalAuthenticator externalAuthenticator = new ExternalAuthenticator();
+         externalAuthenticator.setReturnUrl(returnUrl.toString());
+         externalAuthenticator.samlSignOn(Configuration.instance().getServiceProvider().getSamlConfiguration()
+               .getDefaultIdentityProvider().getEntityId());
       }
    }
 }

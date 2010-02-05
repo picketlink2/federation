@@ -21,68 +21,62 @@
  */
 package org.picketlink.identity.seam.federation;
 
-import static org.jboss.seam.ScopeType.SESSION;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.seam.ScopeType;
+import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Logger;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
-import org.jboss.seam.annotations.Startup;
 import org.jboss.seam.log.Log;
+import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
 
 /**
- * Session scoped component that stores relay states. Each relay state
- * corresponds to an uncompleted authorization request that has been sent to the
- * IDP. The state is used to store the URL of the page that has been requested
- * by the user. Each state has an integer number that can be used as the
- * RelayState parameter in the SAMLv2 authentication protocol.
+ * Session scoped component that stores requests that have been sent to the identity provider.
  * 
  * @author Marcel Kolsteren
  */
-@Scope(SESSION)
-@Name("org.picketlink.identity.seam.federation.relayStates")
-@Startup
-public class RelayStates
+@Name("org.picketlink.identity.seam.federation.requests")
+@AutoCreate
+@Scope(ScopeType.SESSION)
+public class Requests
 {
-   private Map<Integer, String> states = new HashMap<Integer, String>();
-
-   private int nextIndex = 0;
+   private Map<String, RequestContext> requests = new HashMap<String, RequestContext>();
 
    @Logger
    private Log log;
 
-   public int saveState(HttpServletRequest request)
+   public void addRequest(String id, SamlIdentityProvider identityProvider, String urlToRedirectToAfterLogin)
    {
-      int index = nextIndex++;
-
-      StringBuffer requestURL = request.getRequestURL();
-      if (request.getQueryString() != null)
-      {
-         requestURL.append("?" + request.getQueryString());
-      }
-
-      states.put(index, requestURL.toString());
-      return index;
+      requests.put(id, new RequestContext(id, identityProvider, urlToRedirectToAfterLogin));
    }
 
-   public void restoreState(int index, HttpServletResponse response)
+   public RequestContext getRequest(String id)
    {
-      String requestURL = states.get(index);
+      return requests.get(id);
+   }
+
+   public void removeRequest(String id)
+   {
+      requests.remove(id);
+   }
+
+   public void redirect(String id, HttpServletResponse response)
+   {
+      String requestURL = requests.get(id).getUrlToRedirectToAfterLogin();
       if (requestURL == null)
       {
-         throw new RuntimeException("Couldn't find URL for relayState " + index + " in the session");
+         throw new RuntimeException("Couldn't find URL to redirect to for request " + id);
       }
       try
       {
          if (log.isDebugEnabled())
          {
-            log.debug("Redirecting to {0}", requestURL);
+            log.debug("Redirecting to " + requestURL);
          }
          response.sendRedirect(requestURL);
       }
@@ -90,6 +84,5 @@ public class RelayStates
       {
          throw new RuntimeException(e);
       }
-      states.remove(index);
    }
 }

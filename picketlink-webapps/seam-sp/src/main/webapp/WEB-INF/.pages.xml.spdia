@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram model-entity="SeamPagesDiagram">
+ <item ID="#PrivatePage1.xhtml" NAME="#xPrivatePage1.xhtml"
+  PATH="/PrivatePage1.xhtml" SHAPE="24,17,0,0" TYPE="page" model-entity="SeamPagesDiagramItem"/>
+ <item ID="#PrivatePage2.xhtml" NAME="#xPrivatePage2.xhtml"
+  PATH="/PrivatePage2.xhtml" SHAPE="344,17,0,0" TYPE="page" model-entity="SeamPagesDiagramItem"/>
+ <item ID="#Login.xhtml" NAME="#xLogin.xhtml" PATH="/Login.xhtml"
+  SHAPE="664,17,0,0" TYPE="page" model-entity="SeamPagesDiagramItem"/>
+</diagram>

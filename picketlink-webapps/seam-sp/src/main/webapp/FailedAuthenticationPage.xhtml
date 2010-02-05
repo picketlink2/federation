@@ -1,16 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:c="http://java.sun.com/jstl/core"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+	xmlns:f="http://java.sun.com/jsf/core">
 
 <body>
+<h1>Seam Service Provider: failed authentication</h1>
 <h:form>
-	<h1>Service provider: private page 2</h1>
-
-	<ui:include src="/PrincipalInfoFragment.xhtml" />
-
+	<p>Authentication failed.</p>
+	<p><h:commandLink action="/PublicPage.xhtml"
+		value="Click here to go to public page." /></p>
 </h:form>
 </body>
 

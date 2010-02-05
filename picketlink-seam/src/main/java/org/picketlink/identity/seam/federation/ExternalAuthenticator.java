@@ -21,13 +21,19 @@
 */
 package org.picketlink.identity.seam.federation;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.jboss.seam.annotations.AutoCreate;
+import org.jboss.seam.annotations.Import;
+import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
-import org.jboss.seam.annotations.intercept.BypassInterceptors;
-import org.jboss.seam.contexts.Contexts;
 import org.jboss.seam.faces.FacesManager;
+import org.picketlink.identity.seam.federation.configuration.Configuration;
+import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
+import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
 
 /**
  * Seam component that manages the external authentication of users (using, for example, SAML or OpenID).
@@ -36,27 +42,106 @@ import org.jboss.seam.faces.FacesManager;
 * @since Dec 27, 2009
 */
 @Name("org.picketlink.identity.seam.federation.externalAuthenticator")
-@BypassInterceptors
+@AutoCreate
+@Import("org.picketlink.identity.seam.federation")
 public class ExternalAuthenticator
 {
-   public void startAuthentication()
+   private String returnUrl;
+
+   private String openId;
+
+   @In
+   private ServiceProvider serviceProvider;
+
+   public void samlSignOn(String idpEntityId)
    {
-      Integer relayState = Integer.valueOf((String) Contexts.getPageContext().get("relayState"));
-      if (relayState == null)
+      SamlIdentityProvider idp = Configuration.instance().getServiceProvider().getSamlConfiguration()
+            .getSamlIdentityProviderByEntityId(idpEntityId);
+      if (idp == null)
       {
-         throw new IllegalStateException(
-               "relayState parameter not found; the cause may be that the startExternalAuthentication method is not called from the login page, or that the login page doesn't have a page parameter with the name relayState");
+         throw new RuntimeException("Identity provider " + idpEntityId + " not found");
       }
-      startAuthentication(relayState);
+
+      String authenticationServiceURL = Configuration.instance().getServiceProvider().getServiceURL(
+            ExternalAuthenticationService.AUTHENTICATION_SERVICE);
+      Map<String, String> params = new HashMap<String, String>();
+      params.put(ExternalAuthenticationFilter.IDP_ENTITY_ID_PARAMETER, idpEntityId);
+      params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
+      redirect(authenticationServiceURL, params);
    }
 
-   public void startAuthentication(Integer relayState)
+   public void openIdSignOn()
    {
-      HttpServletRequest httpRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-            .getRequest();
+      openIdSignOn(openId);
+   }
 
-      String authenticationFilterURL = httpRequest.getScheme() + "://" + httpRequest.getServerName() + ":"
-            + httpRequest.getServerPort() + httpRequest.getContextPath() + "/SamlAuthenticationFilter.seam";
-      FacesManager.instance().redirectToExternalURL(authenticationFilterURL + "?newRelayState=" + relayState);
+   public void openIdSignOn(String openId)
+   {
+      String authenticationServiceURL = Configuration.instance().getServiceProvider().getServiceURL(
+            ExternalAuthenticationService.AUTHENTICATION_SERVICE);
+      Map<String, String> params = new HashMap<String, String>();
+      params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
+      params.put(ExternalAuthenticationFilter.OPEN_ID_PARAMETER, openId);
+      redirect(authenticationServiceURL, params);
+   }
+
+   public void singleLogout()
+   {
+      String logoutServiceURL = serviceProvider.getServiceURL(ExternalAuthenticationService.LOGOUT_SERVICE);
+      redirect(logoutServiceURL, null);
+   }
+
+   private void redirect(String urlBase, Map<String, String> params)
+   {
+      StringBuilder url = new StringBuilder();
+      url.append(urlBase);
+      if (params != null && params.size() > 0)
+      {
+         url.append("?");
+         boolean first = true;
+         for (Map.Entry<String, String> paramEntry : params.entrySet())
+         {
+            if (first)
+            {
+               first = false;
+            }
+            else
+            {
+               url.append("&");
+            }
+            url.append(paramEntry.getKey());
+            url.append("=");
+            try
+            {
+               url.append(URLEncoder.encode(paramEntry.getValue(), "UTF-8"));
+            }
+            catch (UnsupportedEncodingException e)
+            {
+               throw new RuntimeException(e);
+            }
+         }
+      }
+
+      FacesManager.instance().redirectToExternalURL(url.toString());
+   }
+
+   public String getReturnUrl()
+   {
+      return returnUrl;
+   }
+
+   public void setReturnUrl(String returnUrl)
+   {
+      this.returnUrl = returnUrl;
+   }
+
+   public String getOpenId()
+   {
+      return openId;
+   }
+
+   public void setOpenId(String openId)
+   {
+      this.openId = openId;
    }
 }
