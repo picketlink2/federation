@@ -42,6 +42,5 @@
 		<module>picketlink-sts</module>
 		<module>pdp</module>
 		<module>seam-sp</module>
-		<module>fed-example</module>
 	</modules>
 </project>
