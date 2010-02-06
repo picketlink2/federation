@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
@@ -42,6 +43,8 @@ public class SamlPrincipal implements Principal
    private List<AttributeType> attributes = new LinkedList<AttributeType>();
 
    private String sessionIndex;
+
+   private AssertionType assertion;
 
    public NameIDType getNameId()
    {
@@ -81,6 +84,16 @@ public class SamlPrincipal implements Principal
    public void setSessionIndex(String sessionIndex)
    {
       this.sessionIndex = sessionIndex;
+   }
+
+   public AssertionType getAssertion()
+   {
+      return assertion;
+   }
+
+   public void setAssertion(AssertionType assertion)
+   {
+      this.assertion = assertion;
    }
 
    public String getName()

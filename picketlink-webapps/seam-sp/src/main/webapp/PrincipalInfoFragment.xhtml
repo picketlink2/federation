@@ -9,8 +9,10 @@
 			test="#{identity.principal.getClass().getSimpleName() == 'SamlPrincipal'}">
 			<h2>Logged on via SAML</h2>
 			<h:panelGrid columns="2">
-				<h:outputText value="User" />
-				<h:outputText value="#{identity.principal.name}" />
+				<h:outputText value="NameID" />
+				<h:outputText value="#{identity.principal.nameId.value}" />
+				<h:outputText value="NameID format" />
+				<h:outputText value="#{identity.principal.nameId.format}" />
 				<h:outputText value="Identity provider" />
 				<h:outputText
 					value="#{identity.principal.identityProvider.entityId}" />

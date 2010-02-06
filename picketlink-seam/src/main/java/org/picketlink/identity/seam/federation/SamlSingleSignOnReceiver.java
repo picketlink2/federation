@@ -188,6 +188,7 @@ public class SamlSingleSignOnReceiver
       }
 
       SamlPrincipal principal = new SamlPrincipal();
+      principal.setAssertion(assertion);
       principal.setSessionIndex(authnStatement.getSessionIndex());
       principal.setNameId(nameId);
 
