@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.List;
 
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.security.Identity;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 
 /**
@@ -64,5 +65,11 @@ public class Authenticator
       {
          return true;
       }
+   }
+
+   public String localLogout()
+   {
+      Identity.instance().logout();
+      return "loggedOut";
    }
 }

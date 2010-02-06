@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExternalAuthenticationConfig
 	xmlns="urn:picketlink:identity-federation:seam:config:1.0" xmlns:tns="urn:picketlink:identity-federation:seam:config:1.0">
+	<!--
+		Service provider running at localhost. Uses an IDP selected by the
+		user (SAML or OpenID)
+	-->
 	<ServiceProvider protocol="http" hostname="localhost"
 		unsolicitedAuthenticationUrl="PublicPage.seam"
 		loggedOutUrl="http://localhost:8080/seam-sp/PublicPage.seam"
 		failedAuthenticationUrl="http://localhost:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
 		<SamlConfig serviceProviderEntityId="http://localhost:8080/seam-sp"
-			authnRequestsSigned="false" defaultIdentityProvider="http://localhost:8080/idp-standalone/"
-			keyStoreUrl="classpath:/picketlink_test_keystore.jks" keyStorePass="store456"
-			signingKeyAlias="servercert" signingKeyPass="pass456">
+			authnRequestsSigned="false" keyStoreUrl="classpath:/picketlink_test_keystore.jks"
+			keyStorePass="store456" signingKeyAlias="servercert" signingKeyPass="pass456">
 			<SamlIdentityProvider entityId="http://idp.ssocircle.com" />
 			<SamlIdentityProvider entityId="http://localhost:8888/opensso" />
 		</SamlConfig>
@@ -19,5 +22,33 @@
 			<Attribute Alias="email" TypeUri="http://schema.openid.net/contact/email"
 				Required="true" />
 		</OpenIdConfig>
+	</ServiceProvider>
+	<!--
+		Service provider running at saml.picketlink.org (map this hostname to
+		127.0.0.1 in /etc/hosts). Uses one SAML identity provider: SSOCircle.
+	-->
+	<ServiceProvider protocol="http" hostname="saml.picketlink.org"
+		unsolicitedAuthenticationUrl="PublicPage.seam"
+		loggedOutUrl="http://saml.picketlink.org:8080/seam-sp/PublicPage.seam"
+		failedAuthenticationUrl="http://saml.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
+		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
+		<SamlConfig serviceProviderEntityId="http://saml.picketlink.org:8080/seam-sp"
+			authnRequestsSigned="false" defaultIdentityProvider="http://idp.ssocircle.com"
+			keyStoreUrl="classpath:/picketlink_test_keystore.jks" keyStorePass="store456"
+			signingKeyAlias="servercert" signingKeyPass="pass456">
+			<SamlIdentityProvider entityId="http://idp.ssocircle.com" />
+		</SamlConfig>
+	</ServiceProvider>
+	<!--
+		Service provider running at openid.picketlink.org (map this hostname
+		to 127.0.0.1 in /etc/hosts). Uses one OpenID identity provider:
+		Google.
+	-->
+	<ServiceProvider protocol="http" hostname="openid.picketlink.org"
+		unsolicitedAuthenticationUrl="PublicPage.seam"
+		loggedOutUrl="http://openid.picketlink.org:8080/seam-sp/PublicPage.seam"
+		failedAuthenticationUrl="http://openid.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
+		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
+		<OpenIdConfig defaultOpenIdProvider="https://www.google.com/accounts/o8/id" />
 	</ServiceProvider>
 </ExternalAuthenticationConfig>

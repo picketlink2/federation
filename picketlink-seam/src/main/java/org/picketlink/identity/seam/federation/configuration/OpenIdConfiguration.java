@@ -24,7 +24,7 @@ package org.picketlink.identity.seam.federation.configuration;
 import java.util.List;
 
 import org.picketlink.identity.seam.federation.config.jaxb.OpenIdAttributeType;
-import org.picketlink.identity.seam.federation.config.jaxb.ServiceProviderType;
+import org.picketlink.identity.seam.federation.config.jaxb.OpenIdConfigType;
 
 /**
 * @author Marcel Kolsteren
@@ -34,13 +34,21 @@ public class OpenIdConfiguration
 {
    private List<OpenIdAttributeType> attributes;
 
-   public OpenIdConfiguration(ServiceProviderType serviceProvider)
+   private String defaultOpenIdProvider;
+
+   public OpenIdConfiguration(OpenIdConfigType openIdConfig)
    {
-      attributes = serviceProvider.getOpenIdConfig().getAttribute();
+      attributes = openIdConfig.getAttribute();
+      defaultOpenIdProvider = openIdConfig.getDefaultOpenIdProvider();
    }
 
    public List<OpenIdAttributeType> getAttributes()
    {
       return attributes;
+   }
+
+   public String getDefaultOpenIdProvider()
+   {
+      return defaultOpenIdProvider;
    }
 }

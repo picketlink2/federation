@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.jboss.seam.Component;
 import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.Install;
 import org.jboss.seam.annotations.Name;
@@ -36,6 +37,9 @@ import org.jboss.seam.annotations.intercept.BypassInterceptors;
 import org.jboss.seam.faces.FacesManager;
 import org.jboss.seam.navigation.Pages;
 import org.picketlink.identity.seam.federation.configuration.Configuration;
+import org.picketlink.identity.seam.federation.configuration.OpenIdConfiguration;
+import org.picketlink.identity.seam.federation.configuration.SamlConfiguration;
+import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
 
 /**
  * Override of Seam's Pages component. It replaces the login page redirection method with a version
@@ -48,7 +52,7 @@ import org.picketlink.identity.seam.federation.configuration.Configuration;
 @Name("org.jboss.seam.navigation.pages")
 @Install(precedence = Install.FRAMEWORK, classDependencies = "javax.faces.context.FacesContext")
 @Startup
-public class SamlEnabledPages extends Pages
+public class PagesSupportingExternalAuthentication extends Pages
 {
    @Override
    public void redirectToLoginView()
@@ -60,20 +64,37 @@ public class SamlEnabledPages extends Pages
 
       StringBuffer returnUrl = httpRequest.getRequestURL();
 
-      if (getLoginViewId() != null)
+      ExternalAuthenticator externalAuthenticator = (ExternalAuthenticator) Component
+            .getInstance(ExternalAuthenticator.class);
+      externalAuthenticator.setReturnUrl(returnUrl.toString());
+
+      ServiceProvider serviceProvider = Configuration.instance().getServiceProvider();
+
+      // Use default SAML identity provider, if configured
+      SamlConfiguration samlConfiguration = serviceProvider.getSamlConfiguration();
+      if (samlConfiguration != null && samlConfiguration.getDefaultIdentityProvider() != null)
       {
-         Map<String, Object> parameters = new HashMap<String, Object>();
-
-         parameters.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
-
-         FacesManager.instance().redirect(getLoginViewId(), parameters, false);
+         externalAuthenticator.samlSignOn(samlConfiguration.getDefaultIdentityProvider().getEntityId());
       }
       else
       {
-         ExternalAuthenticator externalAuthenticator = new ExternalAuthenticator();
-         externalAuthenticator.setReturnUrl(returnUrl.toString());
-         externalAuthenticator.samlSignOn(Configuration.instance().getServiceProvider().getSamlConfiguration()
-               .getDefaultIdentityProvider().getEntityId());
+         // Otherwise, use default OpenId identity provider, if configured
+         OpenIdConfiguration openIdConfiguration = serviceProvider.getOpenIdConfiguration();
+         if (openIdConfiguration != null && openIdConfiguration.getDefaultOpenIdProvider() != null)
+         {
+            externalAuthenticator.openIdSignOn(openIdConfiguration.getDefaultOpenIdProvider());
+         }
+         else
+         {
+            // Otherwise, redirect to the login view, so that the user can choose an IDP
+            if (getLoginViewId() == null)
+            {
+               throw new RuntimeException("Login view id not specified in pages.xml.");
+            }
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
+            FacesManager.instance().redirect(getLoginViewId(), parameters, false);
+         }
       }
    }
 }

@@ -17,7 +17,8 @@
 	<complexType name="ServiceProviderType">
 		<annotation>
 			<documentation>
-				Configuration for one service provider (relying party).
+				Configuration for one service provider (relying
+				party).
 			</documentation>
 		</annotation>
 		<sequence>
@@ -146,6 +147,12 @@
 		<sequence minOccurs="0" maxOccurs="unbounded">
 			<element name="Attribute" type="tns:OpenIdAttributeType" />
 		</sequence>
+		<attribute name="defaultOpenIdProvider" type="string" use="optional">
+			<annotation>
+				<documentation>URL of the default OpenID provider.
+				</documentation>
+			</annotation>
+		</attribute>
 	</complexType>
 	<complexType name="OpenIdAttributeType">
 		<annotation>
@@ -160,12 +167,14 @@
 		</attribute>
 		<attribute name="TypeUri" type="string" use="required">
 			<annotation>
-				<documentation>The URI identifying the attribute type.</documentation>
+				<documentation>The URI identifying the attribute type.
+				</documentation>
 			</annotation>
 		</attribute>
 		<attribute name="Required" type="boolean" use="required">
 			<annotation>
-				<documentation>Indicates whether the attribute is required.</documentation>
+				<documentation>Indicates whether the attribute is required.
+				</documentation>
 			</annotation>
 		</attribute>
 	</complexType>

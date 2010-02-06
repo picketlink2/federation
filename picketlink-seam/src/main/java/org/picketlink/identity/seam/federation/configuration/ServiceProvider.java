@@ -87,9 +87,15 @@ public class ServiceProvider
          port = serviceProvider.getPort().intValue();
       }
 
-      samlConfiguration = new SamlConfiguration(serviceProvider);
+      if (serviceProvider.getSamlConfig() != null)
+      {
+         samlConfiguration = new SamlConfiguration(serviceProvider.getSamlConfig());
+      }
 
-      openIdConfiguration = new OpenIdConfiguration(serviceProvider);
+      if (serviceProvider.getOpenIdConfig() != null)
+      {
+         openIdConfiguration = new OpenIdConfiguration(serviceProvider.getOpenIdConfig());
+      }
    }
 
    public String getServiceURL(ExternalAuthenticationService service)

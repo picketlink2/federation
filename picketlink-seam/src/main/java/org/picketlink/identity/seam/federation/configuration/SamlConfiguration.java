@@ -48,7 +48,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.seam.federation.config.jaxb.SamlConfigType;
 import org.picketlink.identity.seam.federation.config.jaxb.SamlIdentityProviderType;
-import org.picketlink.identity.seam.federation.config.jaxb.ServiceProviderType;
 
 /**
 * @author Marcel Kolsteren
@@ -74,11 +73,9 @@ public class SamlConfiguration
 
    private X509Certificate certificate;
 
-   public SamlConfiguration(ServiceProviderType serviceProvider)
+   public SamlConfiguration(SamlConfigType samlConfig)
    {
       readSamlMetaInformation();
-
-      SamlConfigType samlConfig = serviceProvider.getSamlConfig();
 
       this.entityId = samlConfig.getServiceProviderEntityId();
       this.authnRequestsSigned = samlConfig.isAuthnRequestsSigned();
@@ -121,7 +118,7 @@ public class SamlConfiguration
          throw new RuntimeException(
                "Configuration error: at least one identity provider wants the authentication requests signed, but the service provider doesn't sign authentication requests.");
       }
-      
+
       String keyStoreUrl = samlConfig.getKeyStoreUrl();
       String keyStorePass = samlConfig.getKeyStorePass();
       String signingKeyAlias = samlConfig.getSigningKeyAlias();

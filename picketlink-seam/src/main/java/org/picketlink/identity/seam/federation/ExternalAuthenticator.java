@@ -31,7 +31,7 @@ import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.faces.FacesManager;
-import org.picketlink.identity.seam.federation.configuration.Configuration;
+import org.jboss.seam.security.Identity;
 import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
 import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
 
@@ -53,17 +53,24 @@ public class ExternalAuthenticator
    @In
    private ServiceProvider serviceProvider;
 
+   @In
+   private Identity identity;
+
    public void samlSignOn(String idpEntityId)
    {
-      SamlIdentityProvider idp = Configuration.instance().getServiceProvider().getSamlConfiguration()
-            .getSamlIdentityProviderByEntityId(idpEntityId);
+      if (serviceProvider.getSamlConfiguration() == null)
+      {
+         throw new RuntimeException("SAML is not configured.");
+      }
+
+      SamlIdentityProvider idp = serviceProvider.getSamlConfiguration().getSamlIdentityProviderByEntityId(idpEntityId);
       if (idp == null)
       {
          throw new RuntimeException("Identity provider " + idpEntityId + " not found");
       }
 
-      String authenticationServiceURL = Configuration.instance().getServiceProvider().getServiceURL(
-            ExternalAuthenticationService.AUTHENTICATION_SERVICE);
+      String authenticationServiceURL = serviceProvider
+            .getServiceURL(ExternalAuthenticationService.AUTHENTICATION_SERVICE);
       Map<String, String> params = new HashMap<String, String>();
       params.put(ExternalAuthenticationFilter.IDP_ENTITY_ID_PARAMETER, idpEntityId);
       params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
@@ -77,8 +84,12 @@ public class ExternalAuthenticator
 
    public void openIdSignOn(String openId)
    {
-      String authenticationServiceURL = Configuration.instance().getServiceProvider().getServiceURL(
-            ExternalAuthenticationService.AUTHENTICATION_SERVICE);
+      if (serviceProvider.getOpenIdConfiguration() == null)
+      {
+         throw new RuntimeException("OpenID is not configured.");
+      }
+      String authenticationServiceURL = serviceProvider
+            .getServiceURL(ExternalAuthenticationService.AUTHENTICATION_SERVICE);
       Map<String, String> params = new HashMap<String, String>();
       params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
       params.put(ExternalAuthenticationFilter.OPEN_ID_PARAMETER, openId);
@@ -87,6 +98,14 @@ public class ExternalAuthenticator
 
    public void singleLogout()
    {
+      if (!identity.isLoggedIn())
+      {
+         throw new RuntimeException("Not logged in");
+      }
+      if (!(identity.getPrincipal() instanceof SamlPrincipal))
+      {
+         throw new RuntimeException("Single logout is only supported for SAML");
+      }
       String logoutServiceURL = serviceProvider.getServiceURL(ExternalAuthenticationService.LOGOUT_SERVICE);
       redirect(logoutServiceURL, null);
    }

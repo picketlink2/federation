@@ -63,5 +63,6 @@
 			</h:panelGrid>
 		</c:otherwise>
 	</c:choose>
-	<p><h:commandLink action="#{identity.logout}" value="Local logout" /></p>
+	<p><h:commandLink action="#{authenticator.localLogout}"
+		value="Local logout" /></p>
 </ui:composition>
