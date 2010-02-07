@@ -6,12 +6,12 @@
 		user (SAML or OpenID)
 	-->
 	<ServiceProvider protocol="http" hostname="localhost"
-		unsolicitedAuthenticationUrl="PublicPage.seam"
+		unsolicitedAuthenticationUrl="http://saml.picketlink.org:8080/seam-sp/PublicPage.seam"
 		loggedOutUrl="http://localhost:8080/seam-sp/PublicPage.seam"
 		failedAuthenticationUrl="http://localhost:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
 		<SamlConfig serviceProviderEntityId="http://localhost:8080/seam-sp"
-			authnRequestsSigned="false" keyStoreUrl="classpath:/picketlink_test_keystore.jks"
+			keyStoreUrl="classpath:/picketlink_test_keystore.jks"
 			keyStorePass="store456" signingKeyAlias="servercert" signingKeyPass="pass456">
 			<SamlIdentityProvider entityId="http://idp.ssocircle.com" />
 			<SamlIdentityProvider entityId="http://localhost:8888/opensso" />
@@ -28,7 +28,7 @@
 		127.0.0.1 in /etc/hosts). Uses one SAML identity provider: SSOCircle.
 	-->
 	<ServiceProvider protocol="http" hostname="saml.picketlink.org"
-		unsolicitedAuthenticationUrl="PublicPage.seam"
+		unsolicitedAuthenticationUrl="http://saml.picketlink.org:8080/seam-sp/PublicPage.seam"
 		loggedOutUrl="http://saml.picketlink.org:8080/seam-sp/PublicPage.seam"
 		failedAuthenticationUrl="http://saml.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
@@ -45,7 +45,7 @@
 		Google.
 	-->
 	<ServiceProvider protocol="http" hostname="openid.picketlink.org"
-		unsolicitedAuthenticationUrl="PublicPage.seam"
+		unsolicitedAuthenticationUrl="http://saml.picketlink.org:8080/seam-sp/PublicPage.seam"
 		loggedOutUrl="http://openid.picketlink.org:8080/seam-sp/PublicPage.seam"
 		failedAuthenticationUrl="http://openid.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">

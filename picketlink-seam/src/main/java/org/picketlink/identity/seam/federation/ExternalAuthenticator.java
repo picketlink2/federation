@@ -26,10 +26,12 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.seam.ScopeType;
 import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.faces.FacesManager;
 import org.jboss.seam.security.Identity;
 import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
@@ -44,6 +46,7 @@ import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
 @Name("org.picketlink.identity.seam.federation.externalAuthenticator")
 @AutoCreate
 @Import("org.picketlink.identity.seam.federation")
+@Scope(ScopeType.PAGE)
 public class ExternalAuthenticator
 {
    private String returnUrl;
