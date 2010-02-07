@@ -27,7 +27,8 @@
 			<element name="OpenIdConfig" type="tns:OpenIdConfigType"
 				minOccurs="0" />
 		</sequence>
-		<attribute name="protocol" type="tns:ProtocolTypes" use="optional">
+		<attribute name="protocol" type="tns:ProtocolTypes" use="optional"
+			default="https">
 			<annotation>
 				<documentation>Protocol that is used for the service provider (http
 					or https). Default: https.
