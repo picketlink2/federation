@@ -47,8 +47,10 @@ public class WSTrustRequestContext
 
    private PublicKey providerPublicKey;
 
+   private Principal onBehalfOfPrincipal;
+   
    private final Principal callerPrincipal;
-
+   
    private final RequestSecurityToken request;
 
    private KeyInfoType proofTokenInfo;
@@ -127,6 +129,30 @@ public class WSTrustRequestContext
       this.providerPublicKey = providerPublicKey;
    }
 
+   /**
+    * <p>
+    * Obtains the principal on behalf of which the WS-Trust request was made.
+    * </p>
+    * 
+    * @return a {@code Principal} instance.
+    */
+   public Principal getOnBehalfOfPrincipal()
+   {
+      return this.onBehalfOfPrincipal;
+   }
+   
+   /**
+    * <p>
+    * Sets the principal on behalf of which the request was made.
+    * </p>
+    * 
+    * @param onBehalfOfPrincipal a {@code Principal} instance.
+    */
+   public void setOnBehalfOfPrincipal(Principal onBehalfOfPrincipal)
+   {
+      this.onBehalfOfPrincipal = onBehalfOfPrincipal;
+   }
+   
    /**
     * <p>
     * Obtains the principal of the WS-Trust token requester.

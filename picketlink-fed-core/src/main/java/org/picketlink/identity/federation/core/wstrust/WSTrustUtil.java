@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.wstrust;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -47,9 +48,12 @@ import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
@@ -67,7 +71,7 @@ public class WSTrustUtil
 {
 
    private static Logger logger = Logger.getLogger(WSTrustUtil.class);
-   
+
    /**
     * <p>
     * Creates an instance of {@code KeyIdentifierType} with the specified values.
@@ -174,6 +178,71 @@ public class WSTrustUtil
       expires.setTimeInMillis(created.getTimeInMillis() + tokenTimeout);
 
       return new Lifetime(created, expires);
+   }
+
+   /**
+    * <p>
+    * Parses the contents of the {@code OnBehalfOf} element and returns a {@code Principal} representing
+    * the identity on behalf of which the request was made.
+    * </p>
+    * 
+    * @param onBehalfOf the type that represents the {@code OnBehalfOf} element.
+    * @return a {@code Principal} representing the extracted identity, or {@code null} if the contents of
+    * the {@code OnBehalfOf} element could not be parsed.
+    */
+   public static Principal getOnBehalfOfPrincipal(OnBehalfOfType onBehalfOf)
+   {
+      // if OnBehalfOfType contains a username token, return this username in the form of a principal.
+      UsernameTokenType usernameToken = null;
+      Object content = onBehalfOf.getAny();
+      if (content instanceof UsernameTokenType)
+         usernameToken = (UsernameTokenType) content;
+      else if (content instanceof JAXBElement)
+      {
+         JAXBElement<?> element = (JAXBElement<?>) content;
+         if (element.getName().getLocalPart().equalsIgnoreCase("UsernameToken"))
+            usernameToken = (UsernameTokenType) element.getValue();
+      }
+      if (usernameToken != null && usernameToken.getUsername() != null)
+      {
+         final String username = usernameToken.getUsername().getValue();
+         return new Principal()
+         {
+            public String getName()
+            {
+               return username;
+            }
+         };
+      }
+
+      // TODO: check for other types of tokens that could be included in the OnBehalfOfType.
+      if (logger.isDebugEnabled())
+         logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
+      return null;
+   }
+
+   /**
+    * <p>
+    * Creates a {@code OnBehalfOfType} instance that contains a {@code UsernameTokenType}.
+    * </p>
+    * 
+    * @param username a {@code String} that represents the username of the {@code UsernameTokenType}.
+    * @param id an optional {@code String} that uniquely identifies the {@code UsernameTokenType}.
+    * @return the constructed {@code OnBehalfOfType} instance.
+    */
+   public static OnBehalfOfType createOnBehalfOfWithUsername(String username, String id)
+   {
+      org.picketlink.identity.federation.ws.wss.secext.ObjectFactory secextFactory = 
+         new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory();
+      AttributedString attrString = new AttributedString();
+      attrString.setValue(username);
+      UsernameTokenType usernameToken = new UsernameTokenType();
+      usernameToken.setId(id);
+      usernameToken.setUsername(attrString);
+      // create the OnBehalfOfType and set the UsernameTokenType.
+      OnBehalfOfType onBehalfOf = new OnBehalfOfType();
+      onBehalfOf.setAny(secextFactory.createUsernameToken(usernameToken));
+      return onBehalfOf;
    }
 
    /**
@@ -352,4 +421,5 @@ public class WSTrustUtil
       }
       return keyInfo;
    }
+
 }

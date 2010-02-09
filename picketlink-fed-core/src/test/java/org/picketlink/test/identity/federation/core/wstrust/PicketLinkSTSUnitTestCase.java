@@ -70,6 +70,7 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
@@ -108,7 +109,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // for testing purposes we can instantiate the TestSTS as a regular POJO.
       this.tokenService = new TestSTS();
       TestContext context = new TestContext();
-      context.setUserPrincipal(new TestPrincipal("sguilhen"));
+      context.setUserPrincipal(new TestPrincipal("jduke"));
       this.tokenService.setContext(context);
    }
 
@@ -301,7 +302,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
    }
 
    /**
@@ -358,7 +359,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext",
+      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_BEARER_URI);
 
       // in this scenario, the conditions section should have an audience restriction.
@@ -373,6 +374,36 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             audienceRestriction.getAudience().get(0));
    }
 
+   /**
+    * <p>
+    * This test requests a SAMLV2.0 assertion on behalf of another identity. The STS must issue an assertion for the
+    * identity contained in the {@code OnBehalfOf} section of the WS-Trust request (and not for the identity that sent
+    * the request).
+    * </p>
+    * 
+    * @throws Exception
+    */
+   public void testInvokeSAML20OnBehalfOf() throws Exception
+   {
+      // create a simple token request, asking for a SAMLv2.0 token.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+      OnBehalfOfType onBehalfOf = WSTrustUtil.createOnBehalfOfWithUsername("anotherduke", "id");
+      request.setOnBehalfOf(onBehalfOf);
+      
+      // use the factory to marshall the request.
+      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
+      Source requestMessage = factory.marshallRequestSecurityToken(request);
+
+      // invoke the token service.
+      Source responseMessage = this.tokenService.invoke(requestMessage);
+      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
+            .parseRequestSecurityTokenResponse(responseMessage);
+
+      // validate the security token response (assertion principal should be anotherduke as specified by OnBehalfOf).
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "anotherduke", SAMLUtil.SAML2_SENDER_VOUCHES_URI);
+   }
+   
    /**
     * <p>
     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
@@ -402,7 +433,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
 
       // check if the response contains the STS-generated key.
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
@@ -456,7 +487,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
 
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
@@ -505,7 +536,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response and get the SAML assertion from the request.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
             .getAny();
@@ -574,7 +605,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response and get the SAML assertion from the request.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0)
             .getRequestedSecurityToken().getAny();
@@ -590,7 +621,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the renew response contents and get the renewed token.
-      this.validateSAMLAssertionResponse(baseResponse, "renewcontext", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "renewcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element renewedAssertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0)
             .getRequestedSecurityToken().getAny();
@@ -632,7 +663,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response and get the SAML assertion from the request.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
             .getAny();
@@ -995,7 +1026,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken", element.getAttributeNS(
             "http://www.tokens.org", "TokenType"));
-      assertEquals("Unexpected token value", "Principal:sguilhen", element.getFirstChild().getNodeValue());
+      assertEquals("Unexpected token value", "Principal:jduke", element.getFirstChild().getNodeValue());
    }
 
    /**
@@ -1006,13 +1037,16 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * @param baseResponse
     *           a reference to the WS-Trust response that was sent by the STS.
+    * @param context the expected name of the response context.
+    * @param principal the principal that is expected to be seen in the assertion subject.
+    * @param confirmationMethod the confirmation method that is expected to be seen in the assertion subject.
     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test
     *         methods to perform extra validations depending on the scenario being tested.
     * @throws Exception
     *            if one of the validation performed fail.
     */
    private AssertionType validateSAMLAssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
-         String confirmationMethod) throws Exception
+         String principal, String confirmationMethod) throws Exception
    {
 
       // =============================== WS-Trust Security Token Response Validation ===============================//
@@ -1065,7 +1099,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals("Unexpected type found", NameIDType.class, content.get(0).getDeclaredType());
       NameIDType nameID = (NameIDType) content.get(0).getValue();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
-      assertEquals("Unexpected name id value", "sguilhen", nameID.getValue());
+      assertEquals("Unexpected name id value", principal, nameID.getValue());
       assertEquals("Unexpected type found", SubjectConfirmationType.class, content.get(1).getDeclaredType());
       SubjectConfirmationType subjType = (SubjectConfirmationType) content.get(1).getValue();
       assertEquals("Unexpected confirmation method", confirmationMethod, subjType.getMethod());

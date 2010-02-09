@@ -152,6 +152,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                      + claims.getDialect());
          }
 
+         // get the OnBehalfOf principal, if one has been specified.
+         if (request.getOnBehalfOf() != null)
+         {
+            Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
+            requestContext.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
+         }
+         
          // get the key type and size from the request, setting default values if not specified.
          URI keyType = request.getKeyType();
          if (keyType == null)
@@ -338,6 +345,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       // create a context and dispatch to the proper security token provider for renewal.
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
+
+      // if the renew request was made on behalf of another identity, get the principal of that identity.
+      if (request.getOnBehalfOf() != null)
+      {
+         Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
+         context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
+      }
       provider.renewToken(context);
 
       // create the WS-Trust response with the renewed token.
@@ -388,6 +402,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                + securityToken.getLocalName());
 
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
+      // if the validate request was made on behalf of another identity, get the principal of that identity.
+      if (request.getOnBehalfOf() != null)
+      {
+         Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
+         context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
+      }
       StatusType status = null;
 
       // validate the security token digital signature.
@@ -477,6 +497,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       // create a request context and dispatch to the provider.
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
+      // if the cancel request was made on behalf of another identity, get the principal of that identity.
+      if (request.getOnBehalfOf() != null)
+      {
+         Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
+         context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
+      }
       provider.cancelToken(context);
       
       // if no exception has been raised, the token has been successfully canceled.

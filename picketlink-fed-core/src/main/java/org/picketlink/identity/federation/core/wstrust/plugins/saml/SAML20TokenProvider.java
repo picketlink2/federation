@@ -149,6 +149,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       ConditionsType conditions = SAMLAssertionFactory.createConditions(lifetime.getCreated(), lifetime.getExpires(),
             restriction);
 
+      // the assertion principal (default is caller principal)
+      Principal principal = context.getCallerPrincipal();
+
       String confirmationMethod = null;
       KeyInfoConfirmationDataType keyInfoDataType = null;
       // if there is a proof-of-possession token in the context, we have the holder of key confirmation method.
@@ -157,15 +160,19 @@ public class SAML20TokenProvider implements SecurityTokenProvider
          confirmationMethod = SAMLUtil.SAML2_HOLDER_OF_KEY_URI;
          keyInfoDataType = SAMLAssertionFactory.createKeyInfoConfirmation(context.getProofTokenInfo());
       }
+      // if there is a on-behalf-of principal, we have the sender vouches confirmation method.
+      else if (context.getOnBehalfOfPrincipal() != null)
+      {
+         principal = context.getOnBehalfOfPrincipal();
+         confirmationMethod = SAMLUtil.SAML2_SENDER_VOUCHES_URI;
+      }
       else
          confirmationMethod = SAMLUtil.SAML2_BEARER_URI;
-      // TODO: implement the SENDER_VOUCHES scenario.
 
       SubjectConfirmationType subjectConfirmation = SAMLAssertionFactory.createSubjectConfirmation(null,
             confirmationMethod, keyInfoDataType);
 
-      // create a subject using the caller principal.
-      Principal principal = context.getCallerPrincipal();
+      // create a subject using the caller principal or on-behalf-of principal.
       String subjectName = principal == null ? "ANONYMOUS" : principal.getName();
       NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:picketlink:identity-federation", subjectName);
       SubjectType subject = SAMLAssertionFactory.createSubject(nameID, subjectConfirmation);
