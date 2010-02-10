@@ -51,7 +51,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    private static Logger log = Logger.getLogger(FileBasedMetadataConfigurationStore.class);
    private boolean trace = log.isTraceEnabled();
    
-   private static String EXTENSION = ".xml";
+   private static String EXTENSION = ".SER";
    
    private String userHome = null;
    
@@ -143,9 +143,18 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    public Map<String, String> loadTrustedProviders(String id) throws IOException, ClassNotFoundException 
    {
       File trustedFile = validateIdAndReturnTrustedProvidersFile(id);
-      ObjectInputStream ois = new ObjectInputStream(new FileInputStream(trustedFile));
-      Map<String, String> trustedMap = (Map<String, String>) ois.readObject();
-      return trustedMap;
+      ObjectInputStream ois = null;
+      try
+      {
+         ois = new ObjectInputStream(new FileInputStream(trustedFile));
+         Map<String, String> trustedMap = (Map<String, String>) ois.readObject();
+         return trustedMap; 
+      }
+      finally
+      {
+         if(ois != null)
+            ois.close();
+      } 
    }
 
    /**
@@ -156,9 +165,18 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    throws IOException 
    {  
       File trustedFile = validateIdAndReturnTrustedProvidersFile(id);
-      ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(trustedFile));
-      oos.writeObject(trusted);
-      oos.close(); 
+      ObjectOutputStream oos = null;
+
+      try
+      {
+         oos = new ObjectOutputStream(new FileOutputStream(trustedFile));
+         oos.writeObject(trusted); 
+      }
+      finally
+      {
+         if(oos != null)
+            oos.close();
+      }
       if(trace) log.trace("Persisted trusted map into "+ trustedFile.getPath());
    }
    
