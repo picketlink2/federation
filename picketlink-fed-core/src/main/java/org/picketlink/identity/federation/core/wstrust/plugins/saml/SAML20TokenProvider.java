@@ -154,17 +154,17 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
       String confirmationMethod = null;
       KeyInfoConfirmationDataType keyInfoDataType = null;
-      // if there is a proof-of-possession token in the context, we have the holder of key confirmation method.
-      if (context.getProofTokenInfo() != null)
-      {
-         confirmationMethod = SAMLUtil.SAML2_HOLDER_OF_KEY_URI;
-         keyInfoDataType = SAMLAssertionFactory.createKeyInfoConfirmation(context.getProofTokenInfo());
-      }
       // if there is a on-behalf-of principal, we have the sender vouches confirmation method.
-      else if (context.getOnBehalfOfPrincipal() != null)
+      if (context.getOnBehalfOfPrincipal() != null)
       {
          principal = context.getOnBehalfOfPrincipal();
          confirmationMethod = SAMLUtil.SAML2_SENDER_VOUCHES_URI;
+      }
+      // if there is a proof-of-possession token in the context, we have the holder of key confirmation method.
+      else if (context.getProofTokenInfo() != null)
+      {
+         confirmationMethod = SAMLUtil.SAML2_HOLDER_OF_KEY_URI;
+         keyInfoDataType = SAMLAssertionFactory.createKeyInfoConfirmation(context.getProofTokenInfo());
       }
       else
          confirmationMethod = SAMLUtil.SAML2_BEARER_URI;
