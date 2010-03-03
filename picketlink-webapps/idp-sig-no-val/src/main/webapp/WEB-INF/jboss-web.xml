@@ -1,0 +1,3 @@
+<jboss-web>
+  <security-domain>idp</security-domain>
+</jboss-web>
