@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -351,7 +352,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          if(expiredAssertion)
          {
-            throw new ProcessingException("Assertion has expired");
+            AssertionExpiredException aee = new AssertionExpiredException();
+            throw new ProcessingException("Assertion has expired",aee);
          } 
          
          SubjectType subject = assertion.getSubject(); 
