@@ -52,10 +52,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>sun-jaxb</groupId>
-        <artifactId>jaxb-api</artifactId>
-      </dependency>
-      <dependency>
         <groupId>org.openid4java</groupId>
         <artifactId>openid4java</artifactId>
       </dependency>
@@ -64,11 +60,6 @@
         <artifactId>jaxws-api</artifactId>
         <version>2.1.1</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>stax</groupId>
-        <artifactId>stax-api</artifactId>
-        <version>1.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
