@@ -100,6 +100,8 @@ public class SamlMetaDataProvider
          org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory signatureFactory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
 
          X509Certificate certificate = serviceProvider.getSamlConfiguration().getCertificate();
+         if(certificate == null)
+            throw new RuntimeException("Certificate obtained from configuration is null");
 
          JAXBElement<byte[]> X509Certificate;
          try
