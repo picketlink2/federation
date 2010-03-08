@@ -42,5 +42,6 @@
 		<module>picketlink-sts</module>
 		<module>pdp</module>
 		<module>seam-sp</module>
+		<module>assembly</module>
 	</modules>
 </project>
