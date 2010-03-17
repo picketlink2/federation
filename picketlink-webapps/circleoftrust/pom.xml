@@ -2,13 +2,13 @@
    <parent>
      <groupId>org.picketlink</groupId>
      <artifactId>picketlink-federation-webapps</artifactId>
-     <version>1.0.3.CR2</version>
+     <version>1.0.3.CR2-SNAPSHOT</version>
      <relativePath>../</relativePath>
    </parent>
 
    <modelVersion>4.0.0</modelVersion>
    <artifactId>circleoftrust</artifactId>
-   <version>1.0.3.CR2</version>
+   <version>1.0.3.CR2-SNAPSHOT</version>
    <packaging>war</packaging>
    <name>PicketLink Federation Circle Of Trust</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
