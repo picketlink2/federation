@@ -184,6 +184,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             {
                generateSuccessStatusResponseType(statusResponseType.getInResponseTo(),
                      request, response, relayState);
+               Boolean isPost = server.stack().getBinding( relayState );
+               if( isPost == null )
+                  isPost = Boolean.TRUE;
+               response.setPostBindingForResponse( isPost.booleanValue() );
             }
             catch (Exception e)
             {
@@ -196,7 +200,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          {
             //Put the participant in transit mode
             server.stack().registerTransitParticipant(sessionID, nextParticipant);
-                      
+            Boolean isPost = server.stack().getBinding( nextParticipant );
+            if( isPost == null )
+               isPost = Boolean.TRUE;
+            response.setPostBindingForResponse( isPost.booleanValue() );
+            
             //send logout request to participant with relaystate to orig
             response.setRelayState(relayState);
             
@@ -247,8 +255,13 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
                session.invalidate();
                server.stack().pop(sessionID);
                
+               Boolean isPost = server.stack().getBinding( participant );
+               if( isPost == null )
+                  isPost = Boolean.TRUE;
+               
                generateSuccessStatusResponseType(logOutRequest.getID(),
                      request, response, originalIssuer);
+               response.setPostBindingForResponse( isPost.booleanValue() );
                response.setSendRequest(false);
             }
             else
@@ -263,6 +276,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
                response.setRelayState(originalIssuer);
                
                response.setDestination(participant);
+               
+               Boolean isPost = server.stack().getBinding(participant);
+               if( isPost == null )
+                  isPost = Boolean.TRUE;
+               
+               response.setPostBindingForResponse( isPost );
                
                
                LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());

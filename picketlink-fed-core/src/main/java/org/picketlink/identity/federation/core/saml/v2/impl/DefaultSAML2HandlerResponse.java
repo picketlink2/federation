@@ -43,6 +43,8 @@ public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse
    private boolean errorMode;
    private boolean sendRequest;
    
+   private boolean postBinding = true;
+   
    
 
    /**
@@ -144,13 +146,35 @@ public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse
       return this.errorMode;
    }
 
+   /**
+    * @see SAML2HandlerResponse#getSendRequest()
+    */
    public boolean getSendRequest()
    { 
       return this.sendRequest;
    }
-
+   
+   /**
+    * @see SAML2HandlerResponse#setSendRequest(boolean)
+    */
    public void setSendRequest(boolean request)
    { 
       this.sendRequest = request;
+   }
+
+   /**
+    * @see SAML2HandlerResponse#setPostBindingForResponse(boolean)
+    */
+   public void setPostBindingForResponse(boolean postB)
+   {
+      this.postBinding = postB;
+   }
+ 
+   /**
+    * @see SAML2HandlerResponse#isPostBindingForResponse()
+    */
+   public boolean isPostBindingForResponse()
+   { 
+      return this.postBinding;
    }
 }

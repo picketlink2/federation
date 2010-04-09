@@ -68,6 +68,8 @@ public class IdentityServer implements HttpSessionListener
       private ConcurrentHashMap<String, Set<String>> inTransitMap =
          new ConcurrentHashMap<String, Set<String>>();
       
+      private ConcurrentHashMap<String, Boolean> postBindingMap = new ConcurrentHashMap<String, Boolean>();
+      
       /**
        * Peek at the most recent participant in the session
        * @param sessionID
@@ -102,7 +104,7 @@ public class IdentityServer implements HttpSessionListener
        * @param sessionID
        * @param participant
        */
-      public void register(String sessionID, String participant)
+      public void register(String sessionID, String participant, boolean postBinding)
       {
          Stack<String> stack = sessionParticipantsMap.get(sessionID);
          if(stack == null)
@@ -111,7 +113,10 @@ public class IdentityServer implements HttpSessionListener
             sessionParticipantsMap.put(sessionID, stack );
          }
          if(stack.contains(participant) == false)
+         {
             stack.push(participant); 
+            postBindingMap.put(participant, Boolean.valueOf( postBinding ));
+         } 
       }
 
       /**
@@ -157,7 +162,10 @@ public class IdentityServer implements HttpSessionListener
       {
          Set<String> transitSet = inTransitMap.get(sessionID);
          if(transitSet != null)
+         {
+            postBindingMap.remove( participant );
             return transitSet.remove(participant);
+         }
          return false;
       }
       
@@ -172,6 +180,22 @@ public class IdentityServer implements HttpSessionListener
          if(transitSet != null)
             return transitSet.size();
          return 0; 
+      }
+      
+      /**
+       * <p>
+       * For a particular participant, indicate whether it supports
+       * POST or REDIRECT binding.
+       * </p>
+       * <p>
+       * <b>NOTE:</b> true: POST, false: REDIRECT, null: does not exist
+       * </p>
+       * @param participant
+       * @return
+       */
+      public Boolean getBinding(  String participant )
+      {
+         return postBindingMap.get(participant);
       }
       
       /**

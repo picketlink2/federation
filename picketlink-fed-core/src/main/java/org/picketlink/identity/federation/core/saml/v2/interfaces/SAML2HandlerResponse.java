@@ -120,4 +120,16 @@ public interface SAML2HandlerResponse
     * @return
     */
    boolean getSendRequest();
+   
+   /**
+    * Set whether the response should be using the Post Binding
+    * @param postB
+    */ 
+   void setPostBindingForResponse(boolean postB);
+   
+   /**
+    * Should the response be in post binding?
+    * @return
+    */
+   boolean isPostBindingForResponse();
 }

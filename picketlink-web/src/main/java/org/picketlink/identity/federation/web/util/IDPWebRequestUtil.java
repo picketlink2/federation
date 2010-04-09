@@ -327,7 +327,7 @@ public class IDPWebRequestUtil
     * @throws GeneralSecurityException 
     * @throws IOException  
     */
-   public void send(Document responseDoc, String destination,
+  /* public void send(Document responseDoc, String destination,
          String relayState, 
          HttpServletResponse response, 
          boolean supportSignature,
@@ -375,7 +375,69 @@ public class IDPWebRequestUtil
          PostBindingUtil.sendPost(new DestinationInfoHolder(destination, 
                samlResponse, relayState), response, sendRequest);
       }
-   }
+   }*/
+   
+   /** 
+    * Send a response
+    * @param responseDoc
+    * @param relayState
+    * @param response 
+    * @throws GeneralSecurityException 
+    * @throws IOException  
+    */
+   public void send( WebRequestUtilHolder holder) throws GeneralSecurityException, IOException
+   {
+      Document responseDoc = holder.getResponseDoc();
+      
+      if( responseDoc == null )
+         throw new IllegalArgumentException("responseType is null");
+
+      String destination = holder.getDestination();
+      String relayState = holder.getRelayState();
+      boolean supportSignature = holder.isSupportSignature();
+      boolean sendRequest = holder.isAreWeSendingRequest();
+      HttpServletResponse response = holder.getServletResponse();
+      
+      if(holder.isPostBindingRequested() == false)
+      { 
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
+         
+         String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
+ 
+         
+         if(trace) log.trace("IDP:Destination=" + destination);
+
+         if(isNotNull(relayState))
+            relayState = RedirectBindingUtil.urlEncode(relayState);
+
+         String finalDest = destination + getDestination(urlEncodedResponse, relayState, 
+               supportSignature, sendRequest);
+         if(trace) log.trace("Redirecting to="+ finalDest);
+         HTTPRedirectUtil.sendRedirectForResponder(finalDest, response); 
+      }  
+      else
+      {   
+         //If we support signature
+         if(supportSignature)
+         {
+            //Sign the document
+            SAML2Signature samlSignature = new SAML2Signature();
+
+            KeyPair keypair = keyManager.getSigningKeyPair();
+            samlSignature.signSAMLDocument(responseDoc, keypair); 
+            
+            if(trace)
+               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc)); 
+         }
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
+         
+         String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
+         
+         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, 
+               samlResponse, relayState), response, sendRequest);
+      }
+   }  
+   
    
    /**
     * Generate a Destination URL for the HTTPRedirect binding
@@ -412,6 +474,11 @@ public class IDPWebRequestUtil
             sb.append("&RelayState=").append(urlEncodedRelayState);
       }
       return sb.toString();
+   }
+   
+   public WebRequestUtilHolder getHolder()
+   {
+      return new WebRequestUtilHolder();
    }
    
    /**
@@ -508,5 +575,90 @@ public class IDPWebRequestUtil
    {
       URL url = new URL(domainURL);
       return url.getHost();
+   }
+   
+   public class WebRequestUtilHolder
+   { 
+      private Document responseDoc;
+      private String relayState;
+      private String destination;
+      private HttpServletResponse servletResponse;
+      private PrivateKey privateKey;
+      private boolean supportSignature;
+      private boolean postBindingRequested;
+      private boolean areWeSendingRequest;
+      public Document getResponseDoc()
+      {
+         return responseDoc;
+      }
+      
+      public WebRequestUtilHolder setResponseDoc(Document responseDoc)
+      {
+         this.responseDoc = responseDoc;
+         return this;
+      }
+      public String getRelayState()
+      {
+         return relayState;
+      }
+      public WebRequestUtilHolder setRelayState(String relayState)
+      {
+         this.relayState = relayState;
+         return this;
+      }
+      public String getDestination()
+      {
+         return destination;
+      }
+      public WebRequestUtilHolder setDestination(String destination)
+      {
+         this.destination = destination;
+         return this;
+      }
+      public HttpServletResponse getServletResponse()
+      {
+         return servletResponse;
+      }
+      public WebRequestUtilHolder setServletResponse(HttpServletResponse servletResponse)
+      {
+         this.servletResponse = servletResponse;
+         return this;
+      }
+      public PrivateKey getPrivateKey()
+      {
+         return privateKey;
+      }
+      public WebRequestUtilHolder setPrivateKey(PrivateKey privateKey)
+      {
+         this.privateKey = privateKey;
+         return this;
+      }
+      public boolean isSupportSignature()
+      {
+         return supportSignature;
+      }
+      public WebRequestUtilHolder setSupportSignature(boolean supportSignature)
+      {
+         this.supportSignature = supportSignature;
+         return this;
+      }
+      public boolean isPostBindingRequested()
+      {
+         return postBindingRequested;
+      }
+      public WebRequestUtilHolder setPostBindingRequested(boolean postBindingRequested)
+      {
+         this.postBindingRequested = postBindingRequested;
+         return this;
+      }
+      public boolean isAreWeSendingRequest()
+      {
+         return areWeSendingRequest;
+      }
+      public WebRequestUtilHolder setAreWeSendingRequest(boolean areWeSendingRequest)
+      {
+         this.areWeSendingRequest = areWeSendingRequest;
+         return this;
+      }  
    }
 }

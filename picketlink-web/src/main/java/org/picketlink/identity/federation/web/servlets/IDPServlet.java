@@ -80,6 +80,7 @@ import org.picketlink.identity.federation.web.roles.DefaultRoleGenerator;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.w3c.dom.Document;
 
 
@@ -502,11 +503,23 @@ public class IDPServlet extends HttpServlet
             if(samlResponse == null)
                throw new ServletException("SAML Response has not been generated");
 
+
+
+            WebRequestUtilHolder holder = webRequestUtil.getHolder();
+            holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState).setAreWeSendingRequest( willSendRequest )
+            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+            holder.setPostBindingRequested(true);
+            
             if(this.signOutgoingMessages)
-               webRequestUtil.send(samlResponse, destination,relayState, response, true, 
-                     this.keyManager.getSigningKey(), willSendRequest);
+            {
+               holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature(true);
+               /*webRequestUtil.send(samlResponse, destination,relayState, response, true, 
+                     this.keyManager.getSigningKey(), willSendRequest);*/
+            }
+            /*   
             else
-               webRequestUtil.send(samlResponse, destination, relayState, response, false,null, willSendRequest);
+               webRequestUtil.send(samlResponse, destination, relayState, response, false,null, willSendRequest);*/
+            webRequestUtil.send(holder);
          }
          catch (ParsingException e)
          {
@@ -531,11 +544,21 @@ public class IDPServlet extends HttpServlet
                this.identityURL, this.signOutgoingMessages);
       try
       {   
+         WebRequestUtilHolder holder = webRequestUtil.getHolder();
+         holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState).setAreWeSendingRequest( false )
+         .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+         holder.setPostBindingRequested(true);
+         
          if(this.signOutgoingMessages)
-            webRequestUtil.send(samlResponse, referrer, relayState, response, true, 
-                  this.keyManager.getSigningKey(), false);
-         else
-            webRequestUtil.send(samlResponse, referrer, relayState, response, false,null, false);
+         {
+            holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature( true );
+            /*webRequestUtil.send(samlResponse, referrer, relayState, response, true, 
+                  this.keyManager.getSigningKey(), false);*/
+         }
+            
+        /* else
+            webRequestUtil.send(samlResponse, referrer, relayState, response, false,null, false);*/
+         webRequestUtil.send(holder);
       }
       catch (ParsingException e1)
       {

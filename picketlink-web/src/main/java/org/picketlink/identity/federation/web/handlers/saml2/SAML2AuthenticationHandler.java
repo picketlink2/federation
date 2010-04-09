@@ -166,12 +166,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
                   assertionValidity, art.getID());
             
             //Update the Identity Server
+            boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase( "POST" );
             IdentityServer identityServer = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
-            identityServer.stack().register(session.getId(), destination);
+            identityServer.stack().register(session.getId(), destination, isPost );
             
             response.setDestination(destination);
             response.setResultingDocument(samlResponse); 
             response.setRelayState(request.getRelayState());
+            response.setPostBindingForResponse( isPost );
          }
          catch(Exception e)
          {
