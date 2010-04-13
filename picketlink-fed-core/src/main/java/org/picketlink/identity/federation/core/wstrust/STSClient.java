@@ -37,9 +37,6 @@ import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
@@ -153,13 +150,13 @@ public class STSClient
       DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
-      Node documentNode = ((DOMSource) response).getNode();
-      Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
-            .getOwnerDocument();
-
       NodeList nodes;
       try
       {
+         Node documentNode = DocumentUtil.getNodeFromSource(response);
+         Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
+               .getOwnerDocument();
+
          Document myDocument = DocumentUtil.createDocument();
          Node importedNode = myDocument.importNode(responseDoc.getDocumentElement(), true);
          myDocument.appendChild(importedNode);

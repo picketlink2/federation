@@ -37,7 +37,6 @@ import javax.xml.ws.WebServiceProvider;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
@@ -81,9 +80,9 @@ public class PicketLinkSTS implements SecurityTokenService
       {
          baseRequest = WSTrustJAXBFactory.getInstance().parseRequestSecurityToken(request);
       }
-      catch (ParsingException e)
+      catch (WSTrustException we)
       {
-         throw new RuntimeException(e);
+         throw new RuntimeException(we);
       }
       
       if (baseRequest instanceof RequestSecurityToken)

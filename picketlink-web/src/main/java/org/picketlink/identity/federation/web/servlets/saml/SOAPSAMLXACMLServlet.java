@@ -173,7 +173,6 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
                Object samlRequest = soapBody.getAny().get(0);
                if(samlRequest instanceof JAXBElement)
                {
-                  jaxbRequestType = (JAXBElement<RequestAbstractType>)samlRequest; 
                   jaxbRequestType = (JAXBElement<RequestAbstractType>)samlRequest;
                   xacmlRequest = (XACMLAuthzDecisionQueryType) jaxbRequestType.getValue();
                }

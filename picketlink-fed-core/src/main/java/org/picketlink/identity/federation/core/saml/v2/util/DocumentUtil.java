@@ -31,16 +31,17 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory; 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer; 
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory; 
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathException;
@@ -63,37 +64,37 @@ import org.xml.sax.SAXException;
  * @since Jan 14, 2009
  */
 public class DocumentUtil
-{ 
+{
    private static Logger log = Logger.getLogger(DocumentUtil.class);
+
    private static boolean trace = log.isTraceEnabled();
-   
-   
+
    /**
     * Check whether a node belongs to a document
     * @param doc
     * @param node
     * @return 
     */
-   public static boolean containsNode(Document doc, Node node)  
-   {  
-     if(node.getNodeType() == Node.ELEMENT_NODE)
-     {
-        Element elem = (Element) node;
-        NodeList nl = doc.getElementsByTagNameNS(elem.getNamespaceURI(), elem.getLocalName());
-        if(nl != null && nl.getLength() > 0)
-           return true;
-        else
-           return false;
-     }
-     throw new UnsupportedOperationException();
+   public static boolean containsNode(Document doc, Node node)
+   {
+      if (node.getNodeType() == Node.ELEMENT_NODE)
+      {
+         Element elem = (Element) node;
+         NodeList nl = doc.getElementsByTagNameNS(elem.getNamespaceURI(), elem.getLocalName());
+         if (nl != null && nl.getLength() > 0)
+            return true;
+         else
+            return false;
+      }
+      throw new UnsupportedOperationException();
    }
-   
+
    /**
     * Create a new document
     * @return
     * @throws ParserConfigurationException  
     */
-   public static Document createDocument() throws ConfigurationException 
+   public static Document createDocument() throws ConfigurationException
    {
       DocumentBuilderFactory factory = getDocumentBuilderFactory();
       DocumentBuilder builder;
@@ -105,7 +106,7 @@ public class DocumentUtil
       {
          throw new ConfigurationException(e);
       }
-      return builder.newDocument(); 
+      return builder.newDocument();
    }
 
    /**
@@ -116,12 +117,12 @@ public class DocumentUtil
     * @throws SAXException 
     * @throws ParserConfigurationException 
     */
-   public static Document getDocument(String docString) 
-   throws ConfigurationException,ParsingException, ProcessingException
+   public static Document getDocument(String docString) throws ConfigurationException, ParsingException,
+         ProcessingException
    {
       return getDocument(new StringReader(docString));
    }
-   
+
    /**
     * Parse a document from a reader
     * @param reader
@@ -131,8 +132,8 @@ public class DocumentUtil
     * @throws IOException 
     * @throws SAXException 
     */
-   public static Document getDocument(Reader reader) 
-   throws ConfigurationException, ProcessingException, ParsingException 
+   public static Document getDocument(Reader reader) throws ConfigurationException, ProcessingException,
+         ParsingException
    {
       try
       {
@@ -153,7 +154,7 @@ public class DocumentUtil
          throw new ProcessingException(e);
       }
    }
-   
+
    /**
     * Get Document from a file
     * @param file
@@ -162,13 +163,12 @@ public class DocumentUtil
     * @throws IOException 
     * @throws SAXException 
     */
-   public static Document getDocument(File file) 
-   throws ConfigurationException, ProcessingException, ParsingException 
+   public static Document getDocument(File file) throws ConfigurationException, ProcessingException, ParsingException
    {
-      DocumentBuilderFactory factory = getDocumentBuilderFactory(); 
+      DocumentBuilderFactory factory = getDocumentBuilderFactory();
       try
       {
-         DocumentBuilder builder = factory.newDocumentBuilder(); 
+         DocumentBuilder builder = factory.newDocumentBuilder();
          return builder.parse(file);
       }
       catch (ParserConfigurationException e)
@@ -184,7 +184,7 @@ public class DocumentUtil
          throw new ProcessingException(e);
       }
    }
-   
+
    /**
     * Get Document from an inputstream
     * @param is
@@ -193,13 +193,13 @@ public class DocumentUtil
     * @throws IOException 
     * @throws SAXException 
     */
-   public static Document getDocument(InputStream is) 
-   throws ConfigurationException, ProcessingException, ParsingException 
+   public static Document getDocument(InputStream is) throws ConfigurationException, ProcessingException,
+         ParsingException
    {
-      DocumentBuilderFactory factory = getDocumentBuilderFactory(); 
+      DocumentBuilderFactory factory = getDocumentBuilderFactory();
       try
       {
-         DocumentBuilder builder = factory.newDocumentBuilder(); 
+         DocumentBuilder builder = factory.newDocumentBuilder();
          return builder.parse(is);
       }
       catch (ParserConfigurationException e)
@@ -215,7 +215,7 @@ public class DocumentUtil
          throw new ProcessingException(e);
       }
    }
-   
+
    /**
     * Marshall a document into a String
     * @param signedDoc
@@ -223,27 +223,26 @@ public class DocumentUtil
     * @throws TransformerFactoryConfigurationError 
     * @throws TransformerException  
     */
-   public static String getDocumentAsString(Document signedDoc) 
-   throws ProcessingException, ConfigurationException
+   public static String getDocumentAsString(Document signedDoc) throws ProcessingException, ConfigurationException
    {
-     Source source = new DOMSource(signedDoc);
-     StringWriter sw = new StringWriter();
- 
-     Result streamResult = new StreamResult(sw);
-     // Write the DOM document to the stream
-     Transformer xformer = getTransformer();
-     try
-     {
-        xformer.transform(source, streamResult);
-     }
-     catch (TransformerException e)
-     {
-        throw new ProcessingException(e);
-     }
-     
-     return sw.toString();
+      Source source = new DOMSource(signedDoc);
+      StringWriter sw = new StringWriter();
+
+      Result streamResult = new StreamResult(sw);
+      // Write the DOM document to the stream
+      Transformer xformer = getTransformer();
+      try
+      {
+         xformer.transform(source, streamResult);
+      }
+      catch (TransformerException e)
+      {
+         throw new ProcessingException(e);
+      }
+
+      return sw.toString();
    }
- 
+
    /**
     * Marshall a DOM Element as string
     * @param element
@@ -251,27 +250,26 @@ public class DocumentUtil
     * @throws TransformerFactoryConfigurationError 
     * @throws TransformerException  
     */
-   public static String getDOMElementAsString(Element element) 
-   throws ProcessingException, ConfigurationException
+   public static String getDOMElementAsString(Element element) throws ProcessingException, ConfigurationException
    {
-     Source source = new DOMSource(element);
-     StringWriter sw = new StringWriter();
- 
-     Result streamResult = new StreamResult(sw);
-     // Write the DOM document to the file
-     Transformer xformer = getTransformer();
-     try
-     {
-        xformer.transform(source, streamResult);
-     }
-     catch (TransformerException e)
-     {
-        throw new ProcessingException(e);
-     }
-     
-     return sw.toString();
+      Source source = new DOMSource(element);
+      StringWriter sw = new StringWriter();
+
+      Result streamResult = new StreamResult(sw);
+      // Write the DOM document to the file
+      Transformer xformer = getTransformer();
+      try
+      {
+         xformer.transform(source, streamResult);
+      }
+      catch (TransformerException e)
+      {
+         throw new ProcessingException(e);
+      }
+
+      return sw.toString();
    }
-   
+
    /**
     * Stream a DOM Node as an input stream
     * @param node
@@ -279,12 +277,11 @@ public class DocumentUtil
     * @throws TransformerFactoryConfigurationError 
     * @throws TransformerException  
     */
-   public static InputStream getNodeAsStream(Node node) 
-   throws ConfigurationException, ProcessingException 
+   public static InputStream getNodeAsStream(Node node) throws ConfigurationException, ProcessingException
    {
       Source source = new DOMSource(node);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
+
       Result streamResult = new StreamResult(baos);
       // Write the DOM document to the stream
       Transformer transformer = getTransformer();
@@ -296,12 +293,12 @@ public class DocumentUtil
       {
          throw new ProcessingException(e);
       }
-      
+
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      
+
       return bis;
    }
-   
+
    /**
     * Stream a DOM Node as a String
     * @param node
@@ -310,12 +307,11 @@ public class DocumentUtil
     * @throws TransformerFactoryConfigurationError 
     * @throws TransformerException  
     */
-   public static String getNodeAsString(Node node) 
-   throws ConfigurationException, ProcessingException 
+   public static String getNodeAsString(Node node) throws ConfigurationException, ProcessingException
    {
       Source source = new DOMSource(node);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
+
       Result streamResult = new StreamResult(baos);
       // Write the DOM document to the stream
       Transformer transformer = getTransformer();
@@ -327,10 +323,10 @@ public class DocumentUtil
       {
          throw new ProcessingException(e);
       }
-      
-      return new String(baos.toByteArray()); 
+
+      return new String(baos.toByteArray());
    }
-   
+
    /**
     * Given a document, return a Node with the given node name
     * and an attribute with a particular attribute value
@@ -343,32 +339,31 @@ public class DocumentUtil
     * @throws XPathException
     * @throws TransformerFactoryConfigurationError
     * @throws TransformerException
-    */ 
-   public static Node getNodeWithAttribute(Document document, final String nsURI,
-         String nodeName,
-         String attributeName, String attributeValue) throws XPathException,
-         TransformerFactoryConfigurationError, TransformerException
+    */
+   public static Node getNodeWithAttribute(Document document, final String nsURI, String nodeName,
+         String attributeName, String attributeValue) throws XPathException, TransformerFactoryConfigurationError,
+         TransformerException
    {
       NodeList nl = document.getElementsByTagNameNS(nsURI, nodeName);
       int len = nl != null ? nl.getLength() : 0;
-      
+
       for (int i = 0; i < len; i++)
       {
          Node n = nl.item(i);
-         if(n.getNodeType() != Node.ELEMENT_NODE)
-            continue; 
+         if (n.getNodeType() != Node.ELEMENT_NODE)
+            continue;
          Element el = (Element) n;
          String attrValue = el.getAttributeNS(nsURI, attributeName);
-         if(attributeValue.equals(attrValue))
+         if (attributeValue.equals(attrValue))
             return el;
          //Take care of attributes with null NS
          attrValue = el.getAttribute(attributeName);
-         if(attributeValue.equals(attrValue))
+         if (attributeValue.equals(attrValue))
             return el;
       }
       return null;
    }
-   
+
    /**
     * DOM3 method: Normalize the document with namespaces
     * @param doc
@@ -376,12 +371,12 @@ public class DocumentUtil
     */
    public static Document normalizeNamespaces(Document doc)
    {
-      DOMConfiguration docConfig = doc.getDomConfig(); 
-      docConfig.setParameter("namespaces", Boolean.TRUE);  
+      DOMConfiguration docConfig = doc.getDomConfig();
+      docConfig.setParameter("namespaces", Boolean.TRUE);
       doc.normalizeDocument();
       return doc;
    }
-   
+
    /**
     * Get a {@link Source} given a {@link Document}
     * @param doc
@@ -391,7 +386,7 @@ public class DocumentUtil
    {
       return new DOMSource(doc);
    }
-   
+
    /**
     * Get the document as a string while
     * ignoring any exceptions
@@ -401,54 +396,69 @@ public class DocumentUtil
    public static String asString(Document doc)
    {
       String str = null;
-      
+
       try
       {
-         str = getDocumentAsString(doc);   
+         str = getDocumentAsString(doc);
       }
-      catch(Exception ignore)
-      {}
+      catch (Exception ignore)
+      {
+      }
       return str;
    }
-   
+
    /**
     * Log the nodes in the document
     * @param doc
     */
    public static void logNodes(Document doc)
    {
-     visit(doc, 0); 
-   } 
-    
-   private static void visit(Node node, int level) 
-   { 
+      visit(doc, 0);
+   }
+
+   public static Node getNodeFromSource(Source source) throws ProcessingException, ConfigurationException
+   {
+      try
+      {
+         Transformer transformer = getTransformer();
+         DOMResult result = new DOMResult();
+         transformer.transform(source, result);
+         return result.getNode();
+      }
+      catch (TransformerException te)
+      {
+         throw new ProcessingException(te);
+      }
+   }
+
+   private static void visit(Node node, int level)
+   {
       // Visit each child
       NodeList list = node.getChildNodes();
-      for (int i=0; i<list.getLength(); i++) 
+      for (int i = 0; i < list.getLength(); i++)
       {
          // Get child node
          Node childNode = list.item(i);
-         if(trace) 
-            log.trace("Node="+ childNode.getNamespaceURI()+ "::"+childNode.getLocalName());
+         if (trace)
+            log.trace("Node=" + childNode.getNamespaceURI() + "::" + childNode.getLocalName());
          // Visit child node
-         visit(childNode, level+1);
+         visit(childNode, level + 1);
       }
    }
-   
+
    /**
     * Create a namespace aware Document builder factory
     * @return
     */
    private static DocumentBuilderFactory getDocumentBuilderFactory()
    {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); 
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(true);
       factory.setXIncludeAware(true);
       return factory;
    }
-   
-   private static Transformer getTransformer() 
-   throws ProcessingException, ConfigurationException
+
+   private static Transformer getTransformer() throws ProcessingException, ConfigurationException
    {
       Transformer transformer;
       try
@@ -457,12 +467,12 @@ public class DocumentUtil
       }
       catch (TransformerConfigurationException e)
       {
-        throw new ConfigurationException(e);
+         throw new ConfigurationException(e);
       }
       catch (TransformerFactoryConfigurationError e)
       {
          throw new ConfigurationException(e);
-      } 
+      }
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.setOutputProperty(OutputKeys.INDENT, "no");
       return transformer;

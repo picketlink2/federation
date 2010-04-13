@@ -27,10 +27,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
 
 import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
@@ -57,18 +55,19 @@ import org.w3c.dom.NodeList;
 public class WSTrustJAXBFactory
 {
    private static Logger log = Logger.getLogger(WSTrustJAXBFactory.class);
+
    private boolean trace = log.isTraceEnabled();
-   
+
    private static final WSTrustJAXBFactory instance = new WSTrustJAXBFactory();
 
    private Marshaller marshaller;
 
    private Unmarshaller unmarshaller;
-   
+
    private Binder<Node> binder;
 
    private final ObjectFactory objectFactory;
-   
+
    private ThreadLocal<SAMLDocumentHolder> holders = new ThreadLocal<SAMLDocumentHolder>();
 
    /**
@@ -124,33 +123,33 @@ public class WSTrustJAXBFactory
     * @return the constructed {@code BaseRequestSecurityToken} instance. It will be an instance of {@code
     *         RequestSecurityToken} the message contains a single token request, and an instance of {@code
     *         RequestSecurityTokenCollection} if multiples requests are being made in the same message.
-    * @throws ParsingException 
     */
    @SuppressWarnings("unchecked")
-   public BaseRequestSecurityToken parseRequestSecurityToken(Source request) throws ParsingException
+   public BaseRequestSecurityToken parseRequestSecurityToken(Source request) throws WSTrustException
    {
       // if the request contains a validate, cancel, or renew target, we must preserve it from JAXB unmarshalling.
-	  Node documentNode = ((DOMSource) request).getNode();
-      Document document = documentNode instanceof Document ? (Document) documentNode : documentNode.getOwnerDocument();
-      
-      JAXBElement<RequestSecurityTokenType> jaxbRST;
       try
       {
+         Node documentNode = DocumentUtil.getNodeFromSource(request);
+         Document document = documentNode instanceof Document ? (Document) documentNode : documentNode
+               .getOwnerDocument();
+
+         JAXBElement<RequestSecurityTokenType> jaxbRST;
          Node rst = this.findNodeByNameNS(document, "RequestSecurityToken", WSTrustConstants.BASE_NAMESPACE);
-         if(rst == null)
+         if (rst == null)
             throw new RuntimeException("Request Security Token node not found");
-         
+
          jaxbRST = (JAXBElement<RequestSecurityTokenType>) binder.unmarshal(rst);
 
          RequestSecurityTokenType rstt = jaxbRST.getValue();
-         
+
          SAML2SecurityToken samlSecurityToken = new SAML2SecurityToken(rstt);
          holders.set(new SAMLDocumentHolder(samlSecurityToken, document));
          return new RequestSecurityToken(rstt);
       }
-      catch (JAXBException e)
+      catch (Exception e)
       {
-         throw new ParsingException(e);
+         throw new WSTrustException("Error parsing security token request", e);
       }
    }
 
@@ -165,11 +164,20 @@ public class WSTrustJAXBFactory
     *         specification, the returned object will be an instance of {@code RequestSecurityTokenResponseCollection}.
     */
    @SuppressWarnings("unchecked")
-   public BaseRequestSecurityTokenResponse parseRequestSecurityTokenResponse(Source response)
+   public BaseRequestSecurityTokenResponse parseRequestSecurityTokenResponse(Source response) throws WSTrustException
    {
       // if the response contains an issued token, we must preserve it from the JAXB unmarshalling.
       Element tokenElement = null;
-	  Node documentNode = ((DOMSource) response).getNode();
+      Node documentNode = null;
+      try
+      {
+         documentNode = DocumentUtil.getNodeFromSource(response);
+      }
+      catch (Exception e)
+      {
+         throw new WSTrustException("Failed to transform request source", e);
+      }
+
       Document document = documentNode instanceof Document ? (Document) documentNode : documentNode.getOwnerDocument();
       Node requestedTokenNode = this.findNodeByNameNS(document, "RequestedSecurityToken",
             WSTrustConstants.BASE_NAMESPACE);
@@ -178,10 +186,10 @@ public class WSTrustJAXBFactory
 
       try
       {
-         Object object = this.unmarshaller.unmarshal(response);
+         Object object = this.unmarshaller.unmarshal(documentNode);
          if (object instanceof JAXBElement)
          {
-            JAXBElement<?> element = (JAXBElement<?>) unmarshaller.unmarshal(response);
+            JAXBElement<?> element = (JAXBElement<?>) object;
             if (element.getDeclaredType().equals(RequestSecurityTokenResponseCollectionType.class))
             {
                RequestSecurityTokenResponseCollection collection = new RequestSecurityTokenResponseCollection(
@@ -200,7 +208,7 @@ public class WSTrustJAXBFactory
          else
             throw new RuntimeException("Invalid response type: " + object.getClass().getName());
       }
-      catch (Exception e)
+      catch (JAXBException e)
       {
          throw new RuntimeException("Failed to unmarshall security token response", e);
       }
@@ -252,7 +260,7 @@ public class WSTrustJAXBFactory
                node = this.findNodeByNameNS(result, "RenewTarget", WSTrustConstants.BASE_NAMESPACE);
             else if (requestType.equalsIgnoreCase(WSTrustConstants.CANCEL_REQUEST))
                node = this.findNodeByNameNS(result, "CancelTarget", WSTrustConstants.BASE_NAMESPACE);
-            if(node == null)
+            if (node == null)
                throw new RuntimeException("Unsupported request type:" + requestType);
             node.appendChild(result.importNode(targetElement, true));
          }
@@ -304,11 +312,11 @@ public class WSTrustJAXBFactory
             Node node = this.findNodeByNameNS(result, "RequestedSecurityToken", WSTrustConstants.BASE_NAMESPACE);
             node.appendChild(result.importNode(tokenElement, true));
          }
-         if(trace)
+         if (trace)
          {
-            log.trace("Final RSTR doc:" + DocumentUtil.asString(result)); 
+            log.trace("Final RSTR doc:" + DocumentUtil.asString(result));
          }
-            
+
       }
       catch (Exception e)
       {
@@ -316,7 +324,7 @@ public class WSTrustJAXBFactory
       }
       return DocumentUtil.getXMLSource(result);
    }
-   
+
    /**
     * Return the {@code SAMLDocumentHolder} for the thread
     * @return
@@ -350,26 +358,4 @@ public class WSTrustJAXBFactory
       return list.item(0);
    }
 
-   /**
-    * <p>
-    * Searches the specified document for an element that represents a validate, renew, or cancel target.
-    * </p>
-    * 
-    * @param document
-    *           the {@code Document} upon which the search is to be made.
-    * @return an {@code Element} representing the validate, renew, or cancel target.
-    */
-   /*private Element getValidateOrRenewOrCancelTarget(Document document)
-   {
-      Node target = this.findNodeByNameNS(document, "ValidateTarget", WSTrustConstants.BASE_NAMESPACE);
-      if (target != null)
-         return (Element) target.getFirstChild();
-      target = this.findNodeByNameNS(document, "RenewTarget", WSTrustConstants.BASE_NAMESPACE);
-      if (target != null)
-         return (Element) target.getFirstChild();
-      target = this.findNodeByNameNS(document, "CancelTarget", WSTrustConstants.BASE_NAMESPACE);
-      if (target != null)
-         return (Element) target.getFirstChild();
-      return null;
-   }*/
 }
