@@ -43,8 +43,13 @@ import org.w3c.dom.Element;
  * A client side EJB3 interceptor to automatically create a STS token and use it as the credential to invoke an EJB.
  * This interceptor must be included after <code>org.jboss.ejb3.security.client.SecurityClientInterceptor</code>
  * in the client interceptor stack in deploy/ejb3-interceptors-aop.xml
- * This interceptor requires a resource named sts.properties in the classpath to read the parameters
- * necessary to connect to the STS application.
+ * This interceptor requires an attribute named propertiesFile which is a resource in the classpath where the configuration
+ * necessary to connect to the STS application can be read. E.g.
+ * <pre>
+ * <interceptor class="org.picketlink.identity.federation.bindings.jboss.auth.STSClientInterceptor" scope="PER_VM">
+ *    <attribute name="propertiesFile">sts.properties</attribute>
+ * </interceptor>
+ * </pre>
  * The properties file must contain the following parameters:
  * <pre>
  * serviceName=[service name]
@@ -63,12 +68,21 @@ public class STSClientInterceptor implements Interceptor, Serializable
    private static final Logger log = Logger.getLogger(STSClientInterceptor.class);
 
    private static boolean trace = log.isTraceEnabled();
+   
+   private String propertiesFile;
 
-   private static Builder builder;
-
+   private Builder builder;
+   
    public String getName()
    {
       return getClass().getName();
+   }
+   
+   public void setPropertiesFile(String propertiesFile)
+   {
+      this.propertiesFile = propertiesFile;
+      if (trace)
+         log.trace("Constructing STSClientInterceptor using " + propertiesFile + " as the configuration file");
    }
 
    public Object invoke(Invocation invocation) throws Throwable
@@ -83,7 +97,14 @@ public class STSClientInterceptor implements Interceptor, Serializable
          String credential = (String) sc.getUtil().getCredential();
          // look for the properties file in the classpath
          if (builder == null)
-            builder = new Builder("sts.properties");
+         {
+            if (propertiesFile != null)
+            {
+               builder = new Builder(propertiesFile);
+            }
+            else
+               throw new IllegalStateException("Attribute propertiesFile must be set");
+         }
          WSTrustClient client = new WSTrustClient(builder.getServiceName(), builder.getPortName(),
                builder.getEndpointAddress(), new SecurityInfo(principal.getName(), credential));
          Element assertion = null;
