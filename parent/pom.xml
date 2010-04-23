@@ -2,13 +2,13 @@
    <parent>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-parent</artifactId>
-      <version>4</version>
+      <version>5</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.picketlink</groupId>
    <artifactId>picketlink-fed-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.0.3.CR2-SNAPSHOT</version>
+   <version>1.0.3.CR3</version>
    <name>PicketLink Federation- Parent</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink is a cross-cutting project that handles identity  needs for the JEMS projects</description>
@@ -58,6 +58,29 @@
    </build>
   
    <repositories>
+     <repository>
+       <id>jboss-public-repository-group</id>
+       <name>JBoss Public Maven Repository Group</name>
+       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+       <layout>default</layout>
+       <releases>
+         <enabled>true</enabled>
+         <updatePolicy>never</updatePolicy>
+       </releases>
+       <snapshots>
+         <enabled>true</enabled>
+         <updatePolicy>never</updatePolicy>
+       </snapshots>
+     </repository>
+    <repository>
+      <id>repository.jboss.org</id>
+      <name>JBoss Repository</name>
+      <layout>default</layout>
+      <url>http://repository.jboss.org/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>repository.jboss.org</id>
       <name>JBoss Repository</name>
