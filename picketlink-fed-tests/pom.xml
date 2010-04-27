@@ -23,6 +23,10 @@
    </organization>
    <properties>
        <java.endorsed.dirs>${basedir}/src/test/resources/endorsed</java.endorsed.dirs>
+       <SERVICE_1_URL>http://localhost:8080/sales-post/</SERVICE_1_URL>
+       <SERVICE_2_URL>http://localhost:8080/employee-post/</SERVICE_2_URL>
+       <SERVICE_3_URL>http://localhost:8080/sales/</SERVICE_3_URL>
+       <SERVICE_4_URL>http://localhost:8080/employee/</SERVICE_4_URL>
    </properties>
    <build>
      <plugins>
