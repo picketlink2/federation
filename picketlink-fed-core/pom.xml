@@ -21,9 +21,6 @@
       <name>JBoss Inc.</name>
       <url>http://www.jboss.org</url>
    </organization>
-   <properties>
-       <java.endorsed.dirs>${basedir}/src/test/resources/endorsed</java.endorsed.dirs>
-   </properties>
    <build>
      <plugins>
        <plugin>
@@ -37,7 +34,6 @@
               <include>**/**TestCase.java</include>
             </includes>
             <forkMode>pertest</forkMode>
-            <argLine>-Djava.endorsed.dirs=${basedir}/src/test/resources/endorsed</argLine>
             <useFile>false</useFile>
             <trimStackTrace>false</trimStackTrace>
            </configuration>
@@ -54,6 +50,14 @@
       <dependency>
         <groupId>org.openid4java</groupId>
         <artifactId>openid4java</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>apache-log4j</groupId>
+        <artifactId>log4j</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.apache</groupId>
+        <artifactId>xmlsec</artifactId>
       </dependency>
       <dependency>
         <groupId>sun-jaxws</groupId>
@@ -91,18 +95,6 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.jboss.ws.native</groupId>
-         <artifactId>jbossws-native-client</artifactId>
-         <version>3.1.2.SP3</version>
-         <scope>test</scope>
-         <exclusions>
-           <exclusion>
-             <groupId>xml-apis</groupId>
-             <artifactId>xml-apis</artifactId>
-           </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
         <version>2.2.14.GA</version>
@@ -112,6 +104,18 @@
         <groupId>xmlunit</groupId>
         <artifactId>xmlunit</artifactId>
         <version>1.1</version>
+        <scope>test</scope>
+      </dependency>
+       <dependency>
+        <groupId>apache-xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.1.patch01-brew</version>
+        <scope>test</scope>
+      </dependency>
+       <dependency>
+        <groupId>apache-xalan</groupId>
+        <artifactId>serializer</artifactId>
+        <version>2.7.1.patch01-brew</version>
         <scope>test</scope>
       </dependency>
    </dependencies>
