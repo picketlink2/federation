@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import javax.annotation.Resource;
-import javax.xml.bind.JAXBElement;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Service;
@@ -38,7 +37,6 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
@@ -191,8 +189,7 @@ public class PicketLinkSTS implements SecurityTokenService
     * </p>
     * 
     * @return an instance of {@code STSConfiguration} containing the STS configuration properties.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    protected STSConfiguration getConfiguration() throws ConfigurationException
    { 
       // get the configuration file and parse it.
@@ -205,10 +202,9 @@ public class PicketLinkSTS implements SecurityTokenService
 
       try
       {
-         String pkgName = "org.picketlink.identity.federation.core.config";
          InputStream stream = configurationFile.openStream();
-         JAXBElement<STSType> element = (JAXBElement<STSType>) JAXBUtil.getUnmarshaller(pkgName).unmarshal(stream);
-         STSType stsConfig = element.getValue();
+         STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream); 
+         
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
          if(logger.isInfoEnabled())
             logger.info("picketlink-sts.xml configuration file loaded");

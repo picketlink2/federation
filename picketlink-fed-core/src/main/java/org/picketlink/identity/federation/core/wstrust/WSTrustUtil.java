@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +36,16 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
+import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -269,6 +275,37 @@ public class WSTrustUtil
          }
       }
       return secret;
+   }
+   
+   /**
+    * <p>
+    *   Given a stream of xml configuration (such as picketlink-sts.xml), return the {@code STSType}
+    * </p>
+    * @param stream
+    * @return {@code STSType}
+    * @throws JAXBException
+    */
+   public static STSType getSTSConfiguration( InputStream stream ) throws JAXBException
+   {
+      String pkgName = "org.picketlink.identity.federation.core.config";
+      JAXBElement<STSType> element = (JAXBElement<STSType>) JAXBUtil.getUnmarshaller(pkgName).unmarshal(stream);
+      return element.getValue(); 
+   }
+   
+   /**
+    * <p>
+    *   Marshall the {@code STSType} to an outputstream
+    * </p>
+    * @param stsConfiguration
+    * @param outputStream
+    * @throws JAXBException
+    */
+   public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream ) throws JAXBException 
+   {
+      String pkgName = "org.picketlink.identity.federation.core.config";
+      Marshaller marshaller = JAXBUtil.getMarshaller( pkgName );
+      org.picketlink.identity.federation.core.config.ObjectFactory objectFactory = new org.picketlink.identity.federation.core.config.ObjectFactory();
+      marshaller.marshal( objectFactory.createPicketLinkSTS(stsConfiguration), outputStream ); 
    }
 
    /**
