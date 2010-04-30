@@ -32,31 +32,31 @@ import javax.xml.namespace.QName;
  */
 public class WSTrustConstants
 {
-   public static final String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
+   public static final String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
 
    // WS-Trust request types.
-   public static final String ISSUE_REQUEST = BASE_NAMESPACE + "Issue";
-   public static final String RENEW_REQUEST = BASE_NAMESPACE + "Renew";
-   public static final String CANCEL_REQUEST = BASE_NAMESPACE + "Cancel";
-   public static final String VALIDATE_REQUEST = BASE_NAMESPACE + "Validate";
+   public static final String ISSUE_REQUEST = BASE_NAMESPACE + "/Issue";
+   public static final String RENEW_REQUEST = BASE_NAMESPACE + "/Renew";
+   public static final String CANCEL_REQUEST = BASE_NAMESPACE + "/Cancel";
+   public static final String VALIDATE_REQUEST = BASE_NAMESPACE + "/Validate";
    
    // WS-Trust validation constants.
-   public static final String STATUS_TYPE = BASE_NAMESPACE + "RSTR/Status";
-   public static final String STATUS_CODE_VALID = BASE_NAMESPACE + "status/valid";
-   public static final String STATUS_CODE_INVALID = BASE_NAMESPACE + "status/invalid";
+   public static final String STATUS_TYPE = BASE_NAMESPACE + "/RSTR/Status";
+   public static final String STATUS_CODE_VALID = BASE_NAMESPACE + "/status/valid";
+   public static final String STATUS_CODE_INVALID = BASE_NAMESPACE + "/status/invalid";
    
    // WS-Trust key types.
-   public static final String KEY_TYPE_BEARER = BASE_NAMESPACE + "Bearer";
-   public static final String KEY_TYPE_SYMMETRIC = BASE_NAMESPACE + "SymmetricKey";
-   public static final String KEY_TYPE_PUBLIC = BASE_NAMESPACE + "PublicKey"; 
+   public static final String KEY_TYPE_BEARER = BASE_NAMESPACE + "/Bearer";
+   public static final String KEY_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
+   public static final String KEY_TYPE_PUBLIC = BASE_NAMESPACE + "/PublicKey"; 
    
    // WS-Trust binary secret types.
-   public static final String BS_TYPE_ASYMMETRIC = BASE_NAMESPACE + "AsymmetricKey";
-   public static final String BS_TYPE_SYMMETRIC = BASE_NAMESPACE + "SymmetricKey";
-   public static final String BS_TYPE_NONCE = BASE_NAMESPACE + "Nonce";
+   public static final String BS_TYPE_ASYMMETRIC = BASE_NAMESPACE + "/AsymmetricKey";
+   public static final String BS_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
+   public static final String BS_TYPE_NONCE = BASE_NAMESPACE + "/Nonce";
    
    // WS-Trust computed key types.
-   public static final String CK_PSHA1 = BASE_NAMESPACE + "CK/PSHA1";
+   public static final String CK_PSHA1 = BASE_NAMESPACE + "/CK/PSHA1";
    
    // WSS namespaces values.
    public static final String WSA_NS = "http://www.w3.org/2005/08/addressing";

@@ -5,5 +5,5 @@
 // Generated on: 2008.12.17 at 12:32:20 PM CST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/ws-sx/ws-trust/200512", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.picketlink.identity.federation.ws.trust;

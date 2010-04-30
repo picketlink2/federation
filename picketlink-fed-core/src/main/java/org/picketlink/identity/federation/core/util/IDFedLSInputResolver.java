@@ -46,7 +46,7 @@ public class IDFedLSInputResolver implements LSResourceResolver
       schemaLocationMap.put("saml-schema-assertion-2.0.xsd", "schema/saml/v2/saml-schema-assertion-2.0.xsd");
       
       //WS-T
-      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512/", 
+      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512", 
             "schema/wstrust/v1_3/ws-trust-1.3.xsd");
       schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", 
             "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-secext-1.0.xsd");

@@ -1090,7 +1090,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
       if (rstDocument == null)
          throw new IllegalStateException("RST Document is null");
 
-      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
+      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localPart = "ValidateTarget";
 
       NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localPart);
@@ -1112,7 +1112,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       if (this.rstDocument == null)
          throw new IllegalStateException("RST Document is null");
-      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
+      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localName = "RenewTarget";
 
       NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localName);
@@ -1134,7 +1134,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       if (this.rstDocument == null)
          throw new IllegalStateException("RST Document is null");
-      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/";
+      String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localName = "CancelTarget";
 
       NodeList nodeList = rstDocument.getElementsByTagNameNS(ns, localName);
