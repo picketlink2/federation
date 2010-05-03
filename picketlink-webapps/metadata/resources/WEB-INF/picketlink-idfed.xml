@@ -16,7 +16,7 @@
     <ValidatingAlias Key="127.0.0.1" Value="servercert"/>
  </KeyProvider>
 
- <MetaDataProvider ClassName="org.picketlink.identity.federation.bindings.providers.FileBasedEntityMetadataProvider">
+ <MetaDataProvider ClassName="org.picketlink.identity.federation.core.saml.md.providers.FileBasedEntityMetadataProvider">
   <Option Key="FileName" Value="WEB-INF/idp-metadata.xml"/>
  </MetaDataProvider>  
 </PicketLinkIDP>
