@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.saml.v2.metadata.store;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
@@ -33,6 +34,29 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
  */
 public interface IMetadataConfigurationStore
 {
+   /**
+    * <p> 
+    *   Perform any bootstrap or initialization the store needs.
+    * </p>
+    */
+   void bootstrap();
+   
+   /**
+    * Get a set of the service provider ID, which
+    * can individually be drilled down to get additional
+    * trusted provider information
+    * @return
+    */
+   Set<String> getServiceProviderID();
+   
+   /**
+    * Get a set of the identity provider ID, which
+    * can individually be drilled down to get additional
+    * trusted provider information
+    * @return
+    */
+   Set<String> getIdentityProviderID();
+   
    /**
     * Get the Trusted Providers
     * @param id
@@ -77,4 +101,11 @@ public interface IMetadataConfigurationStore
     * @param id 
     */
    void deleteTrustedProviders(String id);
+   
+   /**
+    * <p> 
+    * Perform final cleanup if needed.
+    * </p>
+    */
+   void cleanup();
 }

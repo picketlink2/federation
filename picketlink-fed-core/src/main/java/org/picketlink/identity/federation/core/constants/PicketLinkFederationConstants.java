@@ -38,4 +38,10 @@ public interface PicketLinkFederationConstants
    String SCHEMA_IDFED_HANDLER = "schema/config/picketlink-fed-handler.xsd";
    String DSA_SIGNATURE_ALGORITHM = "SHA1withDSA";
    String RSA_SIGNATURE_ALGORITHM = "SHA1withRSA";
+   
+   // File Based Meta data Configuration Constants
+   String SERIALIZATION_EXTENSION = ".SER";
+   String FILE_STORE_DIRECTORY = "/picketlink-store";
+   String IDP_PROPERTIES = "/identityproviders.properties";
+   String SP_PROPERTIES = "/serviceproviders.properties";
 }
