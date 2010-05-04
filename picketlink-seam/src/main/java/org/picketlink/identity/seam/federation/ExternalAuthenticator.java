@@ -105,7 +105,7 @@ public class ExternalAuthenticator
       {
          throw new RuntimeException("Not logged in");
       }
-      if (!(identity.getPrincipal() instanceof SamlPrincipal))
+      if (!(identity.getPrincipal() instanceof SeamSamlPrincipal))
       {
          throw new RuntimeException("Single logout is only supported for SAML");
       }

@@ -53,7 +53,7 @@ public class SamlSingleLogoutSender
 
    public void sendSingleLogoutRequestToIDP(HttpServletRequest request, HttpServletResponse response, Identity identity)
    {
-      SamlPrincipal principal = (SamlPrincipal) identity.getPrincipal();
+      SeamSamlPrincipal principal = (SeamSamlPrincipal) identity.getPrincipal();
       SamlIdentityProvider idp = (SamlIdentityProvider) principal.getIdentityProvider();
       LogoutRequestType logoutRequest;
       try

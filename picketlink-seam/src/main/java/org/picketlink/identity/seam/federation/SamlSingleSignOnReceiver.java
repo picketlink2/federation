@@ -111,7 +111,7 @@ public class SamlSingleSignOnReceiver
          throw new RuntimeException("IDP response does not contain assertions");
       }
 
-      SamlPrincipal principal = getAuthenticatedUser(response, requestContext);
+      SeamSamlPrincipal principal = getAuthenticatedUser(response, requestContext);
       if (principal == null)
       {
          try
@@ -131,15 +131,15 @@ public class SamlSingleSignOnReceiver
       }
    }
 
-   private SamlPrincipal getAuthenticatedUser(ResponseType responseType, RequestContext requestContext)
+   private SeamSamlPrincipal getAuthenticatedUser(ResponseType responseType, RequestContext requestContext)
    {
-      SamlPrincipal principal = null;
+      SeamSamlPrincipal principal = null;
 
       for (Object assertion : responseType.getAssertionOrEncryptedAssertion())
       {
          if (assertion instanceof AssertionType)
          {
-            SamlPrincipal assertionSubject = handleAssertion((AssertionType) assertion, requestContext);
+            SeamSamlPrincipal assertionSubject = handleAssertion((AssertionType) assertion, requestContext);
             if (principal == null)
             {
                principal = assertionSubject;
@@ -158,7 +158,7 @@ public class SamlSingleSignOnReceiver
       return principal;
    }
 
-   private SamlPrincipal handleAssertion(AssertionType assertion, RequestContext requestContext)
+   private SeamSamlPrincipal handleAssertion(AssertionType assertion, RequestContext requestContext)
    {
       try
       {
@@ -187,7 +187,7 @@ public class SamlSingleSignOnReceiver
          return null;
       }
 
-      SamlPrincipal principal = new SamlPrincipal();
+      SeamSamlPrincipal principal = new SeamSamlPrincipal();
       principal.setAssertion(assertion);
       principal.setSessionIndex(authnStatement.getSessionIndex());
       principal.setNameId(nameId);
@@ -286,7 +286,7 @@ public class SamlSingleSignOnReceiver
       }
    }
 
-   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse, SamlPrincipal principal,
+   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse, SeamSamlPrincipal principal,
          RequestContext requestContext)
    {
       if (identity.isLoggedIn())

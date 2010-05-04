@@ -108,7 +108,7 @@ public class SamlMessageFactory
       return authnRequest;
    }
 
-   public LogoutRequestType createLogoutRequest(SamlPrincipal principal) throws ConfigurationException
+   public LogoutRequestType createLogoutRequest(SeamSamlPrincipal principal) throws ConfigurationException
    {
       ObjectFactory objectFactory = new ObjectFactory();
       org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory assertionObjectFactory = new org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory();

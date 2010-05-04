@@ -36,9 +36,9 @@ public class Authenticator
 {
    public Boolean internalAuthenticate(Principal principal, List<String> roles)
    {
-      if (principal instanceof SamlPrincipal)
+      if (principal instanceof SeamSamlPrincipal)
       {
-         SamlPrincipal samlPrincipal = (SamlPrincipal) principal;
+         SeamSamlPrincipal samlPrincipal = (SeamSamlPrincipal) principal;
 
          if (samlPrincipal.getName().equals("employee"))
          {

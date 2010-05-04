@@ -34,7 +34,7 @@ import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvide
 * @author Marcel Kolsteren
 * @since Jan 28, 2010
 */
-public class SamlPrincipal implements Principal
+public class SeamSamlPrincipal implements Principal
 {
    private NameIDType nameId;
 

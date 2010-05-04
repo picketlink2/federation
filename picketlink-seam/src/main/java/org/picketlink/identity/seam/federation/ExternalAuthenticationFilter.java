@@ -191,7 +191,7 @@ public class ExternalAuthenticationFilter extends AbstractFilter
             {
                throw new RuntimeException("User not logged in.");
             }
-            SamlPrincipal principal = (SamlPrincipal) identity.getPrincipal();
+            SeamSamlPrincipal principal = (SeamSamlPrincipal) identity.getPrincipal();
             SamlIdentityProvider idp = principal.getIdentityProvider();
             if (!(idp instanceof SamlIdentityProvider))
             {
