@@ -135,7 +135,10 @@ public class ExternalAuthenticator
             url.append("=");
             try
             {
-               url.append(URLEncoder.encode(paramEntry.getValue(), "UTF-8"));
+               String paramValue = paramEntry.getValue();
+               if( paramValue == null || paramValue == "" )
+                  throw new RuntimeException( "Param Key:" + paramEntry.getKey() + " has value that is null" );
+               url.append(URLEncoder.encode( paramValue, "UTF-8" ));
             }
             catch (UnsupportedEncodingException e)
             {
