@@ -29,8 +29,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-import org.picketlink.identity.federation.api.util.Base64;
 import org.picketlink.identity.federation.api.util.DeflateUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 
 /**
  * Utility class for SAML HTTP/Redirect binding

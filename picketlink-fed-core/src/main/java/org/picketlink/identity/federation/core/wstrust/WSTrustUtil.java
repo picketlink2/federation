@@ -45,6 +45,7 @@ import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -238,8 +239,7 @@ public class WSTrustUtil
     */
    public static OnBehalfOfType createOnBehalfOfWithUsername(String username, String id)
    {
-      org.picketlink.identity.federation.ws.wss.secext.ObjectFactory secextFactory = 
-         new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory();
+      org.picketlink.identity.federation.ws.wss.secext.ObjectFactory secextFactory = new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory();
       AttributedString attrString = new AttributedString();
       attrString.setValue(username);
       UsernameTokenType usernameToken = new UsernameTokenType();
@@ -276,7 +276,7 @@ public class WSTrustUtil
       }
       return secret;
    }
-   
+
    /**
     * <p>
     *   Given a stream of xml configuration (such as picketlink-sts.xml), return the {@code STSType}
@@ -285,13 +285,13 @@ public class WSTrustUtil
     * @return {@code STSType}
     * @throws JAXBException
     */
-   public static STSType getSTSConfiguration( InputStream stream ) throws JAXBException
+   public static STSType getSTSConfiguration(InputStream stream) throws JAXBException
    {
       String pkgName = "org.picketlink.identity.federation.core.config";
       JAXBElement<STSType> element = (JAXBElement<STSType>) JAXBUtil.getUnmarshaller(pkgName).unmarshal(stream);
-      return element.getValue(); 
+      return element.getValue();
    }
-   
+
    /**
     * <p>
     *   Marshall the {@code STSType} to an outputstream
@@ -300,13 +300,13 @@ public class WSTrustUtil
     * @param outputStream
     * @throws JAXBException
     */
-   public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream ) throws JAXBException 
+   public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream) throws JAXBException
    {
       String pkgName = "org.picketlink.identity.federation.core.config";
-      Marshaller marshaller = JAXBUtil.getMarshaller( pkgName );
-      marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+      Marshaller marshaller = JAXBUtil.getMarshaller(pkgName);
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       org.picketlink.identity.federation.core.config.ObjectFactory objectFactory = new org.picketlink.identity.federation.core.config.ObjectFactory();
-      marshaller.marshal( objectFactory.createPicketLinkSTS(stsConfiguration), outputStream ); 
+      marshaller.marshal(objectFactory.createPicketLinkSTS(stsConfiguration), outputStream);
    }
 
    /**
@@ -440,8 +440,8 @@ public class WSTrustUtil
       KeyInfoType keyInfo = null;
       try
       {
-         // TODO: check if we need to store the certificate using a base64 format.
-         byte[] encodedCert = certificate.getEncoded();
+         // get the certificate Base64 encoding.
+         byte[] encodedCert = Base64.encodeBytes(certificate.getEncoded()).getBytes();
 
          // first create a X509DataType that contains the encoded certificate.
          org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
