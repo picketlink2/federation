@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -51,21 +52,23 @@ import org.w3c.dom.Document;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-@WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", 
-		targetNamespace = "urn:picketlink:identity-federation:sts", 
-		wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
+@WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
 public class PicketLinkSTS implements SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
-   
-   public static final String STS_CONFIG_FILE = "picketlink-sts.xml";
+
+   private static final String SEPARATOR = System.getProperty("file.separator");
+
+   private static final String STS_CONFIG_FILE = "picketlink-sts.xml";
+
+   private static final String STS_CONFIG_DIR = "picketlink-store" + SEPARATOR + "sts" + SEPARATOR;
 
    @Resource
    protected WebServiceContext context;
 
    protected STSConfiguration config;
-   
+
    /*
     * (non-Javadoc)
     * 
@@ -82,7 +85,7 @@ public class PicketLinkSTS implements SecurityTokenService
       {
          throw new RuntimeException(we);
       }
-      
+
       if (baseRequest instanceof RequestSecurityToken)
          return this.handleTokenRequest((RequestSecurityToken) baseRequest);
       else if (baseRequest instanceof RequestSecurityTokenCollection)
@@ -103,16 +106,16 @@ public class PicketLinkSTS implements SecurityTokenService
    protected Source handleTokenRequest(RequestSecurityToken request)
    {
       SAMLDocumentHolder holder = WSTrustJAXBFactory.getInstance().getSAMLDocumentHolderOnThread();
-      
+
       /**
        * The RST Document is very important for XML Signatures
        */
       request.setRSTDocument(holder.getSamlDocument());
-      
-      if(this.config == null)
+
+      if (this.config == null)
          try
          {
-            if(logger.isInfoEnabled())
+            if (logger.isInfoEnabled())
                logger.info("Loading STS configuration");
             this.config = this.getConfiguration();
          }
@@ -120,25 +123,25 @@ public class PicketLinkSTS implements SecurityTokenService
          {
             throw new WebServiceException("Encountered configuration exception:", e);
          }
-      
+
       WSTrustRequestHandler handler = this.config.getRequestHandler();
       String requestType = request.getRequestType().toString();
-      if(logger.isDebugEnabled())
+      if (logger.isDebugEnabled())
          logger.debug("STS received request of type " + requestType);
-         
+
       try
       {
          if (requestType.equals(WSTrustConstants.ISSUE_REQUEST))
          {
-            Source source = this.marshallResponse(handler.issue(request, this.context.getUserPrincipal())); 
-            Document doc = handler.postProcess((Document)((DOMSource)source).getNode(), request);
-            return new DOMSource(doc);    
-         }  
+            Source source = this.marshallResponse(handler.issue(request, this.context.getUserPrincipal()));
+            Document doc = handler.postProcess((Document) ((DOMSource) source).getNode(), request);
+            return new DOMSource(doc);
+         }
          else if (requestType.equals(WSTrustConstants.RENEW_REQUEST))
          {
             Source source = this.marshallResponse(handler.renew(request, this.context.getUserPrincipal()));
             // we need to sign/encrypt renewed tokens.
-            Document document = handler.postProcess((Document)((DOMSource) source).getNode(), request);
+            Document document = handler.postProcess((Document) ((DOMSource) source).getNode(), request);
             return new DOMSource(document);
          }
          else if (requestType.equals(WSTrustConstants.CANCEL_REQUEST))
@@ -189,30 +192,39 @@ public class PicketLinkSTS implements SecurityTokenService
     * </p>
     * 
     * @return an instance of {@code STSConfiguration} containing the STS configuration properties.
-    */ 
+    */
    protected STSConfiguration getConfiguration() throws ConfigurationException
-   { 
-      // get the configuration file and parse it.
-      URL configurationFile = SecurityActions.getContextClassLoader().getResource(STS_CONFIG_FILE);
-      if (configurationFile == null)
-      {
-         logger.warn("picketlink-sts.xml configuration file not found. Using default configuration values");
-         return new PicketLinkSTSConfiguration();
-      }
+   {
+      URL configurationFileURL = null;
 
       try
       {
-         InputStream stream = configurationFile.openStream();
-         STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream); 
-         
+         // check the user home for a configuration file generated by the picketlink console.
+         String configurationFilePath = System.getProperty("user.home") + SEPARATOR + STS_CONFIG_DIR + STS_CONFIG_FILE;
+         File configurationFile = new File(configurationFilePath);
+         if (configurationFile.exists())
+            configurationFileURL = configurationFile.toURI().toURL();
+         else
+            // if not configuration file was found in the user home, check the context classloader.
+            configurationFileURL = SecurityActions.getContextClassLoader().getResource(STS_CONFIG_FILE);
+
+         // if no configuration file was found, log a warn message and use default configuration values.
+         if (configurationFileURL == null)
+         {
+            logger.warn(STS_CONFIG_FILE + " configuration file not found. Using default configuration values");
+            return new PicketLinkSTSConfiguration();
+         }
+
+         InputStream stream = configurationFileURL.openStream();
+         STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
-         if(logger.isInfoEnabled())
-            logger.info("picketlink-sts.xml configuration file loaded");
+         if (logger.isInfoEnabled())
+            logger.info(STS_CONFIG_FILE + " configuration file loaded");
          return configuration;
       }
       catch (Exception e)
       {
-         throw new RuntimeException("Error parsing the configuration file:", e);
+         throw new ConfigurationException("Error parsing the configuration file:", e);
       }
    }
 }
