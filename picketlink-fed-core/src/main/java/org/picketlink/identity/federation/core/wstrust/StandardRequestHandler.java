@@ -51,6 +51,7 @@ import org.picketlink.identity.federation.ws.trust.RequestedTokenCancelledType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -158,7 +159,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
             requestContext.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
          }
-         
+
          // get the key type and size from the request, setting default values if not specified.
          URI keyType = request.getKeyType();
          if (keyType == null)
@@ -239,7 +240,16 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                Object value = useKeyType.getAny();
                if (value instanceof JAXBElement<?> || value instanceof Element)
                {
-                  //TODO: parse the token properly. If it is a X509 cert, we should create a X509DataType with it.
+                  String elementName = (value instanceof Element)
+                        ? ((Element) value).getLocalName()
+                        : ((JAXBElement<?>) value).getName().getLocalPart();
+                  // if the specified key is a X509 certificate we must insert it into a X509Data element.
+                  if (elementName.equals("X509Certificate"))
+                  {
+                     X509DataType data = new X509DataType();
+                     data.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(value);
+                     value = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory().createX509Data(data);
+                  }
                   KeyInfoType keyInfo = new KeyInfoType();
                   keyInfo.getContent().add(value);
                   requestContext.setProofTokenInfo(keyInfo);
@@ -303,7 +313,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       Node securityToken = request.getRenewTargetElement().getFirstChild();
       if (securityToken == null)
-    	  throw new WSTrustException("Unable to renew token: security token is null");
+         throw new WSTrustException("Unable to renew token: security token is null");
 
       SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
@@ -393,8 +403,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       Node securityToken = request.getValidateTargetElement().getFirstChild();
       if (securityToken == null)
-    	  throw new WSTrustException("Unable to validate token: security token is null");
-      
+         throw new WSTrustException("Unable to validate token: security token is null");
+
       SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
@@ -487,8 +497,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       // obtain the token provider that will handle the request.
       Node securityToken = request.getCancelTargetElement().getFirstChild();
       if (securityToken == null)
-    	  throw new WSTrustException("Unable to cancel token: security token is null");
-    	  
+         throw new WSTrustException("Unable to cancel token: security token is null");
+
       SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
@@ -504,7 +514,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
       provider.cancelToken(context);
-      
+
       // if no exception has been raised, the token has been successfully canceled.
       RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
       if (request.getContext() != null)

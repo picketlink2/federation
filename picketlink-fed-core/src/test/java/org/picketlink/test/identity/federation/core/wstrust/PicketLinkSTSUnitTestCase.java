@@ -21,8 +21,17 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URI;
+import java.security.KeyFactory;
+import java.security.KeyStore;
 import java.security.Principal;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +49,7 @@ import junit.framework.TestCase;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
@@ -76,10 +86,13 @@ import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
+import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
 import org.w3c.dom.Document;
@@ -390,7 +403,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             SAMLUtil.SAML2_TOKEN_TYPE, null);
       OnBehalfOfType onBehalfOf = WSTrustUtil.createOnBehalfOfWithUsername("anotherduke", "id");
       request.setOnBehalfOf(onBehalfOf);
-      
+
       // use the factory to marshall the request.
       WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
       Source requestMessage = factory.marshallRequestSecurityToken(request);
@@ -403,7 +416,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // validate the security token response (assertion principal should be anotherduke as specified by OnBehalfOf).
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "anotherduke", SAMLUtil.SAML2_SENDER_VOUCHES_URI);
    }
-   
+
    /**
     * <p>
     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
@@ -433,7 +446,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+            SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      // validate the holder of key contents.
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
+            .getValue();
+      this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       // check if the response contains the STS-generated key.
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
@@ -487,7 +505,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             .parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the security token response.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+            SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      // validate the holder of key contents.
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
+            .getValue();
+      this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
@@ -510,6 +533,82 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals("Unexpected binary secret type", WSTrustConstants.BS_TYPE_NONCE, serverBinarySecret.getType());
       assertNotNull("Unexpected null secret value", serverBinarySecret.getValue());
       assertEquals("Unexpected secret size", 8, serverBinarySecret.getValue().length);
+   }
+
+   /**
+    * <p>
+    * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession 
+    * token. The STS must include the specified certificate in the SAML subject confirmation. 
+    * </p>
+    * 
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvokeSAML20WithCertificate() throws Exception
+   {
+      // create a simple token request.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+            "http://services.testcorp.org/provider2");
+      request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
+
+      // include a UseKey section that specifies the certificate in the request.
+      Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
+      byte[] base64EncodedCert = Base64.encodeBytes(certificate.getEncoded()).getBytes();
+      JAXBElement<byte[]> certElement = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory()
+            .createX509DataTypeX509Certificate(base64EncodedCert);
+      UseKeyType useKey = new UseKeyType();
+      useKey.setAny(certElement);
+      request.setUseKey(useKey);
+
+      // invoke the token service.
+      Source requestMessage = WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      Source responseMessage = this.tokenService.invoke(requestMessage);
+      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
+            .parseRequestSecurityTokenResponse(responseMessage);
+
+      // validate the security token response.
+      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+            SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      // validate the holder of key contents.
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
+            .getValue();
+      this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, false);
+   }
+
+   /**
+    * <p>
+    * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession 
+    * token. The STS must include the specified public key in the SAML subject confirmation.
+    * </p>
+    *  
+    * @throws Exception if an error occurs while running the test.
+    */
+   public void testInvokeSAML20WithPublicKey() throws Exception
+   {
+      // create a simple token request.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+            "http://services.testcorp.org/provider2");
+      request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
+
+      // include a UseKey section that sets the public key in the request.
+      Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
+      KeyValueType keyValue = WSTrustUtil.createKeyValue(certificate.getPublicKey());
+      UseKeyType useKey = new UseKeyType();
+      useKey.setAny(new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory().createKeyValue(keyValue));
+      request.setUseKey(useKey);
+
+      // invoke the token service.
+      Source requestMessage = WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      Source responseMessage = this.tokenService.invoke(requestMessage);
+      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
+            .parseRequestSecurityTokenResponse(responseMessage);
+
+      // validate the security token response.
+      AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+            SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+      // validate the holder of key contents.
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
+            .getValue();
+      this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, true);
    }
 
    /**
@@ -863,8 +962,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       {
          assertNotNull("Unexpected null cause", we.getCause());
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
-               we.getCause().getMessage());
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause()
+               .getMessage());
       }
    }
 
@@ -910,7 +1009,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
          assertEquals("Unable to validate token: security token is null", we.getCause().getMessage());
       }
-      
+
       // a request to validate an unknown token (i.e. there's no provider can handle the token) should also fail.
       request.getValidateTarget().setAny(this.createUnknownToken());
       requestMessage = factory.marshallRequestSecurityToken(request);
@@ -923,8 +1022,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       {
          assertNotNull("Unexpected null cause", we.getCause());
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
-               we.getCause().getMessage());
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause()
+               .getMessage());
       }
    }
 
@@ -970,7 +1069,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
          assertEquals("Unable to cancel token: security token is null", we.getCause().getMessage());
       }
-      
+
       // a request to cancel an unknown token (i.e. there's no provider can handle the token) should also fail.
       request.getCancelTarget().setAny(this.createUnknownToken());
       requestMessage = factory.marshallRequestSecurityToken(request);
@@ -983,11 +1082,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       {
          assertNotNull("Unexpected null cause", we.getCause());
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", 
-               we.getCause().getMessage());
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause()
+               .getMessage());
       }
    }
-   
+
    /**
     * <p>
     * Validates the contents of a WS-Trust response message that contains a custom token issued by the test {@code
@@ -1043,7 +1142,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test
     *         methods to perform extra validations depending on the scenario being tested.
     * @throws Exception
-    *            if one of the validation performed fail.
+    *            if an error occurs while performing the validation.
     */
    private AssertionType validateSAMLAssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
          String principal, String confirmationMethod) throws Exception
@@ -1104,39 +1203,6 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       SubjectConfirmationType subjType = (SubjectConfirmationType) content.get(1).getValue();
       assertEquals("Unexpected confirmation method", confirmationMethod, subjType.getMethod());
 
-      // if confirmation method is holder of key, make sure the assertion contains a KeyInfo with the proof token.
-      if (SAMLUtil.SAML2_HOLDER_OF_KEY_URI.equals(confirmationMethod))
-      {
-         SubjectConfirmationDataType subjConfirmationDataType = subjType.getSubjectConfirmationData();
-         assertNotNull("Unexpected null subject confirmation data", subjConfirmationDataType);
-         List<Object> confirmationContent = subjConfirmationDataType.getContent();
-         assertEquals("Unexpected subject confirmation content size", 1, confirmationContent.size());
-         JAXBElement<?> keyInfoElement = (JAXBElement<?>) confirmationContent.get(0);
-         assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement
-               .getDeclaredType());
-         KeyInfoType keyInfo = (KeyInfoType) keyInfoElement.getValue();
-         assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
-
-         // if they key is a symmetric key, the KeyInfo should contain an encrypted element.
-         if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equals(response.getKeyType().toString()))
-         {
-            JAXBElement<?> encKeyElement = (JAXBElement<?>) keyInfo.getContent().get(0);
-            assertEquals("Unexpected key info content type", EncryptedKeyType.class, encKeyElement.getDeclaredType());
-         }
-         // if the key is a public key, the KeyInfo should contain an encoded certificate.
-         else if (WSTrustConstants.KEY_TYPE_PUBLIC.equals(response.getKeyType().toString()))
-         {
-            JAXBElement<?> x509DataElement = (JAXBElement<?>) keyInfo.getContent().get(0);
-            assertEquals("Unexpected key info content type", X509DataType.class, x509DataElement.getDeclaredType());
-            X509DataType x509Data = (X509DataType) x509DataElement.getValue();
-            assertEquals("Unexpected X509 data content size", 1, x509Data
-                  .getX509IssuerSerialOrX509SKIOrX509SubjectName().size());
-            JAXBElement<?> x509CertElement = (JAXBElement<?>) x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName()
-                  .get(0);
-            assertEquals("Unexpected X509 data content type", byte[].class, x509CertElement.getDeclaredType());
-         }
-      }
-
       // validate the assertion conditions.
       assertNotNull("Unexpected null conditions", assertion.getConditions());
       assertEquals(lifetime.getCreated(), assertion.getConditions().getNotBefore());
@@ -1146,6 +1212,85 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNotNull("Assertion should have been signed", assertion.getSignature());
 
       return assertion;
+   }
+
+   /**
+    * <p>
+    * Validates the contents of the specified {@code SubjectConfirmationType} when the {@code HOLDER_OF_KEY} 
+    * confirmation method has been used.
+    * </p>
+    * 
+    * @param subjectConfirmation the {@code SubjectConfirmationType} to be validated.
+    * @param keyType the type of the proof-of-possession key (Symmetric or Public).
+    * @param certificate the certificate used in the Public Key scenarios.
+    * @param usePublicKey {@code true} if the certificate's Public Key was used as the proof-of-possession token;
+    *   {@code false} otherwise.
+    * @throws Exception if an error occurs while performing the validation.
+    */
+   private void validateHolderOfKeyContents(SubjectConfirmationType subjectConfirmation, String keyType,
+         Certificate certificate, boolean usePublicKey) throws Exception
+   {
+      SubjectConfirmationDataType subjConfirmationDataType = subjectConfirmation.getSubjectConfirmationData();
+      assertNotNull("Unexpected null subject confirmation data", subjConfirmationDataType);
+      List<Object> confirmationContent = subjConfirmationDataType.getContent();
+      assertEquals("Unexpected subject confirmation content size", 1, confirmationContent.size());
+      JAXBElement<?> keyInfoElement = (JAXBElement<?>) confirmationContent.get(0);
+      assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement.getDeclaredType());
+      KeyInfoType keyInfo = (KeyInfoType) keyInfoElement.getValue();
+      assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
+
+      // if the key is a symmetric key, the KeyInfo should contain an encrypted element.
+      if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equals(keyType))
+      {
+         JAXBElement<?> encKeyElement = (JAXBElement<?>) keyInfo.getContent().get(0);
+         assertEquals("Unexpected key info content type", EncryptedKeyType.class, encKeyElement.getDeclaredType());
+      }
+      // if the key is public, KeyInfo should either contain an encoded certificate or an encoded public key.
+      else if (WSTrustConstants.KEY_TYPE_PUBLIC.equals(keyType))
+      {
+         // if the public key has been used as proof, we should be able to retrieve it from KeyValueType.
+         if (usePublicKey == true)
+         {
+            JAXBElement<?> keyValueElement = (JAXBElement<?>) keyInfo.getContent().get(0);
+            assertEquals("Unexpected key info content type", KeyValueType.class, keyValueElement.getDeclaredType());
+            KeyValueType keyValue = (KeyValueType) keyValueElement.getValue();
+            List<Object> keyValueContent = keyValue.getContent();
+            assertEquals("Unexpected key value content size", 1, keyValueContent.size());
+            JAXBElement<?> rsaKeyValueElement = (JAXBElement<?>) keyValue.getContent().get(0);
+            assertEquals("Unexpected key value content type", RSAKeyValueType.class, rsaKeyValueElement
+                  .getDeclaredType());
+            RSAKeyValueType rsaKeyValue = (RSAKeyValueType) rsaKeyValueElement.getValue();
+            byte[] encodedModulus = rsaKeyValue.getModulus();
+            byte[] encodedExponent = rsaKeyValue.getExponent();
+
+            // reconstruct the public key and check if it matches the public key of the provided certificate.
+            BigInteger decodedModulus = new BigInteger(1, Base64.decode(encodedModulus, 0, encodedModulus.length));
+            BigInteger decodedExponent = new BigInteger(1, Base64.decode(encodedExponent, 0, encodedExponent.length));
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(decodedModulus, decodedExponent);
+            RSAPublicKey genKey = (RSAPublicKey) factory.generatePublic(spec);
+            assertEquals("Invalid public key", certificate.getPublicKey(), genKey);
+         }
+         // if the whole certificate was used as proof, we should be able to retrieve it from X509DataType.
+         else
+         {
+            JAXBElement<?> x509DataElement = (JAXBElement<?>) keyInfo.getContent().get(0);
+            assertEquals("Unexpected key info content type", X509DataType.class, x509DataElement.getDeclaredType());
+            X509DataType x509Data = (X509DataType) x509DataElement.getValue();
+            assertEquals("Unexpected X509 data content size", 1, x509Data
+                  .getX509IssuerSerialOrX509SKIOrX509SubjectName().size());
+            JAXBElement<?> x509CertElement = (JAXBElement<?>) x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName()
+                  .get(0);
+            assertEquals("Unexpected X509 data content type", byte[].class, x509CertElement.getDeclaredType());
+            byte[] encodedCertificate = (byte[]) x509CertElement.getValue();
+
+            // reconstruct the certificate and check if it matches the provided certificate.
+            byte[] decodedCertificate = Base64.decode(encodedCertificate, 0, encodedCertificate.length);
+            ByteArrayInputStream byteInputStream = new ByteArrayInputStream(decodedCertificate);
+            assertEquals("Invalid certificate in key info", certificate, CertificateFactory.getInstance("X.509")
+                  .generateCertificate(byteInputStream));
+         }
+      }
    }
 
    /**
@@ -1202,6 +1347,27 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       root.setAttributeNS(namespaceURI, "ID", id);
 
       return root;
+   }
+
+   /**
+    * <p>
+    * Obtains the {@code Certificate} stored under the specified alias in the specified keystore.
+    * </p>
+    * 
+    * @param keyStoreFile the name of the file that contains a JKS keystore.
+    * @param passwd the keystore password.
+    * @param certificateAlias the alias of a certificate in the keystore.
+    * @return a reference to the {@code Certificate} stored under the given alias.
+    * @throws Exception if an error occurs while handling the keystore.
+    */
+   private Certificate getCertificate(String keyStoreFile, String passwd, String certificateAlias) throws Exception
+   {
+      InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(keyStoreFile);
+      KeyStore keyStore = KeyStore.getInstance("JKS");
+      keyStore.load(stream, passwd.toCharArray());
+
+      Certificate certificate = keyStore.getCertificate(certificateAlias);
+      return certificate;
    }
 
    /**

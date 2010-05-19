@@ -110,6 +110,7 @@ public class WSTrustJAXBFactory
       packages.append(":org.picketlink.identity.federation.ws.trust");
       packages.append(":org.picketlink.identity.federation.ws.wss.secext");
       packages.append(":org.picketlink.identity.federation.ws.wss.utility");
+      packages.append(":org.picketlink.identity.xmlsec.w3.xmldsig");
       return packages.toString();
    }
 

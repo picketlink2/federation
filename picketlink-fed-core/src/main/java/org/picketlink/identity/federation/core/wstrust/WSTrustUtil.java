@@ -30,6 +30,8 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -61,7 +63,10 @@ import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -458,6 +463,54 @@ public class WSTrustUtil
          throw new WSTrustException("Error creating KeyInfoType", e);
       }
       return keyInfo;
+   }
+
+   /**
+    * <p>
+    * Creates a {@code KeyValueType} that wraps the specified public key. This method supports DSA and RSA keys.
+    * </p>
+    * 
+    * @param key the {@code PublicKey} that will be represented as a {@code KeyValueType}.
+    * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a 
+    * RSA key.
+    */
+   public static KeyValueType createKeyValue(PublicKey key)
+   {
+      org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
+      if (key instanceof RSAPublicKey)
+      {
+         RSAPublicKey pubKey = (RSAPublicKey) key;
+         byte[] encodedModulus = Base64.encodeBytes(pubKey.getModulus().toByteArray()).getBytes();
+         byte[] encodedExponent = Base64.encodeBytes(pubKey.getPublicExponent().toByteArray()).getBytes();
+
+         RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
+         rsaKeyValue.setModulus(encodedModulus);
+         rsaKeyValue.setExponent(encodedExponent);
+
+         KeyValueType keyValue = new KeyValueType();
+         keyValue.getContent().add(factory.createRSAKeyValue(rsaKeyValue));
+         return keyValue;
+      }
+      else if (key instanceof DSAPublicKey)
+      {
+         DSAPublicKey pubKey = (DSAPublicKey) key;
+         byte[] encodedP = Base64.encodeBytes(pubKey.getParams().getP().toByteArray()).getBytes();
+         byte[] encodedQ = Base64.encodeBytes(pubKey.getParams().getQ().toByteArray()).getBytes();
+         byte[] encodedG = Base64.encodeBytes(pubKey.getParams().getG().toByteArray()).getBytes();
+         byte[] encodedY = Base64.encodeBytes(pubKey.getY().toByteArray()).getBytes();
+
+         DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
+         dsaKeyValue.setP(encodedP);
+         dsaKeyValue.setQ(encodedQ);
+         dsaKeyValue.setG(encodedG);
+         dsaKeyValue.setY(encodedY);
+         
+         KeyValueType keyValue = new KeyValueType();
+         keyValue.getContent().add(factory.createDSAKeyValue(dsaKeyValue));
+         return keyValue;
+      }
+      else
+         return null;
    }
 
 }
