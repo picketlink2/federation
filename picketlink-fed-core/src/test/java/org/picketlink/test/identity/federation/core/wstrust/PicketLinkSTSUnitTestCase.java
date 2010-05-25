@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.Principal;
@@ -1388,7 +1389,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          InputStream stream;
          try
          {
-            stream = Thread.currentThread().getContextClassLoader().getResource("picketlink-sts.xml").openStream();
+            URL configURL = Thread.currentThread().getContextClassLoader().getResource("sts/picketlink-sts.xml"); 
+            stream = configURL.openStream();
 
             STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
             return new PicketLinkSTSConfiguration(stsConfig); 
