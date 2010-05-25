@@ -46,11 +46,13 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
+import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.StandardRequestHandler;
@@ -1383,7 +1385,18 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       @Override
       public STSConfiguration getConfiguration() throws ConfigurationException
       {
-         return super.getConfiguration();
+         InputStream stream;
+         try
+         {
+            stream = Thread.currentThread().getContextClassLoader().getResource("picketlink-sts.xml").openStream();
+
+            STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
+            return new PicketLinkSTSConfiguration(stsConfig); 
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException( e );
+         } 
       }
 
       public void setContext(WebServiceContext context)
