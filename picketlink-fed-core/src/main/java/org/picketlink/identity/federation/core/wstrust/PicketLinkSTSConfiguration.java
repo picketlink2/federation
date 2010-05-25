@@ -69,7 +69,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
    public PicketLinkSTSConfiguration()
    {
       this.delegate = new STSType();
-      this.delegate.setRequestHandler("org.picketlink.identity.federation.core.wstrust.StandardRequestHandler");
+      this.delegate.setRequestHandler( StandardRequestHandler.class.getCanonicalName() );
       // TODO: add default token provider classes.
    }
 
@@ -85,7 +85,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       this.delegate = config;
       // set the default request handler if one hasn't been specified.
       if (this.delegate.getRequestHandler() == null)
-         this.delegate.setRequestHandler("org.picketlink.identity.federation.core.wstrust.StandardRequestHandler");
+         this.delegate.setRequestHandler( StandardRequestHandler.class.getCanonicalName() );
 
       // build the token-provider maps.
       TokenProvidersType providers = this.delegate.getTokenProviders();
