@@ -21,11 +21,23 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
@@ -110,4 +122,124 @@ public class CoreConfigUtil
       
       return trustKeyManager.getValidatingKey(domain); 
    } 
+   
+   /**
+    * Given a {@code KeyProviderType}, return the list of auth properties that have been decrypted for any
+    * masked password
+    * @param keyProviderType
+    * @return
+    * @throws GeneralSecurityException
+    */
+   @SuppressWarnings("unchecked")
+   public static List<AuthPropertyType> getKeyProviderProperties( KeyProviderType keyProviderType ) throws GeneralSecurityException
+   {
+      List<AuthPropertyType> authProperties = keyProviderType.getAuth();
+      if( decryptionNeeded( authProperties ))
+         authProperties = decryptPasswords(authProperties);
+          
+      return authProperties;
+   }
+   
+   /**
+    * Given a key value list, check if decrypt of any properties is needed. 
+    * Unless one of the keys is "salt", we cannot figure out is decrypt is needed
+    * @param keyValueList
+    * @return
+    */
+   public static boolean decryptionNeeded( List<? extends KeyValueType> keyValueList )
+   { 
+      int length = keyValueList.size();
+      
+      //Let us run through the list to see if there is any salt
+      for( int i = 0 ; i < length; i++ )
+      {
+         KeyValueType kvt = keyValueList.get( i );
+         
+         String key = kvt.getKey();
+         if(PicketLinkFederationConstants.SALT.equalsIgnoreCase( key ) )
+            return true;  
+      }
+      return false; 
+   }
+   
+   /**
+    * Given a key value pair read from PicketLink configuration, ensure
+    * that we replace the masked passwords with the decoded passwords
+    * and pass it back
+    * 
+    * @param keyValueList
+    * @return
+    * @throws GeneralSecurityException 
+    * @throws Exception
+    */
+   @SuppressWarnings("unchecked")
+   public static List decryptPasswords( List keyValueList ) throws GeneralSecurityException
+   {
+      String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
+      
+      String salt = null;
+      int iterationCount = 0;
+      
+      int length = keyValueList.size();
+      
+      //Let us run through the list to see if there is any salt
+      for( int i = 0 ; i < length; i++ )
+      {
+         KeyValueType kvt = (KeyValueType) keyValueList.get( i );
+         
+         String key = kvt.getKey();
+         if(PicketLinkFederationConstants.SALT.equalsIgnoreCase( key ) )
+            salt = kvt.getValue();
+         if(PicketLinkFederationConstants.ITERATION_COUNT.equalsIgnoreCase( key ) )
+            iterationCount = Integer.parseInt( kvt.getValue() ); 
+      }
+      
+      if( salt == null )
+         return keyValueList;
+      
+      //Ok. there is a salt configured. So we have some properties with masked values
+      List<KeyValueType>  returningList = new ArrayList<KeyValueType>();
+       
+      // Create the PBE secret key 
+      SecretKeyFactory factory = SecretKeyFactory.getInstance( pbeAlgo );
+
+      char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
+      PBEParameterSpec cipherSpec = new PBEParameterSpec( salt.getBytes(), iterationCount );
+      PBEKeySpec keySpec = new PBEKeySpec(password);
+      SecretKey cipherKey = factory.generateSecret(keySpec);
+
+      
+      for( int i = 0 ; i < length; i++ )
+      {
+         KeyValueType kvt = (KeyValueType) keyValueList.get( i );
+         
+         String val = kvt.getValue();
+         if( val.startsWith( PicketLinkFederationConstants.PASS_MASK_PREFIX) )
+         {
+            val = val.substring( PicketLinkFederationConstants.PASS_MASK_PREFIX.length() );
+            String decodedValue;
+            try
+            {
+               decodedValue = PBEUtils.decode64( val, pbeAlgo , cipherKey, cipherSpec);
+            }
+            catch (UnsupportedEncodingException e)
+            {
+               throw new RuntimeException( e );
+            } 
+            
+            KeyValueType newKVT = new KeyValueType();
+            if( keyValueList.get( 0 ) instanceof AuthPropertyType )
+               newKVT = new AuthPropertyType();
+            newKVT.setKey( kvt.getKey() );
+            newKVT.setValue( new String( decodedValue ) );
+            returningList.add( newKVT );
+         }
+         else
+         {
+            returningList.add( kvt );
+         }
+      }
+      
+      return returningList; 
+   }
 }

@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
 import org.picketlink.identity.federation.api.util.KeyUtil; 
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
@@ -48,6 +49,7 @@ import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
@@ -140,7 +142,9 @@ public class MetadataServlet extends HttpServlet
 
          clazz = tcl.loadClass(keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         keyManager.setAuthProperties(keyProvider.getAuth()); 
+         
+         List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+         keyManager.setAuthProperties( authProperties ); 
 
          Certificate cert = keyManager.getCertificate(signingAlias);
          KeyInfoType keyInfo = KeyUtil.getKeyInfo(cert);

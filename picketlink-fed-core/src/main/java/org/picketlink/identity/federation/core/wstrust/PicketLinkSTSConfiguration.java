@@ -25,8 +25,10 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -37,6 +39,7 @@ import org.picketlink.identity.federation.core.config.ServiceProvidersType;
 import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.config.TokenProvidersType;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 
 /**
  * <p>
@@ -80,6 +83,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * 
     * @param config a reference to the object that holds the configuration of the STS.
     */
+   @SuppressWarnings("unchecked")
    public PicketLinkSTSConfiguration(STSType config)
    {
       this.delegate = config;
@@ -95,8 +99,25 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          {
             // get the properties that have been configured for the token provider.
             Map<String, String> properties = new HashMap<String, String>();
+
+            List<KeyValueType> providerPropertiesList = provider.getProperty();
+            
+            //Decode any passwords
+            try
+            {
+               if( CoreConfigUtil.decryptionNeeded( providerPropertiesList ))
+                  providerPropertiesList = (List<KeyValueType>) CoreConfigUtil.decryptPasswords( providerPropertiesList );
+
+               for (KeyValueType propertyType :  providerPropertiesList )
+                  properties.put(propertyType.getKey(), propertyType.getValue());
+            }
+            catch (Exception e)
+            {
+              throw new RuntimeException( e );
+            }
+            /*
             for (KeyValueType propertyType : provider.getProperty())
-               properties.put(propertyType.getKey(), propertyType.getValue());
+               properties.put(propertyType.getKey(), propertyType.getValue());*/
             // create and initialize the token provider.
             SecurityTokenProvider tokenProvider = WSTrustServiceFactory.getInstance().createTokenProvider(
                   provider.getProviderClass(), properties);
@@ -115,8 +136,21 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          {
             // get the properties that have been configured for the claims processor.
             Map<String, String> properties = new HashMap<String, String>();
-            for (KeyValueType propertyType : processor.getProperty())
-               properties.put(propertyType.getKey(), propertyType.getValue());
+            List<KeyValueType> processorPropertiesList = processor.getProperty();
+            
+            //Decode any passwords
+            try
+            {
+               if( CoreConfigUtil.decryptionNeeded( processorPropertiesList ))
+                  processorPropertiesList = (List<KeyValueType>) CoreConfigUtil.decryptPasswords( processorPropertiesList );
+
+               for (KeyValueType propertyType :  processorPropertiesList )
+                  properties.put(propertyType.getKey(), propertyType.getValue());
+            }
+            catch (Exception e)
+            {
+              throw new RuntimeException( e );
+            }
             // create and initialize the claims processor.
             ClaimsProcessor claimsProcessor = WSTrustServiceFactory.getInstance().createClaimsProcessor(
                   processor.getProcessorClass(), properties);
@@ -140,8 +174,11 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          String keyManagerClassName = keyProviderType.getClassName();
          try
          {
+            //Decrypt/de-mask the passwords if any
+            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProviderType); 
+            
             this.trustManager = (TrustKeyManager) SecurityActions.instantiateClass(keyManagerClassName);
-            this.trustManager.setAuthProperties(keyProviderType.getAuth());
+            this.trustManager.setAuthProperties( authProperties );
             this.trustManager.setValidatingAlias(keyProviderType.getValidatingAlias());
          }
          catch (Exception e)

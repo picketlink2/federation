@@ -1382,6 +1382,16 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     */
    class TestSTS extends PicketLinkSTS
    {
+      private String configFileName = "sts/picketlink-sts.xml";
+      
+      TestSTS()
+      {   
+      }
+      
+      TestSTS( String configFileName )
+      {
+         this.configFileName = configFileName; 
+      }
 
       @Override
       public STSConfiguration getConfiguration() throws ConfigurationException
@@ -1389,7 +1399,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          InputStream stream;
          try
          {
-            URL configURL = Thread.currentThread().getContextClassLoader().getResource("sts/picketlink-sts.xml"); 
+            URL configURL = Thread.currentThread().getContextClassLoader().getResource( configFileName ); 
             stream = configURL.openStream();
 
             STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);

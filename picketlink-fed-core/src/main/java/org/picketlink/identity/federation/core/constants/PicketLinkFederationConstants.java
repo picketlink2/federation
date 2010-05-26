@@ -44,4 +44,11 @@ public interface PicketLinkFederationConstants
    String FILE_STORE_DIRECTORY = "/picketlink-store";
    String IDP_PROPERTIES = "/identityproviders.properties";
    String SP_PROPERTIES = "/serviceproviders.properties";
+   
+   String SALT = "salt";
+   String ITERATION_COUNT = "iterationCount";
+   
+   String PBE_ALGORITHM = "PBEwithMD5andDES";
+   //Prefix to indicate a particular configuration property value is masked
+   String PASS_MASK_PREFIX = "MASK-";
 }
