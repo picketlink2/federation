@@ -34,9 +34,11 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
+import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -141,6 +143,40 @@ public class CoreConfigUtil
    }
    
    /**
+    * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for
+    * any masked property value
+    * @param tokenProviderType
+    * @return
+    * @throws GeneralSecurityException
+    */
+   @SuppressWarnings("unchecked")
+   public static List<KeyValueType> getProperties( TokenProviderType tokenProviderType ) throws GeneralSecurityException
+   {
+      List<KeyValueType> keyValueTypeList = tokenProviderType.getProperty();
+      if( decryptionNeeded( keyValueTypeList ))
+         keyValueTypeList = decryptPasswords( keyValueTypeList );
+          
+      return keyValueTypeList;
+   }
+   
+   /**
+    * Given a {@code ClaimsProcessorType}, return the list of properties that have been decrypted for
+    * any masked property value
+    * @param claimsProcessorType
+    * @return
+    * @throws GeneralSecurityException
+    */
+   @SuppressWarnings("unchecked")
+   public static List<KeyValueType> getProperties( ClaimsProcessorType claimsProcessorType ) throws GeneralSecurityException
+   {
+      List<KeyValueType> keyValueTypeList = claimsProcessorType.getProperty();
+      if( decryptionNeeded( keyValueTypeList ))
+         keyValueTypeList = decryptPasswords( keyValueTypeList );
+          
+      return keyValueTypeList;
+   }
+   
+   /**
     * Given a key value list, check if decrypt of any properties is needed. 
     * Unless one of the keys is "salt", we cannot figure out is decrypt is needed
     * @param keyValueList
@@ -173,7 +209,7 @@ public class CoreConfigUtil
     * @throws Exception
     */
    @SuppressWarnings("unchecked")
-   public static List decryptPasswords( List keyValueList ) throws GeneralSecurityException
+   private static List decryptPasswords( List keyValueList ) throws GeneralSecurityException
    {
       String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
       

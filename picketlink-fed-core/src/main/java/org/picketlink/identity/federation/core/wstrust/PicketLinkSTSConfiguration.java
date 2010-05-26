@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -47,6 +48,7 @@ import org.picketlink.identity.federation.core.util.CoreConfigUtil;
  * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
+ * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  */
 public class PicketLinkSTSConfiguration implements STSConfiguration
 {
@@ -82,8 +84,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * </p>
     * 
     * @param config a reference to the object that holds the configuration of the STS.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public PicketLinkSTSConfiguration(STSType config)
    {
       this.delegate = config;
@@ -100,24 +101,19 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
             // get the properties that have been configured for the token provider.
             Map<String, String> properties = new HashMap<String, String>();
 
-            List<KeyValueType> providerPropertiesList = provider.getProperty();
-            
-            //Decode any passwords
+            List<KeyValueType> providerPropertiesList;
             try
             {
-               if( CoreConfigUtil.decryptionNeeded( providerPropertiesList ))
-                  providerPropertiesList = (List<KeyValueType>) CoreConfigUtil.decryptPasswords( providerPropertiesList );
-
-               for (KeyValueType propertyType :  providerPropertiesList )
-                  properties.put(propertyType.getKey(), propertyType.getValue());
+               providerPropertiesList = CoreConfigUtil.getProperties( provider );
             }
-            catch (Exception e)
+            catch (GeneralSecurityException e)
             {
-              throw new RuntimeException( e );
+               throw new RuntimeException( e );
             }
-            /*
-            for (KeyValueType propertyType : provider.getProperty())
-               properties.put(propertyType.getKey(), propertyType.getValue());*/
+            
+            for (KeyValueType propertyType :  providerPropertiesList )
+                  properties.put(propertyType.getKey(), propertyType.getValue());
+            
             // create and initialize the token provider.
             SecurityTokenProvider tokenProvider = WSTrustServiceFactory.getInstance().createTokenProvider(
                   provider.getProviderClass(), properties);
@@ -136,21 +132,19 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          {
             // get the properties that have been configured for the claims processor.
             Map<String, String> properties = new HashMap<String, String>();
-            List<KeyValueType> processorPropertiesList = processor.getProperty();
-            
-            //Decode any passwords
+            List<KeyValueType> processorPropertiesList;
             try
             {
-               if( CoreConfigUtil.decryptionNeeded( processorPropertiesList ))
-                  processorPropertiesList = (List<KeyValueType>) CoreConfigUtil.decryptPasswords( processorPropertiesList );
-
-               for (KeyValueType propertyType :  processorPropertiesList )
-                  properties.put(propertyType.getKey(), propertyType.getValue());
+               processorPropertiesList = CoreConfigUtil.getProperties( processor );
             }
-            catch (Exception e)
+            catch (GeneralSecurityException e)
             {
-              throw new RuntimeException( e );
-            }
+               throw new RuntimeException( e );
+            }  
+
+            for (KeyValueType propertyType :  processorPropertiesList )
+               properties.put(propertyType.getKey(), propertyType.getValue());
+
             // create and initialize the claims processor.
             ClaimsProcessor claimsProcessor = WSTrustServiceFactory.getInstance().createClaimsProcessor(
                   processor.getProcessorClass(), properties);
