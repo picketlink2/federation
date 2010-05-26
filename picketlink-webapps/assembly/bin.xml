@@ -20,6 +20,21 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
+      <source>${basedir}/../idp-sig/target/idp-sig.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/../sales-post-sig/target/sales-post-sig.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/../employee-post-sig/target/employee-post-sig.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
       <source>${basedir}/src/main/resources/picketlink-sp-jboss-beans.xml</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
