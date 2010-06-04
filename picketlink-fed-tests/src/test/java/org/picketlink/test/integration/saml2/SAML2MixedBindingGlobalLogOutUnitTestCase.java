@@ -70,13 +70,13 @@ public class SAML2MixedBindingGlobalLogOutUnitTestCase
    
    private void hitURLs( String url1, String url2, String url3, String url4 ) throws Exception
    {
-    //Sales post Application Login
+      //Sales post Application Login
       WebRequest serviceRequest1 = new GetMethodWebRequest( url1 );
       WebConversation webConversation = new WebConversation();
       
       WebResponse webResponse = webConversation.getResponse( serviceRequest1 ); 
       WebForm loginForm = webResponse.getForms()[0];
-      loginForm.setParameter("j_username", "manager" );
+      loginForm.setParameter("j_username", "tomcat" );
       loginForm.setParameter("j_password", "tomcat" );
       SubmitButton submitButton = loginForm.getSubmitButtons()[0];
       submitButton.click(); 

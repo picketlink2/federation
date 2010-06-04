@@ -47,11 +47,13 @@ import com.meterware.httpunit.WebResponse;
  */
 public class SAML2RedirectBindingGlobalLogOutUnitTestCase
 {
+
+   String SERVICE_1_URL = System.getProperty( "SERVICE_3_URL", "http://localhost:8080/sales/" );
+   String SERVICE_2_URL = System.getProperty( "SERVICE_4_URL", "http://localhost:8080/employee/" );
+   
    @Test
    public void testSAMLRedirectBindingGLO() throws Exception
    {
-      String SERVICE_1_URL = System.getProperty( "SERVICE_3_URL", "http://localhost:8080/sales/" );
-      String SERVICE_2_URL = System.getProperty( "SERVICE_4_URL", "http://localhost:8080/employee/" );
       String LOGOUT_URL = "?GLO=true";
       
       //Sales Application Login
@@ -60,7 +62,7 @@ public class SAML2RedirectBindingGlobalLogOutUnitTestCase
       
       WebResponse webResponse = webConversation.getResponse( serviceRequest1 ); 
       WebForm loginForm = webResponse.getForms()[0];
-      loginForm.setParameter("j_username", "manager" );
+      loginForm.setParameter("j_username", "tomcat" );
       loginForm.setParameter("j_password", "tomcat" );
       SubmitButton submitButton = loginForm.getSubmitButtons()[0];
       submitButton.click(); 

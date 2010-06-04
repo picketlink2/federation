@@ -60,7 +60,7 @@ public class SAML2PostBindingGlobalLogOutUnitTestCase
       
       WebResponse webResponse = webConversation.getResponse( serviceRequest1 ); 
       WebForm loginForm = webResponse.getForms()[0];
-      loginForm.setParameter("j_username", "manager" );
+      loginForm.setParameter("j_username", "tomcat" );
       loginForm.setParameter("j_password", "tomcat" );
       SubmitButton submitButton = loginForm.getSubmitButtons()[0];
       submitButton.click(); 

@@ -34,9 +34,11 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.4.3</version>
           <configuration>
+            <phase>test</phase>
+           <!--  <skipTests>true</skipTests> -->
             <printSummary>true</printSummary>
             <disableXmlReport>false</disableXmlReport>
-            <testFailureIgnore>false</testFailureIgnore>
+            <testFailureIgnore>true</testFailureIgnore>
             <includes>
               <include>**/**TestCase.java</include>
             </includes>
@@ -45,7 +47,68 @@
             <useFile>false</useFile>
             <trimStackTrace>false</trimStackTrace>
            </configuration>
+           <executions>
+              <execution>
+                 <id>surefire-it</id>
+                 <phase>integration-test</phase>
+                 <goals>
+                    <goal>test</goal>
+                 </goals>
+                 <configuration>
+                    <skip>false</skip>
+                 </configuration>
+               </execution>
+             </executions>
         </plugin>
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+           <execution>
+             <id>phase-1</id>
+             <phase>compile</phase>
+             <configuration>
+                <tasks>
+                 <property name="depclasspath" refid="maven.dependency.classpath"/>
+                 <property name="version" value="${version}"/>
+                 <ant antfile="${basedir}/ant-build.xml" target="start-jboss" />
+                </tasks>
+             </configuration>
+             <goals>
+               <goal>run</goal>
+             </goals>
+            </execution>
+            <execution>
+             <id>phase-2</id>
+             <phase>test</phase>
+             <configuration>
+                <tasks>
+                 <property name="depclasspath" refid="maven.dependency.classpath"/>
+                 <property name="version" value="${version}"/>
+                 <property name="localRepository" value="${user.home}/.m2/repository"/>
+                 <ant antfile="${basedir}/ant-build.xml" target="stop-jboss" />
+                 <ant antfile="${basedir}/ant-build.xml" target="start-tomcat" />
+                </tasks>
+             </configuration>
+             <goals>
+               <goal>run</goal>
+             </goals>
+            </execution>
+            <execution>
+             <id>phase-3</id>
+             <phase>integration-test</phase>
+             <configuration>
+                <tasks>
+                 <property name="depclasspath" refid="maven.dependency.classpath"/>
+                 <property name="version" value="${version}"/>
+                 <ant antfile="${basedir}/ant-build.xml" target="stop-tomcat" />
+                </tasks>
+             </configuration>
+             <goals>
+               <goal>run</goal>
+             </goals>
+            </execution>
+          </executions>
+       </plugin>
      </plugins>
   </build>
 
@@ -79,6 +142,12 @@
         <version>2.9.1</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>ant-contrib</groupId>
+        <artifactId>ant-contrib</artifactId>
+        <version>1.0b2</version>
+      </dependency>
+
    </dependencies>
    
    <reporting>
