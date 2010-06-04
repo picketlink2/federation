@@ -807,7 +807,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNotNull("Unexpected null status", status);
       assertEquals("Unexpected status code", WSTrustConstants.STATUS_CODE_INVALID, status.getCode());
       assertEquals("Unexpected status reason", "Validation failure: assertion with id " + assertion.getAttribute("ID")
-            + " is canceled", status.getReason());
+            + " has been canceled", status.getReason());
 
       // now try to renew the canceled assertion.
       request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, null, null);
@@ -825,7 +825,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       {
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
          assertEquals("Unexpected exception message", "Assertion with id " + assertion.getAttribute("ID")
-               + " is canceled and cannot be renewed", we.getCause().getMessage());
+               + " has been canceled and cannot be renewed", we.getCause().getMessage());
       }
    }
 

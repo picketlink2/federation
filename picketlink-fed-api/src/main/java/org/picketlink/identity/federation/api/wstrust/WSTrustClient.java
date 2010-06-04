@@ -164,6 +164,20 @@ public class WSTrustClient
 
    /**
     * <p>
+    * This method sends a WS-Trust cancel message to the STS in order to cancel (revoke) the specified security token.
+    * </p>
+    * 
+    * @param token the security token to be canceled.
+    * @return {@code true} if the token was successfully canceled; {@code false} otherwise.
+    * @throws WSTrustException if an error occurs while canceling the security token.
+    */
+   public boolean cancelToken(Element token) throws WSTrustException
+   {
+      return this.cancelInternal(token, 0);
+   }
+   
+   /**
+    * <p>
     * This method issues a token of the specified type for the specified service endpoint and has failover support when
     * more than one endpoint URI has been provided in the constructor. If a {@code ConnectException} occurs when sending
     * the WS-Trust request to one endpoint, the code makes a new attempt using the next URI until the request reaches an
@@ -254,6 +268,37 @@ public class WSTrustClient
          if (this.isCausedByConnectException(e) && clientIndex < this.clients.length - 1)
          {
             return this.validateInternal(token, ++clientIndex);
+         }
+         throw e;
+      }
+   }
+
+   /**
+    * <p>
+    * This method cancels the specified token and has failover support when more than one endpoint URI has been provided
+    * in the constructor. If a {@code ConnectException} occurs when sending the WS-Trust request to one endpoint, the
+    * code makes a new attempt using the next URI until the request reaches an STS instance or all URIs have been tried.
+    * </p>
+    * 
+    * @param token an {@code Element} representing the security token being canceled.
+    * @param clientIndex an {@code int} that indicates which of the {@code STSClient} instances should be used to perform
+    * the request.
+    * @return {@code true} if the token was canceled; {@code false} otherwise.
+    * @throws WSTrustException if a WS-Trust exception is thrown by the STS.
+    */
+   private boolean cancelInternal(Element token, int clientIndex) throws WSTrustException
+   {
+      STSClient client = this.clients[clientIndex];
+      try
+      {
+         return client.cancelToken(token);
+      }
+      catch (RuntimeException e)
+      {
+         // if this was a connection refused exception and we still have clients to try, call the next client.
+         if (this.isCausedByConnectException(e) && clientIndex < this.clients.length - 1)
+         {
+            return this.cancelInternal(token, ++clientIndex);
          }
          throw e;
       }

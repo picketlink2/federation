@@ -21,19 +21,12 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.security.Principal;
+import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -50,6 +43,10 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
+import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocationRegistry;
+import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
+import org.picketlink.identity.federation.core.wstrust.plugins.FileBasedRevocationRegistry;
+import org.picketlink.identity.federation.core.wstrust.plugins.JPABasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
@@ -77,13 +74,11 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
    private static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
 
-   private static final String CANCELED_IDS_FILE = "CanceledIdsFile";
+   private static final String REVOCATION_REGISTRY = "RevocationRegistry";
 
-   // this set contains the ids of the assertions that have been canceled.
-   private Set<String> cancelledIds;
+   private static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
 
-   // file used to store the ids of the canceled assertions.
-   private File canceledIdsFile;
+   private RevocationRegistry revocationRegistry;
 
    private Map<String, String> properties;
 
@@ -95,16 +90,54 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    public void initialize(Map<String, String> properties)
    {
       this.properties = properties;
-      this.cancelledIds = new HashSet<String>();
 
-      // set up the canceled ids cache if the file that contains the canceled assertions has been specified.
-      String file = this.properties.get(CANCELED_IDS_FILE);
-      if (file == null && logger.isDebugEnabled())
-         logger.debug("File to store canceled ids has not been specified: ids will not be persisted!");
-      else if (file != null)
+      // check if a revocation registry option has been set.
+      String registryOption = this.properties.get(REVOCATION_REGISTRY);
+      if (registryOption == null)
       {
-         this.canceledIdsFile = new File(file);
-         this.loadCanceledIds();
+         if (logger.isDebugEnabled())
+            logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+         this.revocationRegistry = new DefaultRevocationRegistry();
+      }
+      else
+      {
+         // if a file is to be used as registry, check if the user has specified the file name.
+         if ("FILE".equalsIgnoreCase(registryOption))
+         {
+            String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
+            if (registryFile != null)
+               this.revocationRegistry = new FileBasedRevocationRegistry(registryFile);
+            else
+               this.revocationRegistry = new FileBasedRevocationRegistry();
+         }
+         // another option is to use the default JPA registry to store the revoked ids.
+         else if ("JPA".equalsIgnoreCase(registryOption))
+         {
+            this.revocationRegistry = new JPABasedRevocationRegistry();
+         }
+         // the user has specified its own registry implementation class.
+         else
+         {
+            try
+            {
+               Object object = SecurityActions.instantiateClass(registryOption);
+               if (object instanceof RevocationRegistry)
+                  this.revocationRegistry = (RevocationRegistry) object;
+               else
+               {
+                  if (logger.isDebugEnabled())
+                     logger.debug(registryOption + " is not an instance of RevocationRegistry - using default registry");
+                  this.revocationRegistry = new DefaultRevocationRegistry();
+               }
+            }
+            catch (PrivilegedActionException pae)
+            {
+               if (logger.isDebugEnabled())
+                  logger.debug("Error instantiating revocation registry class - using default registry");
+               pae.printStackTrace();
+               this.revocationRegistry = new DefaultRevocationRegistry();
+            }
+         }
       }
    }
 
@@ -126,7 +159,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
       // get the assertion ID and add it to the canceled assertions set.
       String assertionId = assertionElement.getAttribute("ID");
-      this.storeCanceledId(assertionId);
+      this.revocationRegistry.revokeToken(SAMLUtil.SAML2_TOKEN_TYPE, assertionId);
    }
 
    /*
@@ -242,8 +275,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       }
 
       // canceled assertions cannot be renewed.
-      if (this.cancelledIds.contains(oldAssertion.getID()))
-         throw new WSTrustException("Assertion with id " + oldAssertion.getID() + " is canceled and cannot be renewed");
+      if (this.revocationRegistry.isRevoked(SAMLUtil.SAML2_TOKEN_TYPE, oldAssertion.getID()))
+         throw new WSTrustException("Assertion with id " + oldAssertion.getID()
+               + " has been canceled and cannot be renewed");
 
       // adjust the lifetime for the renewed assertion.
       ConditionsType conditions = oldAssertion.getConditions();
@@ -319,10 +353,10 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       }
 
       // check if the assertion has been canceled before.
-      if (this.cancelledIds.contains(assertion.getID()))
+      if (this.revocationRegistry.isRevoked(SAMLUtil.SAML2_TOKEN_TYPE, assertion.getID()))
       {
          code = WSTrustConstants.STATUS_CODE_INVALID;
-         reason = "Validation failure: assertion with id " + assertion.getID() + " is canceled";
+         reason = "Validation failure: assertion with id " + assertion.getID() + " has been canceled";
       }
 
       // check the assertion lifetime.
@@ -361,65 +395,4 @@ public class SAML20TokenProvider implements SecurityTokenProvider
             && WSTrustConstants.SAML2_ASSERTION_NS.equals(element.getNamespaceURI());
    }
 
-   /**
-    * <p>
-    * This method loads the ids of the canceled assertions from the file that has been configured for this provider.
-    * All retrieved ids are set in the local cache of canceled ids.
-    * </p>
-    */
-   private void loadCanceledIds()
-   {
-      try
-      {
-         if (!this.canceledIdsFile.exists())
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("File " + this.canceledIdsFile.getCanonicalPath() + " doesn't exist and will be created");
-            this.canceledIdsFile.createNewFile();
-         }
-         // read the file contents and populate the local cache.
-         BufferedReader reader = new BufferedReader(new FileReader(this.canceledIdsFile));
-         String id = reader.readLine();
-         while(id != null)
-         {
-            this.cancelledIds.add(id);
-            id = reader.readLine();
-         }
-         reader.close();
-      }
-      catch (IOException ioe)
-      {
-         if (logger.isDebugEnabled())
-            logger.debug("Error opening canceled ids file: " + ioe.getMessage());
-         ioe.printStackTrace();
-      }
-   }
-   
-   /**
-    * <p>
-    * Stores the specified id in the cache of canceled ids. If a canceled ids file has been configured for this 
-    * provider, the id will also be written to the end of the file.
-    * </p>
-    * 
-    * @param id a {@code String} representing the canceled id that must be stored.
-    */
-   public synchronized void storeCanceledId(String id)
-   {
-      if (this.canceledIdsFile != null)
-      {
-         try
-         {
-            // write a new line with the canceled id at the end of the file. 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(this.canceledIdsFile, true));
-            writer.write(id + "\n");
-            writer.close();
-         }
-         catch (IOException e)
-         {
-            e.printStackTrace();
-         }
-      }
-      // add the canceled id to the local cache.
-      this.cancelledIds.add(id);
-   }
 }

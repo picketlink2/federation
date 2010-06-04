@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
@@ -277,6 +278,38 @@ public class STSClient
          String code = status.getCode();
          return WSTrustConstants.STATUS_CODE_VALID.equals(code);
       }
+      return false;
+   }
+
+   /**
+    * <p>
+    * Cancels the specified security token by sending a WS-Trust cancel message to the STS.
+    * </p>
+    * 
+    * @param securityToken the security token to be canceled.
+    * @return {@code true} if the token has been canceled by the STS; {@code false} otherwise.
+    * @throws WSTrustException if an error occurs while processing the cancel request.
+    */
+   public boolean cancelToken(Element securityToken) throws WSTrustException
+   {
+      // create a WS-Trust cancel request containing the specified token.
+      RequestSecurityToken request = new RequestSecurityToken();
+      request.setRequestType(URI.create(WSTrustConstants.CANCEL_REQUEST));
+      CancelTargetType cancelTarget = new CancelTargetType();
+      cancelTarget.setAny(securityToken);
+      request.setCancelTarget(cancelTarget);
+
+      // marshal the request and send it to the STS.
+      WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
+      DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
+      Source response = dispatchLocal.get().invoke(requestSource);
+
+      // get the WS-Trust response and check for presence of the RequestTokenCanceled element.
+      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) jaxbFactory
+            .parseRequestSecurityTokenResponse(response);
+      RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
+      if (tokenResponse.getRequestedTokenCancelled() != null)
+         return true;
       return false;
    }
 
