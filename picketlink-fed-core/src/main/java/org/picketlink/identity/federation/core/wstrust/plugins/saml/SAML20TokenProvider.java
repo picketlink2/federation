@@ -78,6 +78,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
    private static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
 
+   private static final String REVOCATION_REGISTRY_JPA_CONFIG = "RevocationRegistryJPAConfig";
+   
    private RevocationRegistry revocationRegistry;
 
    private Map<String, String> properties;
@@ -113,7 +115,11 @@ public class SAML20TokenProvider implements SecurityTokenProvider
          // another option is to use the default JPA registry to store the revoked ids.
          else if ("JPA".equalsIgnoreCase(registryOption))
          {
-            this.revocationRegistry = new JPABasedRevocationRegistry();
+            String configuration = this.properties.get(REVOCATION_REGISTRY_JPA_CONFIG);
+            if (configuration != null)
+               this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
+            else
+               this.revocationRegistry = new JPABasedRevocationRegistry();
          }
          // the user has specified its own registry implementation class.
          else
