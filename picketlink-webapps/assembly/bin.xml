@@ -25,6 +25,16 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
+      <source>${basedir}/../sales-post/target/sales-post.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
+      <source>${basedir}/../employee-post/target/employee-post.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
       <source>${basedir}/../sales-post-sig/target/sales-post-sig.war</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>

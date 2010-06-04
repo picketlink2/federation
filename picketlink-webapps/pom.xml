@@ -27,6 +27,8 @@
 		<module>employee</module>
 		<module>sales-sig</module>
 		<module>employee-sig</module>
+		<module>sales-post</module>
+		<module>employee-post</module>
 		<module>sales-post-sig</module>
 		<module>employee-post-sig</module>
 		<module>sales-standalone</module>
