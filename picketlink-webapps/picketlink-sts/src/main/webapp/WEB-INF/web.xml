@@ -17,8 +17,6 @@
      <web-resource-collection>
        <web-resource-name>UsernameService</web-resource-name>
        <url-pattern>/*</url-pattern>
-       <http-method>GET</http-method>
-       <http-method>POST</http-method>
      </web-resource-collection>
      <auth-constraint>
        <role-name>JBossAdmin</role-name>
