@@ -45,6 +45,11 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
+      <source>${basedir}/../picketlink-sts/target/picketlink-sts.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
       <source>${basedir}/src/main/resources/picketlink-sp-jboss-beans.xml</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
