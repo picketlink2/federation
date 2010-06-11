@@ -73,6 +73,18 @@
         <artifactId>jbossxacml</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.jboss.security</groupId>
+        <artifactId>jboss-security-spi</artifactId>
+         <version>2.0.4</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.security</groupId>
+         <artifactId>jbosssx</artifactId>
+         <version>2.0.4</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
         <groupId>javax.persistence</groupId>
         <artifactId>persistence-api</artifactId>
       </dependency>

@@ -21,6 +21,8 @@
 package org.picketlink.identity.federation.core.wstrust.auth;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +36,15 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
+import org.jboss.security.SimpleGroup;
+import org.jboss.security.SimplePrincipal;
+import org.jboss.security.identity.Role;
+import org.jboss.security.identity.RoleGroup;
+import org.jboss.security.mapping.MappingContext;
+import org.jboss.security.mapping.MappingManager;
+import org.jboss.security.mapping.MappingType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
@@ -98,6 +109,29 @@ import org.w3c.dom.Element;
  * Password stacking can be configured which means that a Login module configured with 'password-stacking' set to 'true'
  * will set the username and password in the shared state map. Login modules that come after can set 'password-stacking'
  * to 'useFirstPass' which means that that login module will use the username and password from the shared map.
+ * <p/>
+ * </pre>
+ * 4. Mapping Provider configuration:
+ * <pre>{@code
+ * <application-policy name="saml-issue-token">
+ *   <authentication>
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ *       <module-option name="configFile">/sts-client.properties</module-option>
+ *       <module-option name="password-stacking">useFirstPass</module-option>
+ *     </login-module>
+ *     <mapping>
+ *       <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSPrincipalMappingProvider" type="principal"/>
+ *       <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSGroupMappingProvider" type="role"/>
+ *     </mapping>
+ *   </authentication>
+ * </application-policy>
+ * }
+ * </pre>
+ * 
+ * <h3>Mapping Providers</h3>
+ * Principal and Role mapping providers may be configured on subclasses of this login module and be leveraged to
+ * populate the JAAS Subject with appropriate user id and roles. The token is made available to the mapping providers
+ * so that identity information may be extracted.
  * <p/>
  * 
  * Subclasses can define more configuration options by overriding initialize.
@@ -271,6 +305,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       {
          final SamlCredential samlCredential = new SamlCredential(samlToken);
          final boolean added = subject.getPublicCredentials().add(samlCredential);
+         populateSubject();
          if (added && log.isDebugEnabled())
             log.debug("Added Credential :" + samlCredential);
 
@@ -495,6 +530,54 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       if (!samlCredentials.isEmpty())
       {
          subject.getPublicCredentials().removeAll(samlCredentials);
+      }
+   }
+
+   protected void populateSubject()
+   {
+      MappingManager mappingManager = getMappingManager();
+      if (mappingManager == null)
+      {
+         return;
+      }
+
+      MappingContext<Principal> principalMappingContext = mappingManager.getMappingContext(MappingType.PRINCIPAL
+            .toString());
+      MappingContext<RoleGroup> roleMappingContext = mappingManager.getMappingContext(MappingType.ROLE.toString());
+
+      Map<String, Object> contextMap = new HashMap<String, Object>();
+      contextMap.put(SHARED_TOKEN, this.samlToken);
+
+      if (principalMappingContext != null)
+      {
+         principalMappingContext.performMapping(contextMap, null);
+         Principal principal = principalMappingContext.getMappingResult().getMappedObject();
+         subject.getPrincipals().add(principal);
+      }
+
+      if (roleMappingContext != null)
+      {
+         roleMappingContext.performMapping(contextMap, null);
+         RoleGroup group = roleMappingContext.getMappingResult().getMappedObject();
+         SimpleGroup rolePrincipal = new SimpleGroup(group.getRoleName());
+         for (Role role : group.getRoles())
+         {
+            rolePrincipal.addMember(new SimplePrincipal(role.getRoleName()));
+         }
+         subject.getPrincipals().add(rolePrincipal);
+      }
+   }
+
+   protected MappingManager getMappingManager()
+   {
+      SecurityContext securityContext = SecurityContextAssociation.getSecurityContext();
+      if (securityContext == null)
+      {
+         return null;
+      }
+      else
+      {
+         return securityContext.getMappingManager();
       }
    }
 
