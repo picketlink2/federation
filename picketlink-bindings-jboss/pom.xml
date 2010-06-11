@@ -81,6 +81,12 @@
          <artifactId>junit</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.jboss.javaee</groupId>
+         <artifactId>jboss-javaee</artifactId>
+         <version>5.0.0.CR1</version>
+			<scope>provided</scope>
+      </dependency>
    </dependencies>
    
    <reporting>
