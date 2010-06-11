@@ -44,11 +44,12 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.FileBasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.JPABasedRevocationRegistry;
+import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
@@ -79,10 +80,14 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    private static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
 
    private static final String REVOCATION_REGISTRY_JPA_CONFIG = "RevocationRegistryJPAConfig";
-   
+
+   private static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
+
    private RevocationRegistry revocationRegistry;
 
    private Map<String, String> properties;
+
+   private SAML20TokenAttributeProvider attributeProvider;
 
    /*
     * (non-Javadoc)
@@ -143,6 +148,29 @@ public class SAML20TokenProvider implements SecurityTokenProvider
                pae.printStackTrace();
                this.revocationRegistry = new DefaultRevocationRegistry();
             }
+         }
+      }
+
+      // Check if an attribute provider has been set.
+      String attributeProviderClassName = this.properties.get(ATTRIBUTE_PROVIDER);
+      if (attributeProviderClassName == null)
+      {
+         if (logger.isDebugEnabled())
+            logger.debug("No attribute provider set");
+      }
+      else
+      {
+         try
+         {
+            @SuppressWarnings("unchecked")
+            Class<SAML20TokenAttributeProvider> attributeProviderClass = (Class<SAML20TokenAttributeProvider>) Class
+                  .forName(attributeProviderClassName);
+            attributeProvider = attributeProviderClass.newInstance();
+            attributeProvider.setProperties(properties);
+         }
+         catch (Exception e)
+         {
+            throw new IllegalStateException(e);
          }
       }
    }
@@ -229,6 +257,15 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       NameIDType issuerID = SAMLAssertionFactory.createNameID(null, null, context.getTokenIssuer());
       AssertionType assertion = SAMLAssertionFactory.createAssertion(assertionID, issuerID, lifetime.getCreated(),
             conditions, subject, statements);
+
+      if (attributeProvider != null)
+      {
+         AttributeStatementType attributeStatement = attributeProvider.getAttributeStatement();
+         if (attributeStatement != null)
+         {
+            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attributeStatement);
+         }
+      }
 
       // convert the constructed assertion to element.
       Element assertionElement = null;
