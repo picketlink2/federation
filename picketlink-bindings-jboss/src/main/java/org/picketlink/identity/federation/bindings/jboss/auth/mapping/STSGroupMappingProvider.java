@@ -64,7 +64,6 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
 
    private String tokenRoleAttributeName;
 
-   @Override
    public void init(Map<String, Object> contextMap)
    {
       Object tokenRoleAttributeObject = contextMap.get("token-role-attribute-name");
@@ -84,7 +83,6 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
       }
    }
 
-   @Override
    public void performMapping(Map<String, Object> contextMap, RoleGroup Group)
    {
       if (log.isDebugEnabled())
@@ -143,7 +141,6 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
       }
    }
 
-   @Override
    public void setMappingResult(MappingResult<RoleGroup> mappingResult)
    {
       this.result = mappingResult;

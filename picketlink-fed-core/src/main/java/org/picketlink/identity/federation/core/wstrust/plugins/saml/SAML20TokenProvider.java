@@ -136,15 +136,13 @@ public class SAML20TokenProvider implements SecurityTokenProvider
                   this.revocationRegistry = (RevocationRegistry) object;
                else
                {
-                  if (logger.isDebugEnabled())
-                     logger.debug(registryOption + " is not an instance of RevocationRegistry - using default registry");
+                  logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry");
                   this.revocationRegistry = new DefaultRevocationRegistry();
                }
             }
             catch (PrivilegedActionException pae)
             {
-               if (logger.isDebugEnabled())
-                  logger.debug("Error instantiating revocation registry class - using default registry");
+               logger.warn("Error instantiating revocation registry class - using default registry");
                pae.printStackTrace();
                this.revocationRegistry = new DefaultRevocationRegistry();
             }
@@ -162,15 +160,20 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       {
          try
          {
-            @SuppressWarnings("unchecked")
-            Class<SAML20TokenAttributeProvider> attributeProviderClass = (Class<SAML20TokenAttributeProvider>) Class
-                  .forName(attributeProviderClassName);
-            attributeProvider = attributeProviderClass.newInstance();
-            attributeProvider.setProperties(properties);
+            Object object = SecurityActions.instantiateClass(attributeProviderClassName);
+            if (object instanceof SAML20TokenAttributeProvider)
+            {
+               this.attributeProvider = (SAML20TokenAttributeProvider) object;
+               this.attributeProvider.setProperties(this.properties);
+            }
+            else
+               logger.warn("Attribute provider not installed: " + attributeProviderClassName +  
+                     "is not an instance of SAML20TokenAttributeProvider");
          }
-         catch (Exception e)
+         catch (PrivilegedActionException pae)
          {
-            throw new IllegalStateException(e);
+            logger.warn("Error instantiating attribute provider: " + pae.getMessage());
+            pae.printStackTrace();
          }
       }
    }
@@ -179,7 +182,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    * 	cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    *   cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -200,7 +203,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    * 	issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    *   issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void issueToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -258,9 +261,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       AssertionType assertion = SAMLAssertionFactory.createAssertion(assertionID, issuerID, lifetime.getCreated(),
             conditions, subject, statements);
 
-      if (attributeProvider != null)
+      if (this.attributeProvider != null)
       {
-         AttributeStatementType attributeStatement = attributeProvider.getAttributeStatement();
+         AttributeStatementType attributeStatement = this.attributeProvider.getAttributeStatement();
          if (attributeStatement != null)
          {
             assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attributeStatement);
@@ -294,7 +297,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    * 	renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    *   renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void renewToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -361,7 +364,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    * 	validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    *   validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void validateToken(WSTrustRequestContext context) throws WSTrustException
    {

@@ -48,13 +48,11 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
 
    private MappingResult<Principal> result;
 
-   @Override
    public void init(Map<String, Object> contextMap)
    {
       //No initialization needed
    }
 
-   @Override
    public void performMapping(Map<String, Object> contextMap, Principal principal)
    {
       if (contextMap == null)
@@ -99,7 +97,6 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
       }
    }
 
-   @Override
    public void setMappingResult(MappingResult<Principal> mappingResult)
    {
       this.result = mappingResult;

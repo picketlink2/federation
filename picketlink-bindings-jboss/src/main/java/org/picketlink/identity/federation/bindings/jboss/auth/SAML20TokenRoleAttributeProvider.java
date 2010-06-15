@@ -61,7 +61,6 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
     */
    private String tokenRoleAttributeName;
    
-   @Override
    public void setProperties(Map<String, String> properties)
    {
       String roleAttrKey = this.getClass().getName() + ".tokenRoleAttributeName";
@@ -72,7 +71,6 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
       }
    }
 
-   @Override
    public AttributeStatementType getAttributeStatement()
    {
       Subject subject = SecurityContextAssociation.getSecurityContext().getSubjectInfo().getAuthenticatedSubject();
