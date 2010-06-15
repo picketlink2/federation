@@ -28,6 +28,7 @@ import java.net.URL;
 import javax.annotation.Resource;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
@@ -54,7 +55,7 @@ import org.w3c.dom.Document;
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
-public class PicketLinkSTS implements SecurityTokenService
+public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
 

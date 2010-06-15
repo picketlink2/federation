@@ -9,12 +9,14 @@
     <xs:schema targetNamespace="urn:picketlink:identity-federation:sts" 
       xmlns:tns="urn:picketlink:identity-federation:sts" 
       xmlns:xs="http://www.w3.org/2001/XMLSchema"
-      version="1.0">
-      <xs:complexType name="MessageBody">
-        <xs:sequence>
+      version="1.0" elementFormDefault="qualified">
+      <xs:element name="MessageBody">
+        <xs:complexType>
+          <xs:sequence>
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any"/>
-        </xs:sequence>
-      </xs:complexType>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:schema>
   </wsdl:types>
   <wsdl:message name="RequestSecurityToken">
