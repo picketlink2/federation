@@ -29,7 +29,7 @@ import java.util.List;
 import org.jboss.seam.core.Expressions;
 import org.jboss.seam.core.Expressions.MethodExpression;
 import org.picketlink.identity.seam.federation.ExternalAuthenticationService;
-import org.picketlink.identity.seam.federation.config.jaxb.ServiceProviderType;
+import org.picketlink.identity.seam.federation.jaxb.config.ServiceProviderType;
 
 /**
 * @author Marcel Kolsteren
@@ -101,10 +101,26 @@ public class ServiceProvider
    public String getServiceURL(ExternalAuthenticationService service)
    {
       String path = configuration.getContextRoot() + "/" + service.getName() + ".seam";
+      return createURL(path);
+   }
 
+   public String getOpenIdRealm()
+   {
+      return createURL("");
+   }
+
+   private String createURL(String path)
+   {
       try
       {
-         return new URL(protocol, hostname, port, path).toExternalForm();
+         if (protocol.equals("http") && port == 80 || protocol.equals("https") && port == 443)
+         {
+            return new URL(protocol, hostname, path).toExternalForm();
+         }
+         else
+         {
+            return new URL(protocol, hostname, port, path).toExternalForm();
+         }
       }
       catch (MalformedURLException e)
       {

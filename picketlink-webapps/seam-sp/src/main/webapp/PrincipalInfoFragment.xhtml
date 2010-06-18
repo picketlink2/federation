@@ -6,7 +6,7 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 	<c:choose>
 		<c:when
-			test="#{identity.principal.getClass().getSimpleName() == 'SamlPrincipal'}">
+			test="#{identity.principal.getClass().getSimpleName() == 'SeamSamlPrincipal'}">
 			<h2>Logged on via SAML</h2>
 			<h:panelGrid columns="2">
 				<h:outputText value="NameID" />

@@ -212,6 +212,15 @@ public class ExternalAuthenticationFilter extends AbstractFilter
             httpResponse.setContentType("application/xml");
             httpResponse.flushBuffer();
             break;
+         case OPEN_ID_XRDS_SERVICE :
+            OpenIdXrdsProvider openIdXrdsProvider = (OpenIdXrdsProvider) Component
+                  .getInstance(OpenIdXrdsProvider.class);
+
+            openIdXrdsProvider.writeMetaData(httpResponse.getOutputStream());
+            httpResponse.setCharacterEncoding("UTF-8");
+            httpResponse.setContentType("application/xrds+xml");
+            httpResponse.flushBuffer();
+            break;
          default :
             throw new RuntimeException("Unsupported service " + service);
       }

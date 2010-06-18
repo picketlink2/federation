@@ -45,8 +45,8 @@ import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.annotations.Startup;
 import org.jboss.seam.web.ServletContexts;
-import org.picketlink.identity.seam.federation.config.jaxb.ExternalAuthenticationConfigType;
-import org.picketlink.identity.seam.federation.config.jaxb.ServiceProviderType;
+import org.picketlink.identity.seam.federation.jaxb.config.ExternalAuthenticationConfigType;
+import org.picketlink.identity.seam.federation.jaxb.config.ServiceProviderType;
 import org.xml.sax.SAXException;
 
 /**
@@ -91,7 +91,7 @@ public class Configuration
       ExternalAuthenticationConfigType externalAuthenticationConfig;
       try
       {
-         JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.seam.federation.config.jaxb");
+         JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.seam.federation.jaxb.config");
          Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
          URL schemaURL = getClass().getResource("/schema/config/external-authentication-config.xsd");
          Schema schema;

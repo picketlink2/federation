@@ -35,8 +35,8 @@ import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.openid4java.message.AuthRequest;
 import org.openid4java.message.ax.FetchRequest;
-import org.picketlink.identity.seam.federation.config.jaxb.OpenIdAttributeType;
 import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
+import org.picketlink.identity.seam.federation.jaxb.config.OpenIdAttributeType;
 
 /**
 * @author Marcel Kolsteren
@@ -69,7 +69,8 @@ public class OpenIdSingleLoginSender
          openIdRequest.setReturnUrl(returnUrl);
 
          String openIdServiceUrl = serviceProvider.getServiceURL(ExternalAuthenticationService.OPEN_ID_SERVICE);
-         AuthRequest authReq = openIdConsumerManager.authenticate(discovered, openIdServiceUrl);
+         String realm = serviceProvider.getOpenIdRealm();
+         AuthRequest authReq = openIdConsumerManager.authenticate(discovered, openIdServiceUrl, realm);
 
          // Request attributes
          List<OpenIdAttributeType> attributes = serviceProvider.getOpenIdConfiguration().getAttributes();

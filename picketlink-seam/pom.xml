@@ -51,17 +51,32 @@
             <version>1.3</version>
             <executions>
                <execution>
+                  <id>jaxb-xrds</id>
+                  <configuration>
+                     <schemaDirectory>${basedir}/src/main/resources/schema/xrds</schemaDirectory>
+                     <packageName>org.picketlink.identity.seam.federation.jaxb.xrds</packageName>
+                     <outputDirectory>${basedir}/src/main/generated-source</outputDirectory>
+                     <clearOutputDir>true</clearOutputDir>
+                     <staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag_xrds</staleFile>
+                  </configuration>
+                  <goals>
+                     <goal>xjc</goal>
+                  </goals>
+               </execution>
+               <execution>
+                  <id>jaxb-config</id>
+                  <configuration>
+                     <schemaDirectory>${basedir}/src/main/resources/schema/config</schemaDirectory>
+                     <packageName>org.picketlink.identity.seam.federation.jaxb.config</packageName>
+                     <outputDirectory>${basedir}/src/main/generated-source</outputDirectory>
+                     <clearOutputDir>false</clearOutputDir>
+                     <staleFile>${project.build.directory}/generated-sources/jaxb/.staleFlag_config</staleFile>
+                  </configuration>
                   <goals>
                      <goal>xjc</goal>
                   </goals>
                </execution>
             </executions>
-            <configuration>
-               <schemaDirectory>${basedir}/src/main/resources/schema/config</schemaDirectory>
-               <schemaFiles>external-authentication-config.xsd</schemaFiles>
-               <packageName>org.picketlink.identity.seam.federation.config.jaxb</packageName>
-               <outputDirectory>${basedir}/src/main/generated-source</outputDirectory>
-            </configuration>
          </plugin>
       </plugins>
    </build>
@@ -75,6 +90,12 @@
          <groupId>org.picketlink</groupId>
          <artifactId>picketlink-fed-api</artifactId>
          <version>${project.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.jboss.security</groupId>
+               <artifactId>jboss-security-spi</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>

@@ -12,8 +12,10 @@
 	<p><h:commandLink action="/PrivatePage2.xhtml"
 		value="Click here to view private page 2." /></p>
 	<c:if test="#{configuration.serviceProvider.samlConfiguration!= null}">
-		<p><h:commandLink action="/MetaDataService.xhtml"
-			value="Click here to view meta data for the SAML SP (xml)." /></p>
+		<p><h:outputLink value="MetaDataService">Click here to view meta data for the SAML SP (application/xml).</h:outputLink></p>
+	</c:if>
+	<c:if test="#{configuration.serviceProvider.samlConfiguration!= null}">
+		<p><h:outputLink value="OpenIdXrdsService">Click here to view the XRDS file for the OpenID RP (application/xrds+xml).</h:outputLink></p>
 	</c:if>
 </h:form>
 </body>

@@ -46,8 +46,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorTyp
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.seam.federation.config.jaxb.SamlConfigType;
-import org.picketlink.identity.seam.federation.config.jaxb.SamlIdentityProviderType;
+import org.picketlink.identity.seam.federation.jaxb.config.SamlConfigType;
+import org.picketlink.identity.seam.federation.jaxb.config.SamlIdentityProviderType;
 
 /**
 * @author Marcel Kolsteren

@@ -37,7 +37,9 @@ public enum ExternalAuthenticationService {
 
    SAML_META_DATA_SERVICE("MetaDataService"),
 
-   OPEN_ID_SERVICE("OpenIdService");
+   OPEN_ID_SERVICE("OpenIdService"),
+
+   OPEN_ID_XRDS_SERVICE("OpenIdXrdsService");
 
    private String name;
 

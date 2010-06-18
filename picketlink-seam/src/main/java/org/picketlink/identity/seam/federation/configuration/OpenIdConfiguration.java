@@ -23,8 +23,8 @@ package org.picketlink.identity.seam.federation.configuration;
 
 import java.util.List;
 
-import org.picketlink.identity.seam.federation.config.jaxb.OpenIdAttributeType;
-import org.picketlink.identity.seam.federation.config.jaxb.OpenIdConfigType;
+import org.picketlink.identity.seam.federation.jaxb.config.OpenIdAttributeType;
+import org.picketlink.identity.seam.federation.jaxb.config.OpenIdConfigType;
 
 /**
 * @author Marcel Kolsteren
