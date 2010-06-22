@@ -25,12 +25,14 @@ import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.core.Events;
 import org.jboss.seam.security.Identity;
 import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
 
@@ -54,12 +56,28 @@ public class InternalAuthenticator
       List<String> roles = new LinkedList<String>();
       Boolean internallyAuthenticated = serviceProvider.getInternalAuthenticationMethod().invoke(principal, roles);
 
+      if (Events.exists())
+      {
+         Events.instance().raiseEvent(Identity.EVENT_POST_AUTHENTICATE, identity);
+      }
+
       if (internallyAuthenticated)
       {
          identity.acceptExternallyAuthenticatedPrincipal(principal);
+         
          for (String role : roles)
          {
             identity.addRole(role);
+         }
+
+         if (Events.exists())
+         {
+            Events.instance().raiseEvent(Identity.EVENT_LOGIN_SUCCESSFUL);
+         }
+      } else {
+         if (Events.exists())
+         {
+            Events.instance().raiseEvent(Identity.EVENT_LOGIN_FAILED, new LoginException());
          }
       }
 

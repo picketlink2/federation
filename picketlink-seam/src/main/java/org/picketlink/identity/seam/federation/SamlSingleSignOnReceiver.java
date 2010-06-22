@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBElement;
@@ -36,6 +37,7 @@ import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Logger;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.core.Events;
 import org.jboss.seam.log.Log;
 import org.jboss.seam.security.Identity;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -116,6 +118,12 @@ public class SamlSingleSignOnReceiver
       {
          try
          {
+            if (Events.exists())
+            {
+               Events.instance().raiseEvent(Identity.EVENT_POST_AUTHENTICATE, identity);
+               Events.instance().raiseEvent(Identity.EVENT_LOGIN_FAILED, new LoginException());
+            }
+
             httpResponse.sendRedirect(serviceProvider.getFailedAuthenticationUrl());
          }
          catch (IOException e)
@@ -286,8 +294,8 @@ public class SamlSingleSignOnReceiver
       }
    }
 
-   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse, SeamSamlPrincipal principal,
-         RequestContext requestContext)
+   private void loginUser(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+         SeamSamlPrincipal principal, RequestContext requestContext)
    {
       if (identity.isLoggedIn())
       {

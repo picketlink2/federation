@@ -28,6 +28,8 @@ import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.core.Events;
+import org.jboss.seam.security.Identity;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.seam.federation.configuration.SamlIdentityProvider;
 
@@ -54,6 +56,11 @@ public class SamlSingleSignOnSender
    {
       AuthnRequestType authnRequest = samlMessageFactory.createAuthnRequest();
       requests.addRequest(authnRequest.getID(), samlIdentityProvider, returnUrl);
+
+      if (Events.exists())
+      {
+         Events.instance().raiseEvent(Identity.EVENT_PRE_AUTHENTICATE);
+      }
 
       samlMessageSender.sendRequestToIDP(request, response, samlIdentityProvider, SamlProfile.SINGLE_SIGN_ON,
             authnRequest);

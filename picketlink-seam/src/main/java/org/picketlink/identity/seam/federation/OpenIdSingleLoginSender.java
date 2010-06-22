@@ -30,6 +30,8 @@ import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.core.Events;
+import org.jboss.seam.security.Identity;
 import org.openid4java.OpenIDException;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.discovery.DiscoveryInformation;
@@ -87,12 +89,22 @@ public class OpenIdSingleLoginSender
 
          String url = authReq.getDestinationUrl(true);
 
+         if (Events.exists())
+         {
+            Events.instance().raiseEvent(Identity.EVENT_PRE_AUTHENTICATE);
+         }
+
          httpResponse.sendRedirect(url);
       }
       catch (OpenIDException e)
       {
          try
          {
+            if (Events.exists())
+            {
+               Events.instance().raiseEvent(Identity.EVENT_LOGIN_FAILED);
+            }
+
             httpResponse.sendRedirect(serviceProvider.getFailedAuthenticationUrl());
          }
          catch (IOException e1)

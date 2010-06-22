@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,6 +33,8 @@ import org.jboss.seam.annotations.AutoCreate;
 import org.jboss.seam.annotations.Import;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
+import org.jboss.seam.core.Events;
+import org.jboss.seam.security.Identity;
 import org.openid4java.OpenIDException;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.consumer.VerificationResult;
@@ -111,6 +114,10 @@ public class OpenIdSingleLoginReceiver
          }
          else
          {
+            if (Events.exists())
+            {
+               Events.instance().raiseEvent(Identity.EVENT_LOGIN_FAILED, new LoginException());
+            }
             authenticated = false;
          }
 
