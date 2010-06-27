@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.api.wstrust;
 
+import java.security.Principal;
+
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
@@ -64,7 +66,8 @@ public class WSTrustClient
    public WSTrustClient(String serviceName, String port, String endpointURI, SecurityInfo secInfo)
          throws ParsingException
    {
-      this(serviceName, port, new String[]{endpointURI}, secInfo);
+      this(serviceName, port, new String[]
+      {endpointURI}, secInfo);
    }
 
    public WSTrustClient(String serviceName, String port, String[] endpointURIs, SecurityInfo secInfo)
@@ -102,7 +105,7 @@ public class WSTrustClient
     */
    public Element issueToken(String tokenType) throws WSTrustException
    {
-      return this.issueInternal(null, tokenType, 0);
+      return this.issueInternal(null, tokenType, null, 0);
    }
 
    /**
@@ -116,7 +119,7 @@ public class WSTrustClient
     */
    public Element issueTokenForEndpoint(String endpointURI) throws WSTrustException
    {
-      return this.issueInternal(endpointURI, null, 0);
+      return this.issueInternal(endpointURI, null, null, 0);
    }
 
    /**
@@ -133,7 +136,13 @@ public class WSTrustClient
     */
    public Element issueToken(String endpointURI, String tokenType) throws WSTrustException
    {
-      return this.issueInternal(endpointURI, tokenType, 0);
+      return this.issueInternal(endpointURI, tokenType, null, 0);
+   }
+
+   public Element issueTokenOnBehalfOf(String endpointURI, String tokenType, Principal principal)
+         throws WSTrustException
+   {
+      return this.issueInternal(endpointURI, tokenType, principal, 0);
    }
 
    /**
@@ -175,7 +184,7 @@ public class WSTrustClient
    {
       return this.cancelInternal(token, 0);
    }
-   
+
    /**
     * <p>
     * This method issues a token of the specified type for the specified service endpoint and has failover support when
@@ -187,24 +196,26 @@ public class WSTrustClient
     * @param serviceEndpointURI a {@code String} representing the endpoint URI of the service that will be the ultimate
     * recipient of the security token.  
     * @param tokenType a {@code String} representing the type of token to be issued.
+    * @param principal the {@code Principal} on behalf of whom the token will be issued.
     * @param clientIndex an {@code int} that indicates which of the {@code STSClient} instances should be used to perform
     * the request.
     * @return an {@code Element} representing the security token that has been issued.
     * @throws WSTrustException if a WS-Trust exception is thrown by the STS.
     */
-   private Element issueInternal(String serviceEndpointURI, String tokenType, int clientIndex) throws WSTrustException
+   private Element issueInternal(String serviceEndpointURI, String tokenType, Principal principal, int clientIndex)
+         throws WSTrustException
    {
       STSClient client = this.clients[clientIndex];
       try
       {
-         return client.issueToken(serviceEndpointURI, tokenType);
+         return client.issueTokenOnBehalfOf(serviceEndpointURI, tokenType, principal);
       }
       catch (RuntimeException e)
       {
          // if this was a connection refused exception and we still have clients to try, call the next client.
          if (this.isCausedByConnectException(e) && clientIndex < this.clients.length - 1)
          {
-            return this.issueInternal(serviceEndpointURI, tokenType, ++clientIndex);
+            return this.issueInternal(serviceEndpointURI, tokenType, principal, ++clientIndex);
          }
          throw e;
       }

@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.core.wstrust;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -81,6 +82,15 @@ public class STSClient
       dispatchLocal.set(dispatch);
    }
 
+   public Element issueToken(String tokenType) throws WSTrustException
+   {
+      // create a custom token request message.
+      RequestSecurityToken request = new RequestSecurityToken();
+      setTokenType(tokenType, request);
+      // send the token request to JBoss STS and get the response.
+      return issueToken(request);
+   }
+
    /**
     * Issues a Security Token for the ultimate recipient of the token.
     * 
@@ -120,12 +130,29 @@ public class STSClient
       return issueToken(request);
    }
 
-   public Element issueToken(String tokenType) throws WSTrustException
+   /**
+    * <p>
+    * Issues a security token on behalf of the specified principal.
+    * </p>
+    * 
+    * @param endpointURI    the ultimate recipient of the token. This will be set at the AppliesTo for
+    *                      the RequestSecurityToken which is an optional element so it may be null.
+    * @param tokenType  the type of the token to be issued.
+    * @param principal  the {@code Principal} to whom the token will be issued.
+    * @return   an {@code Element} representing the issued security token.
+    * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
+    * @throws WSTrustException if an error occurs while issuing the security token.
+    */
+   public Element issueTokenOnBehalfOf(String endpointURI, String tokenType, Principal principal)
+         throws WSTrustException
    {
-      // create a custom token request message.
+      if (endpointURI == null && tokenType == null)
+         throw new IllegalArgumentException("One of endpointURI or tokenType must be provided.");
+
       RequestSecurityToken request = new RequestSecurityToken();
+      setAppliesTo(endpointURI, request);
       setTokenType(tokenType, request);
-      // send the token request to JBoss STS and get the response.
+      setOnBehalfOf(principal, request);
       return issueToken(request);
    }
 
@@ -141,6 +168,13 @@ public class STSClient
       if (tokenType != null)
          rst.setTokenType(URI.create(tokenType));
       return rst;
+   }
+   
+   private RequestSecurityToken setOnBehalfOf(Principal principal, RequestSecurityToken request)
+   {
+      if (principal != null)
+         request.setOnBehalfOf(WSTrustUtil.createOnBehalfOfWithUsername(principal.getName(), null));
+      return request;
    }
 
    private Element issueToken(RequestSecurityToken request) throws WSTrustException
