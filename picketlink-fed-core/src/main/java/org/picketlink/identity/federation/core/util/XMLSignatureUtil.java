@@ -72,6 +72,8 @@ import org.xml.sax.SAXException;
 
 /**
  * Utility for XML Signature
+ * <b>Note:</b> You can change the canonicalization method type by using
+ * the system property  "picketlink.xmlsig.canonicalization"
  * @author Anil.Saldhana@redhat.com
  * @since Dec 15, 2008
  */
@@ -81,7 +83,9 @@ public class XMLSignatureUtil
    private static boolean trace = log.isTraceEnabled();
    
    private static String pkgName = "org.picketlink.identity.federation.w3.xmldsig";
-   private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd"; 
+   private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd";  
+
+   private static String canonicalizationMethodType = null;
    
    private static ObjectFactory objectFactory = new ObjectFactory();
    
@@ -112,10 +116,23 @@ public class XMLSignatureUtil
          public Object run()
          {
             System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true");
+            
+            canonicalizationMethodType = System.getProperty( "picketlink.xmlsig.canonicalization",
+                  CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS );
             return null;
          }
       }); 
    };
+   
+   /**
+    * Set the canonicalization method type
+    * @param canonical
+    */
+   public static void setCanonicalizationMethodType( String canonical )
+   {
+      if( canonical != null )
+         canonicalizationMethodType = canonical;
+   }
    
    /**
     * Precheck whether the document that will be validated
@@ -246,7 +263,6 @@ public class XMLSignatureUtil
      Reference ref = fac.newReference
        ( referenceURI, digestMethodObj,transformList,null, null); 
      
-     String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
      CanonicalizationMethod canonicalizationMethod
          = fac.newCanonicalizationMethod
          (canonicalizationMethodType, (C14NMethodParameterSpec) null);
