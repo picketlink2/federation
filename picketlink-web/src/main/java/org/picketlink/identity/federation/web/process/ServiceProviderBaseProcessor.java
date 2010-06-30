@@ -60,6 +60,8 @@ public class ServiceProviderBaseProcessor
    protected boolean postBinding;
    protected String serviceURL;
    
+   protected String identityURL;
+   
    protected SPType spConfiguration;
    protected TrustKeyManager keyManager;
    
@@ -95,6 +97,15 @@ public class ServiceProviderBaseProcessor
    }
    
    /**
+    * Set the Identity URL
+    * @param identityURL
+    */
+   public void setIdentityURL(String identityURL)
+   {
+      this.identityURL = identityURL;
+   }
+
+   /**
     * Whether we support signatures during the current processing
     * @param supportSignatures
     */
@@ -118,7 +129,9 @@ public class ServiceProviderBaseProcessor
       
       //Create the request/response
       SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null,httpContext); 
-      SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();  
+      SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+      
+      saml2HandlerResponse.setDestination( identityURL );
 
       //Reset the state
       try
@@ -162,10 +175,9 @@ public class ServiceProviderBaseProcessor
    protected SAML2HandlerRequest getSAML2HandlerRequest(SAMLDocumentHolder documentHolder,
          HTTPContext httpContext)
    {
-      IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL); 
+      IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);  
 
-      return
-      new DefaultSAML2HandlerRequest(httpContext,
+      return  new DefaultSAML2HandlerRequest(httpContext,
             holder.getIssuer(), documentHolder, 
             HANDLER_TYPE.SP); 
    }
