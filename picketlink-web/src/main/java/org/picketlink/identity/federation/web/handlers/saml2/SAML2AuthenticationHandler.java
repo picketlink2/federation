@@ -63,6 +63,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -370,8 +371,23 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          for(Object obj:attList)
          {
             AttributeType attr = (AttributeType) obj;
-            String roleName = (String) attr.getAttributeValue().get(0);
-            roles.add(roleName);
+            List<Object> attributeValues = attr.getAttributeValue();
+            if( attributeValues != null)
+            {
+               for( Object attrValue : attributeValues )
+               {
+                  if( attrValue instanceof String )
+                  {
+                     roles.add( (String) attrValue ); 
+                  }
+                  else if( attrValue instanceof Node )
+                  {
+                     Node roleNode = (Node) attrValue;
+                     roles.add( roleNode.getFirstChild().getNodeValue() );
+                  }
+                  else throw new RuntimeException( "Unknown role object type : " +  attrValue ); 
+               }
+            } 
          }
          
          response.setRoles(roles);
