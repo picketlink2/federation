@@ -23,6 +23,7 @@ package org.picketlink.identity.seam.federation;
 
 import java.net.URL;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,9 +36,9 @@ public class OpenIdPrincipal implements Principal
 
    private URL openIdProvider;
 
-   private Map<String, String> attributes;
+   private Map<String, List<String>> attributes;
 
-   public OpenIdPrincipal(String identifier, URL openIdProvider, Map<String, String> attributes)
+   public OpenIdPrincipal(String identifier, URL openIdProvider, Map<String, List<String>> attributes)
    {
       super();
       this.identifier = identifier;
@@ -60,7 +61,7 @@ public class OpenIdPrincipal implements Principal
       return openIdProvider;
    }
 
-   public Map<String, String> getAttributes()
+   public Map<String, List<String>> getAttributes()
    {
       return attributes;
    }

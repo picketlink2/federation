@@ -23,6 +23,7 @@ package org.picketlink.identity.seam.federation;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.login.LoginException;
@@ -99,7 +100,7 @@ public class OpenIdSingleLoginReceiver
          {
             AuthSuccess authSuccess = (AuthSuccess) verification.getAuthResponse();
 
-            Map<String, String> attributes = null;
+            Map<String, List<String>> attributes = null;
             if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX))
             {
                FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
@@ -141,7 +142,7 @@ public class OpenIdSingleLoginReceiver
 
    }
 
-   private OpenIdPrincipal createPrincipal(String identifier, URL openIdProvider, Map<String, String> attributes)
+   private OpenIdPrincipal createPrincipal(String identifier, URL openIdProvider, Map<String, List<String>> attributes)
    {
       return new OpenIdPrincipal(identifier, openIdProvider, attributes);
    }
