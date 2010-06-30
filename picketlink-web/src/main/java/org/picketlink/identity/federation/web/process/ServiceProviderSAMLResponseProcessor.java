@@ -23,27 +23,38 @@ package org.picketlink.identity.federation.web.process;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.w3c.dom.Document;
 
 /**
  * Utility Class to handle processing of
@@ -52,7 +63,9 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
  * @since Oct 27, 2009
  */
 public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBaseProcessor
-{   
+{ 
+   private boolean validateSignature = false;
+   
    /**
     * Construct
     * @param postBinding Whether it is the Post Binding
@@ -62,6 +75,16 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
    {
       super(postBinding, serviceURL);
    }
+
+   /**
+    * Flag to indicate whether the response should be validated for signature
+    * @param validateSignature
+    */
+   public void setValidateSignature(boolean validateSignature)
+   {
+      this.validateSignature = validateSignature;
+   }
+
 
    /**
     * Process the message
@@ -102,6 +125,17 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
          documentHolder = saml2Response.getSamlDocumentHolder();
       }
       
+      if( this.validateSignature )
+         try
+         {
+            if( ! this.verifySignature( documentHolder ) )
+              throw new ProcessingException( "Signature Validation failed" );
+         }
+         catch (IssuerNotTrustedException e)
+         {
+            throw new ProcessingException( e );
+         }
+      
       //Create the request/response
       SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext); 
       SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
@@ -132,4 +166,57 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
       
       return saml2HandlerResponse; 
    } 
+
+   /**
+    * Validate the signature of the IDP response
+    * @param samlDocumentHolder
+    * @return
+    * @throws IssuerNotTrustedException
+    */
+   private boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
+   {   
+      Document samlResponse = samlDocumentHolder.getSamlDocument();
+      ResponseType response = (ResponseType) samlDocumentHolder.getSamlObject();
+      
+      String issuerID = response.getIssuer().getValue();
+      
+      if(issuerID == null)
+         throw new IssuerNotTrustedException("Issue missing");
+      
+      URL issuerURL;
+      try
+      {
+         issuerURL = new URL(issuerID);
+      }
+      catch (MalformedURLException e1)
+      {
+         throw new IssuerNotTrustedException(e1);
+      }
+      
+      try
+      {
+         PublicKey publicKey = keyManager.getValidatingKey(issuerURL.getHost());
+         if(trace) log.trace("Going to verify signature in the saml response from IDP"); 
+         boolean sigResult =  XMLSignatureUtil.validate(samlResponse, publicKey);
+         if(trace) log.trace("Signature verification="+sigResult);
+         return sigResult;
+      }
+      catch (TrustKeyConfigurationException e)
+      {
+         log.error("Unable to verify signature",e);
+      }
+      catch (TrustKeyProcessingException e)
+      {
+         log.error("Unable to verify signature",e);
+      }
+      catch (MarshalException e)
+      {
+         log.error("Unable to verify signature",e);
+      }
+      catch (XMLSignatureException e)
+      {
+         log.error("Unable to verify signature",e);
+      }
+      return false;
+   }
 }
