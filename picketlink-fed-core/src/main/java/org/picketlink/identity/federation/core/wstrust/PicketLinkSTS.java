@@ -154,7 +154,7 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
       }
       catch (WSTrustException we)
       {
-         throw new WebServiceException("Exception in handling token request:", we);
+         throw new WebServiceException("Exception in handling token request: " + we.getMessage(), we);
       }
    }
 

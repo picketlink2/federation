@@ -177,10 +177,12 @@ public class STSClient
       return request;
    }
 
-   private Element issueToken(RequestSecurityToken request) throws WSTrustException
+   public Element issueToken(RequestSecurityToken request) throws WSTrustException
    {
-      request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
-      request.setContext("context");
+      if (request.getRequestType() == null)
+         request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
+      if (request.getContext() == null)
+         request.setContext("default-context");
       WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
       DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
       Source response = dispatchLocal.get().invoke(requestSource);
@@ -191,10 +193,6 @@ public class STSClient
          Node documentNode = DocumentUtil.getNodeFromSource(response);
          Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
                .getOwnerDocument();
-
-         Document myDocument = DocumentUtil.createDocument();
-         Node importedNode = myDocument.importNode(responseDoc.getDocumentElement(), true);
-         myDocument.appendChild(importedNode);
 
          nodes = null;
          if (responseDoc instanceof SOAPPart)
@@ -243,16 +241,12 @@ public class STSClient
       DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
-      Node documentNode = ((DOMSource) response).getNode();
-      Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
-            .getOwnerDocument();
-
       NodeList nodes;
       try
       {
-         Document myDocument = DocumentUtil.createDocument();
-         Node importedNode = myDocument.importNode(responseDoc.getDocumentElement(), true);
-         myDocument.appendChild(importedNode);
+         Node documentNode = DocumentUtil.getNodeFromSource(response);
+         Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
+               .getOwnerDocument();
 
          nodes = null;
          if (responseDoc instanceof SOAPPart)

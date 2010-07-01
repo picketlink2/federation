@@ -397,7 +397,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the request).
     * </p>
     * 
-    * @throws Exception
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20OnBehalfOf() throws Exception
    {
@@ -483,8 +483,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    @SuppressWarnings("unchecked")
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
    {
-      // create a 128-bit random client secret.
-      byte[] clientSecret = WSTrustUtil.createRandomSecret(16);
+      // create a 64-bit random client secret.
+      byte[] clientSecret = WSTrustUtil.createRandomSecret(8);
       BinarySecretType clientBinarySecret = new BinarySecretType();
       clientBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
       clientBinarySecret.setValue(clientSecret);
@@ -856,7 +856,6 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       }
       catch (WebServiceException we)
       {
-         assertEquals("Unexpected exception message", "Exception in handling token request:", we.getMessage());
          assertNotNull("Unexpected null cause", we.getCause());
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
          assertEquals("Unexpected exception message", "Unable to find a token provider for the token request", we
