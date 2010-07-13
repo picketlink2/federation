@@ -57,15 +57,15 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
    {
       if (contextMap == null)
       {
-         throw new IllegalArgumentException(
-               "Empty context map. SAML Token must be provided in the context map to extract a Principal");
+         log.warn("Empty context map. SAML Token must be provided in the context map to extract a Principal");
       }
 
       Object tokenObject = contextMap.get(AbstractSTSLoginModule.SHARED_TOKEN);
       if (!(tokenObject instanceof Element))
       {
-         throw new IllegalArgumentException("Did not find a token " + Element.class.getClass().getName() + " under "
-               + AbstractSTSLoginModule.SHARED_TOKEN + " in the map");
+         //With Tomcat SSO Valves, mapping providers DO get called automatically, so there may be no tokens and errors should be expected and handled
+         log.warn("Did not find a token " + Element.class.getName() + " under " + AbstractSTSLoginModule.SHARED_TOKEN
+               + " in the map");
       }
 
       try
@@ -93,7 +93,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
       }
       catch (JAXBException e)
       {
-         throw new IllegalArgumentException(e);
+         log.error("Failed to parse token", e);
       }
    }
 
