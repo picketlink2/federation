@@ -29,6 +29,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -119,7 +120,7 @@ public class XMLSignatureUtil
             return null;
          }
       }); 
-   };
+   }; 
    
    /**
     * Set the canonicalization method type
@@ -248,17 +249,20 @@ public class XMLSignatureUtil
       PublicKey publicKey = keyPair.getPublic();
       
      DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement());  
-     dsc.setDefaultNamespacePrefix("dsig");
-
-//     dsc.putNamespacePrefix(XMLSignature.XMLNS, "ds");
-     
+     dsc.setDefaultNamespacePrefix("dsig"); 
+         
      DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);
-     Transform transform = fac.newTransform(Transform.ENVELOPED,
+     Transform transform1 = fac.newTransform(Transform.ENVELOPED,
            (TransformParameterSpec) null);
-     
-     List<Transform> transformList = Collections.singletonList(transform);
+     Transform transform2 =  fac.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",
+           (TransformParameterSpec) null);
+
+     List<Transform>  transformList = new ArrayList<Transform>() ;
+     transformList.add(transform1); 
+     transformList.add(transform2);  
+
      Reference ref = fac.newReference
-       ( referenceURI, digestMethodObj,transformList,null, null); 
+     ( referenceURI,  digestMethodObj,transformList,null, null); 
      
      CanonicalizationMethod canonicalizationMethod
          = fac.newCanonicalizationMethod
