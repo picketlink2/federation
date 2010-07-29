@@ -1,7 +1,8 @@
 <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" 
           AssertionValidity="20000"
           RoleGenerator="somefqn"
-          Encrypt="true">
+          Encrypt="true"
+   CanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#">
 <IdentityURL>http://localhost:8080/idp</IdentityURL>
 <Trust>
   <Domains>localhost,jboss.com,jboss.org</Domains>

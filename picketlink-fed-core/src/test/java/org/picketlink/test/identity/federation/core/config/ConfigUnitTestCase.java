@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import junit.framework.TestCase;
 
@@ -83,6 +84,7 @@ public class ConfigUnitTestCase extends TestCase
       assertEquals("20000", 20000L, idp.getAssertionValidity());
       assertEquals("somefqn", idp.getRoleGenerator());
       assertTrue(idp.isEncrypt());
+      assertEquals( CanonicalizationMethod.EXCLUSIVE , idp.getCanonicalizationMethod() );
       KeyProviderType kp = idp.getKeyProvider();
       assertNotNull("KeyProvider is not null", kp);
       assertEquals("SomeClass", "SomeClass", kp.getClassName());
@@ -123,6 +125,7 @@ public class ConfigUnitTestCase extends TestCase
       SPType sp = ((JAXBElement<SPType>) object).getValue();
       assertEquals("http://localhost:8080/idp", sp.getIdentityURL());
       assertEquals("http://localhost:8080/sales", sp.getServiceURL());
+      assertEquals( CanonicalizationMethod.EXCLUSIVE , sp.getCanonicalizationMethod() );
    }
 
    /**
