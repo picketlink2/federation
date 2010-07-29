@@ -34,6 +34,7 @@ public interface GeneralConstants
    String ATTRIBUTE_KEYS = "ATTRIBUTE_KEYS";
    String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER"; 
    
+   String CANONICALIZATION_METHOD = "CANONICALIZATION_METHOD";
    String CONFIGURATION = "CONFIGURATION";
    String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
    

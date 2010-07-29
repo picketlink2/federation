@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 
 /**
@@ -41,6 +42,9 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
+ *       
+        &lt;attribute name="CanonicalizationMethod" use="optional" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"
+                   type="string"/>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -71,6 +75,8 @@ public class ProviderType {
     protected MetadataProviderType metaDataProvider;
     @XmlAttribute(name = "ServerEnvironment")
     protected String serverEnvironment;
+    @XmlAttribute(name = "CanonicalizationMethod")
+    protected String canonicalizationMethod;
 
     /**
      * Gets the value of the identityURL property.
@@ -195,5 +201,35 @@ public class ProviderType {
     public void setServerEnvironment(String value) {
         this.serverEnvironment = value;
     }
+
+
+    /**
+     * Gets the value of the canonicalizationMethod property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+   public String getCanonicalizationMethod()
+   {
+      if( canonicalizationMethod == null )
+         canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+      
+      return canonicalizationMethod;
+   }
+
+   /**
+    * Sets the value of the canonicalizationMethod property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setCanonicalizationMethod(String canonicalizationMethod)
+   {
+      this.canonicalizationMethod = canonicalizationMethod;
+   }
 
 }

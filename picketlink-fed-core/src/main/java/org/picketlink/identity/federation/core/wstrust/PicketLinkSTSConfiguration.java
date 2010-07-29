@@ -366,4 +366,12 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       }
       return certificate;
    }
+
+   /**
+    * @see STSConfiguration#getXMLDSigCanonicalizationMethod()
+    */
+   public String getXMLDSigCanonicalizationMethod()
+   { 
+      return delegate.getCanonicalizationMethod();
+   }
 }

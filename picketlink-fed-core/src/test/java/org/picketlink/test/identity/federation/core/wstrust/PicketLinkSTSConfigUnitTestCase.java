@@ -21,9 +21,12 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.security.cert.Certificate;
+
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
@@ -36,6 +39,10 @@ import org.picketlink.test.identity.federation.core.wstrust.PicketLinkSTSUnitTes
  */
 public class PicketLinkSTSConfigUnitTestCase
 {
+   /**
+    * Test the masking of passwords
+    * @throws Exception
+    */
    @Test
    public void testMaskedPassword() throws Exception
    {
@@ -48,5 +55,21 @@ public class PicketLinkSTSConfigUnitTestCase
 
       cert =  stsConfiguration.getCertificate( "service2" );
       assertNotNull( "cert is not null", cert );
+   }
+   
+   /**
+    * Test the introduction of the CanonicalizationMethod attribute
+    * on the STSType
+    * @throws Exception
+    */
+   @Test
+   public void testXMLDSigCanonicalization() throws Exception
+   {
+      PicketLinkSTSUnitTestCase plstsTest = new PicketLinkSTSUnitTestCase();
+      TestSTS sts = plstsTest.new TestSTS("sts/picketlink-sts-xmldsig-Canonicalization.xml");
+
+      STSConfiguration stsConfiguration = sts.getConfiguration();
+      assertNotNull( "STS Configuration is not null", stsConfiguration ); 
+      assertEquals( CanonicalizationMethod.EXCLUSIVE, stsConfiguration.getXMLDSigCanonicalizationMethod() );
    }
 }

@@ -85,7 +85,7 @@ public class XMLSignatureUtil
    private static String pkgName = "org.picketlink.identity.federation.w3.xmldsig";
    private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd";  
 
-   private static String canonicalizationMethodType = null;
+   private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
    
    private static ObjectFactory objectFactory = new ObjectFactory();
    
@@ -115,10 +115,7 @@ public class XMLSignatureUtil
       {
          public Object run()
          {
-            System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true");
-            
-            canonicalizationMethodType = System.getProperty( "picketlink.xmlsig.canonicalization",
-                  CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS );
+            System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true"); 
             return null;
          }
       }); 

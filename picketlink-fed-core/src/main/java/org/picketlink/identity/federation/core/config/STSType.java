@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 
 /**
@@ -35,6 +36,8 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;attribute name="TokenTimeout" type="{http://www.w3.org/2001/XMLSchema}int" default="3600" />
  *       &lt;attribute name="SignToken" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" />
  *       &lt;attribute name="EncryptToken" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
+ *       &lt;attribute name="CanonicalizationMethod" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" 
+ *             type="string" use="optional"/>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -70,6 +73,8 @@ public class STSType {
     protected Boolean signToken;
     @XmlAttribute(name = "EncryptToken")
     protected Boolean encryptToken;
+    @XmlAttribute(name = "CanonicalizationMethod")
+    protected String canonicalizationMethod;
 
     /**
      * Gets the value of the keyProvider property.
@@ -303,4 +308,32 @@ public class STSType {
         this.encryptToken = value;
     }
 
+    /**
+     * Gets the value of the canonicalizationMethod property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+   public String getCanonicalizationMethod()
+   {
+      if( canonicalizationMethod == null )
+         canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+      
+      return canonicalizationMethod;
+   }
+
+   /**
+    * Sets the value of the canonicalizationMethod property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setCanonicalizationMethod(String canonicalizationMethod)
+   {
+      this.canonicalizationMethod = canonicalizationMethod;
+   }
 }

@@ -121,6 +121,8 @@
     	    </restriction>
     	  </simpleType>
     	</attribute>
+    	<attribute name="CanonicalizationMethod" use="optional" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"
+    	           type="string"/>
     </complexType>
 
     <complexType name="SPType">
@@ -180,6 +182,7 @@
 		<attribute name="TokenTimeout" default="3600" type="int" use="optional"/>
 		<attribute name="SignToken" default="true" type="boolean" use="optional"/>
 		<attribute name="EncryptToken" default="false" type="boolean" use="optional"/>
+		<attribute name="CanonicalizationMethod" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" type="string" use="optional"/>
     </complexType>
     
     <complexType name="ClaimsProcessorsType">

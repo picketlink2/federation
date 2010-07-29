@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
@@ -87,6 +88,8 @@ public class IDPWebRequestUtil
    private TrustKeyManager keyManager;
    private AttributeManager attributeManager;
    private List<String> attribKeys;
+
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
    
    public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym)
    {
@@ -94,8 +97,22 @@ public class IDPWebRequestUtil
       this.keyManager = keym;
       this.redirectProfile = "GET".equals(request.getMethod());
       this.postProfile = "POST".equals(request.getMethod()); 
-   }
+   }  
    
+   public String getCanonicalizationMethod()
+   {
+      return canonicalizationMethod;
+   }
+
+
+
+   public void setCanonicalizationMethod(String canonicalizationMethod)
+   {
+      this.canonicalizationMethod = canonicalizationMethod;
+   }
+
+
+
    public void setAttributeKeys(List<String> attribKeys)
    {
       this.attribKeys = attribKeys;
@@ -253,6 +270,7 @@ public class IDPWebRequestUtil
          try
          {
             SAML2Signature saml2Signature = new SAML2Signature();
+            saml2Signature.setCanonicalizationMethod(canonicalizationMethod);
             samlResponseDocument = saml2Signature.sign(responseType, keyManager.getSigningKeyPair());
          }  
          catch (Exception e)
@@ -422,6 +440,7 @@ public class IDPWebRequestUtil
          {
             //Sign the document
             SAML2Signature samlSignature = new SAML2Signature();
+            samlSignature.setCanonicalizationMethod(canonicalizationMethod);
 
             KeyPair keypair = keyManager.getSigningKeyPair();
             samlSignature.signSAMLDocument(responseDoc, keypair); 
@@ -545,6 +564,7 @@ public class IDPWebRequestUtil
          try
          {   
             SAML2Signature ss = new SAML2Signature();
+            ss.setCanonicalizationMethod(canonicalizationMethod);
             samlResponse = ss.sign(responseType, keyManager.getSigningKeyPair());
          }
          catch (Exception e)

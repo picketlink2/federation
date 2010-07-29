@@ -53,6 +53,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.XMLSignatureException;
 
 import org.apache.log4j.Logger;
@@ -141,6 +142,8 @@ public class SPFilter implements Filter
    private IRoleValidator roleValidator = new DefaultRoleValidator();
    
    private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME; 
+   
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
    public void destroy()
    {
@@ -451,6 +454,8 @@ public class SPFilter implements Filter
          spConfiguration = ConfigurationUtil.getSPConfiguration(is);
          this.identityURL = spConfiguration.getIdentityURL();
          this.serviceURL = spConfiguration.getServiceURL();
+         this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+         
          log.trace("Identity Provider URL=" + this.identityURL); 
       }
       catch (Exception e)
@@ -507,6 +512,7 @@ public class SPFilter implements Filter
          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
          chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration); 
          chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR, roleValidator);
+         chainConfigOptions.put( GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod );
          
          SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
          Set<SAML2Handler> samlHandlers = chain.handlers();
@@ -603,6 +609,8 @@ public class SPFilter implements Filter
       if(!ignoreSignatures)
       {
          SAML2Signature samlSignature = new SAML2Signature();
+         samlSignature.setCanonicalizationMethod( canonicalizationMethod );
+         
          KeyPair keypair = keyManager.getSigningKeyPair();
          samlSignature.signSAMLDocument(samlDocument, keypair);
       }

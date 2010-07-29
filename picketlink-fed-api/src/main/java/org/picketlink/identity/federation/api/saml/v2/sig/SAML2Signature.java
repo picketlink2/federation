@@ -28,6 +28,7 @@ import java.security.PublicKey;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -57,6 +58,8 @@ public class SAML2Signature
 {
    private String signatureMethod = SignatureMethod.RSA_SHA1;
    private String digestMethod = DigestMethod.SHA1;
+   private String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+   
 
    public String getSignatureMethod()
    {
@@ -78,6 +81,24 @@ public class SAML2Signature
       this.digestMethod = digestMethod;
    }
    
+   /**
+    * Get the configured XML DSIG CanonicalizationMethod
+    * @return
+    */
+   public String getCanonicalizationMethod()
+   {
+      return canonicalizationMethod;
+   }
+
+   /**
+    * Set the XML DSIG Canonicalization Method
+    * @param canonicalizationMethod
+    */
+   public void setCanonicalizationMethod(String canonicalizationMethod)
+   {
+      this.canonicalizationMethod = canonicalizationMethod;
+   }
+
    /**
     * Sign an RequestType at the root
     * @param request
@@ -209,6 +230,9 @@ public class SAML2Signature
             "Assertion",
             "ID", 
             idValueOfAssertion);
+      
+      //Set the configured canonicalization method
+      XMLSignatureUtil.setCanonicalizationMethodType( canonicalizationMethod );
       
       return XMLSignatureUtil.sign(doc, assertionNode, 
             keypair, 

@@ -31,6 +31,7 @@ import java.security.cert.Certificate;
  * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
+ * @author Anil.Saldhana@redhat.com
  */
 public interface STSConfiguration
 {
@@ -172,4 +173,15 @@ public interface STSConfiguration
     * @return the {@code Certificate} obtained from the keystore, or {@code null} if no certificate was found.
     */
    public Certificate getCertificate(String alias);
+   
+   /**
+    * <p>
+    * Returns the configured canonicalization method.
+    * </p>
+    * <p>
+    * <b>NOTE:</b> Defaults to javax.xml.crypto.dsig.CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS
+    * </p>
+    * @return
+    */
+   public String getXMLDSigCanonicalizationMethod();
 }

@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
@@ -117,6 +118,8 @@ public class IDPServlet extends HttpServlet
 
    private Boolean signOutgoingMessages = true; 
    
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+   
    private transient ServletContext context = null;
    
    private transient SAML2HandlerChain chain = null;
@@ -149,6 +152,8 @@ public class IDPServlet extends HttpServlet
          log.trace("Identity Provider URL=" + this.identityURL); 
          this.assertionValidity = idpConfiguration.getAssertionValidity();
          
+         this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+         
          //Get the attribute manager
          String attributeManager = idpConfiguration.getAttributeManager();
          if(attributeManager != null && !"".equals(attributeManager))
@@ -166,6 +171,7 @@ public class IDPServlet extends HttpServlet
          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
          chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
          chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
+         chainConfigOptions.put( GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod );
          
          SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
          Set<SAML2Handler> samlHandlers = chain.handlers();
@@ -272,6 +278,7 @@ public class IDPServlet extends HttpServlet
             idpConfiguration, keyManager);
       webRequestUtil.setAttributeManager(this.attribManager);
       webRequestUtil.setAttributeKeys(attributeKeys);
+      webRequestUtil.setCanonicalizationMethod(canonicalizationMethod);
 
       boolean willSendRequest = true;
       
