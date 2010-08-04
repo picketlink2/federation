@@ -73,6 +73,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -153,6 +154,9 @@ public class IDPServlet extends HttpServlet
          this.assertionValidity = idpConfiguration.getAssertionValidity();
          
          this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+
+         log.info( "IDPServlet:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
+         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
          
          //Get the attribute manager
          String attributeManager = idpConfiguration.getAttributeManager();

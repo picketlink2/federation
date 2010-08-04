@@ -269,8 +269,7 @@ public class IDPWebRequestUtil
       {
          try
          {
-            SAML2Signature saml2Signature = new SAML2Signature();
-            saml2Signature.setCanonicalizationMethod(canonicalizationMethod);
+            SAML2Signature saml2Signature = new SAML2Signature(); 
             samlResponseDocument = saml2Signature.sign(responseType, keyManager.getSigningKeyPair());
          }  
          catch (Exception e)
@@ -439,8 +438,7 @@ public class IDPWebRequestUtil
          if(supportSignature)
          {
             //Sign the document
-            SAML2Signature samlSignature = new SAML2Signature();
-            samlSignature.setCanonicalizationMethod(canonicalizationMethod);
+            SAML2Signature samlSignature = new SAML2Signature(); 
 
             KeyPair keypair = keyManager.getSigningKeyPair();
             samlSignature.signSAMLDocument(responseDoc, keypair); 
@@ -563,8 +561,7 @@ public class IDPWebRequestUtil
       { 
          try
          {   
-            SAML2Signature ss = new SAML2Signature();
-            ss.setCanonicalizationMethod(canonicalizationMethod);
+            SAML2Signature ss = new SAML2Signature(); 
             samlResponse = ss.sign(responseType, keyManager.getSigningKeyPair());
          }
          catch (Exception e)

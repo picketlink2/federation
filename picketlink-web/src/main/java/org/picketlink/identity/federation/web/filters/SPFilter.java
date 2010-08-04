@@ -455,6 +455,9 @@ public class SPFilter implements Filter
          this.identityURL = spConfiguration.getIdentityURL();
          this.serviceURL = spConfiguration.getServiceURL();
          this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+
+         log.info( "SPFilter:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
+         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
          
          log.trace("Identity Provider URL=" + this.identityURL); 
       }
@@ -608,8 +611,7 @@ public class SPFilter implements Filter
    {
       if(!ignoreSignatures)
       {
-         SAML2Signature samlSignature = new SAML2Signature();
-         samlSignature.setCanonicalizationMethod( canonicalizationMethod );
+         SAML2Signature samlSignature = new SAML2Signature(); 
          
          KeyPair keypair = keyManager.getSigningKeyPair();
          samlSignature.signSAMLDocument(samlDocument, keypair);

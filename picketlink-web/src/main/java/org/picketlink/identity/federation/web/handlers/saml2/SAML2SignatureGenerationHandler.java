@@ -55,8 +55,7 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
       }
 
       //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-      String canonicalizationMethod = (String) this.handlerChainConfig.getParameter( GeneralConstants.CANONICALIZATION_METHOD );
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR); 
       
       if(keypair == null)
       {
@@ -64,7 +63,7 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
          throw new ProcessingException("KeyPair not found");
       }
 
-      sign(samlDocument, keypair, canonicalizationMethod );
+      sign(samlDocument, keypair );
    }
 
    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
@@ -81,9 +80,8 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
 
       //Get the Key Pair
       KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-      String canonicalizationMethod = (String) this.handlerChainConfig.getParameter( GeneralConstants.CANONICALIZATION_METHOD );
-     
-      this.sign(responseDocument, keypair, canonicalizationMethod );
+       
+      this.sign(responseDocument, keypair );
    } 
 
    @Override
@@ -101,17 +99,14 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
       } 
 
       //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-      String canonicalizationMethod = (String) this.handlerChainConfig.getParameter( GeneralConstants.CANONICALIZATION_METHOD );
-     
-      this.sign(responseDocument, keypair, canonicalizationMethod );
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);  
+      this.sign(responseDocument, keypair );
    }
     
    
-   private void sign(Document samlDocument, KeyPair keypair, String canonicalizationMethod ) throws ProcessingException
+   private void sign(Document samlDocument, KeyPair keypair ) throws ProcessingException
    {
-      SAML2Signature samlSignature = new SAML2Signature();
-      samlSignature.setCanonicalizationMethod(canonicalizationMethod);
+      SAML2Signature samlSignature = new SAML2Signature(); 
       samlSignature.signSAMLDocument(samlDocument, keypair); 
    } 
 }
