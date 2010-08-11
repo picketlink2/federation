@@ -47,7 +47,6 @@ import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -445,8 +444,8 @@ public class WSTrustUtil
       KeyInfoType keyInfo = null;
       try
       {
-         // get the certificate Base64 encoding.
-         byte[] encodedCert = Base64.encodeBytes(certificate.getEncoded()).getBytes();
+         // don't Base64 encode the certificate - JAXB marshaling performs the encoding.
+         byte[] encodedCert = certificate.getEncoded();
 
          // first create a X509DataType that contains the encoded certificate.
          org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
@@ -480,12 +479,12 @@ public class WSTrustUtil
       if (key instanceof RSAPublicKey)
       {
          RSAPublicKey pubKey = (RSAPublicKey) key;
-         byte[] encodedModulus = Base64.encodeBytes(pubKey.getModulus().toByteArray()).getBytes();
-         byte[] encodedExponent = Base64.encodeBytes(pubKey.getPublicExponent().toByteArray()).getBytes();
+         byte[] modulus = pubKey.getModulus().toByteArray();
+         byte[] exponent = pubKey.getPublicExponent().toByteArray();
 
          RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
-         rsaKeyValue.setModulus(encodedModulus);
-         rsaKeyValue.setExponent(encodedExponent);
+         rsaKeyValue.setModulus(modulus);
+         rsaKeyValue.setExponent(exponent);
 
          KeyValueType keyValue = new KeyValueType();
          keyValue.getContent().add(factory.createRSAKeyValue(rsaKeyValue));
@@ -494,16 +493,16 @@ public class WSTrustUtil
       else if (key instanceof DSAPublicKey)
       {
          DSAPublicKey pubKey = (DSAPublicKey) key;
-         byte[] encodedP = Base64.encodeBytes(pubKey.getParams().getP().toByteArray()).getBytes();
-         byte[] encodedQ = Base64.encodeBytes(pubKey.getParams().getQ().toByteArray()).getBytes();
-         byte[] encodedG = Base64.encodeBytes(pubKey.getParams().getG().toByteArray()).getBytes();
-         byte[] encodedY = Base64.encodeBytes(pubKey.getY().toByteArray()).getBytes();
+         byte[] P = pubKey.getParams().getP().toByteArray();
+         byte[] Q = pubKey.getParams().getQ().toByteArray();
+         byte[] G = pubKey.getParams().getG().toByteArray();
+         byte[] Y = pubKey.getY().toByteArray();
 
          DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
-         dsaKeyValue.setP(encodedP);
-         dsaKeyValue.setQ(encodedQ);
-         dsaKeyValue.setG(encodedG);
-         dsaKeyValue.setY(encodedY);
+         dsaKeyValue.setP(P);
+         dsaKeyValue.setQ(Q);
+         dsaKeyValue.setG(G);
+         dsaKeyValue.setY(Y);
          
          KeyValueType keyValue = new KeyValueType();
          keyValue.getContent().add(factory.createDSAKeyValue(dsaKeyValue));

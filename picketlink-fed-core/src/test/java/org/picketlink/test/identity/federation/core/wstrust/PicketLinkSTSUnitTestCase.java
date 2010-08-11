@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2009, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2009, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
@@ -51,7 +47,6 @@ import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
@@ -163,8 +158,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testSTSConfiguration() throws Exception
    {
@@ -230,9 +224,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This tests sends a security token request to PicketLinkSTS custom {@code SpecialTokenProvider}. The returned response
-    * is verified to make sure the expected tokens have been returned by the service. The token that is generated in
-    * this test looks as follows:
+    * This tests sends a security token request to PicketLinkSTS custom {@code SpecialTokenProvider}. The returned
+    * response is verified to make sure the expected tokens have been returned by the service. The token that is
+    * generated in this test looks as follows:
     * 
     * <pre>
     *    &lt;token:SpecialToken xmlns:token=&quot;http://www.tokens.org&quot; TokenType=&quot;http://www.tokens.org/SpecialToken&quot;&gt;
@@ -242,8 +236,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeCustom() throws Exception
    {
@@ -266,8 +259,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This tests sends a SAMLV2.0 security token request to PicketLinkSTS. This request should be handled by the standard
-    * {@code SAML20TokenProvider} and should result in a SAMLV2.0 assertion that looks like the following:
+    * This tests sends a SAMLV2.0 security token request to PicketLinkSTS. This request should be handled by the
+    * standard {@code SAML20TokenProvider} and should result in a SAMLV2.0 assertion that looks like the following:
     * 
     * <pre>
     * &lt;saml2:Assertion xmlns:saml2=&quot;urn:oasis:names:tc:SAML:2.0:assertion&quot; 
@@ -299,8 +292,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20() throws Exception
    {
@@ -328,8 +320,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * case, the request should be handled by the custom {@code SpecialTokenProvider}.
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeCustomAppliesTo() throws Exception
    {
@@ -357,8 +348,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * case, the request should be handled by the standard {@code SAML20TokenProvider}.
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20AppliesTo() throws Exception
    {
@@ -422,9 +412,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
-    * As the request doesn't contain any client-specified key, the STS is responsible for generating a random key and
-    * use this key as the proof token. The WS-Trust response should contain the STS-generated key.
+    * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token. As
+    * the request doesn't contain any client-specified key, the STS is responsible for generating a random key and use
+    * this key as the proof token. The WS-Trust response should contain the STS-generated key.
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
@@ -472,8 +462,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
-    * In this case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client-
+    * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token. In
+    * this case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client-
     * specified key with the STS-generated key and use this combined key as the proof token. The WS-Trust response
     * should include the STS key to allow reconstruction of the combined key and the algorithm used to combine the keys.
     * </p>
@@ -494,7 +484,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       clientEntropy.getAny().add(
             new org.picketlink.identity.federation.ws.trust.ObjectFactory().createBinarySecret(clientBinarySecret));
 
-      // create a token request specifying the key type, key size, and client entropy. 
+      // create a token request specifying the key type, key size, and client entropy.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
             "http://services.testcorp.org/provider2");
       request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_SYMMETRIC));
@@ -540,8 +530,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession 
-    * token. The STS must include the specified certificate in the SAML subject confirmation. 
+    * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession token.
+    * The STS must include the specified certificate in the SAML subject confirmation.
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
@@ -555,9 +545,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // include a UseKey section that specifies the certificate in the request.
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
-      byte[] base64EncodedCert = Base64.encodeBytes(certificate.getEncoded()).getBytes();
       JAXBElement<byte[]> certElement = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory()
-            .createX509DataTypeX509Certificate(base64EncodedCert);
+            .createX509DataTypeX509Certificate(certificate.getEncoded());
       UseKeyType useKey = new UseKeyType();
       useKey.setAny(certElement);
       request.setUseKey(useKey);
@@ -579,10 +568,10 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession 
-    * token. The STS must include the specified public key in the SAML subject confirmation.
+    * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession token. The
+    * STS must include the specified public key in the SAML subject confirmation.
     * </p>
-    *  
+    * 
     * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20WithPublicKey() throws Exception
@@ -620,8 +609,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the assertion validated, checking the validation results.
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20Validate() throws Exception
    {
@@ -685,12 +673,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust renew message to the STS to get
-    * the assertion renewed (i.e. get a new assertion with an updated lifetime).
+    * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust renew message to the STS to get the
+    * assertion renewed (i.e. get a new assertion with an updated lifetime).
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20Renew() throws Exception
    {
@@ -747,8 +734,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the assertion. A canceled assertion cannot be renewed or considered valid anymore.
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeSAML20Cancel() throws Exception
    {
@@ -835,8 +821,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * security token service.
     * </p>
     * 
-    * @throws Exception
-    *            if an error occurs while running the test.
+    * @throws Exception if an error occurs while running the test.
     */
    public void testInvokeUnknownTokenType() throws Exception
    {
@@ -1095,10 +1080,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * SpecialTokenProvider}.
     * </p>
     * 
-    * @param baseResponse
-    *           a reference to the WS-Trust response that was sent by the STS.
-    * @throws Exception
-    *            if one of the validation performed fail.
+    * @param baseResponse a reference to the WS-Trust response that was sent by the STS.
+    * @throws Exception if one of the validation performed fail.
     */
    private void validateCustomTokenResponse(BaseRequestSecurityTokenResponse baseResponse) throws Exception
    {
@@ -1136,15 +1119,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * SAML20TokenProvider}.
     * </p>
     * 
-    * @param baseResponse
-    *           a reference to the WS-Trust response that was sent by the STS.
+    * @param baseResponse a reference to the WS-Trust response that was sent by the STS.
     * @param context the expected name of the response context.
     * @param principal the principal that is expected to be seen in the assertion subject.
     * @param confirmationMethod the confirmation method that is expected to be seen in the assertion subject.
     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test
     *         methods to perform extra validations depending on the scenario being tested.
-    * @throws Exception
-    *            if an error occurs while performing the validation.
+    * @throws Exception if an error occurs while performing the validation.
     */
    private AssertionType validateSAMLAssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
          String principal, String confirmationMethod) throws Exception
@@ -1218,7 +1199,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    /**
     * <p>
-    * Validates the contents of the specified {@code SubjectConfirmationType} when the {@code HOLDER_OF_KEY} 
+    * Validates the contents of the specified {@code SubjectConfirmationType} when the {@code HOLDER_OF_KEY}
     * confirmation method has been used.
     * </p>
     * 
@@ -1226,7 +1207,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @param keyType the type of the proof-of-possession key (Symmetric or Public).
     * @param certificate the certificate used in the Public Key scenarios.
     * @param usePublicKey {@code true} if the certificate's Public Key was used as the proof-of-possession token;
-    *   {@code false} otherwise.
+    *           {@code false} otherwise.
     * @throws Exception if an error occurs while performing the validation.
     */
    private void validateHolderOfKeyContents(SubjectConfirmationType subjectConfirmation, String keyType,
@@ -1262,14 +1243,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             assertEquals("Unexpected key value content type", RSAKeyValueType.class, rsaKeyValueElement
                   .getDeclaredType());
             RSAKeyValueType rsaKeyValue = (RSAKeyValueType) rsaKeyValueElement.getValue();
-            byte[] encodedModulus = rsaKeyValue.getModulus();
-            byte[] encodedExponent = rsaKeyValue.getExponent();
 
             // reconstruct the public key and check if it matches the public key of the provided certificate.
-            BigInteger decodedModulus = new BigInteger(1, Base64.decode(encodedModulus, 0, encodedModulus.length));
-            BigInteger decodedExponent = new BigInteger(1, Base64.decode(encodedExponent, 0, encodedExponent.length));
+            BigInteger modulus = new BigInteger(1, rsaKeyValue.getModulus());
+            BigInteger exponent = new BigInteger(1, rsaKeyValue.getExponent());
             KeyFactory factory = KeyFactory.getInstance("RSA");
-            RSAPublicKeySpec spec = new RSAPublicKeySpec(decodedModulus, decodedExponent);
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
             RSAPublicKey genKey = (RSAPublicKey) factory.generatePublic(spec);
             assertEquals("Invalid public key", certificate.getPublicKey(), genKey);
          }
@@ -1287,8 +1266,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             byte[] encodedCertificate = (byte[]) x509CertElement.getValue();
 
             // reconstruct the certificate and check if it matches the provided certificate.
-            byte[] decodedCertificate = Base64.decode(encodedCertificate, 0, encodedCertificate.length);
-            ByteArrayInputStream byteInputStream = new ByteArrayInputStream(decodedCertificate);
+            ByteArrayInputStream byteInputStream = new ByteArrayInputStream(encodedCertificate);
             assertEquals("Invalid certificate in key info", certificate, CertificateFactory.getInstance("X.509")
                   .generateCertificate(byteInputStream));
          }
@@ -1300,14 +1278,10 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * Utility method that creates a simple WS-Trust request using the specified information.
     * </p>
     * 
-    * @param context
-    *           a {@code String} that represents the request context.
-    * @param requestType
-    *           a {@code String} that represents the WS-Trust request type.
-    * @param tokenType
-    *           a {@code String} that represents the requested token type.
-    * @param appliesToString
-    *           a {@code String} that represents the URL of a service provider.
+    * @param context a {@code String} that represents the request context.
+    * @param requestType a {@code String} that represents the WS-Trust request type.
+    * @param tokenType a {@code String} that represents the requested token type.
+    * @param appliesToString a {@code String} that represents the URL of a service provider.
     * @return the constructed {@code RequestSecurityToken} object.
     */
    private RequestSecurityToken createRequest(String context, String requestType, String tokenType,
@@ -1382,14 +1356,14 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    class TestSTS extends PicketLinkSTS
    {
       private String configFileName = "sts/picketlink-sts.xml";
-      
+
       TestSTS()
-      {   
-      }
-      
-      TestSTS( String configFileName )
       {
-         this.configFileName = configFileName; 
+      }
+
+      TestSTS(String configFileName)
+      {
+         this.configFileName = configFileName;
       }
 
       @Override
@@ -1398,16 +1372,16 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          InputStream stream;
          try
          {
-            URL configURL = Thread.currentThread().getContextClassLoader().getResource( configFileName ); 
+            URL configURL = Thread.currentThread().getContextClassLoader().getResource(configFileName);
             stream = configURL.openStream();
 
             STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
-            return new PicketLinkSTSConfiguration(stsConfig); 
+            return new PicketLinkSTSConfiguration(stsConfig);
          }
          catch (Exception e)
          {
-            throw new RuntimeException( e );
-         } 
+            throw new RuntimeException(e);
+         }
       }
 
       public void setContext(WebServiceContext context)
@@ -1473,8 +1447,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
        * Sets the principal to be used in the test case.
        * </p>
        * 
-       * @param principal
-       *           the {@code Principal} to be set.
+       * @param principal the {@code Principal} to be set.
        */
       public void setUserPrincipal(Principal principal)
       {

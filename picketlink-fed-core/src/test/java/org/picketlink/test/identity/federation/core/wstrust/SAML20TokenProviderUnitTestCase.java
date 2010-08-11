@@ -39,7 +39,6 @@ import javax.xml.transform.dom.DOMSource;
 
 import junit.framework.TestCase;
 
-import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
@@ -252,8 +251,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       JAXBElement<?> x509CertElement = (JAXBElement<?>) x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName().get(0);
       assertEquals("Unexpected X509 data content type", byte[].class, x509CertElement.getDeclaredType());
       // certificate should have been encoded to Base64, so we need to decode it first.
-      byte[] base64EncodedCert = (byte[]) x509CertElement.getValue();
-      byte[] encodedCert = Base64.decode(base64EncodedCert, 0, base64EncodedCert.length);
+      byte[] encodedCert = (byte[]) x509CertElement.getValue();
       assertTrue("Invalid encoded certificate found", Arrays.equals(certificate.getEncoded(), encodedCert));
    }
 
