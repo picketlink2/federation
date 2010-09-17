@@ -63,6 +63,11 @@ public class PagesSupportingExternalAuthentication extends Pages
             .getRequest();
 
       StringBuffer returnUrl = httpRequest.getRequestURL();
+      
+      //PLFED-98: missing query parameters
+      String queryString = httpRequest.getQueryString();
+      if( queryString != null && queryString.length() > 0 )
+         returnUrl.append( "?" ).append( queryString );
 
       ExternalAuthenticator externalAuthenticator = (ExternalAuthenticator) Component
             .getInstance(ExternalAuthenticator.class);
