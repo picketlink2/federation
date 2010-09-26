@@ -11,8 +11,8 @@
 		failedAuthenticationUrl="http://localhost:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
 		<SamlConfig serviceProviderEntityId="http://localhost:8080/seam-sp"
-			keyStoreUrl="classpath:/picketlink_test_keystore.jks"
-			keyStorePass="store456" signingKeyAlias="servercert" signingKeyPass="pass456">
+			keyStoreUrl="classpath:/picketlink_test_keystore.jks" keyStorePass="store456"
+			signingKeyAlias="servercert" signingKeyPass="pass456">
 			<SamlIdentityProvider entityId="http://idp.ssocircle.com" />
 			<SamlIdentityProvider entityId="http://localhost:8888/opensso" />
 		</SamlConfig>
@@ -50,5 +50,13 @@
 		failedAuthenticationUrl="http://openid.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
 		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
 		<OpenIdConfig defaultOpenIdProvider="https://www.google.com/accounts/o8/id" />
+	</ServiceProvider>
+	<ServiceProvider protocol="http" hostname="facebook.picketlink.org"
+		unsolicitedAuthenticationUrl="http://facebook.picketlink.org:8080/seam-sp/PublicPage.seam"
+		loggedOutUrl="http://facebook.picketlink.org:8080/seam-sp/PublicPage.seam"
+		failedAuthenticationUrl="http://facebook.picketlink.org:8080/seam-sp/FailedAuthenticationPage.seam"
+		internalAuthenticationMethod="#{authenticator.internalAuthenticate}">
+		<FacebookConfig clientId="156872394341240"
+			clientSecret="7b6919b80e544f0faf2ee05875f48f46" scope="email publish_stream"/>
 	</ServiceProvider>
 </ExternalAuthenticationConfig>

@@ -23,35 +23,21 @@ package org.picketlink.identity.seam.federation;
 
 /**
 * @author Marcel Kolsteren
-* @since Jan 26, 2010
+* @since Sep 26, 2010
 */
-public enum ExternalAuthenticationService {
+public class OAuthConstants
+{
+   public static final String CODE_PARAMETER = "code";
 
-   AUTHENTICATION_SERVICE("AuthenticationService"),
+   public static final String CLIENT_ID_PARAMETER = "client_id";
 
-   LOGOUT_SERVICE("LogoutService"),
+   public static final String CLIENT_SECRET_PARAMETER = "client_secret";
 
-   SAML_ASSERTION_CONSUMER_SERVICE("AssertionConsumerService"),
+   public static final String SCOPE_PARAMETER = "scope";
 
-   SAML_SINGLE_LOGOUT_SERVICE("SingleLogoutService"),
+   public static final String REDIRECT_URI_PARAMETER = "redirect_uri";
 
-   SAML_META_DATA_SERVICE("MetaDataService"),
+   public static final String ACCESS_TOKEN_PARAMETER = "access_token";
 
-   OPEN_ID_SERVICE("OpenIdService"),
-
-   OPEN_ID_XRDS_SERVICE("OpenIdXrdsService"),
-
-   FACEBOOK_SERVICE("FacebookService");
-
-   private String name;
-
-   private ExternalAuthenticationService(String name)
-   {
-      this.name = name;
-   }
-
-   public String getName()
-   {
-      return name;
-   }
+   public static final String ERROR_PARAMETER = "error";
 }

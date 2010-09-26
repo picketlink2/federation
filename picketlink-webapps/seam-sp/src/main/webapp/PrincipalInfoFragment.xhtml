@@ -4,11 +4,14 @@
 	xmlns:c="http://java.sun.com/jstl/core"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core">
+	<head>
+	<link type="text/css" rel="stylesheet" href="styles.css" />
+	</head>
 	<c:choose>
 		<c:when
 			test="#{identity.principal.getClass().getSimpleName() == 'SeamSamlPrincipal'}">
-			<h2>Logged on via SAML</h2>
-			<h:panelGrid columns="2">
+			<h2>Logged on with SAML</h2>
+			<h:panelGrid columns="2" columnClasses="propertyName, propertyValue">
 				<h:outputText value="NameID" />
 				<h:outputText value="#{identity.principal.nameId.value}" />
 				<h:outputText value="NameID format" />
@@ -41,9 +44,10 @@
 			<p><h:commandLink action="#{externalAuthenticator.singleLogout}"
 				value="Single logout" /></p>
 		</c:when>
-		<c:otherwise>
-			<h2>Logged on via OpenID</h2>
-			<h:panelGrid columns="2">
+		<c:when
+			test="#{identity.principal.getClass().getSimpleName() == 'OpenIdPrincipal'}">
+			<h2>Logged on with OpenID</h2>
+			<h:panelGrid columns="2" columnClasses="propertyName, propertyValue">
 				<h:outputText value="Identifier" />
 				<h:outputText value="#{identity.principal.identifier}" />
 				<h:outputText value="Provider" />
@@ -60,6 +64,29 @@
 						</c:forEach>
 					</ul>
 				</h:panelGroup>
+			</h:panelGrid>
+		</c:when>
+		<c:otherwise>
+			<h2>Logged on with Facebook</h2>
+			<h:panelGrid columns="2" columnClasses="propertyName, propertyValue">
+				<h:outputText value="Access token" />
+				<h:outputText value="#{identity.principal.accessToken}" />
+				<h:outputText value="ID" />
+				<h:outputText value="#{identity.principal.id}" />
+				<h:outputText value="Name" />
+				<h:outputText value="#{identity.principal.name}" />
+				<h:outputText value="First name" />
+				<h:outputText value="#{identity.principal.firstName}" />
+				<h:outputText value="Last name" />
+				<h:outputText value="#{identity.principal.lastName}" />
+				<h:outputText value="Email" />
+				<h:outputText value="#{identity.principal.email}" />
+				<h:outputText value="Gender" />
+				<h:outputText value="#{identity.principal.gender}" />
+				<h:outputText value="Timezone" />
+				<h:outputText value="#{identity.principal.timezone}" />
+				<h:outputText value="Locale" />
+				<h:outputText value="#{identity.principal.locale}" />
 			</h:panelGrid>
 		</c:otherwise>
 	</c:choose>

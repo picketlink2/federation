@@ -43,6 +43,8 @@ public class ServiceProvider
 
    private OpenIdConfiguration openIdConfiguration;
 
+   private FacebookConfiguration facebookConfiguration;
+
    private String hostname;
 
    private String protocol;
@@ -96,6 +98,11 @@ public class ServiceProvider
       {
          openIdConfiguration = new OpenIdConfiguration(serviceProvider.getOpenIdConfig());
       }
+
+      if (serviceProvider.getFacebookConfig() != null)
+      {
+         facebookConfiguration = new FacebookConfiguration(serviceProvider.getFacebookConfig());
+      }
    }
 
    public String getServiceURL(ExternalAuthenticationService service)
@@ -136,6 +143,11 @@ public class ServiceProvider
    public OpenIdConfiguration getOpenIdConfiguration()
    {
       return openIdConfiguration;
+   }
+
+   public FacebookConfiguration getFacebookConfiguration()
+   {
+      return facebookConfiguration;
    }
 
    public String getHostname()

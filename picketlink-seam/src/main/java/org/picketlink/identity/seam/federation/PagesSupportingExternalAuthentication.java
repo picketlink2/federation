@@ -37,6 +37,7 @@ import org.jboss.seam.annotations.intercept.BypassInterceptors;
 import org.jboss.seam.faces.FacesManager;
 import org.jboss.seam.navigation.Pages;
 import org.picketlink.identity.seam.federation.configuration.Configuration;
+import org.picketlink.identity.seam.federation.configuration.FacebookConfiguration;
 import org.picketlink.identity.seam.federation.configuration.OpenIdConfiguration;
 import org.picketlink.identity.seam.federation.configuration.SamlConfiguration;
 import org.picketlink.identity.seam.federation.configuration.ServiceProvider;
@@ -63,11 +64,11 @@ public class PagesSupportingExternalAuthentication extends Pages
             .getRequest();
 
       StringBuffer returnUrl = httpRequest.getRequestURL();
-      
+
       //PLFED-98: missing query parameters
       String queryString = httpRequest.getQueryString();
-      if( queryString != null && queryString.length() > 0 )
-         returnUrl.append( "?" ).append( queryString );
+      if (queryString != null && queryString.length() > 0)
+         returnUrl.append("?").append(queryString);
 
       ExternalAuthenticator externalAuthenticator = (ExternalAuthenticator) Component
             .getInstance(ExternalAuthenticator.class);
@@ -91,14 +92,23 @@ public class PagesSupportingExternalAuthentication extends Pages
          }
          else
          {
-            // Otherwise, redirect to the login view, so that the user can choose an IDP
-            if (getLoginViewId() == null)
+            // Otherwise, use Facebook, if configured
+            FacebookConfiguration facebookConfiguration = serviceProvider.getFacebookConfiguration();
+            if (facebookConfiguration != null)
             {
-               throw new RuntimeException("Login view id not specified in pages.xml.");
+               externalAuthenticator.facebookLogin();
             }
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
-            FacesManager.instance().redirect(getLoginViewId(), parameters, false);
+            else
+            {
+               // Otherwise, redirect to the login view, so that the user can choose an IDP
+               if (getLoginViewId() == null)
+               {
+                  throw new RuntimeException("Login view id not specified in pages.xml.");
+               }
+               Map<String, Object> parameters = new HashMap<String, Object>();
+               parameters.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
+               FacesManager.instance().redirect(getLoginViewId(), parameters, false);
+            }
          }
       }
    }

@@ -23,35 +23,13 @@ package org.picketlink.identity.seam.federation;
 
 /**
 * @author Marcel Kolsteren
-* @since Jan 26, 2010
+* @since Sep 26, 2010
 */
-public enum ExternalAuthenticationService {
+public class FacebookConstants
+{
+   public static final String AUTHENTICATION_ENDPOINT_URL = "https://graph.facebook.com/oauth/authorize";
 
-   AUTHENTICATION_SERVICE("AuthenticationService"),
+   public static final String ACCESS_TOKEN_ENDPOINT_URL = "https://graph.facebook.com/oauth/access_token";
 
-   LOGOUT_SERVICE("LogoutService"),
-
-   SAML_ASSERTION_CONSUMER_SERVICE("AssertionConsumerService"),
-
-   SAML_SINGLE_LOGOUT_SERVICE("SingleLogoutService"),
-
-   SAML_META_DATA_SERVICE("MetaDataService"),
-
-   OPEN_ID_SERVICE("OpenIdService"),
-
-   OPEN_ID_XRDS_SERVICE("OpenIdXrdsService"),
-
-   FACEBOOK_SERVICE("FacebookService");
-
-   private String name;
-
-   private ExternalAuthenticationService(String name)
-   {
-      this.name = name;
-   }
-
-   public String getName()
-   {
-      return name;
-   }
+   public static final String PROFILE_ENDPOINT_URL = "https://graph.facebook.com/me";
 }

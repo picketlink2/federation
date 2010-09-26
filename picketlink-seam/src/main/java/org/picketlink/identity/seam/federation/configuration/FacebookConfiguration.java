@@ -19,39 +19,46 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
-package org.picketlink.identity.seam.federation;
+package org.picketlink.identity.seam.federation.configuration;
+
+import org.picketlink.identity.seam.federation.jaxb.config.FacebookConfigType;
 
 /**
 * @author Marcel Kolsteren
-* @since Jan 26, 2010
+* @since Jan 28, 2010
 */
-public enum ExternalAuthenticationService {
+public class FacebookConfiguration
+{
+   private String clientId;
 
-   AUTHENTICATION_SERVICE("AuthenticationService"),
+   private String clientSecret;
 
-   LOGOUT_SERVICE("LogoutService"),
-
-   SAML_ASSERTION_CONSUMER_SERVICE("AssertionConsumerService"),
-
-   SAML_SINGLE_LOGOUT_SERVICE("SingleLogoutService"),
-
-   SAML_META_DATA_SERVICE("MetaDataService"),
-
-   OPEN_ID_SERVICE("OpenIdService"),
-
-   OPEN_ID_XRDS_SERVICE("OpenIdXrdsService"),
-
-   FACEBOOK_SERVICE("FacebookService");
-
-   private String name;
-
-   private ExternalAuthenticationService(String name)
+   private String scope;
+   
+   public FacebookConfiguration(FacebookConfigType facebookConfiguration)
    {
-      this.name = name;
+      clientId = facebookConfiguration.getClientId();
+      clientSecret = facebookConfiguration.getClientSecret();
+      scope = facebookConfiguration.getScope();
    }
 
-   public String getName()
+   public String getClientId()
    {
-      return name;
+      return clientId;
+   }
+
+   public String getClientSecret()
+   {
+      return clientSecret;
+   }
+
+   public String getScope()
+   {
+      return scope;
+   }
+
+   public void setScope(String scope)
+   {
+      this.scope = scope;
    }
 }

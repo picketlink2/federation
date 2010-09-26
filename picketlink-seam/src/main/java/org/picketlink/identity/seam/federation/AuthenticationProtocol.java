@@ -23,35 +23,8 @@ package org.picketlink.identity.seam.federation;
 
 /**
 * @author Marcel Kolsteren
-* @since Jan 26, 2010
+* @since Sep 25, 2010
 */
-public enum ExternalAuthenticationService {
-
-   AUTHENTICATION_SERVICE("AuthenticationService"),
-
-   LOGOUT_SERVICE("LogoutService"),
-
-   SAML_ASSERTION_CONSUMER_SERVICE("AssertionConsumerService"),
-
-   SAML_SINGLE_LOGOUT_SERVICE("SingleLogoutService"),
-
-   SAML_META_DATA_SERVICE("MetaDataService"),
-
-   OPEN_ID_SERVICE("OpenIdService"),
-
-   OPEN_ID_XRDS_SERVICE("OpenIdXrdsService"),
-
-   FACEBOOK_SERVICE("FacebookService");
-
-   private String name;
-
-   private ExternalAuthenticationService(String name)
-   {
-      this.name = name;
-   }
-
-   public String getName()
-   {
-      return name;
-   }
+public enum AuthenticationProtocol {
+   SAML, OPEN_ID, FACEBOOK
 }

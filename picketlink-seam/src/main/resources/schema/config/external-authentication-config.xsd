@@ -26,6 +26,8 @@
 				minOccurs="0" />
 			<element name="OpenIdConfig" type="tns:OpenIdConfigType"
 				minOccurs="0" />
+			<element name="FacebookConfig" type="tns:FacebookConfigType"
+				minOccurs="0" />
 		</sequence>
 		<attribute name="protocol" type="tns:ProtocolTypes" use="optional"
 			default="https">
@@ -151,6 +153,31 @@
 		<attribute name="defaultOpenIdProvider" type="string" use="optional">
 			<annotation>
 				<documentation>URL of the default OpenID provider.
+				</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+	<complexType name="FacebookConfigType">
+		<annotation>
+			<documentation>
+				Configuration for Facebook.
+			</documentation>
+		</annotation>
+		<attribute name="clientId" type="string" use="required">
+			<annotation>
+				<documentation>Client application id.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="clientSecret" type="string" use="required">
+			<annotation>
+				<documentation>Client application secret.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="scope" type="string" use="optional">
+			<annotation>
+				<documentation>Space separated list of requested permissions.
 				</documentation>
 			</annotation>
 		</attribute>

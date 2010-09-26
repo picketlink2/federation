@@ -70,6 +70,8 @@ public class ExternalAuthenticationFilter extends AbstractFilter
 
    public static final String OPEN_ID_PARAMETER = "openId";
 
+   public static final String AUTHENTICATION_PROTOCOL_PARAMETER = "authProtocol";
+
    @Logger
    private Log log;
 
@@ -156,32 +158,45 @@ public class ExternalAuthenticationFilter extends AbstractFilter
          case AUTHENTICATION_SERVICE :
             String returnUrl = httpRequest.getParameter(RETURN_URL_PARAMETER);
 
-            String providerName = httpRequest.getParameter(IDP_ENTITY_ID_PARAMETER);
-            if (providerName != null)
-            {
-               SamlIdentityProvider identityProvider = Configuration.instance().getServiceProvider()
-                     .getSamlConfiguration().getSamlIdentityProviderByEntityId(providerName);
+            String authenticationProtocolParam = httpRequest.getParameter(AUTHENTICATION_PROTOCOL_PARAMETER);
+            AuthenticationProtocol authProtocol = Enum.valueOf(AuthenticationProtocol.class,
+                  authenticationProtocolParam);
 
-               // User requested a page for which login is required. Return a page
-               // that instructs the browser to post an authentication request to the IDP.
-               if (identityProvider instanceof SamlIdentityProvider)
-               {
-                  SamlSingleSignOnSender samlSingleSignOnSender = (SamlSingleSignOnSender) Component
-                        .getInstance(SamlSingleSignOnSender.class);
-                  samlSingleSignOnSender.sendAuthenticationRequestToIDP(httpRequest, httpResponse,
-                        (SamlIdentityProvider) identityProvider, returnUrl);
-               }
-               else
-               {
-                  throw new RuntimeException("Only SAML identity providers are supported in this version");
-               }
-            }
-            else
+            switch (authProtocol)
             {
-               OpenIdSingleLoginSender openIdSingleLoginSender = (OpenIdSingleLoginSender) Component
-                     .getInstance(OpenIdSingleLoginSender.class);
-               String openId = httpRequest.getParameter(OPEN_ID_PARAMETER);
-               openIdSingleLoginSender.sendAuthRequest(openId, returnUrl, httpResponse);
+               case SAML : {
+                  String providerName = httpRequest.getParameter(IDP_ENTITY_ID_PARAMETER);
+                  SamlIdentityProvider identityProvider = Configuration.instance().getServiceProvider()
+                        .getSamlConfiguration().getSamlIdentityProviderByEntityId(providerName);
+
+                  // User requested a page for which login is required. Return a page
+                  // that instructs the browser to post an authentication request to the IDP.
+                  if (identityProvider instanceof SamlIdentityProvider)
+                  {
+                     SamlSingleSignOnSender samlSingleSignOnSender = (SamlSingleSignOnSender) Component
+                           .getInstance(SamlSingleSignOnSender.class);
+                     samlSingleSignOnSender.sendAuthenticationRequestToIDP(httpRequest, httpResponse,
+                           (SamlIdentityProvider) identityProvider, returnUrl);
+                  }
+                  else
+                  {
+                     throw new RuntimeException("Only SAML identity providers are supported in this version");
+                  }
+                  break;
+               }
+               case OPEN_ID : {
+                  OpenIdSingleLoginSender openIdSingleLoginSender = (OpenIdSingleLoginSender) Component
+                        .getInstance(OpenIdSingleLoginSender.class);
+                  String openId = httpRequest.getParameter(OPEN_ID_PARAMETER);
+                  openIdSingleLoginSender.sendAuthRequest(openId, returnUrl, httpResponse);
+                  break;
+               }
+               case FACEBOOK : {
+                  FacebookLoginSender facebookLoginSender = (FacebookLoginSender) Component
+                        .getInstance(FacebookLoginSender.class);
+                  facebookLoginSender.sendAuthorizeRequest(returnUrl, httpResponse);
+                  break;
+               }
             }
             break;
          case LOGOUT_SERVICE :
@@ -220,6 +235,12 @@ public class ExternalAuthenticationFilter extends AbstractFilter
             httpResponse.setCharacterEncoding("UTF-8");
             httpResponse.setContentType("application/xrds+xml");
             httpResponse.flushBuffer();
+            break;
+         case FACEBOOK_SERVICE :
+            FacebookLoginReceiver facebookLoginReceiver = (FacebookLoginReceiver) Component
+                  .getInstance(FacebookLoginReceiver.class);
+
+            facebookLoginReceiver.handleAuthenticationResponse(httpRequest, httpResponse);
             break;
          default :
             throw new RuntimeException("Unsupported service " + service);

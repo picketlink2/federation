@@ -75,6 +75,7 @@ public class ExternalAuthenticator
       String authenticationServiceURL = serviceProvider
             .getServiceURL(ExternalAuthenticationService.AUTHENTICATION_SERVICE);
       Map<String, String> params = new HashMap<String, String>();
+      params.put(ExternalAuthenticationFilter.AUTHENTICATION_PROTOCOL_PARAMETER, AuthenticationProtocol.SAML.name());
       params.put(ExternalAuthenticationFilter.IDP_ENTITY_ID_PARAMETER, idpEntityId);
       params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
       redirect(authenticationServiceURL, params);
@@ -94,8 +95,23 @@ public class ExternalAuthenticator
       String authenticationServiceURL = serviceProvider
             .getServiceURL(ExternalAuthenticationService.AUTHENTICATION_SERVICE);
       Map<String, String> params = new HashMap<String, String>();
+      params.put(ExternalAuthenticationFilter.AUTHENTICATION_PROTOCOL_PARAMETER, AuthenticationProtocol.OPEN_ID.name());
       params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
       params.put(ExternalAuthenticationFilter.OPEN_ID_PARAMETER, openId);
+      redirect(authenticationServiceURL, params);
+   }
+
+   public void facebookLogin()
+   {
+      if (serviceProvider.getFacebookConfiguration() == null)
+      {
+         throw new RuntimeException("Facebook is not configured.");
+      }
+      String authenticationServiceURL = serviceProvider
+            .getServiceURL(ExternalAuthenticationService.AUTHENTICATION_SERVICE);
+      Map<String, String> params = new HashMap<String, String>();
+      params.put(ExternalAuthenticationFilter.AUTHENTICATION_PROTOCOL_PARAMETER, AuthenticationProtocol.FACEBOOK.name());
+      params.put(ExternalAuthenticationFilter.RETURN_URL_PARAMETER, returnUrl);
       redirect(authenticationServiceURL, params);
    }
 
