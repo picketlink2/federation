@@ -24,7 +24,6 @@
      <module>picketlink-bindings</module>
      <module>picketlink-bindings-jboss</module>
      <module>picketlink-webapps</module>
-     <module>picketlink-seam</module>
      <module>assembly</module>
    </modules>
 
