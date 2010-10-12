@@ -28,10 +28,19 @@ package org.picketlink.identity.federation.core.saml.v2.constants;
  */
 public enum JBossSAMLConstants 
 {
+   CONDITIONS( "Conditions" ),
+   ISSUER( "Issuer" ),
    LANG_EN("en"),
    METADATA_MIME("application/samlmetadata+xml"),
+   METHOD( "Method" ),
+   NAMEID( "NameID" ),
+   NAME_QUALIFIER( "NameQualifier" ),
+   NOT_BEFORE( "NotBefore" ),
+   NOT_ON_OR_AFTER( "NotOnOrAfter" ),
    SIGNATURE_SHA1_WITH_DSA("http://www.w3.org/2000/09/xmldsig#dsa-sha1"),
    SIGNATURE_SHA1_WITH_RSA("http://www.w3.org/2000/09/xmldsig#rsa-sha1"),
+   SUBJECT( "Subject" ),
+   SUBJECT_CONFIRMATION( "SubjectConfirmation" ),
    VERSION_2_0("2.0"),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
