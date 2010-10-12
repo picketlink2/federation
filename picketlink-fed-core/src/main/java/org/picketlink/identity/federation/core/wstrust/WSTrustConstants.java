@@ -34,7 +34,8 @@ public class WSTrustConstants
 {
    public static final String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
 
-   // WS-Trust request types.
+   // WS-Trust request types
+   public static final String BATCH_ISSUE_REQUEST = BASE_NAMESPACE + "/BatchIssue";
    public static final String ISSUE_REQUEST = BASE_NAMESPACE + "/Issue";
    public static final String RENEW_REQUEST = BASE_NAMESPACE + "/Renew";
    public static final String CANCEL_REQUEST = BASE_NAMESPACE + "/Cancel";
@@ -72,4 +73,7 @@ public class WSTrustConstants
    public static final QName INVALID_SECURITY_TOKEN = new QName(WSSE_NS, "InvalidSecurityToken");
    public static final QName INVALID_SECURITY = new QName(WSSE_NS, "InvalidSecurity");
    public static final QName FAILED_AUTHENTICATION = new QName(WSSE_NS, "FailedAuthentication");
+   
+   //Token Types
+   public static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 }
