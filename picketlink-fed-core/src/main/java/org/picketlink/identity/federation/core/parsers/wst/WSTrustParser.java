@@ -35,7 +35,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
- 
+
 
 /**
  * Parser for WS-Trust payload
@@ -55,18 +55,18 @@ public class WSTrustParser implements ParserNamespaceSupport
    {
       if( configStream == null )
          throw new IllegalArgumentException( " Input Stream is null " );
-      
+
       XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
       //XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(xmlSource);
       XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( configStream );
-      
+
       try
       {
          xmlEventReader = xmlInputFactory.createFilteredReader( xmlEventReader, new EventFilter()
          {
             public boolean accept(XMLEvent xmlEvent)
             {
-               return xmlEvent.isStartElement() ;
+               return xmlEvent.isStartElement() || xmlEvent.isEndElement();
             }
          });
       }
@@ -74,10 +74,10 @@ public class WSTrustParser implements ParserNamespaceSupport
       {
          throw new ParsingException( e );
       }
-      
+
       return parse( xmlEventReader ); 
    }
- 
+
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}}
     */
@@ -94,14 +94,28 @@ public class WSTrustParser implements ParserNamespaceSupport
          {
             throw new ParsingException( e );
          }
-         
-         StartElement startElement = (StartElement) xmlEvent;
-         
-         String elementName = StaxParserUtil.getStartElementName( startElement );
-         if( elementName.equalsIgnoreCase( WSTRequestSecurityTokenCollectionParser.LOCALPART ))
+
+         if( xmlEvent instanceof StartElement )
          {
-            WSTRequestSecurityTokenCollectionParser wstrcoll = new WSTRequestSecurityTokenCollectionParser();
-            return wstrcoll.parse(xmlEventReader); 
+            StartElement startElement = (StartElement) xmlEvent;
+
+            String elementName = StaxParserUtil.getStartElementName( startElement );
+            if( elementName.equalsIgnoreCase( WSTRequestSecurityTokenCollectionParser.LOCALPART ))
+            {
+               WSTRequestSecurityTokenCollectionParser wstrcoll = new WSTRequestSecurityTokenCollectionParser();
+               return wstrcoll.parse(xmlEventReader); 
+            } 
+         }
+         else
+         {
+            try
+            {
+               xmlEventReader.nextEvent();
+            }
+            catch (XMLStreamException e)
+            {
+               throw new ParsingException( e );
+            }
          }
       }
       return null;

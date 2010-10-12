@@ -26,8 +26,11 @@ import java.io.InputStream;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
  
 
 /**
@@ -87,6 +90,44 @@ public class StaxParserUtil
    }
    
    /**
+    * Get the next {@code StartElement }
+    * @param xmlEventReader
+    * @return
+    * @throws XMLStreamException
+    */
+   public static StartElement getNextStartElement( XMLEventReader xmlEventReader ) throws XMLStreamException
+   {
+      while( true )
+      {
+         XMLEvent xmlEvent = xmlEventReader.nextEvent(); 
+         
+         if( xmlEvent == null || xmlEvent.isStartElement() )
+            return ( StartElement ) xmlEvent; 
+         else 
+            xmlEvent = xmlEventReader.nextEvent();
+      }
+   }
+   
+   /**
+    * Get the next {@code EndElement}
+    * @param xmlEventReader
+    * @return
+    * @throws XMLStreamException
+    */
+   public static EndElement getNextEndElement( XMLEventReader xmlEventReader ) throws XMLStreamException
+   {
+      while( true )
+      {
+         XMLEvent xmlEvent = xmlEventReader.nextEvent(); 
+         
+         if( xmlEvent == null || xmlEvent.isEndElement() )
+            return ( EndElement ) xmlEvent;  
+         else 
+            xmlEvent = xmlEventReader.nextEvent();
+      }
+   }
+   
+   /**
     * Return the name of the start element
     * @param startElement
     * @return
@@ -94,6 +135,44 @@ public class StaxParserUtil
    public static String getStartElementName(StartElement startElement)
    {
       return trim(startElement.getName().getLocalPart());
+   }
+   
+   /**
+    * Peek the next {@code StartElement }
+    * @param xmlEventReader
+    * @return
+    * @throws XMLStreamException
+    */
+   public static StartElement peekNextStartElement( XMLEventReader xmlEventReader ) throws XMLStreamException
+   {
+      while( true )
+      {
+         XMLEvent xmlEvent = xmlEventReader.peek(); 
+         
+         if( xmlEvent == null || xmlEvent.isStartElement() )
+            return ( StartElement ) xmlEvent; 
+         else 
+            xmlEvent = xmlEventReader.nextEvent();
+      }
+   }
+   
+   /**
+    * Peek the next {@code EndElement}
+    * @param xmlEventReader
+    * @return
+    * @throws XMLStreamException
+    */
+   public static EndElement peekNextEndElement( XMLEventReader xmlEventReader ) throws XMLStreamException
+   {
+      while( true )
+      {
+         XMLEvent xmlEvent = xmlEventReader.peek(); 
+         
+         if( xmlEvent == null || xmlEvent.isEndElement() )
+            return ( EndElement ) xmlEvent; 
+         else 
+            xmlEvent = xmlEventReader.nextEvent();
+      }
    }
    
    /**

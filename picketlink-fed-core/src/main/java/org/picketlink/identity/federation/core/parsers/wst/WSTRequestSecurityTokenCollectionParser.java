@@ -62,7 +62,7 @@ public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceS
          StartElement peekedElement = null;
          try
          {
-            peekedElement = (StartElement) xmlEventReader.peek();
+            peekedElement = StaxParserUtil.peekNextStartElement( xmlEventReader  );
             if( peekedElement == null )
                break;
          }

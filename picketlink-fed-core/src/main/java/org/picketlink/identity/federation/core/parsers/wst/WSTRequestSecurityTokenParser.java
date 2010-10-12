@@ -49,7 +49,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
       StartElement startElement = null;
       try
       {
-         startElement = (StartElement) xmlEventReader.nextEvent();
+         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
       }
       catch (XMLStreamException e)
       {
