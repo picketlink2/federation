@@ -21,17 +21,14 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import java.io.InputStream;
-
 import javax.xml.namespace.QName;
-import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -42,42 +39,8 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 11, 2010
  */
-public class WSTrustParser implements ParserNamespaceSupport
-{  
-   /**
-    * Parse an InputStream for WS-Trust payload
-    * @param configStream
-    * @return
-    * @throws {@link IllegalArgumentException}
-    * @throws {@link IllegalArgumentException} when the configStream is null
-    */
-   public Object parse( InputStream configStream ) throws ParsingException
-   {
-      if( configStream == null )
-         throw new IllegalArgumentException( " Input Stream is null " );
-
-      XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-      //XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(xmlSource);
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( configStream );
-
-      try
-      {
-         xmlEventReader = xmlInputFactory.createFilteredReader( xmlEventReader, new EventFilter()
-         {
-            public boolean accept(XMLEvent xmlEvent)
-            {
-               return xmlEvent.isStartElement() || xmlEvent.isEndElement();
-            }
-         });
-      }
-      catch (XMLStreamException e)
-      {
-         throw new ParsingException( e );
-      }
-
-      return parse( xmlEventReader ); 
-   }
-
+public class WSTrustParser extends AbstractParser
+{   
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}}
     */

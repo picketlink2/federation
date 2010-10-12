@@ -79,4 +79,7 @@ public class WSTrustConstants
    
    //Element Names
    public static final String RST = "RequestSecurityToken";
+   public static final String REQUEST_TYPE = "RequestType";
+   public static final String TOKEN_TYPE = "TokenType";
+   public static final String VALIDATE_TARGET = "ValidateTarget";
 }

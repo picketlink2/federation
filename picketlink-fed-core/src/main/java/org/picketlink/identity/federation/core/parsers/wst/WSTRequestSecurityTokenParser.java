@@ -49,15 +49,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
  
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
-      StartElement startElement = null;
-      try
-      {
-         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      }
-      catch (XMLStreamException e)
-      {
-         throw new ParsingException( e );
-      }
+      StartElement startElement =  StaxParserUtil.getNextStartElement( xmlEventReader ); 
       
       RequestSecurityToken requestToken = new RequestSecurityToken();
       
@@ -71,13 +63,16 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
          try
          {
             StartElement subEvent = StaxParserUtil.getNextStartElement( xmlEventReader );
+            if( subEvent == null )
+               break;
+            
             String tag = StaxParserUtil.getStartElementName( subEvent );
-            if( tag.equals( "RequestType" ))
+            if( tag.equals( WSTrustConstants.REQUEST_TYPE ))
             { 
                String value = xmlEventReader.getElementText();
                requestToken.setRequestType( new URI( value ));  
             }
-            else if( tag.equals( "TokenType" ))
+            else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
             {
                String value = xmlEventReader.getElementText();
                requestToken.setTokenType( new URI( value ));
