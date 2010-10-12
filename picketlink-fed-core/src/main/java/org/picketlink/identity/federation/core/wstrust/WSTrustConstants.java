@@ -76,4 +76,7 @@ public class WSTrustConstants
    
    //Token Types
    public static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+   
+   //Element Names
+   public static final String RST = "RequestSecurityToken";
 }

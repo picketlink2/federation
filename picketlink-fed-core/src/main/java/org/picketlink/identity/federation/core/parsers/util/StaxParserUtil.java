@@ -138,6 +138,16 @@ public class StaxParserUtil
    }
    
    /**
+    * Return the name of the end element
+    * @param endElement
+    * @return
+    */
+   public static String getEndElementName( EndElement endElement )
+   {
+      return trim( endElement.getName().getLocalPart() );
+   }
+   
+   /**
     * Peek the next {@code StartElement }
     * @param xmlEventReader
     * @return

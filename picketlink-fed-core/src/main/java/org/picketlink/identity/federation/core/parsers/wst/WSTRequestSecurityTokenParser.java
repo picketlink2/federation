@@ -28,11 +28,14 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 
 /**
@@ -63,13 +66,11 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
       String contextValue = StaxParserUtil.getAttributeValue( contextAttribute );
       requestToken.setContext( contextValue ); 
       
-      int index = 0;
-      
-      while( index < 2 )
+      while( true )
       {
          try
          {
-            StartElement subEvent = (StartElement) xmlEventReader.nextEvent();
+            StartElement subEvent = StaxParserUtil.getNextStartElement( xmlEventReader );
             String tag = StaxParserUtil.getStartElementName( subEvent );
             if( tag.equals( "RequestType" ))
             { 
@@ -80,7 +81,15 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             {
                String value = xmlEventReader.getElementText();
                requestToken.setTokenType( new URI( value ));
-            } 
+            }
+            
+            XMLEvent xmlEvent = xmlEventReader.peek();
+            if( xmlEvent.isEndElement() )
+            {
+               EndElement endElement = (EndElement) xmlEvent;
+               if( StaxParserUtil.getEndElementName( endElement ).equalsIgnoreCase( WSTrustConstants.RST ) ) 
+                 break; 
+            }
          }
          catch( XMLStreamException e )
          {
@@ -89,8 +98,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
          catch (URISyntaxException e)
          {
             throw new ParsingException( e );
-         } 
-         index++;
+         }   
       }
       
       return requestToken;
