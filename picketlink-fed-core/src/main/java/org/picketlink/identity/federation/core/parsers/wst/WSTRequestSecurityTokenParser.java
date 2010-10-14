@@ -55,7 +55,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
       
       RequestSecurityToken requestToken = new RequestSecurityToken();
       
-      QName contextQName = new QName( "", "Context" );
+      QName contextQName = new QName( "", WSTrustConstants.RST_CONTEXT );
       Attribute contextAttribute = startElement.getAttributeByName( contextQName );
       String contextValue = StaxParserUtil.getAttributeValue( contextAttribute );
       requestToken.setContext( contextValue ); 

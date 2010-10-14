@@ -85,4 +85,7 @@ public class WSTrustConstants
    public static final String REQUEST_TYPE = "RequestType";
    public static final String TOKEN_TYPE = "TokenType";
    public static final String VALIDATE_TARGET = "ValidateTarget";
+   
+   //Attribute Names
+   public static final String RST_CONTEXT = "Context";
 }
