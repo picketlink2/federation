@@ -28,6 +28,9 @@ package org.picketlink.identity.federation.core.saml.v2.constants;
  */
 public enum JBossSAMLConstants 
 {
+   ASSERTION( "Assertion" ),
+   AUDIENCE( "Audience" ),
+   AUDIENCE_RESTRICTION( "AudienceRestriction" ),
    CONDITIONS( "Conditions" ),
    ISSUER( "Issuer" ),
    LANG_EN("en"),
@@ -37,6 +40,7 @@ public enum JBossSAMLConstants
    NAME_QUALIFIER( "NameQualifier" ),
    NOT_BEFORE( "NotBefore" ),
    NOT_ON_OR_AFTER( "NotOnOrAfter" ),
+   SIGNATURE( "Signature" ),
    SIGNATURE_SHA1_WITH_DSA("http://www.w3.org/2000/09/xmldsig#dsa-sha1"),
    SIGNATURE_SHA1_WITH_RSA("http://www.w3.org/2000/09/xmldsig#rsa-sha1"),
    SUBJECT( "Subject" ),

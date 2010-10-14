@@ -29,7 +29,9 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
+import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 
 /**
@@ -39,6 +41,9 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
  */
 public class SAMLParser extends AbstractParser
 { 
+   /**
+    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+    */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
       while( xmlEventReader.hasNext() )
@@ -58,7 +63,7 @@ public class SAMLParser extends AbstractParser
             StartElement startElement = (StartElement) xmlEvent;
 
             String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( SAMLAssertionParser.LOCALPART ))
+            if( elementName.equalsIgnoreCase( JBossSAMLConstants.ASSERTION.get() ))
             {
                SAMLAssertionParser assertionParser = new SAMLAssertionParser();
                return assertionParser.parse( xmlEventReader ); 
@@ -76,9 +81,12 @@ public class SAMLParser extends AbstractParser
             }
          }
       }
-      return null;
+      throw new RuntimeException( "SAML Parsing has failed" );
    }
 
+   /**
+    * @see {@link ParserNamespaceSupport#supports(QName)}
+    */
    public boolean supports(QName qname)
    {
       return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals( qname.getNamespaceURI() );

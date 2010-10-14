@@ -49,6 +49,9 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
 {
    private ObjectFactory objectFactory = new ObjectFactory();
 
+   /**
+    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+    */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    { 
       StaxParserUtil.getNextEvent(xmlEventReader); 
@@ -129,9 +132,11 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
       return subject;
    }
 
+   /**
+    * @see {@link ParserNamespaceSupport#supports(QName)}
+    */
    public boolean supports(QName qname)
    { 
       return false;
    }
-
 }
