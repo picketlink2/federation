@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 
 /**
@@ -89,6 +90,14 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             {
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
+            }
+            else if( tag.equals( WSTrustConstants.CANCEL_TARGET ))
+            {
+               WSTCancelTargetParser wstCancelTargetParser = new WSTCancelTargetParser();
+               CancelTargetType cancelTarget = (CancelTargetType) wstCancelTargetParser.parse( xmlEventReader );
+               requestToken.setCancelTarget( cancelTarget ); 
+               EndElement cancelTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate( cancelTargetEndElement, WSTrustConstants.CANCEL_TARGET ) ; 
             }
             else if( tag.equals( WSTrustConstants.VALIDATE_TARGET  ))
             {

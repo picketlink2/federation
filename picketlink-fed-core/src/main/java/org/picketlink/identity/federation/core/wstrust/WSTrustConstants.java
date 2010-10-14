@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
  * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
+ * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  */
 public class WSTrustConstants
 {
@@ -84,6 +85,7 @@ public class WSTrustConstants
    public static final String RST_COLLECTION = "RequestSecurityTokenCollection";
    public static final String REQUEST_TYPE = "RequestType";
    public static final String TOKEN_TYPE = "TokenType";
+   public static final String CANCEL_TARGET = "CancelTarget";
    public static final String VALIDATE_TARGET = "ValidateTarget";
    
    //Attribute Names

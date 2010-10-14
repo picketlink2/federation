@@ -37,10 +37,13 @@ public enum JBossSAMLURIConstants
    AC_IP("urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocol"),
 
 
+   BEARER( "urn:oasis:names:tc:SAML:2.0:cm:bearer" ),
    
    ASSERTION_NSURI("urn:oasis:names:tc:SAML:2.0:assertion"),
    ATTRIBUTE_FORMAT_BASIC("urn:oasis:names:tc:SAML:2.0:attrname-format:basic"), 
    ATTRIBUTE_FORMAT_URI("urn:oasis:names:tc:SAML:2.0:attrname-format:uri"), 
+   
+   HOLDER_OF_KEY( "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" ),
    
    METADATA_HTTP_REDIRECT_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
    
