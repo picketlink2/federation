@@ -21,6 +21,7 @@
  */
 package org.picketlink.test.identity.federation.core.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.xml.transform.Source;
@@ -39,7 +40,7 @@ import org.w3c.dom.Document;
  */
 public class WST_SAML_ParsingPerfTestCase
 {
-   private int runs = 1000;
+   private int runs = 5000;
 
    String fileName = "parser/perf/wst-batch-validate-one.xml";
    
@@ -51,7 +52,7 @@ public class WST_SAML_ParsingPerfTestCase
     * @throws Exception
     */
    @Test
-   @Ignore
+   //@Ignore
    public void testParsingPerformance() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -71,12 +72,15 @@ public class WST_SAML_ParsingPerfTestCase
       System.out.println("JAXB, time spent for " + runs  
             + " iterations = " + elapsedTimeMillis + " ms or " + elapsedTimeMillis/1000F + " secs");
 
+      configStream = tcl.getResourceAsStream( fileName );
+      byte[] xmlData = new byte[ configStream.available() ];
+      configStream.read( xmlData );
 
       //Stax Way
       start = System.currentTimeMillis(); 
       for( int i = 0 ; i < runs; i++ )
       {
-         useStax( tcl );
+         useStax( new ByteArrayInputStream( xmlData ) );
       }
       elapsedTimeMillis = System.currentTimeMillis() - start; 
       System.out.println("STAX, time spent for " + runs  
@@ -88,10 +92,8 @@ public class WST_SAML_ParsingPerfTestCase
       WSTrustJAXBFactory.getInstance().parseRequestSecurityToken(source); 
    }
    
-   private void useStax( ClassLoader tcl ) throws Exception
-   {
-      InputStream configStream = tcl.getResourceAsStream( fileName );
-      
+   private void useStax( InputStream configStream ) throws Exception
+   {   
       WSTrustParser parser = new WSTrustParser();
       parser.parse( configStream );  
    }
