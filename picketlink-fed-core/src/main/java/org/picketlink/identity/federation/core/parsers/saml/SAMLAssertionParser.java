@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -70,6 +71,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader );
          if( xmlEvent == null )
             break;
+         
          if( xmlEvent instanceof EndElement )
          {
             xmlEvent = StaxParserUtil.getNextEvent( xmlEventReader );
@@ -78,6 +80,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             if( endElementTag.equals( JBossSAMLConstants.ASSERTION.get() ) )
                break;
          }
+         
          StartElement peekedElement = null;
 
          if( xmlEvent instanceof StartElement )
@@ -154,9 +157,18 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
     */
    public boolean supports(QName qname)
    { 
-      return false;
+      String nsURI = qname.getNamespaceURI();
+      String localPart = qname.getLocalPart();
+      
+      return nsURI.equals( JBossSAMLURIConstants.ASSERTION_NSURI.get() ) 
+           && localPart.equals( JBossSAMLConstants.ASSERTION.get() );
    } 
 
+   /**
+    * We really don't care about the ds:signature stuff for building the object model
+    * @param xmlEventReader
+    * @throws ParsingException
+    */
    private void bypassXMLSignatureBlock( XMLEventReader xmlEventReader ) throws ParsingException
    {
       while ( xmlEventReader.hasNext() )

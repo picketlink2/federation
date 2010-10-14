@@ -55,27 +55,26 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    { 
       StaxParserUtil.getNextEvent(xmlEventReader); 
-      
+
       SubjectType subject = new SubjectType(); 
-      
+
       //Peek at the next event
       while( xmlEventReader.hasNext() )
       { 
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if( xmlEvent instanceof EndElement )
          {
-            EndElement endElement = (EndElement) xmlEvent;
-            String endElementValue = StaxParserUtil.getEndElementName(endElement);
-            if( endElementValue.equalsIgnoreCase( JBossSAMLConstants.SUBJECT.get() )) 
+            EndElement endElement = (EndElement) xmlEvent; 
+            if( StaxParserUtil.matches(endElement , JBossSAMLConstants.SUBJECT.get() )) 
                break;  
          }
-         
+
          StartElement peekedElement  = StaxParserUtil.peekNextStartElement( xmlEventReader  );
          if( peekedElement == null )
             break; 
 
          String tag = StaxParserUtil.getStartElementName( peekedElement );
-         
+
          if( JBossSAMLConstants.NAMEID.get().equalsIgnoreCase( tag ) )
          {
             try
@@ -85,50 +84,51 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                if( nameQualifier == null )
                   nameQualifier = nameIDElement.getAttributeByName( new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                         JBossSAMLConstants.NAME_QUALIFIER.get() ));
-               
+
                String nameIDValue = xmlEventReader.getElementText();
-               
+
                NameIDType nameID = new NameIDType();
                nameID.setValue( nameIDValue );
                if( nameQualifier != null )
                {
                   nameID.setNameQualifier( StaxParserUtil.getAttributeValue(nameQualifier) ); 
                }  
-               
+
                JAXBElement<NameIDType> jaxbNameID =  objectFactory.createNameID( nameID );
                subject.getContent().add( jaxbNameID );
-               
+
                //There is no need to get the end tag as the "getElementText" call above puts us past that
             }
             catch (XMLStreamException e)
             {
-              throw new ParsingException( e );
+               throw new ParsingException( e );
             } 
          }  
          else if( JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase( tag ) )
          {
-             StartElement subjectConfirmationElement = StaxParserUtil.getNextStartElement( xmlEventReader ); 
-               Attribute method = subjectConfirmationElement.getAttributeByName( new QName( "", JBossSAMLConstants.METHOD.get() ));
-               if( method == null )
-                  method = subjectConfirmationElement.getAttributeByName( new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-                        JBossSAMLConstants.METHOD.get() )); 
-               
-               SubjectConfirmationType subjectConfirmationType = new SubjectConfirmationType();   
-               
-               if( method != null )
-               {
-                  subjectConfirmationType.setMethod( StaxParserUtil.getAttributeValue( method ) ); 
-               }  
-               
-               JAXBElement<SubjectConfirmationType> jaxbSubjectConf = objectFactory.createSubjectConfirmation( subjectConfirmationType );
-               subject.getContent().add(jaxbSubjectConf);
-               
-               //Get the end tag
-               StaxParserUtil.getNextEvent(xmlEventReader); 
+            StartElement subjectConfirmationElement = StaxParserUtil.getNextStartElement( xmlEventReader ); 
+            Attribute method = subjectConfirmationElement.getAttributeByName( new QName( "", JBossSAMLConstants.METHOD.get() ));
+            if( method == null )
+               method = subjectConfirmationElement.getAttributeByName( new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+                     JBossSAMLConstants.METHOD.get() )); 
+
+            SubjectConfirmationType subjectConfirmationType = new SubjectConfirmationType();   
+
+            if( method != null )
+            {
+               subjectConfirmationType.setMethod( StaxParserUtil.getAttributeValue( method ) ); 
+            }  
+
+            JAXBElement<SubjectConfirmationType> jaxbSubjectConf = objectFactory.createSubjectConfirmation( subjectConfirmationType );
+            subject.getContent().add(jaxbSubjectConf);
+
+            //Get the end tag
+            EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+            StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get() );
          }   
          else throw new RuntimeException( "Unknown tag:" + tag );    
       }
-      
+
       return subject;
    }
 
