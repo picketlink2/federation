@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 
 /**
+ * Validate the WST Cancel Target for SAML assertions
  * @author Anil.Saldhana@redhat.com
  * @since Oct 14, 2010
  */
