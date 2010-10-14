@@ -96,13 +96,13 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          if( tag.equals( JBossSAMLConstants.ASSERTION.get() ))
          {
             StartElement nextElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute idAttribute = nextElement.getAttributeByName( new QName( "", "ID" ) );
+            Attribute idAttribute = nextElement.getAttributeByName( new QName( "",  JBossSAMLConstants.ID.get() ) );
             assertion.setID( StaxParserUtil.getAttributeValue( idAttribute ));
 
-            Attribute versionAttribute = nextElement.getAttributeByName( new QName( "", "Version" ));
+            Attribute versionAttribute = nextElement.getAttributeByName( new QName( "", JBossSAMLConstants.VERSION.get() ));
             assertion.setVersion( StaxParserUtil.getAttributeValue(versionAttribute) );
 
-            Attribute issueInstantAttribute = nextElement.getAttributeByName( new QName( "", "IssueInstant" ));
+            Attribute issueInstantAttribute = nextElement.getAttributeByName( new QName( "", JBossSAMLConstants.ISSUE_INSTANT.get() ));
             if( issueInstantAttribute != null )
             {
                assertion.setIssueInstant( dtf.newXMLGregorianCalendar( StaxParserUtil.getAttributeValue(issueInstantAttribute )));
@@ -143,8 +143,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             SAMLConditionsParser conditionsParser = new SAMLConditionsParser();
             ConditionsType conditions = (ConditionsType) conditionsParser.parse(xmlEventReader); 
 
-            assertion.setConditions( conditions );
-
+            assertion.setConditions( conditions ); 
          } 
       }
       return assertion;
@@ -166,7 +165,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          if( endElement == null )
             return;
 
-         if( StaxParserUtil.getEndElementName(endElement).equals( "Signature" ) )
+         if( StaxParserUtil.matches( endElement , JBossSAMLConstants.SIGNATURE.get() ) )
             return;
       }
    }

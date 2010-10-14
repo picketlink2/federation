@@ -32,6 +32,8 @@ public enum JBossSAMLConstants
    AUDIENCE( "Audience" ),
    AUDIENCE_RESTRICTION( "AudienceRestriction" ),
    CONDITIONS( "Conditions" ),
+   ID( "ID" ),
+   ISSUE_INSTANT( "IssueInstant" ),
    ISSUER( "Issuer" ),
    LANG_EN("en"),
    METADATA_MIME("application/samlmetadata+xml"),
@@ -45,6 +47,7 @@ public enum JBossSAMLConstants
    SIGNATURE_SHA1_WITH_RSA("http://www.w3.org/2000/09/xmldsig#rsa-sha1"),
    SUBJECT( "Subject" ),
    SUBJECT_CONFIRMATION( "SubjectConfirmation" ),
+   VERSION( "Version" ),
    VERSION_2_0("2.0"),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
