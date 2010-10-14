@@ -23,7 +23,6 @@ package org.picketlink.identity.federation.core.parsers.wst;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -45,19 +44,12 @@ public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceS
     */
    public Object parse( XMLEventReader xmlEventReader ) throws ParsingException
    {
-      try
-      {
-         xmlEventReader.nextEvent();
-      }
-      catch (XMLStreamException e)
-      {
-         throw new ParsingException( e );
-      }
+      StaxParserUtil.getNextEvent(xmlEventReader); 
       
       RequestSecurityTokenCollection requestCollection = new RequestSecurityTokenCollection(); 
       
       //Peek at the next event
-      while( true )
+      while( xmlEventReader.hasNext() )
       { 
          StartElement peekedElement = StaxParserUtil.peekNextStartElement( xmlEventReader  );
          if( peekedElement == null )

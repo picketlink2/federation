@@ -328,6 +328,6 @@ public class StaxParserUtil
    {
       String elementTag = getEndElementName( endElement );
       if( !tag.equals( elementTag ))
-         throw new RuntimeException( "Expecting <" + tag + ">.  Found <" + elementTag + ">" );
+         throw new RuntimeException( "Expecting </" + tag + ">.  Found </" + elementTag + ">" );
    }
 }

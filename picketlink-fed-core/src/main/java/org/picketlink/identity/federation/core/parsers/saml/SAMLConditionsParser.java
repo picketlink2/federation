@@ -137,7 +137,11 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
     */
    public boolean supports(QName qname)
    {
-      return false;
+      String nsURI = qname.getNamespaceURI();
+      String localPart = qname.getLocalPart();
+      
+      return nsURI.equals( JBossSAMLURIConstants.ASSERTION_NSURI.get() ) 
+           && localPart.equals( JBossSAMLConstants.CONDITIONS.get() );
    }
    
    /**

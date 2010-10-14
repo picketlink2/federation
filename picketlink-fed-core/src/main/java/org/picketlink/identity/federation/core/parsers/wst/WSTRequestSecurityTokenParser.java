@@ -25,8 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLEventReader; 
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -83,12 +82,12 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             String tag = StaxParserUtil.getStartElementName( subEvent );
             if( tag.equals( WSTrustConstants.REQUEST_TYPE ))
             { 
-               String value = xmlEventReader.getElementText();
+               String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setRequestType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
             {
-               String value = xmlEventReader.getElementText();
+               String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.VALIDATE_TARGET  ))
@@ -97,14 +96,9 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setValidateTarget( validateTarget ); 
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               if( !StaxParserUtil.getEndElementName( validateTargetEndElement ).equals( WSTrustConstants.VALIDATE_TARGET ) )
-                  throw new RuntimeException( "</" + WSTrustConstants.VALIDATE_TARGET + "> expected" );
+               StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET ) ;
             }  
-         }
-         catch( XMLStreamException e )
-         {
-            throw new ParsingException( e );
-         }
+         } 
          catch (URISyntaxException e)
          {
             throw new ParsingException( e );
@@ -119,6 +113,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
     */
    public boolean supports(QName qname)
    { 
-      return false;
+      String nsURI = qname.getNamespaceURI();
+      String localPart = qname.getLocalPart();
+      
+      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
+             && WSTrustConstants.RST.equals( localPart );
    } 
 }

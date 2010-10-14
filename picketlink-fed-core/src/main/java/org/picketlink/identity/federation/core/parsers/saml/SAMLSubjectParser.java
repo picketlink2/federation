@@ -135,8 +135,12 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
-   public boolean supports(QName qname)
+   public boolean supports( QName qname )
    { 
-      return false;
+      String nsURI = qname.getNamespaceURI();
+      String localPart = qname.getLocalPart();
+      
+      return nsURI.equals( JBossSAMLURIConstants.ASSERTION_NSURI.get() ) 
+           && localPart.equals( JBossSAMLConstants.SUBJECT.get() );
    }
 }

@@ -30,6 +30,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 
@@ -65,6 +66,10 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
     */
    public boolean supports(QName qname)
    { 
-      return false;
+      String nsURI = qname.getNamespaceURI();
+      String localPart = qname.getLocalPart();
+      
+      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
+             && WSTrustConstants.VALIDATE_TARGET.equals( localPart );
    } 
 }

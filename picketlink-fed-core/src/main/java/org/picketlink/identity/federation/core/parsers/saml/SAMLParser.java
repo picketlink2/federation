@@ -23,7 +23,6 @@ package org.picketlink.identity.federation.core.parsers.saml;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -48,15 +47,7 @@ public class SAMLParser extends AbstractParser
    {
       while( xmlEventReader.hasNext() )
       {
-         XMLEvent xmlEvent = null;
-         try
-         {
-            xmlEvent = xmlEventReader.peek();
-         }
-         catch (XMLStreamException e)
-         {
-            throw new ParsingException( e );
-         }
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
          if( xmlEvent instanceof StartElement )
          {
@@ -71,14 +62,7 @@ public class SAMLParser extends AbstractParser
          }
          else
          {
-            try
-            {
-               xmlEventReader.nextEvent();
-            }
-            catch (XMLStreamException e)
-            {
-               throw new ParsingException( e );
-            }
+            StaxParserUtil.getNextEvent(xmlEventReader); 
          }
       }
       throw new RuntimeException( "SAML Parsing has failed" );
