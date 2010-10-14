@@ -63,10 +63,15 @@ public class WSTrustParser extends AbstractParser
             StartElement startElement = (StartElement) xmlEvent;
 
             String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( WSTRequestSecurityTokenCollectionParser.LOCALPART ))
+            if( elementName.equalsIgnoreCase( WSTrustConstants.RST_COLLECTION ))
             {
                WSTRequestSecurityTokenCollectionParser wstrcoll = new WSTRequestSecurityTokenCollectionParser();
                return wstrcoll.parse(xmlEventReader); 
+            } 
+            else if( elementName.equalsIgnoreCase( WSTrustConstants.RST ))
+            {
+               WSTRequestSecurityTokenParser wst = new WSTRequestSecurityTokenParser();
+               return wst.parse(xmlEventReader); 
             } 
          }
          else
@@ -81,7 +86,7 @@ public class WSTrustParser extends AbstractParser
             }
          }
       }
-      return null;
+      throw new RuntimeException( "WSTrust Parsing has failed" );
    }
 
    /**

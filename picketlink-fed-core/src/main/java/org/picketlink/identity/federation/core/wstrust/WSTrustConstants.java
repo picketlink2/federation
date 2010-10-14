@@ -40,6 +40,7 @@ public class WSTrustConstants
    public static final String RENEW_REQUEST = BASE_NAMESPACE + "/Renew";
    public static final String CANCEL_REQUEST = BASE_NAMESPACE + "/Cancel";
    public static final String VALIDATE_REQUEST = BASE_NAMESPACE + "/Validate";
+   public static final String BATCH_VALIDATE_REQUEST = BASE_NAMESPACE + "/BatchValidate";
    
    // WS-Trust validation constants.
    public static final String STATUS_TYPE = BASE_NAMESPACE + "/RSTR/Status";
@@ -76,9 +77,11 @@ public class WSTrustConstants
    
    //Token Types
    public static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+   public static final String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
    
    //Element Names
    public static final String RST = "RequestSecurityToken";
+   public static final String RST_COLLECTION = "RequestSecurityTokenCollection";
    public static final String REQUEST_TYPE = "RequestType";
    public static final String TOKEN_TYPE = "TokenType";
    public static final String VALIDATE_TARGET = "ValidateTarget";

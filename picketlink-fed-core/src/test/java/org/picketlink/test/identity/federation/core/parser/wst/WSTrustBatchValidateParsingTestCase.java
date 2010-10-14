@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -35,13 +34,13 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
 
 /**
+ * Validate the parsing of wst-batch-validate.xml
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
 public class WSTrustBatchValidateParsingTestCase
 {
-   @Test
-   @Ignore
+   @Test 
    public void testWST_BatchValidate() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -54,15 +53,15 @@ public class WSTrustBatchValidateParsingTestCase
       List<RequestSecurityToken> tokens = requestCollection.getRequestSecurityTokens(); 
       assertEquals( 2, tokens.size() );
       
-      /*RequestSecurityToken rst1 = tokens.get( 0 );
-      assertEquals( "context1", rst1.getContext() );
-      assertEquals( WSTrustConstants.BATCH_ISSUE_REQUEST, rst1.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, rst1.getTokenType().toASCIIString() );
+      RequestSecurityToken rst1 = tokens.get( 0 );
+      assertEquals( "validatecontext1", rst1.getContext() );
+      assertEquals( WSTrustConstants.BATCH_VALIDATE_REQUEST, rst1.getRequestType().toASCIIString() );
+      assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString() );
       
       RequestSecurityToken rst2 = tokens.get( 1 );
-      assertEquals( "context2", rst2.getContext() );
-      assertEquals( WSTrustConstants.BATCH_ISSUE_REQUEST , rst2.getRequestType().toASCIIString() );
-      assertEquals( "http://www.tokens.org/SpecialToken" , rst2.getTokenType().toASCIIString() ); */
+      assertEquals( "validatecontext2", rst2.getContext() );
+      assertEquals( WSTrustConstants.BATCH_VALIDATE_REQUEST , rst2.getRequestType().toASCIIString() );
+      assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE , rst2.getTokenType().toASCIIString() );
    }
 
 }

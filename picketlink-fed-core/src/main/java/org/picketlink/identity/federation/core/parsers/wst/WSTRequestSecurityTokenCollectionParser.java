@@ -39,9 +39,10 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceSupport
-{ 
-   public static final String LOCALPART = "RequestSecurityTokenCollection";
-    
+{  
+   /**
+    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+    */
    public Object parse( XMLEventReader xmlEventReader ) throws ParsingException
    {
       try
@@ -53,19 +54,18 @@ public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceS
          throw new ParsingException( e );
       }
       
-      RequestSecurityTokenCollection requestCollection = new RequestSecurityTokenCollection();
-      
+      RequestSecurityTokenCollection requestCollection = new RequestSecurityTokenCollection(); 
       
       //Peek at the next event
       while( true )
       { 
          StartElement peekedElement = StaxParserUtil.peekNextStartElement( xmlEventReader  );
-            if( peekedElement == null )
-               break; 
-            
+         if( peekedElement == null )
+            break; 
+
          String tag = StaxParserUtil.getStartElementName( peekedElement );
          
-         if( WSTRequestSecurityTokenParser.LOCALPART.equalsIgnoreCase( tag ) )
+         if( WSTrustConstants.RST.equalsIgnoreCase( tag ) )
          {
             WSTRequestSecurityTokenParser rstParser = new WSTRequestSecurityTokenParser();
             RequestSecurityToken rst = ( RequestSecurityToken ) rstParser.parse( xmlEventReader );
@@ -75,9 +75,12 @@ public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceS
       return requestCollection;
    }
  
+   /**
+    * @see {@link ParserNamespaceSupport#supports(QName)}
+    */
    public boolean supports( QName qname )
    {
       return ( qname.getNamespaceURI().equals( WSTrustConstants.BASE_NAMESPACE )
-            && qname.getLocalPart().equals( WSTRequestSecurityTokenCollectionParser.LOCALPART ) ); 
+            && qname.getLocalPart().equals( WSTrustConstants.RST_COLLECTION ) ); 
    }
 }

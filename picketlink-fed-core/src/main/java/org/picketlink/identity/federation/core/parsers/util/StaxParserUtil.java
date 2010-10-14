@@ -53,6 +53,24 @@ public class StaxParserUtil
    }
    
    /**
+    * Get the element text.  
+    * @param xmlEventReader
+    * @return A <b>trimmed</b> string value
+    * @throws ParsingException
+    */
+   public static String getElementText( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      try
+      {
+         return xmlEventReader.getElementText().trim();
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ParsingException( e );
+      }
+   }
+   
+   /**
     * Get the XML event reader
     * @param is
     * @return
@@ -91,6 +109,12 @@ public class StaxParserUtil
      return builder.toString();
    }
    
+   /**
+    * Get the next xml event
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
    public static XMLEvent getNextEvent( XMLEventReader xmlEventReader ) throws ParsingException
    {
       try
@@ -173,6 +197,37 @@ public class StaxParserUtil
       return trim( endElement.getName().getLocalPart() );
    }
    
+   
+   /**
+    * Match that the start element with the expected tag
+    * @param startElement    
+    * @param tag
+    * @return boolean if the tags match 
+    */
+   public static boolean matches( StartElement startElement, String tag )
+   {
+      String elementTag = getStartElementName( startElement );
+      return tag.equals( elementTag );
+   }
+   
+   /**
+    * Match that the end element with the expected tag
+    * @param endElement
+    * @param tag
+    * @return boolean if the tags match 
+    */
+   public static boolean matches( EndElement endElement, String tag )
+   {
+      String elementTag = getEndElementName( endElement );
+      return tag.equals( elementTag );
+   }
+   
+   /**
+    * Peek at the next event
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
    public static XMLEvent peek( XMLEventReader xmlEventReader ) throws ParsingException
    {
       try
@@ -248,5 +303,31 @@ public class StaxParserUtil
       if(str == null || str.length() == 0)
          throw new IllegalArgumentException("Input str is null");
       return str.trim();
+   }
+   
+   /**
+    * Validate that the start element has the expected tag
+    * @param startElement
+    * @param tag
+    * @throws RuntimeException mismatch
+    */
+   public static void validate( StartElement startElement, String tag )
+   {
+      String elementTag = getStartElementName( startElement );
+      if( !tag.equals( elementTag ))
+         throw new RuntimeException( "Expecting <" + tag + ">.  Found <" + elementTag + ">" );
+   }
+   
+   /**
+    * Validate that the end element has the expected tag
+    * @param endElement
+    * @param tag
+    * @throws RuntimeException mismatch
+    */
+   public static void validate( EndElement endElement, String tag )
+   {
+      String elementTag = getEndElementName( endElement );
+      if( !tag.equals( elementTag ))
+         throw new RuntimeException( "Expecting <" + tag + ">.  Found <" + elementTag + ">" );
    }
 }
