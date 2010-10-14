@@ -32,10 +32,12 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 
@@ -76,23 +78,29 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
          
          try
          {
-            StartElement subEvent = StaxParserUtil.getNextStartElement( xmlEventReader );
+            StartElement subEvent = StaxParserUtil.peekNextStartElement( xmlEventReader );
             if( subEvent == null )
                break;
             
             String tag = StaxParserUtil.getStartElementName( subEvent );
             if( tag.equals( WSTrustConstants.REQUEST_TYPE ))
             { 
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setRequestType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
             {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.CANCEL_TARGET ))
             {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(subEvent, WSTrustConstants.CANCEL_TARGET );
                WSTCancelTargetParser wstCancelTargetParser = new WSTCancelTargetParser();
                CancelTargetType cancelTarget = (CancelTargetType) wstCancelTargetParser.parse( xmlEventReader );
                requestToken.setCancelTarget( cancelTarget ); 
@@ -101,12 +109,27 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             }
             else if( tag.equals( WSTrustConstants.VALIDATE_TARGET  ))
             {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
                WSTValidateTargetParser wstValidateTargetParser = new WSTValidateTargetParser();
                ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setValidateTarget( validateTarget ); 
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET ) ;
             }  
+            else
+            {
+               QName qname = subEvent.getName();
+               ParserNamespaceSupport parser = ParserController.get( qname );
+               if( parser == null )
+                  throw new RuntimeException( "Cannot parse " + qname ); 
+               
+               Object parsedObject = parser.parse( xmlEventReader );
+               if( parsedObject instanceof AppliesTo )
+               {
+                  requestToken.setAppliesTo( (AppliesTo) parsedObject );
+               }
+            }
          } 
          catch (URISyntaxException e)
          {

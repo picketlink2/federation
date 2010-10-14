@@ -63,6 +63,7 @@ public class WSTrustConstants
    
    // WSS namespaces values.
    public static final String WSA_NS = "http://www.w3.org/2005/08/addressing";
+   public static final String WSP_NS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
    public static final String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
    public static final String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
    public static final String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
