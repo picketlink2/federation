@@ -52,7 +52,7 @@ public class WST_SAML_ParsingPerfTestCase
     * @throws Exception
     */
    @Test
-   //@Ignore
+   @Ignore
    public void testParsingPerformance() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
