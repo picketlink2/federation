@@ -23,24 +23,31 @@ package org.picketlink.identity.federation.core.parsers.wst;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader; 
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
+import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.w3c.dom.Element;
 
 /**
  * Parse the WS-Trust RequestSecurityToken
@@ -49,6 +56,8 @@ import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
  */
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 {  
+   public static final String X509CERTIFICATE = "X509Certificate";
+   
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
@@ -108,7 +117,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                EndElement cancelTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( cancelTargetEndElement, WSTrustConstants.CANCEL_TARGET ) ; 
             }
-            else if( tag.equals( WSTrustConstants.VALIDATE_TARGET  ))
+            else if( tag.equals( WSTrustConstants.VALIDATE_TARGET ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                
@@ -118,7 +127,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET ) ;
             }  
-            else if( tag.equals( WSTrustConstants.On_BEHALF_OF  ))
+            else if( tag.equals( WSTrustConstants.On_BEHALF_OF ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                
@@ -127,6 +136,37 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                requestToken.setOnBehalfOf(onBehalfOf);
                EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( onBehalfOfEndElement, WSTrustConstants.On_BEHALF_OF ) ;
+            }  
+            else if( tag.equals( WSTrustConstants.KEY_TYPE ))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               String keyType = StaxParserUtil.getElementText(xmlEventReader);
+               try
+               {
+                  URI keyTypeURI = new URI( keyType );
+                  requestToken.setKeyType( keyTypeURI );
+               }
+               catch( URISyntaxException e )
+               {
+                  throw new ParsingException( e );
+               }  
+            }  
+            else if( tag.equals( WSTrustConstants.USE_KEY ))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
+               UseKeyType useKeyType = new UseKeyType();  
+               StaxParserUtil.validate( subEvent, WSTrustConstants.USE_KEY ) ;
+               
+               /**
+                * There has to be a better way of parsing a sub section into a DOM element
+                */
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
+               StaxParserUtil.validate( subEvent, X509CERTIFICATE ) ;
+               
+               Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
+
+               useKeyType.setAny( domElement );
+               requestToken.setUseKey( useKeyType ); 
             }  
             else
             {
@@ -162,4 +202,57 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
       return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
              && WSTrustConstants.RST.equals( localPart );
    } 
+   
+   
+   private Element getX509CertificateAsDomElement( StartElement subEvent, XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      StringBuilder builder = new StringBuilder();
+      
+      QName subEventName = subEvent.getName();
+      String prefix = subEventName.getPrefix();
+      String localPart = subEventName.getLocalPart();
+      
+      builder.append( "<" ).append(  prefix ).append( ":").append( localPart );
+      
+      @SuppressWarnings("unchecked")
+      Iterator<Attribute> iter = subEvent.getAttributes();
+      
+      while( iter != null && iter.hasNext() )
+      {
+         Attribute attr = iter.next();
+         QName attrName = attr.getName();
+         if( attrName.getNamespaceURI().equals( WSTrustConstants.DSIG_NS ) )
+         {
+            builder.append( " ").append( prefix ).append( ":" ).append( attrName.getLocalPart() );
+            builder.append( "=" ).append( StaxParserUtil.getAttributeValue( attr )); 
+         }
+      }
+      
+      @SuppressWarnings("unchecked")
+      Iterator<Namespace> namespaces = subEvent.getNamespaces();
+      while( namespaces != null && namespaces.hasNext() )
+      {
+         Namespace namespace = namespaces.next();
+         builder.append( " ").append( namespace.toString() ); 
+      }
+      builder.append( ">" );
+      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
+      
+      builder.append( "</" ).append( prefix ).append( ":" ).append( localPart ).append( ">" ); 
+      Element domElement = null;
+      try
+      {
+         domElement = DocumentUtil.getDocument( builder.toString() ).getDocumentElement() ;
+      }
+      catch (ConfigurationException e)
+      {
+         throw new ParsingException( e );
+      }
+      catch (ProcessingException e)
+      {
+         throw new ParsingException( e );
+      }
+      
+      return domElement;
+   }
 }

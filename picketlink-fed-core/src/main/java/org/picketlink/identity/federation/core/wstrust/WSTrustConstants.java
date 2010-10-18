@@ -83,12 +83,14 @@ public class WSTrustConstants
    
    //Element Names
    public static final String On_BEHALF_OF = "OnBehalfOf";
+   public static final String KEY_TYPE = "KeyType";
    public static final String RST = "RequestSecurityToken";
    public static final String RST_COLLECTION = "RequestSecurityTokenCollection";
    public static final String REQUEST_TYPE = "RequestType";
    public static final String TOKEN_TYPE = "TokenType";
    public static final String CANCEL_TARGET = "CancelTarget";
    public static final String VALIDATE_TARGET = "ValidateTarget";
+   public static final String USE_KEY = "UseKey";
    
    //Attribute Names
    public static final String RST_CONTEXT = "Context";
