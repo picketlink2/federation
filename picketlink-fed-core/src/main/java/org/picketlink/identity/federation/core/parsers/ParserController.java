@@ -29,6 +29,12 @@ import javax.xml.namespace.QName;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.wsa.WSAddressingParser;
 import org.picketlink.identity.federation.core.parsers.wsp.WSPolicyParser;
+import org.picketlink.identity.federation.core.parsers.wsse.WSSecurityParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTCancelTargetParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenCollectionParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTValidateTargetParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustOnBehalfOfParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 
 /**
@@ -49,10 +55,20 @@ public class ParserController
    
    static
    {
+
       add( new SAMLParser() );
       add( new WSTrustParser() ); 
+      
+      add( new WSSecurityParser() );
       add( new WSPolicyParser() );
       add( new WSAddressingParser() );
+      
+      
+      add( new WSTrustOnBehalfOfParser() );
+      add( new WSTValidateTargetParser() );
+      add( new WSTCancelTargetParser() );
+      add( new WSTRequestSecurityTokenParser() );
+      add( new WSTRequestSecurityTokenCollectionParser() ); 
    };
    
    /**
@@ -73,7 +89,7 @@ public class ParserController
          System.getSecurityManager().checkPermission( PARSER_PERM );
       }
       
-      parsers.add( parser );
+      parsers.add( 0, parser ); 
    }
    
    /**
