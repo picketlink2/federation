@@ -31,6 +31,7 @@ import org.picketlink.identity.federation.core.parsers.wsa.WSAddressingParser;
 import org.picketlink.identity.federation.core.parsers.wsp.WSPolicyParser;
 import org.picketlink.identity.federation.core.parsers.wsse.WSSecurityParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTCancelTargetParser;
+import org.picketlink.identity.federation.core.parsers.wst.WSTRenewTargetParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenCollectionParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTValidateTargetParser;
@@ -66,6 +67,7 @@ public class ParserController
       
       add( new WSTrustOnBehalfOfParser() );
       add( new WSTValidateTargetParser() );
+      add( new WSTRenewTargetParser() );
       add( new WSTCancelTargetParser() );
       add( new WSTRequestSecurityTokenParser() );
       add( new WSTRequestSecurityTokenCollectionParser() ); 

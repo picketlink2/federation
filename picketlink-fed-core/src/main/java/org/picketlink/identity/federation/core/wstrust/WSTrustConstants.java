@@ -92,6 +92,7 @@ public class WSTrustConstants
    public static final String REQUEST_TYPE = "RequestType";
    public static final String TOKEN_TYPE = "TokenType";
    public static final String CANCEL_TARGET = "CancelTarget";
+   public static final String RENEW_TARGET = "RenewTarget";
    public static final String VALIDATE_TARGET = "ValidateTarget";
    public static final String USE_KEY = "UseKey";
    
