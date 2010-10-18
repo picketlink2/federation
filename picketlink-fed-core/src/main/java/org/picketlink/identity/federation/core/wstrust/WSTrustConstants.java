@@ -82,7 +82,10 @@ public class WSTrustConstants
    public static final String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
    
    //Element Names
+   public static final String BINARY_SECRET = "BinarySecret";
+   public static final String ENTROPY = "Entropy";
    public static final String On_BEHALF_OF = "OnBehalfOf";
+   public static final String KEY_SIZE = "KeySize";
    public static final String KEY_TYPE = "KeyType";
    public static final String RST = "RequestSecurityToken";
    public static final String RST_COLLECTION = "RequestSecurityTokenCollection";

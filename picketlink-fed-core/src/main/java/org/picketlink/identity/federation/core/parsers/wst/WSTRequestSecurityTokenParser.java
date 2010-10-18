@@ -43,7 +43,9 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
+import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
@@ -151,7 +153,35 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                {
                   throw new ParsingException( e );
                }  
-            }  
+            } 
+            else if( tag.equals( WSTrustConstants.KEY_SIZE ))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               String keySize = StaxParserUtil.getElementText(xmlEventReader);
+               try
+               { 
+                  requestToken.setKeySize(Long.parseLong( keySize ));
+               }
+               catch( NumberFormatException e )
+               {
+                  throw new ParsingException( e );
+               }  
+            } 
+            else if( tag.equals( WSTrustConstants.ENTROPY ))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
+               EntropyType entropy = new EntropyType();
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               if( StaxParserUtil.matches(subEvent, WSTrustConstants.BINARY_SECRET ))
+               {
+                  BinarySecretType binarySecret = new BinarySecretType();
+                  Attribute typeAttribute = subEvent.getAttributeByName( new QName( "", "Type" ));
+                  binarySecret.setType( StaxParserUtil.getAttributeValue( typeAttribute ));
+                  binarySecret.setValue( StaxParserUtil.getElementText(xmlEventReader).getBytes() ); 
+                  entropy.getAny().add( binarySecret );
+               }
+               requestToken.setEntropy(entropy);
+            }
             else if( tag.equals( WSTrustConstants.USE_KEY ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 

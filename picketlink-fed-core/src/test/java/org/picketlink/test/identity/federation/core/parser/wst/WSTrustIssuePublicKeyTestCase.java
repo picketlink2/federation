@@ -38,7 +38,7 @@ import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.w3c.dom.Element;
 
 /**
- * Validate parsing of RST with Use Key set to a X509 certificate
+ * Validate parsing of RST with Use Key set to a RSA Public Key
  * @author Anil.Saldhana@redhat.com
  * @since Oct 18, 2010
  */
