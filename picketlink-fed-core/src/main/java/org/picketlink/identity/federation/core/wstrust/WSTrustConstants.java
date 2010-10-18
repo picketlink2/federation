@@ -82,6 +82,7 @@ public class WSTrustConstants
    public static final String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
    
    //Element Names
+   public static final String On_BEHALF_OF = "OnBehalfOf";
    public static final String RST = "RequestSecurityToken";
    public static final String RST_COLLECTION = "RequestSecurityTokenCollection";
    public static final String REQUEST_TYPE = "RequestType";

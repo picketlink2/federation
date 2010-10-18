@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
+import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 
 /**
@@ -116,6 +117,16 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                requestToken.setValidateTarget( validateTarget ); 
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET ) ;
+            }  
+            else if( tag.equals( WSTrustConstants.On_BEHALF_OF  ))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
+               WSTrustOnBehalfOfParser wstOnBehalfOfParser = new WSTrustOnBehalfOfParser(); 
+               OnBehalfOfType onBehalfOf = (OnBehalfOfType) wstOnBehalfOfParser.parse(xmlEventReader); 
+               requestToken.setOnBehalfOf(onBehalfOf);
+               EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate( onBehalfOfEndElement, WSTrustConstants.On_BEHALF_OF ) ;
             }  
             else
             {
