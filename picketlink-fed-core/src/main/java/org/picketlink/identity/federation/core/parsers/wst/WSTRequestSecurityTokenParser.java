@@ -57,6 +57,7 @@ import org.w3c.dom.Element;
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 {  
    public static final String X509CERTIFICATE = "X509Certificate";
+   public static final String KEYVALUE = "KeyValue";
    
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
@@ -161,12 +162,21 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                 * There has to be a better way of parsing a sub section into a DOM element
                 */
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
-               StaxParserUtil.validate( subEvent, X509CERTIFICATE ) ;
-               
-               Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
+               if( StaxParserUtil.matches(subEvent, X509CERTIFICATE ))
+               {
+                  Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
 
-               useKeyType.setAny( domElement );
-               requestToken.setUseKey( useKeyType ); 
+                  useKeyType.setAny( domElement );
+                  requestToken.setUseKey( useKeyType );   
+               } 
+               else if( StaxParserUtil.matches(subEvent, KEYVALUE ))
+               {
+                  Element domElement = getKeyValueAsDomElement( subEvent, xmlEventReader );
+
+                  useKeyType.setAny( domElement );
+                  requestToken.setUseKey( useKeyType );   
+               }
+               else throw new RuntimeException( "unsupported " + StaxParserUtil.getStartElementName( subEvent )); 
             }  
             else
             {
@@ -254,5 +264,87 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
       }
       
       return domElement;
+   }
+   
+   
+   private Element getKeyValueAsDomElement( StartElement subEvent, XMLEventReader xmlEventReader  ) throws ParsingException
+   {
+      StringBuilder builder = new StringBuilder();
+      
+      QName subEventName = subEvent.getName();
+      String prefix = subEventName.getPrefix();
+      String localPart = subEventName.getLocalPart();
+      
+      //ds:KeyValue
+      builder.append( "<" ).append(  prefix ).append( ":").append( localPart );
+      
+      @SuppressWarnings("unchecked")
+      Iterator<Attribute> iter = subEvent.getAttributes();
+      
+      while( iter != null && iter.hasNext() )
+      {
+         Attribute attr = iter.next();
+         QName attrName = attr.getName();
+         if( attrName.getNamespaceURI().equals( WSTrustConstants.DSIG_NS ) )
+         {
+            builder.append( " ").append( prefix ).append( ":" ).append( attrName.getLocalPart() );
+            builder.append( "=" ).append( StaxParserUtil.getAttributeValue( attr )); 
+         }
+      }
+      
+      @SuppressWarnings("unchecked")
+      Iterator<Namespace> namespaces = subEvent.getNamespaces();
+      while( namespaces != null && namespaces.hasNext() )
+      {
+         Namespace namespace = namespaces.next();
+         builder.append( " ").append( namespace.toString() ); 
+      }
+      builder.append( ">" );
+      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate( subEvent, "RSAKeyValue" );
+      builder.append( "<") .append( prefix) .append( ":" ).append( "RSAKeyValue>" );
+      
+      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate( subEvent, "Modulus" );
+      builder.append( "<") .append( prefix) .append( ":" ).append( "Modulus>" );
+      
+      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
+      
+      builder.append( "</" ).append( prefix ).append( ":" ).append( "Modulus" ).append( ">" );
+      
+
+      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate( subEvent, "Exponent" );
+
+      builder.append( "<") .append( prefix) .append( ":" ).append( "Exponent>" );
+      
+      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
+      
+      builder.append( "</" ).append( prefix ).append( ":" ).append( "Exponent" ).append( ">" );
+      
+      EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+      StaxParserUtil.validate(endElement, "RSAKeyValue" );
+      builder.append( "</" ).append( prefix ).append( ":" ).append( "RSAKeyValue" ).append( ">" );
+      
+      endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+      StaxParserUtil.validate(endElement, KEYVALUE );
+      builder.append( "</" ).append( prefix ).append( ":" ).append( KEYVALUE ).append( ">" );
+      
+      
+      Element domElement = null;
+      try
+      {
+         domElement = DocumentUtil.getDocument( builder.toString() ).getDocumentElement() ;
+      }
+      catch (ConfigurationException e)
+      {
+         throw new ParsingException( e );
+      }
+      catch (ProcessingException e)
+      {
+         throw new ParsingException( e );
+      }
+      
+      return domElement; 
    }
 }
