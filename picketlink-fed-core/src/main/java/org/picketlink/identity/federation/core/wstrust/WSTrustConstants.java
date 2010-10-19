@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 public class WSTrustConstants
 {
    public static final String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
+   public static final String PREFIX = "wst";
 
    // WS-Trust request types
    public static final String BATCH_ISSUE_REQUEST = BASE_NAMESPACE + "/BatchIssue";

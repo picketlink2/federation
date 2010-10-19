@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 
 /**
  * Validate simple RST parsing
@@ -49,5 +50,12 @@ public class WSTrustIssueTestCase
       assertEquals( "testcontext", requestToken.getContext() );
       assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() );
       assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString() ); 
+      
+      //Now for the writing part
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
+      rstWriter.write(requestToken, System.out ); 
+      
+      //TODO: use a buffer output stream.  Reparse the written xml and then match the orig object model with reparsed
+      //object model
    }
 }
