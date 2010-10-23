@@ -27,6 +27,7 @@ import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -53,7 +54,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport
          throw new IllegalArgumentException( " Input Stream is null " );
 
       XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-      //XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(xmlSource);
+
       XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( configStream );
 
       try
@@ -62,7 +63,23 @@ public abstract class AbstractParser implements ParserNamespaceSupport
          {
             public boolean accept(XMLEvent xmlEvent)
             {
-               return xmlEvent.isStartElement() || xmlEvent.isEndElement();
+               //We are going to disregard characters that are new line and whitespace
+               if( xmlEvent.isCharacters() )
+               {
+                  Characters chars = xmlEvent.asCharacters();
+                  String data = chars.getData();
+                  data = valid( data ) ? data.trim() : null;
+                  return valid( data );
+               }
+               else
+               {
+                  return xmlEvent.isStartElement() || xmlEvent.isEndElement(); 
+               } 
+            }
+            
+            private boolean valid( String str )
+            {
+               return str != null && str.length() > 0;
             }
          });
       }
