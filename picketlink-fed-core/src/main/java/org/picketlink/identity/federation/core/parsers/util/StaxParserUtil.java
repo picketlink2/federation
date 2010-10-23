@@ -197,6 +197,18 @@ public class StaxParserUtil
       return trim( endElement.getName().getLocalPart() );
    }
    
+   /**
+    * Return whether the next event is going to be text
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static boolean hasTextAhead( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      XMLEvent event = peek( xmlEventReader );
+      return event.getEventType() == XMLEvent.CHARACTERS; 
+   }
+   
    
    /**
     * Match that the start element with the expected tag
