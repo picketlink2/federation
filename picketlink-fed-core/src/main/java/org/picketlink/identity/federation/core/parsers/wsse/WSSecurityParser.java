@@ -80,6 +80,10 @@ public class WSSecurityParser extends AbstractParser
                userNameToken.setId( StaxParserUtil.getAttributeValue( idAttribute ));
                
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "userName is expected ahead" );
+               
                String userName = StaxParserUtil.getElementText(xmlEventReader);
                
                AttributedString attributedString = new AttributedString();

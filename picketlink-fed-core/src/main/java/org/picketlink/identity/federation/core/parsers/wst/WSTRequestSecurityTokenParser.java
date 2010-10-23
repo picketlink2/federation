@@ -101,12 +101,18 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             { 
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "request type is expected ahead" );
+               
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setRequestType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "token type is expected ahead" );
                
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
@@ -154,6 +160,9 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.KEY_TYPE ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "key type is expected ahead" );
+               
                String keyType = StaxParserUtil.getElementText(xmlEventReader);
                try
                {
@@ -168,6 +177,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.KEY_SIZE ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "key size is expected ahead" );
+               
                String keySize = StaxParserUtil.getElementText(xmlEventReader);
                try
                { 
@@ -188,6 +201,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   BinarySecretType binarySecret = new BinarySecretType();
                   Attribute typeAttribute = subEvent.getAttributeByName( new QName( "", "Type" ));
                   binarySecret.setType( StaxParserUtil.getAttributeValue( typeAttribute ));
+                  
+                  if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                     throw new ParsingException( "binary secret value is expected ahead" );
+                  
                   binarySecret.setValue( StaxParserUtil.getElementText(xmlEventReader).getBytes() ); 
                   entropy.getAny().add( binarySecret );
                }

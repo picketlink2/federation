@@ -163,6 +163,9 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
          if( !StaxParserUtil.matches(audienceElement, JBossSAMLConstants.AUDIENCE.get() ) )
                break;
          
+         if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+            throw new ParsingException( "audienceValue is expected ahead" );
+         
          String audienceValue = StaxParserUtil.getElementText( xmlEventReader );
          audience.getAudience().add( audienceValue ); 
          

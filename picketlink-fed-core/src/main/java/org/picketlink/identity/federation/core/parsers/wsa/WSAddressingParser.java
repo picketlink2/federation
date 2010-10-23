@@ -71,6 +71,10 @@ public class WSAddressingParser extends AbstractParser
                startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
                StaxParserUtil.validate(startElement, ADDRESS );
                
+
+               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
+                  throw new ParsingException( "endpointURI is expected ahead" );
+               
                String endpointURI = StaxParserUtil.getElementText( xmlEventReader );
                
                AttributedURIType attributedURI = new AttributedURIType();
@@ -79,7 +83,8 @@ public class WSAddressingParser extends AbstractParser
                reference.setAddress(attributedURI); 
                
                //Lets get the end element
-               EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+               xmlEvent =  StaxParserUtil.getNextEvent(xmlEventReader);
+               EndElement endElement = (EndElement)xmlEvent;
                StaxParserUtil.validate( endElement, ENDPOINT_REFERENCE );
                
                return new ObjectFactory().createEndpointReference( reference );                  
