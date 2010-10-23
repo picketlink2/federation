@@ -33,13 +33,10 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -50,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -230,7 +228,7 @@ public class DocumentUtil
 
       Result streamResult = new StreamResult(sw);
       // Write the DOM document to the stream
-      Transformer xformer = getTransformer();
+      Transformer xformer = TransformerUtil.getTransformer();
       try
       {
          xformer.transform(source, streamResult);
@@ -257,7 +255,7 @@ public class DocumentUtil
 
       Result streamResult = new StreamResult(sw);
       // Write the DOM document to the file
-      Transformer xformer = getTransformer();
+      Transformer xformer = TransformerUtil.getTransformer();
       try
       {
          xformer.transform(source, streamResult);
@@ -284,7 +282,7 @@ public class DocumentUtil
 
       Result streamResult = new StreamResult(baos);
       // Write the DOM document to the stream
-      Transformer transformer = getTransformer();
+      Transformer transformer = TransformerUtil.getTransformer();
       try
       {
          transformer.transform(source, streamResult);
@@ -314,7 +312,7 @@ public class DocumentUtil
 
       Result streamResult = new StreamResult(baos);
       // Write the DOM document to the stream
-      Transformer transformer = getTransformer();
+      Transformer transformer = TransformerUtil.getTransformer();
       try
       {
          transformer.transform(source, streamResult);
@@ -420,7 +418,7 @@ public class DocumentUtil
    {
       try
       {
-         Transformer transformer = getTransformer();
+         Transformer transformer = TransformerUtil.getTransformer();
          DOMResult result = new DOMResult();
          transformer.transform(source, result);
          return result.getNode();
@@ -456,25 +454,5 @@ public class DocumentUtil
       factory.setNamespaceAware(true);
       factory.setXIncludeAware(true);
       return factory;
-   }
-
-   private static Transformer getTransformer() throws ProcessingException, ConfigurationException
-   {
-      Transformer transformer;
-      try
-      {
-         transformer = TransformerFactory.newInstance().newTransformer();
-      }
-      catch (TransformerConfigurationException e)
-      {
-         throw new ConfigurationException(e);
-      }
-      catch (TransformerFactoryConfigurationError e)
-      {
-         throw new ConfigurationException(e);
-      }
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-      transformer.setOutputProperty(OutputKeys.INDENT, "no");
-      return transformer;
-   }
+   }  
 }
