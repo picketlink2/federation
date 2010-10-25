@@ -23,23 +23,25 @@ package org.picketlink.identity.federation.core.parsers.wst;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader; 
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
@@ -50,6 +52,7 @@ import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -61,21 +64,23 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 {  
    public static final String X509CERTIFICATE = "X509Certificate";
    public static final String KEYVALUE = "KeyValue";
-   
+
+   public static final String JDK_TRANSFORMER_PROPERTY = "picketlink.jdk.transformer";
+
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
+   { 
       StartElement startElement =  StaxParserUtil.getNextStartElement( xmlEventReader ); 
-      
+
       RequestSecurityToken requestToken = new RequestSecurityToken();
-      
+
       QName contextQName = new QName( "", WSTrustConstants.RST_CONTEXT );
       Attribute contextAttribute = startElement.getAttributeByName( contextQName );
       String contextValue = StaxParserUtil.getAttributeValue( contextAttribute );
       requestToken.setContext( contextValue ); 
-      
+
       while( xmlEventReader.hasNext() )
       {
          XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader );
@@ -89,31 +94,31 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             if( endElementTag.equals( WSTrustConstants.RST ) )
                break;
          }
-         
+
          try
          {
             StartElement subEvent = StaxParserUtil.peekNextStartElement( xmlEventReader );
             if( subEvent == null )
                break;
-            
+
             String tag = StaxParserUtil.getStartElementName( subEvent );
             if( tag.equals( WSTrustConstants.REQUEST_TYPE ))
             { 
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
                   throw new ParsingException( "request type is expected ahead" );
-               
+
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setRequestType( new URI( value ));
             }
             else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
                   throw new ParsingException( "token type is expected ahead" );
-               
+
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
             }
@@ -130,7 +135,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.VALIDATE_TARGET ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                WSTValidateTargetParser wstValidateTargetParser = new WSTValidateTargetParser();
                ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setValidateTarget( validateTarget ); 
@@ -140,7 +145,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.RENEW_TARGET ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                WSTRenewTargetParser wstValidateTargetParser = new WSTRenewTargetParser();
                RenewTargetType validateTarget = (RenewTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setRenewTarget( validateTarget ); 
@@ -150,7 +155,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.On_BEHALF_OF ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                WSTrustOnBehalfOfParser wstOnBehalfOfParser = new WSTrustOnBehalfOfParser(); 
                OnBehalfOfType onBehalfOf = (OnBehalfOfType) wstOnBehalfOfParser.parse(xmlEventReader); 
                requestToken.setOnBehalfOf(onBehalfOf);
@@ -162,7 +167,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
                   throw new ParsingException( "key type is expected ahead" );
-               
+
                String keyType = StaxParserUtil.getElementText(xmlEventReader);
                try
                {
@@ -177,10 +182,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.KEY_SIZE ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
+
                if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
                   throw new ParsingException( "key size is expected ahead" );
-               
+
                String keySize = StaxParserUtil.getElementText(xmlEventReader);
                try
                { 
@@ -201,10 +206,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   BinarySecretType binarySecret = new BinarySecretType();
                   Attribute typeAttribute = subEvent.getAttributeByName( new QName( "", "Type" ));
                   binarySecret.setType( StaxParserUtil.getAttributeValue( typeAttribute ));
-                  
+
                   if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
                      throw new ParsingException( "binary secret value is expected ahead" );
-                  
+
                   binarySecret.setValue( StaxParserUtil.getElementText(xmlEventReader).getBytes() ); 
                   entropy.getAny().add( binarySecret );
                }
@@ -215,22 +220,21 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
                UseKeyType useKeyType = new UseKeyType();  
                StaxParserUtil.validate( subEvent, WSTrustConstants.USE_KEY ) ;
-               
-               /**
-                * There has to be a better way of parsing a sub section into a DOM element
-                */
-               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
+
+               //We peek at the next start element as the stax source has to be in the START_ELEMENT mode
+               subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader); 
                if( StaxParserUtil.matches(subEvent, X509CERTIFICATE ))
                {
-                  Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
+                  Element domElement = this.getDOMElement(xmlEventReader);
+                  //Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
 
                   useKeyType.setAny( domElement );
                   requestToken.setUseKey( useKeyType );   
                } 
                else if( StaxParserUtil.matches(subEvent, KEYVALUE ))
                {
-                  Element domElement = getKeyValueAsDomElement( subEvent, xmlEventReader );
-
+                  //Element domElement = getKeyValueAsDomElement( subEvent, xmlEventReader );
+                  Element domElement = this.getDOMElement(xmlEventReader);//
                   useKeyType.setAny( domElement );
                   requestToken.setUseKey( useKeyType );   
                }
@@ -242,7 +246,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                ParserNamespaceSupport parser = ParserController.get( qname );
                if( parser == null )
                   throw new RuntimeException( "Cannot parse " + qname ); 
-               
+
                Object parsedObject = parser.parse( xmlEventReader );
                if( parsedObject instanceof AppliesTo )
                {
@@ -255,10 +259,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             throw new ParsingException( e );
          }   
       }
-      
+
       return requestToken;
    }
- 
+
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
@@ -266,143 +270,52 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
    { 
       String nsURI = qname.getNamespaceURI();
       String localPart = qname.getLocalPart();
-      
+
       return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-             && WSTrustConstants.RST.equals( localPart );
+      && WSTrustConstants.RST.equals( localPart );
    } 
-   
-   
-   private Element getX509CertificateAsDomElement( StartElement subEvent, XMLEventReader xmlEventReader ) throws ParsingException
-   {
-      StringBuilder builder = new StringBuilder();
-      
-      QName subEventName = subEvent.getName();
-      String prefix = subEventName.getPrefix();
-      String localPart = subEventName.getLocalPart();
-      
-      builder.append( "<" ).append(  prefix ).append( ":").append( localPart );
-      
-      @SuppressWarnings("unchecked")
-      Iterator<Attribute> iter = subEvent.getAttributes();
-      
-      while( iter != null && iter.hasNext() )
-      {
-         Attribute attr = iter.next();
-         QName attrName = attr.getName();
-         if( attrName.getNamespaceURI().equals( WSTrustConstants.DSIG_NS ) )
-         {
-            builder.append( " ").append( prefix ).append( ":" ).append( attrName.getLocalPart() );
-            builder.append( "=" ).append( StaxParserUtil.getAttributeValue( attr )); 
-         }
-      }
-      
-      @SuppressWarnings("unchecked")
-      Iterator<Namespace> namespaces = subEvent.getNamespaces();
-      while( namespaces != null && namespaces.hasNext() )
-      {
-         Namespace namespace = namespaces.next();
-         builder.append( " ").append( namespace.toString() ); 
-      }
-      builder.append( ">" );
-      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
-      
-      builder.append( "</" ).append( prefix ).append( ":" ).append( localPart ).append( ">" ); 
-      Element domElement = null;
-      try
-      {
-         domElement = DocumentUtil.getDocument( builder.toString() ).getDocumentElement() ;
-      }
-      catch (ConfigurationException e)
-      {
-         throw new ParsingException( e );
-      }
-      catch (ProcessingException e)
-      {
-         throw new ParsingException( e );
-      }
-      
-      return domElement;
-   }
-   
-   
-   private Element getKeyValueAsDomElement( StartElement subEvent, XMLEventReader xmlEventReader  ) throws ParsingException
-   {
-      StringBuilder builder = new StringBuilder();
-      
-      QName subEventName = subEvent.getName();
-      String prefix = subEventName.getPrefix();
-      String localPart = subEventName.getLocalPart();
-      
-      //ds:KeyValue
-      builder.append( "<" ).append(  prefix ).append( ":").append( localPart );
-      
-      @SuppressWarnings("unchecked")
-      Iterator<Attribute> iter = subEvent.getAttributes();
-      
-      while( iter != null && iter.hasNext() )
-      {
-         Attribute attr = iter.next();
-         QName attrName = attr.getName();
-         if( attrName.getNamespaceURI().equals( WSTrustConstants.DSIG_NS ) )
-         {
-            builder.append( " ").append( prefix ).append( ":" ).append( attrName.getLocalPart() );
-            builder.append( "=" ).append( StaxParserUtil.getAttributeValue( attr )); 
-         }
-      }
-      
-      @SuppressWarnings("unchecked")
-      Iterator<Namespace> namespaces = subEvent.getNamespaces();
-      while( namespaces != null && namespaces.hasNext() )
-      {
-         Namespace namespace = namespaces.next();
-         builder.append( " ").append( namespace.toString() ); 
-      }
-      builder.append( ">" );
-      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate( subEvent, "RSAKeyValue" );
-      builder.append( "<") .append( prefix) .append( ":" ).append( "RSAKeyValue>" );
-      
-      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate( subEvent, "Modulus" );
-      builder.append( "<") .append( prefix) .append( ":" ).append( "Modulus>" );
-      
-      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
-      
-      builder.append( "</" ).append( prefix ).append( ":" ).append( "Modulus" ).append( ">" );
-      
 
-      subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate( subEvent, "Exponent" );
+   /**
+    * Given that the {@code XMLEventReader} is in {@code XMLStreamConstants.START_ELEMENT}
+    * mode, we parse into a DOM Element
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   private Element getDOMElement( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      Transformer transformer = null;
 
-      builder.append( "<") .append( prefix) .append( ":" ).append( "Exponent>" );
-      
-      builder.append( StaxParserUtil.getElementText(xmlEventReader) ); //We are at the end of tag
-      
-      builder.append( "</" ).append( prefix ).append( ":" ).append( "Exponent" ).append( ">" );
-      
-      EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-      StaxParserUtil.validate(endElement, "RSAKeyValue" );
-      builder.append( "</" ).append( prefix ).append( ":" ).append( "RSAKeyValue" ).append( ">" );
-      
-      endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-      StaxParserUtil.validate(endElement, KEYVALUE );
-      builder.append( "</" ).append( prefix ).append( ":" ).append( KEYVALUE ).append( ">" );
-      
-      
-      Element domElement = null;
+      boolean useJDKTransformer = Boolean.parseBoolean( SecurityActions.getSystemProperty(JDK_TRANSFORMER_PROPERTY, "false" ));
+
       try
-      {
-         domElement = DocumentUtil.getDocument( builder.toString() ).getDocumentElement() ;
+      { 
+         if( useJDKTransformer )
+         {
+            transformer = TransformerUtil.getTransformer();
+         }
+         else
+         {
+            transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+         } 
+
+         Document resultDocument = DocumentUtil.createDocument();
+         DOMResult domResult = new DOMResult( resultDocument );
+ 
+         StAXSource source = new StAXSource( xmlEventReader );
+
+         TransformerUtil.transform( transformer, source, domResult );
+
+         Document doc = ( Document ) domResult.getNode();
+         return doc.getDocumentElement();
       }
-      catch (ConfigurationException e)
+      catch ( ConfigurationException e )
       {
          throw new ParsingException( e );
       }
-      catch (ProcessingException e)
+      catch ( XMLStreamException e )
       {
          throw new ParsingException( e );
       }
-      
-      return domElement; 
-   }
+   } 
 }

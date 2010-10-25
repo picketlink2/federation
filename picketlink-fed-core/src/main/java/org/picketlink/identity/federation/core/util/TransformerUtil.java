@@ -58,6 +58,11 @@ import org.w3c.dom.Node;
  */
 public class TransformerUtil
 {
+   /**
+    * Get the Default Transformer
+    * @return
+    * @throws ConfigurationException
+    */
    public static Transformer getTransformer() throws ConfigurationException
    {
       Transformer transformer;
@@ -78,9 +83,36 @@ public class TransformerUtil
       return transformer;
    }
 
+   /**
+    * Get the Custom Stax Source to DOM result transformer that has been written
+    * to get over the JDK transformer bugs (JDK6) as well as the issue of Xalan
+    * installing its Transformer (which does not support stax).
+    * 
+    * @return
+    * @throws ConfigurationException
+    */
    public static Transformer getStaxSourceToDomResultTransformer() throws ConfigurationException 
    {
       return new PicketLinkStaxToDOMTransformer();  
+   }
+   
+   /**
+    * Use the transformer to transform
+    * @param transformer
+    * @param stax
+    * @param result
+    * @throws ParsingException
+    */
+   public static void transform( Transformer transformer, StAXSource stax, DOMResult result ) throws ParsingException
+   {
+      try
+      {
+         transformer.transform( stax,  result );
+      }
+      catch (TransformerException e)
+      {
+         throw new ParsingException( e );
+      } 
    }
 
    /**
@@ -137,7 +169,7 @@ public class TransformerUtil
                      Node el = doc.importNode(docStartElement, true);
 
                      Node top = stack.peek();
-                     
+
                      if( !holder.encounteredTextNode )
                      {
                         stack.push(el);  
@@ -153,8 +185,11 @@ public class TransformerUtil
                      String endTag = StaxParserUtil.getEndElementName( endElement );
                      if( rootTag.equals( endTag ))
                         return; //We are done with the dom parsing
-                        else
+                     else
+                     {
+                        if( !stack.isEmpty() )
                            stack.pop(); 
+                     } 
                      break;
                }
             }
