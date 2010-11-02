@@ -149,4 +149,24 @@ public class XMLTimeUtil
          return false;
       return true;      
    }
+   
+   /**
+    * Given a string representing xml time, parse into {@code XMLGregorianCalendar}
+    * @param timeString
+    * @return
+    * @throws ConfigurationException
+    */
+   public static XMLGregorianCalendar parse( String timeString ) throws ConfigurationException
+   {
+      DatatypeFactory factory = null;
+      try
+      {
+         factory = DatatypeFactory.newInstance();
+      }
+      catch (DatatypeConfigurationException e)
+      {
+         throw new ConfigurationException( e );
+      }
+      return factory.newXMLGregorianCalendar( timeString );
+   }
 }
