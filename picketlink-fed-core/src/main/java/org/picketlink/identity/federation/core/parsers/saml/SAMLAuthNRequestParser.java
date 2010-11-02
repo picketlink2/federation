@@ -31,7 +31,6 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
@@ -41,7 +40,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLAuthNRequestParser implements ParserNamespaceSupport
+public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport
 {
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
@@ -101,10 +100,7 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
    { 
       AuthnRequestType authnRequest = new AuthnRequestType();
       //Let us get the attributes
-      Attribute idAttr = startElement.getAttributeByName( new QName( "ID" ));
-      if( idAttr == null )
-         throw new RuntimeException( "ID attribute is missing" );
-      authnRequest.setID( StaxParserUtil.getAttributeValue( idAttr ));
+      super.parseBaseAttributes(startElement, authnRequest );
       
       Attribute assertionConsumerServiceURL = startElement.getAttributeByName( new QName( "AssertionConsumerServiceURL" ));
       if( assertionConsumerServiceURL != null )
@@ -114,15 +110,6 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
       if( assertionConsumerServiceIndex != null )
          authnRequest.setAssertionConsumerServiceIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( assertionConsumerServiceIndex )));
       
-      Attribute destination = startElement.getAttributeByName( new QName( "Destination" ));
-      if( destination != null )
-         authnRequest.setDestination( StaxParserUtil.getAttributeValue( destination ));
-      
-      Attribute issueInstant = startElement.getAttributeByName( new QName( "IssueInstant" ));
-      if( issueInstant == null )
-         throw new RuntimeException( "IssueInstant attribute required in AuthnRequest" ); 
-      authnRequest.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant )));  
-      
       Attribute protocolBinding = startElement.getAttributeByName( new QName( "ProtocolBinding" ));
       if( protocolBinding != null )
          authnRequest.setProtocolBinding( StaxParserUtil.getAttributeValue( protocolBinding ));
@@ -130,15 +117,6 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
       Attribute providerName = startElement.getAttributeByName( new QName( "ProviderName" ));
       if( providerName != null )
          authnRequest.setProviderName( StaxParserUtil.getAttributeValue( providerName ));
-      
-      Attribute consent = startElement.getAttributeByName( new QName( "Consent" ));
-      if( consent != null )
-         authnRequest.setConsent( StaxParserUtil.getAttributeValue( consent ));
-      
-      Attribute version = startElement.getAttributeByName( new QName( "Version" ));
-      if( version == null )
-         throw new RuntimeException( "Version attribute required in AuthnRequest" );
-      authnRequest.setVersion( StaxParserUtil.getAttributeValue( version ));
       
       Attribute forceAuthn = startElement.getAttributeByName( new QName( "ForceAuthn" ));
       if( forceAuthn != null )

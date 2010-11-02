@@ -34,7 +34,6 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
@@ -45,7 +44,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLResponseParser implements ParserNamespaceSupport
+public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
 { 
    private String RESPONSE = JBossSAMLConstants.RESPONSE.get();
    /**
@@ -111,29 +110,8 @@ public class SAMLResponseParser implements ParserNamespaceSupport
    private ResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
       ResponseType response = new ResponseType();
-      //Let us get the attributes
-      Attribute idAttr = startElement.getAttributeByName( new QName( "ID" ));
-      if( idAttr == null )
-         throw new RuntimeException( "ID attribute is missing" );
-      response.setID( StaxParserUtil.getAttributeValue( idAttr ));
+      super.parseBaseAttributes( startElement, response ); 
       
-      Attribute inResponseTo = startElement.getAttributeByName( new QName( "InResponseTo" ));
-      if( inResponseTo != null )
-         response.setInResponseTo( StaxParserUtil.getAttributeValue( inResponseTo ));
-      
-      Attribute destination = startElement.getAttributeByName( new QName( "Destination" ));
-      if( destination != null )
-         response.setDestination( StaxParserUtil.getAttributeValue( destination ));
-      
-      Attribute issueInstant = startElement.getAttributeByName( new QName( "IssueInstant" ));
-      if( issueInstant != null )
-      {
-         response.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant ))); 
-      }
-      
-      Attribute version = startElement.getAttributeByName( new QName( "Version" ));
-      if( version != null )
-         response.setVersion( StaxParserUtil.getAttributeValue( version ));
       return response; 
    } 
    
