@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory; 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -41,7 +41,26 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
  * @since Feb 8, 2010
  */
 public class StaxParserUtil
-{  
+{   
+   /**
+    * Bypass an entire XML element block from startElement to endElement
+    * @param xmlEventReader
+    * @param tag Tag of the XML element that we need to bypass
+    * @throws ParsingException
+    */
+   public static void bypassElementBlock( XMLEventReader xmlEventReader, String tag ) throws ParsingException
+   {
+      while ( xmlEventReader.hasNext() )
+      {
+         EndElement endElement = getNextEndElement( xmlEventReader );
+         if( endElement == null )
+            return;
+
+         if( StaxParserUtil.matches( endElement , tag ) )
+            return;
+      }
+   }
+   
    /**
     * Given an {@code Attribute}, get its trimmed value
     * @param attribute
