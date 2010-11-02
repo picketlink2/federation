@@ -108,17 +108,20 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
       
       Attribute assertionConsumerServiceURL = startElement.getAttributeByName( new QName( "AssertionConsumerServiceURL" ));
       if( assertionConsumerServiceURL != null )
-         authnRequest.setAssertionConsumerServiceURL( StaxParserUtil.getAttributeValue( assertionConsumerServiceURL ));
+         authnRequest.setAssertionConsumerServiceURL( StaxParserUtil.getAttributeValue( assertionConsumerServiceURL )); 
+
+      Attribute assertionConsumerServiceIndex = startElement.getAttributeByName( new QName( "AssertionConsumerServiceIndex" ));
+      if( assertionConsumerServiceIndex != null )
+         authnRequest.setAssertionConsumerServiceIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( assertionConsumerServiceIndex )));
       
       Attribute destination = startElement.getAttributeByName( new QName( "Destination" ));
       if( destination != null )
          authnRequest.setDestination( StaxParserUtil.getAttributeValue( destination ));
       
       Attribute issueInstant = startElement.getAttributeByName( new QName( "IssueInstant" ));
-      if( issueInstant != null )
-      {
-         authnRequest.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant ))); 
-      }
+      if( issueInstant == null )
+         throw new RuntimeException( "IssueInstant attribute required in AuthnRequest" ); 
+      authnRequest.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant )));  
       
       Attribute protocolBinding = startElement.getAttributeByName( new QName( "ProtocolBinding" ));
       if( protocolBinding != null )
@@ -128,9 +131,31 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
       if( providerName != null )
          authnRequest.setProviderName( StaxParserUtil.getAttributeValue( providerName ));
       
+      Attribute consent = startElement.getAttributeByName( new QName( "Consent" ));
+      if( consent != null )
+         authnRequest.setConsent( StaxParserUtil.getAttributeValue( consent ));
+      
       Attribute version = startElement.getAttributeByName( new QName( "Version" ));
-      if( version != null )
-         authnRequest.setVersion( StaxParserUtil.getAttributeValue( version ));
+      if( version == null )
+         throw new RuntimeException( "Version attribute required in AuthnRequest" );
+      authnRequest.setVersion( StaxParserUtil.getAttributeValue( version ));
+      
+      Attribute forceAuthn = startElement.getAttributeByName( new QName( "ForceAuthn" ));
+      if( forceAuthn != null )
+      {
+         authnRequest.setForceAuthn( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( forceAuthn ) ));
+      }
+      
+      Attribute isPassive = startElement.getAttributeByName( new QName( "IsPassive" ));
+      if( isPassive != null )
+      {
+         authnRequest.setIsPassive( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( isPassive ) ));
+      }
+      
+      Attribute attributeConsumingServiceIndex = startElement.getAttributeByName( new QName( "AttributeConsumingServiceIndex" ));
+      if( attributeConsumingServiceIndex != null )
+         authnRequest.setAttributeConsumingServiceIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( attributeConsumingServiceIndex )));
+      
       return authnRequest; 
    } 
    

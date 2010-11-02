@@ -24,7 +24,6 @@ package org.picketlink.identity.federation.core.parsers.saml;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -191,7 +190,13 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
       StaxParserUtil.matches( startElement, AUTHNSTATEMENT );
       
       Attribute authnInstant = startElement.getAttributeByName( new QName( "AuthnInstant" ));
+      if( authnInstant == null )
+         throw new RuntimeException( "Required attribute AuthnInstant in " + AUTHNSTATEMENT );
       authnStatementType.setAuthnInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( authnInstant )));
+      
+      Attribute sessionIndex = startElement.getAttributeByName( new QName( "SessionIndex" ));
+      if( sessionIndex != null )
+         authnStatementType.setSessionIndex( StaxParserUtil.getAttributeValue( sessionIndex ));
       
       //Get the next start element
       startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
