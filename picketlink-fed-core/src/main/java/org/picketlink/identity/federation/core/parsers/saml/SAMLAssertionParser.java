@@ -171,14 +171,6 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
     */
    private void bypassXMLSignatureBlock( XMLEventReader xmlEventReader ) throws ParsingException
    {
-      while ( xmlEventReader.hasNext() )
-      {
-         EndElement endElement = StaxParserUtil.getNextEndElement( xmlEventReader );
-         if( endElement == null )
-            return;
-
-         if( StaxParserUtil.matches( endElement , JBossSAMLConstants.SIGNATURE.get() ) )
-            return;
-      }
+      StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() ); 
    }
 }
