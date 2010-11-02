@@ -52,6 +52,8 @@ public class SAMLParser extends AbstractParser
          if( xmlEvent instanceof StartElement )
          {
             StartElement startElement = (StartElement) xmlEvent;
+            QName startElementName = startElement.getName();
+            String nsURI = startElementName.getNamespaceURI();
 
             String elementName = StaxParserUtil.getStartElementName( startElement );
             if( elementName.equalsIgnoreCase( JBossSAMLConstants.ASSERTION.get() ))
@@ -59,10 +61,17 @@ public class SAMLParser extends AbstractParser
                SAMLAssertionParser assertionParser = new SAMLAssertionParser();
                return assertionParser.parse( xmlEventReader ); 
             }
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( startElement.getName().getNamespaceURI() ) )
+            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
+                  JBossSAMLConstants.AUTHN_REQUEST.get().equals( startElementName.getLocalPart() ))
             {
                SAMLAuthNRequestParser authNRequestParser = new SAMLAuthNRequestParser();
                return authNRequestParser.parse( xmlEventReader );
+            }
+            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
+                  JBossSAMLConstants.RESPONSE.get().equals( startElementName.getLocalPart() ))
+            {
+               SAMLResponseParser responseParser = new SAMLResponseParser();
+               return responseParser.parse( xmlEventReader ); 
             }
             else
                throw new RuntimeException( "Unknown Tag:" + elementName );

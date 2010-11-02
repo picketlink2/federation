@@ -31,6 +31,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 
 /**
  * Util class dealing with xml based time
@@ -154,9 +155,9 @@ public class XMLTimeUtil
     * Given a string representing xml time, parse into {@code XMLGregorianCalendar}
     * @param timeString
     * @return
-    * @throws ConfigurationException
+    * @throws ParsingException
     */
-   public static XMLGregorianCalendar parse( String timeString ) throws ConfigurationException
+   public static XMLGregorianCalendar parse( String timeString ) throws ParsingException
    {
       DatatypeFactory factory = null;
       try
@@ -165,7 +166,7 @@ public class XMLTimeUtil
       }
       catch (DatatypeConfigurationException e)
       {
-         throw new ConfigurationException( e );
+         throw new ParsingException( e );
       }
       return factory.newXMLGregorianCalendar( timeString );
    }

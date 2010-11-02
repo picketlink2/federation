@@ -24,8 +24,11 @@ package org.picketlink.identity.federation.core.parsers.saml;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -33,16 +36,18 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
- * Parse the SAML2 AuthnRequest
+ * Parse the SAML Response
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLAuthNRequestParser implements ParserNamespaceSupport
-{
+public class SAMLResponseParser implements ParserNamespaceSupport
+{ 
+   private String RESPONSE = JBossSAMLConstants.RESPONSE.get();
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
@@ -50,9 +55,9 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
    { 
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_REQUEST.get() );
+      StaxParserUtil.validate(startElement, RESPONSE );
       
-      AuthnRequestType authnRequest =  parseBaseAttributes( startElement ); 
+      ResponseType response = parseBaseAttributes(startElement); 
       
       while( xmlEventReader.hasNext() )
       {
@@ -67,89 +72,117 @@ public class SAMLAuthNRequestParser implements ParserNamespaceSupport
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             NameIDType issuer = new NameIDType();
             issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-            authnRequest.setIssuer( issuer );
+            response.setIssuer( issuer );
          }
          else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
          {
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
          }
-         else if( JBossSAMLConstants.NAMEID_POLICY.get().equals( elementName ))
+         else if( JBossSAMLConstants.ASSERTION.get().equals( elementName ))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            authnRequest.setNameIDPolicy( getNameIDPolicy( startElement ));
+            SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
+            response.getAssertionOrEncryptedAssertion().add( assertionParser.parse(xmlEventReader));
+         }
+         else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
+         {
+            response.setStatus( parseStatus(xmlEventReader) ); 
          }
       }
-      return authnRequest;
+      
+      return response;
    }
 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
+    */ 
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() ) ;
+      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
+             && RESPONSE.equals( qname.getLocalPart() );
    }
    
    /**
-    * Parse the attributes at the authnrequesttype element
+    * Parse the attributes at the response element
     * @param startElement
-    * @return 
-    * @throws ParsingException 
+    * @return
+    * @throws ConfigurationException
     */
-   private AuthnRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
+   private ResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
-      AuthnRequestType authnRequest = new AuthnRequestType();
+      ResponseType response = new ResponseType();
       //Let us get the attributes
       Attribute idAttr = startElement.getAttributeByName( new QName( "ID" ));
       if( idAttr == null )
          throw new RuntimeException( "ID attribute is missing" );
-      authnRequest.setID( StaxParserUtil.getAttributeValue( idAttr ));
+      response.setID( StaxParserUtil.getAttributeValue( idAttr ));
       
-      Attribute assertionConsumerServiceURL = startElement.getAttributeByName( new QName( "AssertionConsumerServiceURL" ));
-      if( assertionConsumerServiceURL != null )
-         authnRequest.setAssertionConsumerServiceURL( StaxParserUtil.getAttributeValue( assertionConsumerServiceURL ));
+      Attribute inResponseTo = startElement.getAttributeByName( new QName( "InResponseTo" ));
+      if( inResponseTo != null )
+         response.setInResponseTo( StaxParserUtil.getAttributeValue( inResponseTo ));
       
       Attribute destination = startElement.getAttributeByName( new QName( "Destination" ));
       if( destination != null )
-         authnRequest.setDestination( StaxParserUtil.getAttributeValue( destination ));
+         response.setDestination( StaxParserUtil.getAttributeValue( destination ));
       
       Attribute issueInstant = startElement.getAttributeByName( new QName( "IssueInstant" ));
       if( issueInstant != null )
       {
-         authnRequest.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant ))); 
+         response.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstant ))); 
       }
-      
-      Attribute protocolBinding = startElement.getAttributeByName( new QName( "ProtocolBinding" ));
-      if( protocolBinding != null )
-         authnRequest.setProtocolBinding( StaxParserUtil.getAttributeValue( protocolBinding ));
-      
-      Attribute providerName = startElement.getAttributeByName( new QName( "ProviderName" ));
-      if( providerName != null )
-         authnRequest.setProviderName( StaxParserUtil.getAttributeValue( providerName ));
       
       Attribute version = startElement.getAttributeByName( new QName( "Version" ));
       if( version != null )
-         authnRequest.setVersion( StaxParserUtil.getAttributeValue( version ));
-      return authnRequest; 
+         response.setVersion( StaxParserUtil.getAttributeValue( version ));
+      return response; 
    } 
    
    /**
-    * Get the NameIDPolicy
-    * @param startElement
+    * Parse the status element
+    * @param xmlEventReader
     * @return
+    * @throws ParsingException
     */
-   private NameIDPolicyType getNameIDPolicy(StartElement startElement)
+   private StatusType parseStatus( XMLEventReader xmlEventReader ) throws ParsingException
    {
-      NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
-      Attribute format = startElement.getAttributeByName( new QName( "Format" ));
-      if( format != null )
-         nameIDPolicy.setFormat( StaxParserUtil.getAttributeValue( format ));
+      //Get the Start Element
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      String STATUS = JBossSAMLConstants.STATUS.get();
+      StaxParserUtil.validate(startElement, STATUS );
       
-      Attribute allowCreate = startElement.getAttributeByName( new QName( "AllowCreate" ));
-      if( allowCreate != null )
-         nameIDPolicy.setAllowCreate( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( allowCreate )));
+      StatusType status = new StatusType();
       
-      return nameIDPolicy;
+      while( xmlEventReader.hasNext() )
+      {
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         QName startElementName = startElement.getName(); 
+         String elementTag = startElementName.getLocalPart();
+
+         StatusCodeType statusCode = new StatusCodeType();
+         
+         if( JBossSAMLConstants.STATUS_CODE.get().equals( elementTag ))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            Attribute valueAttr = startElement.getAttributeByName( new QName( "Value" ));
+            if( valueAttr != null )
+            {
+               statusCode.setValue( StaxParserUtil.getAttributeValue( valueAttr )); 
+            } 
+            //Get the next end element
+            StaxParserUtil.getNextEndElement(xmlEventReader);
+         }
+
+         status.setStatusCode( statusCode );
+         
+         //Get the next end element
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if( StaxParserUtil.matches(endElement, STATUS ))
+               break;
+         }
+      } 
+      return status;
    } 
 }
