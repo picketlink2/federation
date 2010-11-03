@@ -29,6 +29,7 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
@@ -53,5 +54,9 @@ public class SAMLSloRequestParserTestCase
       assertEquals( "2.0", lotRequest.getVersion() );
       //Issuer
       assertEquals( "http://localhost:8080/sales/", lotRequest.getIssuer().getValue() );
+      
+      //Try out writing
+      SAMLRequestWriter writer = new SAMLRequestWriter();
+      writer.write( lotRequest, System.out );
    } 
 }

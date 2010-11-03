@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 public class SAMLResponseWriter extends BaseWriter
 {  
    private  SAMLAssertionWriter assertionWriter = new SAMLAssertionWriter();
+   
    /**
     * Write a {@code ResponseType} to stream
     * @param response
@@ -83,6 +84,41 @@ public class SAMLResponseWriter extends BaseWriter
             }
          }
       }
+      StaxUtil.writeEndElement( writer); 
+      StaxUtil.flush( writer );  
+   }
+   
+   /**
+    * Write a {@code StatusResponseType}
+    * @param response
+    * @param qname QName of the starting element
+    * @param out
+    * @throws ProcessingException
+    */
+   public void write( StatusResponseType response, QName qname, OutputStream out ) throws ProcessingException
+   {
+      verifyWriter( out );
+      
+      if( qname == null )
+      {
+         StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_RESPONSE_TYPE.get() , PROTOCOL_NSURI.get() ); 
+      }
+      else
+      {
+         StaxUtil.writeStartElement( writer, qname.getPrefix(), qname.getLocalPart() , qname.getNamespaceURI() );
+      }
+      
+      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
+      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      
+      writeBaseAttributes( response ); 
+
+      NameIDType issuer = response.getIssuer();
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out ); 
+      
+      StatusType status = response.getStatus();
+      write( status, out );
+      
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
    }
@@ -133,6 +169,9 @@ public class SAMLResponseWriter extends BaseWriter
       { 
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.VALUE.get(), value );
       }
+      StatusCodeType subStatusCode = statusCodeType.getStatusCode();
+      if( subStatusCode != null )
+         write( subStatusCode, out );
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 

@@ -23,13 +23,18 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI; 
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
 
 import java.io.InputStream;
+
+import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
@@ -46,7 +51,7 @@ public class SAMLSloResponseParserTestCase
       InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-logout-response.xml" );
       
       SAMLParser parser = new SAMLParser();
-      ResponseType response = ( ResponseType ) parser.parse(configStream);
+      StatusResponseType response = ( StatusResponseType ) parser.parse(configStream);
       assertNotNull( "ResponseType is not null", response ); 
       
       assertEquals( XMLTimeUtil.parse( "2010-07-29T13:46:03.862-05:00" ), response.getIssueInstant() );
@@ -60,5 +65,9 @@ public class SAMLSloResponseParserTestCase
       StatusType status = response.getStatus();
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue() );
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue() );
+      
+      //Let us do some writing - currently only visual inspection. We will do proper validation later.
+      SAMLResponseWriter writer = new SAMLResponseWriter();
+      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), System.out );
    } 
 }

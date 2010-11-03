@@ -67,6 +67,7 @@ public enum JBossSAMLConstants
    STATUS_CODE( "StatusCode" ),
    STATUS_DETAIL( "StatusDetail" ),
    STATUS_MESSAGE( "StatusMessage" ),
+   STATUS_RESPONSE_TYPE( "StatusResponseType" ),
    SUBJECT( "Subject" ),
    SUBJECT_CONFIRMATION( "SubjectConfirmation" ),
    VALUE( "Value" ),

@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 
 /**
@@ -84,6 +85,33 @@ public class SAMLRequestWriter extends BaseWriter
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
+   }
+   
+   /**
+    * Write a {@code LogoutRequestType} to stream
+    * @param logOutRequest
+    * @param out
+    * @throws ProcessingException
+    */
+   public void write( LogoutRequestType logOutRequest, OutputStream out ) throws ProcessingException
+   {
+      verifyWriter( out ); 
+      
+      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.LOGOUT_REQUEST.get() , PROTOCOL_NSURI.get() ); 
+      
+      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
+      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      
+      //Attributes 
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), logOutRequest.getID() );
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), logOutRequest.getVersion() );
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), logOutRequest.getIssueInstant().toString() );
+      
+      NameIDType issuer = logOutRequest.getIssuer();
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out );
+      
+      StaxUtil.writeEndElement( writer); 
+      StaxUtil.flush( writer ); 
    }
    
    /**
