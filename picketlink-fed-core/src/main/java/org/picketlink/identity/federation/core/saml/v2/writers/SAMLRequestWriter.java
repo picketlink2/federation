@@ -27,7 +27,6 @@ import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAM
 import java.io.OutputStream;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -42,12 +41,8 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLRequestWriter
-{
-   private static String PROTOCOL_PREFIX = "samlp";
-   
-   private XMLStreamWriter writer = null;  
-   
+public class SAMLRequestWriter extends BaseWriter
+{   
    /**
     * Write a {@code AuthnRequestType } to stream
     * @param request
@@ -56,9 +51,7 @@ public class SAMLRequestWriter
     */
    public void write( AuthnRequestType request, OutputStream out ) throws ProcessingException
    { 
-      //Get the XML writer
-      if( writer == null )
-         writer = StaxUtil.getXMLStreamWriter( out ); 
+      verifyWriter( out ); 
       
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.AUTHN_REQUEST.get() , PROTOCOL_NSURI.get() ); 
       
@@ -94,54 +87,6 @@ public class SAMLRequestWriter
    }
    
    /**
-    * Write {@code NameIDType} to stream
-    * @param nameIDType
-    * @param tag
-    * @param out
-    * @throws ProcessingException
-    */
-   public void write( NameIDType nameIDType, QName tag, OutputStream out ) throws ProcessingException
-   {
-      if( writer == null )
-         writer = StaxUtil.getXMLStreamWriter( out ); 
-      
-      StaxUtil.writeStartElement( writer, tag.getPrefix(), tag.getLocalPart() , tag.getNamespaceURI() );
-      
-      String format = nameIDType.getFormat();
-      if( StringUtil.isNotNull( format ))
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format );
-      }
-      
-      String spProvidedID = nameIDType.getSPProvidedID();
-      if( StringUtil.isNotNull( spProvidedID ))
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.SP_PROVIDED_ID.get(), spProvidedID );
-      }
-      
-      String spNameQualifier = nameIDType.getSPNameQualifier();
-      if( StringUtil.isNotNull( spNameQualifier ))
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.SP_NAME_QUALIFIER.get(), spNameQualifier );
-      }
-      
-      String nameQualifier = nameIDType.getNameQualifier();
-      if( StringUtil.isNotNull( nameQualifier ))
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_QUALIFIER.get(), nameQualifier );
-      } 
-      
-      String value = nameIDType.getValue();
-      if( StringUtil.isNotNull( value ))
-      {
-         StaxUtil.writeCharacters( writer, value );
-      }
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
-   }
-   
-   /**
     * Write a {@code NameIDPolicyType} to stream
     * @param nameIDPolicy
     * @param out
@@ -149,8 +94,7 @@ public class SAMLRequestWriter
     */
    public void write( NameIDPolicyType nameIDPolicy, OutputStream out ) throws ProcessingException
    {
-      if( writer == null )
-         writer = StaxUtil.getXMLStreamWriter( out ); 
+      verifyWriter( out );
       
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.NAMEID_POLICY.get(), PROTOCOL_NSURI.get() );
       

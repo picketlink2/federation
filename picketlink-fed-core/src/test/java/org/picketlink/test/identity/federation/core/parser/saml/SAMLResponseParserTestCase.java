@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBElement;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -89,5 +90,9 @@ public class SAMLResponseParserTestCase
       assertEquals( XMLTimeUtil.parse( "2009-05-26T14:06:26.359-05:00" ), authnStatement.getAuthnInstant() );
       authnContextDeclRefJaxb = (JAXBElement<?>) authnStatement.getAuthnContext().getContent().get(0);
       assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", authnContextDeclRefJaxb.getValue() ); 
+      
+      //Let us do some writing - currently only visual inspection. We will do proper validation later.
+      SAMLResponseWriter writer = new SAMLResponseWriter();
+      writer.write(response, System.out );
    }
 }
