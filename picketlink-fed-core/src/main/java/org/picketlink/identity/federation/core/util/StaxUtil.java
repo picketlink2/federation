@@ -130,6 +130,24 @@ public class StaxUtil
    }
    
    /**
+    * Write the default namespace
+    * @param writer
+    * @param ns
+    * @throws ProcessingException
+    */
+   public static void WriteDefaultNameSpace( XMLStreamWriter writer, String ns ) throws ProcessingException
+   {
+      try
+      {
+         writer.writeDefaultNamespace( ns );
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException( e );
+      }
+   }
+   
+   /**
     * Write a namespace
     * @param writer
     * @param prefix prefix

@@ -29,6 +29,7 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 
@@ -64,5 +65,9 @@ public class SAMLAuthnRequestParserTestCase
       NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
       assertEquals( "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat() );
       assertEquals( Boolean.TRUE , nameIDPolicy.isAllowCreate() );
+      
+      //Try out writing
+      SAMLRequestWriter writer = new SAMLRequestWriter();
+      writer.write(authnRequest, System.out );
    }
 }
