@@ -22,13 +22,19 @@
 package org.picketlink.identity.federation.core.parsers.saml;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
  * Base Class for all Response Type parsing for SAML2
@@ -71,6 +77,73 @@ public abstract class SAMLStatusResponseTypeParser
       Attribute inResponseTo = startElement.getAttributeByName( new QName( "InResponseTo" ));
       if( inResponseTo != null )
          response.setInResponseTo( StaxParserUtil.getAttributeValue( inResponseTo ));
-   } 
+   }
+   
+    /**
+    * Parse the status element
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   protected StatusType parseStatus( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      //Get the Start Element
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      String STATUS = JBossSAMLConstants.STATUS.get();
+      StaxParserUtil.validate(startElement, STATUS );
+      
+      StatusType status = new StatusType();
+      
+      while( xmlEventReader.hasNext() )
+      {
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
 
+         if( startElement == null )
+            break;
+         
+         QName startElementName = startElement.getName(); 
+         String elementTag = startElementName.getLocalPart();
+
+         StatusCodeType statusCode = new StatusCodeType();
+         
+         if( JBossSAMLConstants.STATUS_CODE.get().equals( elementTag ))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            if( startElement == null )
+               break;
+            Attribute valueAttr = startElement.getAttributeByName( new QName( "Value" ));
+            if( valueAttr != null )
+            {
+               statusCode.setValue( StaxParserUtil.getAttributeValue( valueAttr )); 
+            }
+            status.setStatusCode( statusCode );
+            
+            //Peek at the next start element to see if it is status code
+            startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
+            if( JBossSAMLConstants.STATUS_CODE.get().equals( startElement.getName().getLocalPart() ))
+            {
+               StatusCodeType subStatusCodeType = new StatusCodeType();
+               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               Attribute subValueAttr = startElement.getAttributeByName( new QName( "Value" ));
+               if( subValueAttr != null )
+               {
+                  subStatusCodeType.setValue( StaxParserUtil.getAttributeValue( subValueAttr )); 
+               } 
+               statusCode.setStatusCode( subStatusCodeType );
+            }
+            else
+               break;
+         } 
+         
+         //Get the next end element
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if( StaxParserUtil.matches(endElement, STATUS ))
+               break;
+         }
+      } 
+      return status;
+   }  
 }

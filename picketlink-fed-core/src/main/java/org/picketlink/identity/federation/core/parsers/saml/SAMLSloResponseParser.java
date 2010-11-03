@@ -21,6 +21,9 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
@@ -35,24 +38,21 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 
 /**
- * Parse the SAML Response
+ * Parse the SLO Response
  * @author Anil.Saldhana@redhat.com
- * @since Nov 2, 2010
+ * @since Nov 3, 2010
  */
-public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
-{ 
-   private String RESPONSE = JBossSAMLConstants.RESPONSE.get();
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
+public class SAMLSloResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
+{
+
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    { 
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, RESPONSE );
-      
+      StaxParserUtil.validate(startElement, LOGOUT_RESPONSE.get() );
+
       ResponseType response = parseBaseAttributes(startElement); 
-      
+
       while( xmlEventReader.hasNext() )
       {
          //Let us peek at the next start element
@@ -60,7 +60,7 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
          if( startElement == null )
             break;
          String elementName = StaxParserUtil.getStartElementName( startElement );
-         
+
          if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
          {
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
@@ -83,19 +83,9 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
             response.setStatus( parseStatus(xmlEventReader) ); 
          }
       }
-      
       return response;
    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */ 
-   public boolean supports(QName qname)
-   {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
-             && RESPONSE.equals( qname.getLocalPart() );
-   }
-   
    /**
     * Parse the attributes at the response element
     * @param startElement
@@ -106,9 +96,16 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
    { 
       ResponseType response = new ResponseType();
       super.parseBaseAttributes( startElement, response ); 
-      
+
       return response; 
    } 
-   
-   
+
+   /**
+    * @see {@link ParserNamespaceSupport#supports(QName)}
+    */ 
+   public boolean supports(QName qname)
+   {
+      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
+      && LOGOUT_RESPONSE.equals( qname.getLocalPart() );
+   }
 }

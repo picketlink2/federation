@@ -21,27 +21,28 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_REQUEST;
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
- * Parse the SAML Response
+ * Parse the Single Log Out requests
  * @author Anil.Saldhana@redhat.com
- * @since Nov 2, 2010
+ * @since Nov 3, 2010
  */
-public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
-{ 
-   private String RESPONSE = JBossSAMLConstants.RESPONSE.get();
+public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport
+{
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
@@ -49,9 +50,9 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
    { 
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, RESPONSE );
+      StaxParserUtil.validate(startElement, LOGOUT_REQUEST.get() );
       
-      ResponseType response = parseBaseAttributes(startElement); 
+      LogoutRequestType logoutRequest = parseBaseAttributes( startElement );
       
       while( xmlEventReader.hasNext() )
       {
@@ -61,30 +62,15 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
             break;
          String elementName = StaxParserUtil.getStartElementName( startElement );
          
-         if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+         parseCommonElements(startElement, xmlEventReader, logoutRequest );
+         
+         if( JBossSAMLConstants.SESSION_INDEX.get().equals( elementName ))
          {
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            NameIDType issuer = new NameIDType();
-            issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-            response.setIssuer( issuer );
-         }
-         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
-         {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
-         }
-         else if( JBossSAMLConstants.ASSERTION.get().equals( elementName ))
-         {
-            SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
-            response.getAssertionOrEncryptedAssertion().add( assertionParser.parse(xmlEventReader));
-         }
-         else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
-         {
-            response.setStatus( parseStatus(xmlEventReader) ); 
+            logoutRequest.getSessionIndex().add(  StaxParserUtil.getElementText( xmlEventReader ) );
          }
       }
-      
-      return response;
+      return logoutRequest;
    }
 
    /**
@@ -92,23 +78,29 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
     */ 
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
-             && RESPONSE.equals( qname.getLocalPart() );
+      return PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
+             && LOGOUT_REQUEST.equals( qname.getLocalPart() );
    }
    
    /**
-    * Parse the attributes at the response element
+    * Parse the attributes at the log out request element
     * @param startElement
-    * @return
-    * @throws ConfigurationException
+    * @return 
+    * @throws ParsingException 
     */
-   private ResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
+   private LogoutRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
-      ResponseType response = new ResponseType();
-      super.parseBaseAttributes( startElement, response ); 
+      LogoutRequestType logoutRequest = new LogoutRequestType();
+      //Let us get the attributes
+      super.parseBaseAttributes(startElement, logoutRequest );
       
-      return response; 
-   } 
-   
-   
+      Attribute reason = startElement.getAttributeByName( new QName( "Reason" ));
+      if( reason != null )
+         logoutRequest.setReason( StaxParserUtil.getAttributeValue( reason )); 
+      
+      Attribute notOnOrAfter = startElement.getAttributeByName( new QName( "NotOnOrAfter" ));
+      if( notOnOrAfter != null )
+         logoutRequest.setNotOnOrAfter( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( notOnOrAfter )));  
+      return logoutRequest; 
+   }
 }

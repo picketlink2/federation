@@ -68,6 +68,18 @@ public class SAMLParser extends AbstractParser
                return authNRequestParser.parse( xmlEventReader );
             }
             else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
+                  JBossSAMLConstants.LOGOUT_REQUEST.get().equals( startElementName.getLocalPart() ))
+            {
+               SAMLSloRequestParser sloParser = new SAMLSloRequestParser();
+               return sloParser.parse( xmlEventReader ); 
+            }
+            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
+                  JBossSAMLConstants.LOGOUT_RESPONSE.get().equals( startElementName.getLocalPart() ))
+            {
+               SAMLSloResponseParser sloParser = new SAMLSloResponseParser();
+               return sloParser.parse( xmlEventReader ); 
+            }
+            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
                   JBossSAMLConstants.RESPONSE.get().equals( startElementName.getLocalPart() ))
             {
                SAMLResponseParser responseParser = new SAMLResponseParser();

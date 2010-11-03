@@ -28,10 +28,10 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeFactory;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
@@ -47,9 +47,7 @@ public class SAMLAssertionParserTestCase
 {
    @Test
    public void testSAMLAssertionParsing() throws Exception
-   {
-      DatatypeFactory dtf = DatatypeFactory.newInstance(); 
-      
+   {   
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion.xml" );
       
@@ -58,15 +56,13 @@ public class SAMLAssertionParserTestCase
       assertNotNull( assertion );
       
       assertEquals( "ID_ab0392ef-b557-4453-95a8-a7e168da8ac5", assertion.getID() );
-      assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.869Z" ), assertion.getIssueInstant() );
+      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ), assertion.getIssueInstant() );
       //Issuer
       assertEquals( "Test STS", assertion.getIssuer().getValue() );
       
       //Subject
       SubjectType subject = assertion.getSubject();
-      List<JAXBElement<?>> content = subject.getContent();
-      
-
+      List<JAXBElement<?>> content = subject.getContent(); 
       
       int size = content.size();
       
@@ -86,8 +82,8 @@ public class SAMLAssertionParserTestCase
 
             //Conditions
             ConditionsType conditions =  (ConditionsType) node.getValue();
-            assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.869Z" ) , conditions.getNotBefore() );
-            assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() );
+            assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ) , conditions.getNotBefore() );
+            assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() );
             
          }
       } 
@@ -100,9 +96,7 @@ public class SAMLAssertionParserTestCase
     */
    @Test
    public void testSAMLAssertionParsingWithAudienceRestriction() throws Exception
-   {
-      DatatypeFactory dtf = DatatypeFactory.newInstance(); 
-      
+   { 
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion-audiencerestriction.xml" );
       
@@ -111,7 +105,7 @@ public class SAMLAssertionParserTestCase
       assertNotNull( assertion );
       
       assertEquals( "ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374", assertion.getID() );
-      assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.911Z" ), assertion.getIssueInstant() );
+      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.911Z" ), assertion.getIssueInstant() );
       assertEquals( "2.0", assertion.getVersion() );
       
       //Issuer
@@ -140,8 +134,8 @@ public class SAMLAssertionParserTestCase
          { 
             //Conditions
             ConditionsType conditions =  (ConditionsType) node.getValue();
-            assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.911Z" ) , conditions.getNotBefore() );
-            assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T21:13:37.911Z" ) , conditions.getNotOnOrAfter() );
+            assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.911Z" ) , conditions.getNotBefore() );
+            assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.911Z" ) , conditions.getNotOnOrAfter() );
 
             //Audience Restriction
             AudienceRestrictionType audienceRestrictionType = 

@@ -22,12 +22,15 @@
 package org.picketlink.identity.federation.core.parsers.saml;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil; 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 
 /**
@@ -68,4 +71,23 @@ public abstract class SAMLRequestAbstractParser
       if( consent != null )
          request.setConsent( StaxParserUtil.getAttributeValue( consent )); 
    } 
+   
+   protected void parseCommonElements( StartElement startElement, XMLEventReader xmlEventReader,
+         RequestAbstractType request ) throws ParsingException
+   {
+      String elementName = StaxParserUtil.getStartElementName( startElement );
+
+      if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+      {
+         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+         NameIDType issuer = new NameIDType();
+         issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
+         request.setIssuer( issuer );
+      }
+      else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
+      {
+         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+         StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
+      }  
+   }
 }

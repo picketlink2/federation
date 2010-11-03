@@ -31,7 +31,6 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 
@@ -59,21 +58,11 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
          startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
          if( startElement == null )
             break;
+         super.parseCommonElements(startElement, xmlEventReader, authnRequest);
+         
          String elementName = StaxParserUtil.getStartElementName( startElement );
          
-         if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
-         {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            NameIDType issuer = new NameIDType();
-            issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-            authnRequest.setIssuer( issuer );
-         }
-         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
-         {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
-         }
-         else if( JBossSAMLConstants.NAMEID_POLICY.get().equals( elementName ))
+         if( JBossSAMLConstants.NAMEID_POLICY.get().equals( elementName ))
          {
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             authnRequest.setNameIDPolicy( getNameIDPolicy( startElement ));
