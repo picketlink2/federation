@@ -104,7 +104,8 @@ public enum JBossSAMLURIConstants
    X500_NSURI("urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"),
    XMLSCHEMA_NSURI("http://www.w3.org/2001/XMLSchema"),
    XMLDSIG_NSURI("http://www.w3.org/2000/09/xmldsig#"),
-   XMLENC_NSURI("http://www.w3.org/2001/04/xmlenc#");
+   XMLENC_NSURI("http://www.w3.org/2001/04/xmlenc#"),
+   XSI_NSURI( "http://www.w3.org/2001/XMLSchema-instance" );
    
    private String uri = null;
    
