@@ -91,6 +91,25 @@ public class StaxUtil
          throw new ProcessingException( e );
       }
    }
+   
+   /**
+    * Set a prefix
+    * @param writer
+    * @param prefix
+    * @param nsURI
+    * @throws ProcessingException
+    */
+   public static void setPrefix( XMLStreamWriter writer, String prefix, String nsURI ) throws ProcessingException
+   {
+      try
+      {
+         writer.setPrefix(prefix, nsURI );
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException( e );
+      }
+   }
 
    /**
     * Write an xml attribute
@@ -104,6 +123,26 @@ public class StaxUtil
       try
       { 
          writer.writeAttribute(localName, value);
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException( e );
+      }
+   }
+   
+   /**
+    * Write an xml attribute
+    * @param writer
+    * @param localName localpart
+    * @param type typically xsi:type
+    * @param value value of the attribute
+    * @throws ProcessingException
+    */
+   public static void writeAttribute( XMLStreamWriter writer, String localName, String type,  String value )  throws ProcessingException
+   {
+      try
+      { 
+         writer.writeAttribute( localName, type, value );
       }
       catch (XMLStreamException e)
       {
