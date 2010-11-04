@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.request;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,13 +39,16 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -119,8 +123,7 @@ public class SAML2Request
     * @return
     * @throws IOException
     * @throws ParsingException
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public SAML2Object getSAML2ObjectFromStream(InputStream is) 
    throws  ConfigurationException, ParsingException,
    ProcessingException
@@ -130,18 +133,22 @@ public class SAML2Request
       
       Document samlDocument =  DocumentUtil.getDocument(is); 
  
-      try
-      {
-         Binder<Node> binder = getBinder();
+      /*try
+      {*/
+         /*Binder<Node> binder = getBinder();
          JAXBElement<SAML2Object> jaxbAuthnRequestType = (JAXBElement<SAML2Object>) binder.unmarshal(samlDocument);
-         SAML2Object requestType = jaxbAuthnRequestType.getValue();
+         SAML2Object requestType = jaxbAuthnRequestType.getValue();*/
+         
+         SAMLParser samlParser = new SAMLParser();
+         SAML2Object requestType = (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlDocument ));
+         
          samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
          return requestType;
-      }
+      /*}
       catch (JAXBException e)
       {
          throw new ParsingException(e);
-      }
+      }*/
    }
    
    /**
@@ -220,6 +227,7 @@ public class SAML2Request
       LogoutRequestType lrt = of.createLogoutRequestType();
       lrt.setID(IDGenerator.create("ID_"));
       lrt.setIssueInstant(XMLTimeUtil.getIssueInstant());
+      lrt.setVersion( JBossSAMLConstants.VERSION_2_0.get() ); 
       
       //Create an issuer 
       NameIDType issuerNameID = JBossSAMLBaseFactory.createNameID();
@@ -275,20 +283,36 @@ public class SAML2Request
     * Return the DOM object
     * @param rat
     * @return
-    * @throws SAXException
-    * @throws IOException
-    * @throws JAXBException
-    * @throws ParserConfigurationException
+    * @throws ProcessingException 
+    * @throws ParsingException 
+    * @throws ConfigurationException 
     */
+   /*public Document convert(RequestAbstractType rat) 
+   throws SAXException, IOException, JAXBException, ConfigurationException */
+   
    public Document convert(RequestAbstractType rat) 
-   throws SAXException, IOException, JAXBException, ConfigurationException 
+   throws ProcessingException, ConfigurationException, ParsingException 
    {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(RequestAbstractType.class);
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      
+      SAMLRequestWriter writer = new SAMLRequestWriter();
+      if( rat instanceof AuthnRequestType )
+      {
+         writer.write( (AuthnRequestType) rat, bos);
+      } 
+      else if( rat instanceof LogoutRequestType )
+      {
+         writer.write( (LogoutRequestType) rat, bos);
+      }
+      
+      return DocumentUtil.getDocument( new String( bos.toByteArray() )); 
+         
+      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(RequestAbstractType.class);
       Binder<Node> binder = jaxb.createBinder();
       
       Document doc = DocumentUtil.createDocument();
       binder.marshal(JAXBElementMappingUtil.get(rat), doc);
-      return doc; 
+      return doc;*/ 
    }
    
    /**

@@ -21,6 +21,11 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.response;
 
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -33,12 +38,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
@@ -51,6 +58,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
@@ -270,8 +278,7 @@ public class SAML2Response
     * @throws ParsingException 
     * @throws ConfigurationException 
     * @throws ProcessingException 
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException, ProcessingException
    {
       if(is == null)
@@ -279,18 +286,25 @@ public class SAML2Response
       
       Document samlResponseDocument = DocumentUtil.getDocument(is); 
       
+      System.out.println( "RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
+      /*
       try
       {
          Binder<Node> binder = getBinder();
          JAXBElement<SAML2Object> saml2Object = (JAXBElement<SAML2Object>) binder.unmarshal(samlResponseDocument);
          SAML2Object responseType = saml2Object.getValue();
+         */
+         SAMLParser samlParser = new SAMLParser();
+         SAML2Object responseType =  (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
+         
          samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
          return responseType;
+      /*   
       }
       catch (JAXBException e)
       {
          throw new ParsingException(e);
-      }  
+      } */ 
    }
    
    /**
@@ -326,17 +340,40 @@ public class SAML2Response
     * Convert a SAML2 Response into a Document
     * @param responseType
     * @return
+    * @throws ParsingException 
+    * @throws ConfigurationException 
     * @throws JAXBException
     * @throws ParserConfigurationException
-    */
-   public Document convert(StatusResponseType responseType) throws JAXBException, ConfigurationException 
+    *//*
+   public Document convert(StatusResponseType responseType) throws JAXBException, ConfigurationException*/
+   
+
+   public Document convert(StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException
    {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(StatusResponseType.class);
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+      SAMLResponseWriter writer = new SAMLResponseWriter();
+      
+      if( responseType instanceof ResponseType )
+      {
+         ResponseType response = (ResponseType) responseType;
+         writer.write(response, bos );
+      }
+      else
+      {
+         writer.write(responseType, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), bos );
+      }
+      
+      //System.out.println( new String( bos.toByteArray() ) );
+      return DocumentUtil.getDocument( new ByteArrayInputStream( bos.toByteArray() ));
+            
+      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(StatusResponseType.class);
+             * 
       Binder<Node> binder = jaxb.createBinder();
 
       Document responseDocument = DocumentUtil.createDocument();
       binder.marshal(JAXBElementMappingUtil.get(responseType), responseDocument);
-      return responseDocument; 
+      return responseDocument; */
    }
    
    /**
