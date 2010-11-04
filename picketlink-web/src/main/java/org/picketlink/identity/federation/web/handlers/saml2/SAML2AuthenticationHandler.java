@@ -225,7 +225,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          saml2Response.createTimedConditions(assertion, assertionValidity);
 
          //Add in the attributes information
-         if(attribs != null)
+         if(attribs != null && attribs.size() > 0 )
          {
             AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
             assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attStatement);
@@ -255,6 +255,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          catch (Exception e)
          {
+            e.printStackTrace();
             if(trace)
                log.trace(e); 
          } 
