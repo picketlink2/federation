@@ -34,8 +34,8 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType; 
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 
 /**
  * Parse the SLO Response
@@ -51,7 +51,7 @@ public class SAMLSloResponseParser extends SAMLStatusResponseTypeParser implemen
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       StaxParserUtil.validate(startElement, LOGOUT_RESPONSE.get() );
 
-      ResponseType response = parseBaseAttributes(startElement); 
+      StatusResponseType response = parseBaseAttributes(startElement); 
 
       while( xmlEventReader.hasNext() )
       {
@@ -72,12 +72,7 @@ public class SAMLSloResponseParser extends SAMLStatusResponseTypeParser implemen
          {
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
-         }
-         else if( JBossSAMLConstants.ASSERTION.get().equals( elementName ))
-         {
-            SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
-            response.getAssertionOrEncryptedAssertion().add( assertionParser.parse(xmlEventReader));
-         }
+         } 
          else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
          {
             response.setStatus( parseStatus(xmlEventReader) ); 
@@ -92,9 +87,9 @@ public class SAMLSloResponseParser extends SAMLStatusResponseTypeParser implemen
     * @return
     * @throws ConfigurationException
     */
-   private ResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
+   private StatusResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
-      ResponseType response = new ResponseType();
+      StatusResponseType response = new StatusResponseType();
       super.parseBaseAttributes( startElement, response ); 
 
       return response; 

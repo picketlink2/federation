@@ -96,6 +96,5 @@ public class BaseWriter
    { 
       if( writer == null )
          writer = StaxUtil.getXMLStreamWriter( out ); 
-   }
-
+   } 
 }

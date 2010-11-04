@@ -21,25 +21,24 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.io.IOException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
@@ -52,7 +51,6 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
-import org.xml.sax.SAXException;
 
 /**
  * SAML2 LogOut Profile
@@ -303,7 +301,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          {
             throw new ProcessingException(pe);
          }
-         catch(JAXBException pe)
+         catch (ParsingException e)
+         {
+            throw new ProcessingException( e );
+         }
+         /*catch(JAXBException pe)
          {
             throw new ProcessingException(pe);
          }
@@ -314,7 +316,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          catch(SAXException pe)
          {
             throw new ProcessingException(pe);
-         }
+         }*/
          return;
       }
 
@@ -345,6 +347,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          statusResponse.setIssueInstant(XMLTimeUtil.getIssueInstant());
          statusResponse.setInResponseTo(logOutRequestID);
          statusResponse.setID(IDGenerator.create("ID_"));
+         statusResponse.setVersion( JBossSAMLConstants.VERSION_2_0.get() );
          
          statusResponse.setIssuer(request.getIssuer());
          
@@ -353,7 +356,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             SAML2Response saml2Response = new SAML2Response();
             response.setResultingDocument(saml2Response.convert(statusResponse)); 
          } 
-         catch(JAXBException je)
+         catch( ParsingException je)
          {
             throw new ProcessingException(je);
          }
@@ -468,6 +471,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          }
          statusResponse.setInResponseTo(logOutRequest.getID());
          statusResponse.setID(IDGenerator.create("ID_"));
+         statusResponse.setVersion( JBossSAMLConstants.VERSION_2_0.get() );
          
          statusResponse.setIssuer(request.getIssuer());
          
