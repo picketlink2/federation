@@ -107,6 +107,16 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), logOutRequest.getVersion() );
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), logOutRequest.getIssueInstant().toString() );
       
+      String destination = logOutRequest.getDestination();
+      if( StringUtil.isNotNull( destination ))
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(),destination );
+      }
+      
+      String consent = logOutRequest.getConsent();
+      if( StringUtil.isNotNull( consent ))
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
+      
       NameIDType issuer = logOutRequest.getIssuer();
       write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out );
       
