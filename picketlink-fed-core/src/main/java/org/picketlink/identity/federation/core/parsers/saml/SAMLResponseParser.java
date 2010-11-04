@@ -108,7 +108,5 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
       super.parseBaseAttributes( startElement, response ); 
       
       return response; 
-   } 
-   
-   
+   }  
 }

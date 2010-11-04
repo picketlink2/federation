@@ -24,7 +24,6 @@ package org.picketlink.identity.federation.core.parsers.saml;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -32,10 +31,13 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
@@ -79,32 +81,9 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
 
          if( JBossSAMLConstants.NAMEID.get().equalsIgnoreCase( tag ) )
          {
-            try
-            {
-               StartElement nameIDElement = StaxParserUtil.getNextStartElement( xmlEventReader ); 
-               Attribute nameQualifier = nameIDElement.getAttributeByName( new QName( JBossSAMLConstants.NAME_QUALIFIER.get() ));
-               if( nameQualifier == null )
-                  nameQualifier = nameIDElement.getAttributeByName( new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-                        JBossSAMLConstants.NAME_QUALIFIER.get() ));
-
-               String nameIDValue = xmlEventReader.getElementText();
-
-               NameIDType nameID = new NameIDType();
-               nameID.setValue( nameIDValue );
-               if( nameQualifier != null )
-               {
-                  nameID.setNameQualifier( StaxParserUtil.getAttributeValue(nameQualifier) ); 
-               }  
-
-               JAXBElement<NameIDType> jaxbNameID =  objectFactory.createNameID( nameID );
-               subject.getContent().add( jaxbNameID );
-
-               //There is no need to get the end tag as the "getElementText" call above puts us past that
-            }
-            catch (XMLStreamException e)
-            {
-               throw new ParsingException( e );
-            } 
+            NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
+            JAXBElement<NameIDType> jaxbNameID =  objectFactory.createNameID( nameID );
+            subject.getContent().add( jaxbNameID ); 
          }  
          else if( JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase( tag ) )
          {
@@ -138,7 +117,13 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             //Get the end tag
             EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
             StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get() );
-         }   
+         }  
+         else if( JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equals( tag ))
+         {
+            AttributeStatementType attributeStatement = SAMLParserUtil.parseAttributeStatement(xmlEventReader);
+            JAXBElement<?> jaxbEl = SAMLAssertionFactory.getObjectFactory().createAttributeStatement(attributeStatement);
+            subject.getContent().add( jaxbEl );
+         }
          else throw new RuntimeException( "Unknown tag:" + tag );    
       }
 

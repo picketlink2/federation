@@ -113,9 +113,7 @@ public class SAMLAssertionParserTestCase
       
       //Subject
       SubjectType subject = assertion.getSubject();
-      List<JAXBElement<?>> content = subject.getContent();
-      
-
+      List<JAXBElement<?>> content = subject.getContent(); 
       
       int size = content.size();
       
