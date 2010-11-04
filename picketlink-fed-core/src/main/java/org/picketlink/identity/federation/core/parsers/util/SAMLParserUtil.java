@@ -46,6 +46,12 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  */
 public class SAMLParserUtil
 {
+   /**
+    * Parse an {@code AttributeStatementType}
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
    public static AttributeStatementType parseAttributeStatement( XMLEventReader xmlEventReader ) throws ParsingException
    {
       AttributeStatementType attributeStatementType = new AttributeStatementType();
@@ -211,6 +217,12 @@ public class SAMLParserUtil
       return authnContextType;
    } 
    
+   /**
+    * Parse a {@code NameIDType}
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
    public static NameIDType parseNameIDType( XMLEventReader xmlEventReader ) throws ParsingException
    {
       StartElement nameIDElement = StaxParserUtil.getNextStartElement( xmlEventReader ); 
@@ -241,8 +253,7 @@ public class SAMLParserUtil
       }
 
       String nameIDValue = StaxParserUtil.getElementText( xmlEventReader );
-      nameID.setValue( nameIDValue );
-      
+      nameID.setValue( nameIDValue ); 
       
       return nameID;
    }
