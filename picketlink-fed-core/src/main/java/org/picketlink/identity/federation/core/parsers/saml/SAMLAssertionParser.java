@@ -37,6 +37,8 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
@@ -58,7 +60,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {  
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.matches(startElement, ASSERTION );
+      StaxParserUtil.validate(startElement, ASSERTION );
       AssertionType assertion = parseBaseAttributes( startElement ); 
 
       //Peek at the next event
@@ -92,23 +94,6 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
 
          String tag = StaxParserUtil.getStartElementName( peekedElement );
 
-         /*if( tag.equals( JBossSAMLConstants.ASSERTION.get() ))
-         {
-            StartElement nextElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute idAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.ID.get() ) );
-            assertion.setID( StaxParserUtil.getAttributeValue( idAttribute ));
-
-            Attribute versionAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.VERSION.get() ));
-            assertion.setVersion( StaxParserUtil.getAttributeValue(versionAttribute) );
-
-            Attribute issueInstantAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.ISSUE_INSTANT.get() ));
-            if( issueInstantAttribute != null )
-            {
-               assertion.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue(issueInstantAttribute )));
-            } 
-            continue;
-         }*/
-
          if( tag.equals( JBossSAMLConstants.SIGNATURE.get() ) )
          {
             StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
@@ -141,6 +126,12 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             AuthnStatementType authnStatementType = parseAuthnStatement( xmlEventReader );
             assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add( authnStatementType ); 
          }
+         else if( JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equalsIgnoreCase( tag ) )
+         {
+            AttributeStatementType attributeStatementType = parseAttributeStatement( xmlEventReader );
+            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add( attributeStatementType ); 
+         }
+         else throw new RuntimeException( "SAMLAssertionParser:: unknown: " +   tag );
       }
       return assertion;
    }
@@ -187,7 +178,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
       
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       String AUTHNSTATEMENT = JBossSAMLConstants.AUTHN_STATEMENT.get();
-      StaxParserUtil.matches( startElement, AUTHNSTATEMENT );
+      StaxParserUtil.validate( startElement, AUTHNSTATEMENT );
       
       Attribute authnInstant = startElement.getAttributeByName( new QName( "AuthnInstant" ));
       if( authnInstant == null )
@@ -214,6 +205,86 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
    }
    
    /**
+    * Parse the AuthnStatement inside the assertion
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   private AttributeStatementType parseAttributeStatement( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      AttributeStatementType attributeStatementType = new AttributeStatementType();
+      
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      String AUTHNSTATEMENT = JBossSAMLConstants.ATTRIBUTE_STATEMENT.get();
+      StaxParserUtil.validate( startElement, AUTHNSTATEMENT );
+      
+      while( xmlEventReader.hasNext() )
+      {
+         //Get the next start element
+         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
+         String tag = startElement.getName().getLocalPart();
+         if( JBossSAMLConstants.ATTRIBUTE.get().equals( tag ) )
+         {
+            AttributeType attribute = parseAttribute(xmlEventReader);
+            attributeStatementType.getAttributeOrEncryptedAttribute().add( attribute );
+         }
+         else throw new RuntimeException( "Unknown tag:" + tag );
+      }
+      
+     /* EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+      StaxParserUtil.validate(endElement,JBossSAMLConstants.ATTRIBUTE_STATEMENT.get() );
+      */
+      return attributeStatementType;
+   }
+   
+   /**
+    * Parse an {@code AttributeType}
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   private AttributeType parseAttribute( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      AttributeType attributeType = new AttributeType();
+
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader); 
+      StaxParserUtil.validate( startElement, JBossSAMLConstants.ATTRIBUTE.get() );
+      
+      Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
+      if( name == null )
+         throw new RuntimeException( "Required attribute Name in Attribute" );
+      attributeType.setName( StaxParserUtil.getAttributeValue( name ));
+
+      Attribute friendlyName = startElement.getAttributeByName( new QName( JBossSAMLConstants.FRIENDLY_NAME.get() ));
+      if( friendlyName != null ) 
+         attributeType.setFriendlyName( StaxParserUtil.getAttributeValue( friendlyName ));
+      
+      Attribute nameFormat = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME_FORMAT.get() ));
+      if( nameFormat != null ) 
+         attributeType.setNameFormat( StaxParserUtil.getAttributeValue( nameFormat ));
+      
+      while( xmlEventReader.hasNext() )
+      {
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if( startElement == null )
+            break;
+         String tag = StaxParserUtil.getStartElementName(startElement);
+         
+         if( JBossSAMLConstants.ATTRIBUTE.get().equals( tag ))
+            break;
+         
+         if( JBossSAMLConstants.ATTRIBUTE_VALUE.get().equals( tag ) )
+         {
+            Object attributeValue = parseAttributeValue(xmlEventReader);
+            attributeType.getAttributeValue().add( attributeValue ); 
+         }
+         else throw new RuntimeException( "Unknown tag:" + tag );
+      }
+      
+      return attributeType; 
+   }
+   
+   /**
     * Parse the AuthnContext Type inside the AuthnStatement
     * @param xmlEventReader
     * @return
@@ -224,7 +295,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
       AuthnContextType authnContextType = new AuthnContextType();
       
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.matches( startElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
+      StaxParserUtil.validate( startElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
       
       //Get the next start element
       startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -243,5 +314,30 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          throw new RuntimeException( "Unknown Tag:" + tag );
       
       return authnContextType;
+   }
+   
+   /**
+    * Parse Attribute value
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   private Object parseAttributeValue( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate( startElement, JBossSAMLConstants.ATTRIBUTE_VALUE.get() );
+      
+      Attribute type = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XSI_NSURI.get(),
+            "type", "xsi"));
+      if( type == null )
+         throw new RuntimeException( "attribute value has no xsi type" );
+      
+      String typeValue  = StaxParserUtil.getAttributeValue(type);
+      if( typeValue.contains( ":string" ))
+      {
+         return StaxParserUtil.getElementText(xmlEventReader);
+      }
+      
+      throw new RuntimeException( "Unsupported xsi:type=" + typeValue );
    }
 }
