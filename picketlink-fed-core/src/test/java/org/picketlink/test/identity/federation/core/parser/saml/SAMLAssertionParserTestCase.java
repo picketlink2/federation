@@ -28,14 +28,21 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 
 /**
@@ -143,4 +150,95 @@ public class SAMLAssertionParserTestCase
          }
       } 
    } 
+   
+   
+   @Test
+   public void testAssertionWithX500Attribute() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion-x500attrib.xml" );
+      
+      SAMLParser parser = new SAMLParser();
+      AssertionType assertion = (AssertionType) parser.parse(configStream);
+      assertNotNull( assertion );
+      
+      assertEquals( "ID_b07b804c-7c29-ea16-7300-4f3d6f7928ac", assertion.getID() );
+      assertEquals( XMLTimeUtil.parse( "2004-12-05T09:22:05Z" ), assertion.getIssueInstant() );
+      assertEquals( "2.0", assertion.getVersion() );
+      
+      //Issuer
+      assertEquals( "https://idp.example.org/SAML2", assertion.getIssuer().getValue() );
+      
+      //Subject
+      SubjectType subject = assertion.getSubject();
+      List<JAXBElement<?>> content = subject.getContent(); 
+      
+      int size = content.size();
+      
+      for( int i = 0 ; i < size; i++ )
+      {
+         JAXBElement<?> node = content.get(i);
+         Class<?> clazz = node.getDeclaredType();
+         if( clazz.equals( NameIDType.class ))
+         {
+            NameIDType subjectNameID = (NameIDType) node.getValue();
+            
+            assertEquals( "3f7b3dcf-1674-4ecd-92c8-1544f346baf8", subjectNameID.getValue() );
+            assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat() ); 
+         }
+         
+         if( clazz.equals( ConditionsType.class ))
+         { 
+            //Conditions
+            ConditionsType conditions =  (ConditionsType) node.getValue();
+            assertEquals( XMLTimeUtil.parse( "2004-12-05T09:17:05Z" ) , conditions.getNotBefore() );
+            assertEquals( XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ) , conditions.getNotOnOrAfter() );
+
+            //Audience Restriction
+            AudienceRestrictionType audienceRestrictionType = 
+               (AudienceRestrictionType) conditions.getConditionOrAudienceRestrictionOrOneTimeUse();
+            assertEquals( 1, audienceRestrictionType.getAudience().size() );
+            assertEquals( "https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get( 0 ));
+         }
+         
+         else if( clazz.equals( SubjectConfirmationType.class ))
+         { 
+            SubjectConfirmationType subjectConfirmation = (SubjectConfirmationType) node.getValue();
+            assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() );
+            
+            SubjectConfirmationDataType subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
+            assertEquals( "ID_aaf23196-1773-2113-474a-fe114412ab72", subjectConfirmationData.getInResponseTo() ); 
+            assertEquals(  XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ), subjectConfirmationData.getNotOnOrAfter() );
+            assertEquals( "https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
+         }
+         
+         else if( clazz.equals( AttributeStatementType.class ))
+         {
+            AttributeStatementType attributeStatement = (AttributeStatementType) node.getValue();
+            List<Object> attributes = attributeStatement.getAttributeOrEncryptedAttribute();
+            assertEquals( 2, attributes.size() ); 
+            
+            for( Object attr: attributes )
+            {
+               AttributeType attribute = (AttributeType) attr;
+               assertEquals( "eduPersonAffiliation", attribute.getFriendlyName() );
+               assertEquals( "urn:oid:1.3.6.1.4.1.5923.1.1.1.1", attribute.getName() );
+               assertEquals( "urn:oasis:names:tc:SAML:2.0:attrname-format:uri", attribute.getNameFormat() );
+               
+               //Ensure that we have x500:encoding
+               QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
+                     JBossSAMLConstants.ENCODING.get() );
+               String encodingValue = attribute.getOtherAttributes().get( x500EncodingName );
+               assertEquals( "LDAP", encodingValue );
+               
+               List<Object> attributeValues = attribute.getAttributeValue();
+               assertEquals( 1, attributeValues.size() );
+               
+               String str = (String ) attributeValues.get( 0 ); 
+               if( ! ( str.equals( "member") || str.equals( "staff" )))
+                  throw new RuntimeException( "attrib value not found" );
+            } 
+         }
+      } 
+   }
 }

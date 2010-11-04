@@ -88,6 +88,16 @@ public class SAMLParserUtil
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader); 
       StaxParserUtil.validate( startElement, JBossSAMLConstants.ATTRIBUTE.get() );
       
+      //Look for X500 Encoding
+      QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
+            JBossSAMLConstants.ENCODING.get() );
+      Attribute x500EncodingAttr = startElement.getAttributeByName( x500EncodingName );
+      
+      if( x500EncodingAttr != null )
+      {
+         attributeType.getOtherAttributes().put( x500EncodingName, StaxParserUtil.getAttributeValue( x500EncodingAttr ));
+      }
+
       Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
       if( name == null )
          throw new RuntimeException( "Required attribute Name in Attribute" );
@@ -207,6 +217,15 @@ public class SAMLParserUtil
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
          JAXBElement<?> acDeclRef = SAMLAssertionFactory.getObjectFactory().createAuthnContextDeclRef( text );
+         authnContextType.getContent().add(acDeclRef);
+         EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+         StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
+      }
+      else if( JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get().equals( tag ))
+      {
+         String text = StaxParserUtil.getElementText( xmlEventReader );
+         
+         JAXBElement<?> acDeclRef = SAMLAssertionFactory.getObjectFactory().createAuthnContextClassRef(text );
          authnContextType.getContent().add(acDeclRef);
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
