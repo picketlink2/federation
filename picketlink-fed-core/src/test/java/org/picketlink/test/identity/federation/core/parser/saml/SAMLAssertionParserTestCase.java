@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
@@ -242,5 +243,8 @@ public class SAMLAssertionParserTestCase
             assertEquals( "https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
          }
       } 
+      
+      SAMLAssertionWriter writer = new SAMLAssertionWriter();
+      writer.write(assertion, System.out );
    }
 }

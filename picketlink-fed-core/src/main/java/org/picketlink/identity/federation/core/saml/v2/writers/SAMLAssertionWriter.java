@@ -24,7 +24,10 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -190,7 +193,15 @@ public class SAMLAssertionWriter extends BaseWriter
                      ASSERTION_NSURI.get() );  
                StaxUtil.writeCharacters( writer, decl );
                StaxUtil.writeEndElement( writer);  
-            }  
+            } 
+            else if( elName.getLocalPart().equals( JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ))
+            {
+               String decl = (String) el.getValue();
+               StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ,
+                     ASSERTION_NSURI.get() );  
+               StaxUtil.writeCharacters( writer, decl );
+               StaxUtil.writeEndElement( writer);  
+            } 
             else
                throw new RuntimeException( "Unsupported :" + elName );
          }
@@ -223,6 +234,27 @@ public class SAMLAssertionWriter extends BaseWriter
       if( StringUtil.isNotNull( nameFormat ))
       {
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_FORMAT.get(), friendlyName );
+      }
+      
+      //Take care of other attributes such as x500:encoding
+      Map<QName, String> otherAttribs = attributeType.getOtherAttributes();
+      if( otherAttribs != null )
+      {
+         List<String> nameSpacesDealt = new ArrayList<String>();
+         
+         Iterator<QName> keySet = otherAttribs.keySet().iterator();
+         while( keySet != null && keySet.hasNext() )
+         {
+            QName qname = keySet.next();
+            String ns = qname.getNamespaceURI();
+            if( !nameSpacesDealt.contains( ns ))
+            {
+               StaxUtil.writeNameSpace(writer, qname.getPrefix(), ns );
+               nameSpacesDealt.add( ns );
+            } 
+            String attribValue = otherAttribs.get( qname );
+            StaxUtil.writeAttribute(writer, qname, attribValue );
+         }
       }
       
       List<Object> attributeValues = attributeType.getAttributeValue();

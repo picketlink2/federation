@@ -95,7 +95,7 @@ public class SAMLParserUtil
       
       if( x500EncodingAttr != null )
       {
-         attributeType.getOtherAttributes().put( x500EncodingName, StaxParserUtil.getAttributeValue( x500EncodingAttr ));
+         attributeType.getOtherAttributes().put( x500EncodingAttr.getName(), StaxParserUtil.getAttributeValue( x500EncodingAttr ));
       }
 
       Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));

@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.util;
 
 import java.io.OutputStream;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -104,6 +105,25 @@ public class StaxUtil
       try
       {
          writer.setPrefix(prefix, nsURI );
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException( e );
+      }
+   }
+   
+   /**
+    * Write an attribute
+    * @param writer
+    * @param attributeName QName of the attribute
+    * @param attributeValue
+    * @throws ProcessingException
+    */
+   public static void writeAttribute( XMLStreamWriter writer, QName attributeName, String attributeValue ) throws ProcessingException
+   {
+      try
+      {
+         writer.writeAttribute( attributeName.getNamespaceURI() , attributeName.getLocalPart(), attributeValue );
       }
       catch (XMLStreamException e)
       {
