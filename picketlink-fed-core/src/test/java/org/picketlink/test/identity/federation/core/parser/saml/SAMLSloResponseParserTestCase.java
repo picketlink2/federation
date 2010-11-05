@@ -26,12 +26,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI; 
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -67,7 +70,13 @@ public class SAMLSloResponseParserTestCase
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue() );
       
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
-      SAMLResponseWriter writer = new SAMLResponseWriter();
-      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), System.out );
+      SAMLResponseWriter writer = new SAMLResponseWriter();ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), baos );
+      
+      System.out.println( new String( baos.toByteArray() ));
+      
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      DocumentUtil.getDocument( bis ); //throws exceptions
+      
    } 
 }

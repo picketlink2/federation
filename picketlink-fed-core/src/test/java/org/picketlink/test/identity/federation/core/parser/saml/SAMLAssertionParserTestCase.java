@@ -24,6 +24,8 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -245,6 +248,12 @@ public class SAMLAssertionParserTestCase
       } 
       
       SAMLAssertionWriter writer = new SAMLAssertionWriter();
-      writer.write(assertion, System.out );
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      writer.write(assertion, baos );
+      
+      System.out.println( new String( baos.toByteArray() ));
+      
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      DocumentUtil.getDocument( bis ); //throws exceptions
    }
 }

@@ -24,10 +24,13 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
@@ -67,7 +70,13 @@ public class SAMLAuthnRequestParserTestCase
       assertEquals( Boolean.TRUE , nameIDPolicy.isAllowCreate() );
       
       //Try out writing
-      SAMLRequestWriter writer = new SAMLRequestWriter();
-      writer.write(authnRequest, System.out );
+      SAMLRequestWriter writer = new SAMLRequestWriter(); 
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      writer.write( authnRequest, baos );
+      
+      System.out.println( new String( baos.toByteArray() ));
+      
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      DocumentUtil.getDocument( bis ); //throws exceptions
    }
 }

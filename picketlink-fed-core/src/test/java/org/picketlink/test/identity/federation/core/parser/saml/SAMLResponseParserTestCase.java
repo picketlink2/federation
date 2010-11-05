@@ -24,6 +24,8 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
@@ -31,6 +33,7 @@ import javax.xml.bind.JAXBElement;
  
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -98,8 +101,14 @@ public class SAMLResponseParserTestCase
       assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", authnContextDeclRefJaxb.getValue() ); 
       
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
-      SAMLResponseWriter writer = new SAMLResponseWriter();
-      writer.write(response, System.out );
+      SAMLResponseWriter writer = new SAMLResponseWriter(); 
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+      writer.write(response, baos );
+      
+      System.out.println( new String( baos.toByteArray() ));
+      
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      DocumentUtil.getDocument( bis ); //throws exceptions
    }
    
    @Test
