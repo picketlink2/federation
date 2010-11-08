@@ -23,6 +23,8 @@ package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import javax.xml.bind.JAXBElement;
@@ -30,8 +32,10 @@ import javax.xml.bind.JAXBElement;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
@@ -70,5 +74,14 @@ public class WSTrustIssuePublicCertificateTestCase
       Element certEl = (Element) useKeyType.getAny(); 
       
       assertEquals( "ds:" + WSTRequestSecurityTokenParser.X509CERTIFICATE, certEl.getTagName() );
+      
+      //Now for the writing part
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      rstWriter.write(requestToken, baos ); 
+
+      System.out.println( new String( baos.toByteArray() ));
+      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
    }
 }

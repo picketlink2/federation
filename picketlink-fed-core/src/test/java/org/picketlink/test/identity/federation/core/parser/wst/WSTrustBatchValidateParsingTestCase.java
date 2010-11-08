@@ -24,14 +24,18 @@ package org.picketlink.test.identity.federation.core.parser.wst;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 
 /**
  * Validate the parsing of wst-batch-validate.xml
@@ -62,6 +66,16 @@ public class WSTrustBatchValidateParsingTestCase
       assertEquals( "validatecontext2", rst2.getContext() );
       assertEquals( WSTrustConstants.BATCH_VALIDATE_REQUEST , rst2.getRequestType().toASCIIString() );
       assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE , rst2.getTokenType().toASCIIString() );
+      
+      //Now for the writing part
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      rstWriter.write( requestCollection, baos ); 
+
+      System.out.println( new String( baos.toByteArray() ));
+      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+      baos.close(); 
    }
 
 }

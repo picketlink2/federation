@@ -99,4 +99,5 @@ public class WSTrustConstants
    
    //Attribute Names
    public static final String RST_CONTEXT = "Context";
+   public static final String TYPE = "Type";
 }

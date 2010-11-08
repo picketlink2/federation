@@ -24,6 +24,8 @@ package org.picketlink.test.identity.federation.core.parser.wst;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
@@ -33,8 +35,10 @@ import javax.xml.datatype.DatatypeFactory;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -56,14 +60,23 @@ public class WSTrustCancelTargetSamlTestCase
       InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-cancel-saml.xml" );
       
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken rst1 = (RequestSecurityToken) parser.parse( configStream );
-      assertEquals( "cancelcontext", rst1.getContext() );
-      assertEquals( WSTrustConstants.CANCEL_REQUEST, rst1.getRequestType().toASCIIString() );
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse( configStream );
+      assertEquals( "cancelcontext", requestToken.getContext() );
+      assertEquals( WSTrustConstants.CANCEL_REQUEST, requestToken.getRequestType().toASCIIString() );
 
-      CancelTargetType cancelTarget = rst1.getCancelTarget();
+      CancelTargetType cancelTarget = requestToken.getCancelTarget();
       
       AssertionType assertion = (AssertionType) cancelTarget.getAny();
       validateAssertion( assertion ); 
+      
+      //Now for the writing part
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      rstWriter.write(requestToken, baos ); 
+
+      System.out.println( new String( baos.toByteArray() ));
+      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
    }
    
    private void validateAssertion( AssertionType assertion ) throws Exception
