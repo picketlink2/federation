@@ -157,6 +157,11 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.flush( writer );
    }
 
+   /**
+    * Write an {@code EntropyType} to stream
+    * @param entropy
+    * @throws ProcessingException
+    */
    private void writeEntropyType(EntropyType entropy) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.ENTROPY, BASE_NAMESPACE);   
@@ -176,6 +181,11 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.writeEndElement( writer );
    }
 
+   /**
+    * Write an {@code UseKeyType} to stream
+    * @param useKeyType
+    * @throws ProcessingException
+    */
    private void writeUseKeyType(UseKeyType useKeyType) throws ProcessingException
    {
       Object useKeyTypeValue = useKeyType.getAny();
@@ -188,6 +198,12 @@ public class WSTrustRSTWriter extends AbstractWSWriter
          throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );
    }
 
+   /**
+    * Write an {@code OnBehalfOfType} to stream
+    * @param onBehalfOf
+    * @param out
+    * @throws ProcessingException
+    */
    private void writeOnBehalfOfType(OnBehalfOfType onBehalfOf, OutputStream out) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.On_BEHALF_OF, BASE_NAMESPACE); 
@@ -199,6 +215,12 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.writeEndElement( writer );
    }
 
+   /**
+    * Write an {@code ValidateTargetType} to stream
+    * @param validateTarget
+    * @param out
+    * @throws ProcessingException
+    */
    private void writeValidateTargetType(ValidateTargetType validateTarget, OutputStream out) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.VALIDATE_TARGET, BASE_NAMESPACE); 
@@ -216,6 +238,12 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.writeEndElement( writer );
    }
 
+   /**
+    * Write an {@code CancelTargetType} to Stream
+    * @param cancelTarget
+    * @param out
+    * @throws ProcessingException
+    */
    private void writeCancelTargetType(CancelTargetType cancelTarget, OutputStream out) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.CANCEL_TARGET, BASE_NAMESPACE); 
@@ -248,6 +276,12 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.writeEndElement(writer); 
    }
     
+   /**
+    * Write a Request Type
+    * @param writer
+    * @param uri
+    * @throws ProcessingException
+    */
    private void writeRequestType( XMLStreamWriter writer , URI uri ) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.REQUEST_TYPE, BASE_NAMESPACE );
@@ -255,6 +289,12 @@ public class WSTrustRSTWriter extends AbstractWSWriter
       StaxUtil.writeEndElement(writer);
    }
    
+   /**
+    * Write Token Type
+    * @param writer
+    * @param uri
+    * @throws ProcessingException
+    */
    private void writeTokenType( XMLStreamWriter writer , URI uri ) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.TOKEN_TYPE, BASE_NAMESPACE );
