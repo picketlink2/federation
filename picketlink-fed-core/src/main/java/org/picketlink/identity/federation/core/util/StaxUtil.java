@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.core.util;
 
 import java.io.OutputStream;
+import java.util.Stack;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventWriter;
@@ -30,6 +31,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /**
  * Utility class that deals with StAX
@@ -38,6 +44,8 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
  */
 public class StaxUtil
 { 
+   private static ThreadLocal<Stack<String>> registeredNSStack = new ThreadLocal<Stack<String>>();
+   
    /**
     * Flush the stream writer
     * @param writer
@@ -206,6 +214,122 @@ public class StaxUtil
       }
    }
    
+   /**
+    * Write a DOM Node to the stream
+    * @param writer
+    * @param node
+    * @throws ProcessingException
+    */
+   public static void writeDOMNode( XMLStreamWriter writer, Node node ) throws ProcessingException
+   {
+      try
+      {
+         short nodeType = node.getNodeType();
+         
+         switch( nodeType ) 
+         {
+            case Node.ELEMENT_NODE:
+               writeDOMElement( writer, (Element) node);
+               break;
+            case Node.TEXT_NODE: 
+               writer.writeCharacters(node.getNodeValue());
+               break;
+            case Node.COMMENT_NODE:
+               writer.writeComment(node.getNodeValue());
+               break;  
+            case Node.CDATA_SECTION_NODE:
+               writer.writeCData(node.getNodeValue());
+               break; 
+            default: 
+               //Don't care
+         }
+      }
+      catch (DOMException e)
+      {
+         throw new ProcessingException( e );
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException( e );
+      }      
+   }
+
+   
+   /**
+    * Write DOM Element to the stream
+    * @param writer
+    * @param domElement
+    * @throws ProcessingException
+    */
+   public static void writeDOMElement( XMLStreamWriter writer, Element domElement ) throws ProcessingException
+   {
+      if( registeredNSStack.get() == null )
+      {
+         registeredNSStack.set( new Stack<String>() );
+      }
+      String domElementPrefix = domElement.getPrefix();
+      
+      if (domElementPrefix == null) 
+      {
+          domElementPrefix = "";
+      }
+      
+      String domElementNS = domElement.getNamespaceURI();
+      if (domElementNS == null) 
+      {
+          domElementNS = "";
+      }
+      
+      writeStartElement(writer, domElementPrefix, domElement.getLocalName(), domElementNS);
+
+      
+      //Should we register namespace
+      if( domElementPrefix != "" && !registeredNSStack.get().contains(domElementNS) )
+      {
+         writeNameSpace(writer, domElementPrefix, domElementNS ); 
+         registeredNSStack.get().push( domElementNS );
+      }
+
+      // Deal with Attributes
+      NamedNodeMap attrs = domElement.getAttributes();
+      for (int i = 0, len = attrs.getLength(); i < len; ++i) 
+      {
+          Attr attr = (Attr) attrs.item(i);
+          String attributePrefix = attr.getPrefix();
+          String attribLocalName = attr.getLocalName();
+          String attribValue = attr.getValue();
+
+          if (attributePrefix == null || attributePrefix.length() == 0) 
+          { 
+             if ( "xmlns".equals( attribLocalName )) 
+              {
+                 writeDefaultNameSpace( writer, attribValue );
+              } 
+              else 
+              {
+                 writeAttribute( writer, attribLocalName, attribValue );
+              }
+          } 
+          else 
+          {
+              if ( "xmlns".equals( attributePrefix )) 
+              {
+                 writeNameSpace( writer, attribLocalName, attribValue); 
+              } 
+              else 
+              {
+                 writeAttribute( writer, new QName( attr.getNamespaceURI(), attribLocalName, attributePrefix ), attribValue);
+              }
+          }
+      }
+
+      for ( Node child = domElement.getFirstChild(); child != null; child = child.getNextSibling() ) 
+      {
+          writeDOMNode( writer, child);
+      }
+
+      writeEndElement(writer);
+   }
     
    
    /**
