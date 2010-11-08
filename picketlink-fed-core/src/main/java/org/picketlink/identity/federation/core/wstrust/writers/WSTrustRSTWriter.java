@@ -36,7 +36,9 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
+import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 import org.w3c.dom.Element;
 
 /**
@@ -98,6 +100,18 @@ public class WSTrustRSTWriter extends AbstractWSWriter
          }
          else
             throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );
+      }
+      
+      OnBehalfOfType onBehalfOf = requestToken.getOnBehalfOf();
+      if( onBehalfOf != null )
+      { 
+         StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.On_BEHALF_OF, BASE_NAMESPACE); 
+         StaxUtil.writeCharacters(writer, "" ); 
+         
+         UsernameTokenType usernameToken = (UsernameTokenType) onBehalfOf.getAny(); 
+         WSSecurityWriter wsseWriter = new WSSecurityWriter();
+         wsseWriter.write( usernameToken, out );
+         StaxUtil.writeEndElement( writer ); 
       }
       
       StaxUtil.writeEndElement( writer ); 
