@@ -269,8 +269,13 @@ public class TransformerUtil
          String prefix = elementName.getPrefix();
          String localPart = elementName.getLocalPart();
 
-         String qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart ;
-         Element el = doc.createElementNS( ns, qual ); 
+         String qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart ; 
+         Element el = doc.createElementNS( ns, qual );  
+         
+         if( StringUtil.isNotNull( prefix ))
+         {
+            el.setPrefix( prefix );
+         }
 
          //Look for attributes
          @SuppressWarnings("unchecked")
@@ -285,6 +290,7 @@ public class TransformerUtil
             doc.createAttributeNS( ns, qual );
             el.setAttributeNS( ns, qual , attr.getValue() );
          } 
+          
          
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);
          if( nextEvent.getEventType() == XMLEvent.CHARACTERS )
