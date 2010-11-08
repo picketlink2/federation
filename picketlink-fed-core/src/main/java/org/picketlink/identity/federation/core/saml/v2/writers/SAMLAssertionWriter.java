@@ -69,7 +69,7 @@ public class SAMLAssertionWriter extends BaseWriter
 
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ASSERTION.get() , ASSERTION_NSURI.get() ); 
       StaxUtil.writeNameSpace( writer, ASSERTION_PREFIX, ASSERTION_NSURI.get() );
-      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
 
       //Attributes 
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), assertion.getID() );

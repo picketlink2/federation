@@ -63,7 +63,7 @@ public class SAMLResponseWriter extends BaseWriter
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.RESPONSE.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
       writeBaseAttributes( response ); 
 
@@ -109,7 +109,7 @@ public class SAMLResponseWriter extends BaseWriter
       }
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
       writeBaseAttributes( response ); 
 

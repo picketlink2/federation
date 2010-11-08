@@ -194,7 +194,7 @@ public class StaxUtil
     * @param ns
     * @throws ProcessingException
     */
-   public static void WriteDefaultNameSpace( XMLStreamWriter writer, String ns ) throws ProcessingException
+   public static void writeDefaultNameSpace( XMLStreamWriter writer, String ns ) throws ProcessingException
    {
       try
       {
@@ -205,6 +205,8 @@ public class StaxUtil
          throw new ProcessingException( e );
       }
    }
+   
+    
    
    /**
     * Write a namespace

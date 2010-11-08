@@ -23,10 +23,13 @@ package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
@@ -43,19 +46,21 @@ public class WSTrustIssueTestCase
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-issue.xml" );
-      
+
       WSTrustParser parser = new WSTrustParser();
       RequestSecurityToken requestToken = ( RequestSecurityToken ) parser.parse( configStream );   
-       
+
       assertEquals( "testcontext", requestToken.getContext() );
       assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() );
       assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString() ); 
-      
+
       //Now for the writing part
       WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
-      rstWriter.write(requestToken, System.out ); 
-      
-      //TODO: use a buffer output stream.  Reparse the written xml and then match the orig object model with reparsed
-      //object model
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      rstWriter.write(requestToken, baos ); 
+
+      System.out.println( new String( baos.toByteArray() ));
+      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
    }
 }

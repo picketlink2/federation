@@ -57,7 +57,7 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.AUTHN_REQUEST.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
       //Attributes 
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), request.getID() );
@@ -100,7 +100,7 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.LOGOUT_REQUEST.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.WriteDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
       //Attributes 
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), logOutRequest.getID() );

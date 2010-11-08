@@ -35,13 +35,14 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.ws.policy.AppliesTo;
 
 /**
  * Given a {@code RequestSecurityToken}, write into an {@code OutputStream}
  * @author Anil.Saldhana@redhat.com
  * @since Oct 19, 2010
  */
-public class WSTrustRSTWriter
+public class WSTrustRSTWriter extends AbstractWSWriter
 {
    /**
     * Write the {@code RequestSecurityToken} into the {@code OutputStream}
@@ -51,8 +52,7 @@ public class WSTrustRSTWriter
     */
    public void write( RequestSecurityToken requestToken, OutputStream out ) throws ProcessingException
    {
-      //Get the XML writer
-      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter( out ); 
+      verifyWriter(out);
       StaxUtil.writeStartElement( writer, PREFIX, RST, BASE_NAMESPACE);   
       StaxUtil.writeNameSpace( writer, PREFIX, BASE_NAMESPACE );
       String context = requestToken.getContext();
@@ -68,6 +68,21 @@ public class WSTrustRSTWriter
       if( tokenType != null )
       {
          writeTokenType( writer, tokenType );
+      }
+      //Deal with AppliesTo
+      AppliesTo appliesTo = requestToken.getAppliesTo();
+      if( appliesTo != null )
+      {
+         WSPolicyWriter wsPolicyWriter = new WSPolicyWriter();
+         wsPolicyWriter.write( appliesTo, out ); 
+      }
+      
+      URI keyType = requestToken.getKeyType();
+      if( keyType != null )
+      {
+         StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.KEY_TYPE, BASE_NAMESPACE);   
+         StaxUtil.writeCharacters(writer,  keyType.toString() ); 
+         StaxUtil.writeEndElement( writer ); 
       }
       
       StaxUtil.writeEndElement( writer ); 

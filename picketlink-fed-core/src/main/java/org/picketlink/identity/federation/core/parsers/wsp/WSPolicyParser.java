@@ -31,6 +31,7 @@ import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 
@@ -45,8 +46,6 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
  */
 public class WSPolicyParser extends AbstractParser
 { 
-   public static final String APPLIES_TO = "AppliesTo";
-   
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
@@ -61,7 +60,7 @@ public class WSPolicyParser extends AbstractParser
             StartElement startElement = (StartElement) xmlEvent;
 
             String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( APPLIES_TO ))
+            if( elementName.equalsIgnoreCase( WSPolicyConstants.APPLIES_TO ))
             {
                //Get the AppliesTo element
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
