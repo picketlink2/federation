@@ -36,6 +36,8 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.ws.trust.UseKeyType;
+import org.w3c.dom.Element;
 
 /**
  * Given a {@code RequestSecurityToken}, write into an {@code OutputStream}
@@ -83,6 +85,19 @@ public class WSTrustRSTWriter extends AbstractWSWriter
          StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.KEY_TYPE, BASE_NAMESPACE);   
          StaxUtil.writeCharacters(writer,  keyType.toString() ); 
          StaxUtil.writeEndElement( writer ); 
+      }
+      
+      UseKeyType useKeyType = requestToken.getUseKey();
+      if( useKeyType != null )
+      {
+         Object useKeyTypeValue = useKeyType.getAny();
+         if( useKeyTypeValue instanceof Element )
+         {
+            Element domElement = (Element) useKeyTypeValue;
+            StaxUtil.writeDOMElement( writer, domElement ); 
+         }
+         else
+            throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );
       }
       
       StaxUtil.writeEndElement( writer ); 
