@@ -35,7 +35,7 @@ import javax.servlet.ServletContext;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MockServletConfig implements ServletConfig
 {
    private ServletContext context;

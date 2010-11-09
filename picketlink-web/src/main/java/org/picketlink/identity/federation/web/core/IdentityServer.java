@@ -147,9 +147,7 @@ public class IdentityServer implements HttpSessionListener
             transitSet = new HashSet<String>();
             inTransitMap.put(sessionID, transitSet);  
          }
-         if(transitSet != null)
-            return transitSet.add(participant);
-         return false;
+         return transitSet.add(participant); 
       }
       
       /**

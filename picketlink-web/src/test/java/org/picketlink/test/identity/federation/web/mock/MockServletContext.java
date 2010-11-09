@@ -44,7 +44,7 @@ import javax.servlet.ServletResponse;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "rawtypes"})
 public class MockServletContext implements ServletContext
 { 
    private Map params =  new HashMap();

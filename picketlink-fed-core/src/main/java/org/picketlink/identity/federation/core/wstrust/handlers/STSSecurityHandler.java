@@ -205,8 +205,8 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
         
         return true;
     }
-    
-    @SuppressWarnings("unchecked")
+     
+    @SuppressWarnings({"rawtypes"})
     private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName, final QName tokenQName) 
     {
         try

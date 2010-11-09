@@ -207,8 +207,8 @@ public class CoreConfigUtil
     * @return
     * @throws GeneralSecurityException 
     * @throws Exception
-    */
-   @SuppressWarnings("unchecked")
+    */ 
+   @SuppressWarnings("rawtypes")
    private static List decryptPasswords( List keyValueList ) throws GeneralSecurityException
    {
       String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;

@@ -353,7 +353,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       }
    }
 
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({"rawtypes", "unchecked"})
    private void setPasswordStackingCredentials(final Builder builder)
    {
       final Map sharedState = (Map) this.sharedState;
@@ -440,7 +440,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       this.samlToken = samlToken;
    }
 
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({"unchecked", "rawtypes"})
    protected void setSharedToken(final Object token)
    {
       if (sharedState == null)

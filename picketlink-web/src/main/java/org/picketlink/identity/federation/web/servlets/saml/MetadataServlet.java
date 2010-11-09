@@ -83,7 +83,7 @@ public class MetadataServlet extends HttpServlet
    private String encryptingAlias = null;
    private TrustKeyManager keyManager; 
    
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings("rawtypes")
    @Override
    public void init(ServletConfig config) throws ServletException
    {

@@ -39,7 +39,7 @@ public class OpenIDParameterList extends ParameterList
       super(); 
    }
 
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({ "rawtypes"})
    public OpenIDParameterList(Map parameterMap)
    {
       super(parameterMap); 

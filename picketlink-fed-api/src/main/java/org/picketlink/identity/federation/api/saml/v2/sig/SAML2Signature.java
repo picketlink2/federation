@@ -28,7 +28,6 @@ import java.security.PublicKey;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.crypto.dsig.XMLSignatureException;

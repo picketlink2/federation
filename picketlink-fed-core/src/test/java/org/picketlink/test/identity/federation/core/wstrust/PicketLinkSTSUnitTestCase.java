@@ -418,8 +418,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
+   @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithSTSGeneratedSymmetricKey() throws Exception
    {
       // create a simple token request, asking for a SAMLv2.0 token.
@@ -469,8 +469,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
+   @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
    {
       // create a 64-bit random client secret.

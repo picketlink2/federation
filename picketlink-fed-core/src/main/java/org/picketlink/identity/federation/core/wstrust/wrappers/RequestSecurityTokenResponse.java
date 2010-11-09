@@ -196,8 +196,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
     * </p>
     * 
     * @param delegate the JAXB {@code RequestSecurityTokenResponseType} that represents a WS-Trust response.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public RequestSecurityTokenResponse(RequestSecurityTokenResponseType delegate)
    {
       this.delegate = delegate;

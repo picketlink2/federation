@@ -163,8 +163,7 @@ public class WSTrustJAXBFactory
     *           the XML source containing the security token response message.
     * @return the constructed {@code BaseRequestSecurityTokenResponse} instance. According to the WS-Trust
     *         specification, the returned object will be an instance of {@code RequestSecurityTokenResponseCollection}.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public BaseRequestSecurityTokenResponse parseRequestSecurityTokenResponse(Source response) throws WSTrustException
    {
       // if the response contains an issued token, we must preserve it from the JAXB unmarshalling.

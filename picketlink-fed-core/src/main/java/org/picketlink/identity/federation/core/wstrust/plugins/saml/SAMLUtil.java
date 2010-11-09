@@ -90,8 +90,7 @@ public class SAMLUtil
     *           the {@code Element} that contains the marshaled SAMLV2.0 assertion.
     * @return a reference to the unmarshaled {@code AssertionType} instance.
     * @throws JAXBException if an error occurs while unmarshalling the document.
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public static AssertionType fromElement(Element assertionElement) throws JAXBException
    {
       Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.saml.v2.assertion");

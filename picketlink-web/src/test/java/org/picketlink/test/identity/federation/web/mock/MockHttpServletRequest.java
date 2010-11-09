@@ -43,7 +43,7 @@ import javax.servlet.http.HttpSession;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "rawtypes"})
 public class MockHttpServletRequest implements HttpServletRequest
 {
    private HttpSession session = null;
@@ -58,11 +58,12 @@ public class MockHttpServletRequest implements HttpServletRequest
       this.session = session;
       this.methodType = methodType;
    }
-   
+    
    public void addHeader(String key, String value)
    {
       headers.put(key, value);
    }
+    
    public void addParameter(String key, String value)
    {
       parameters.put(key, value);
@@ -105,7 +106,6 @@ public class MockHttpServletRequest implements HttpServletRequest
          {
             return iter.hasNext();
          }
-
          public Object nextElement()
          {
             Entry<String,String> entry =  (Entry<String, String>) iter.next();
@@ -379,9 +379,7 @@ public class MockHttpServletRequest implements HttpServletRequest
    }
 
    public void removeAttribute(String arg0)
-   {
-      
-
+   {  
    }
 
    public void setAttribute(String arg0, Object arg1)

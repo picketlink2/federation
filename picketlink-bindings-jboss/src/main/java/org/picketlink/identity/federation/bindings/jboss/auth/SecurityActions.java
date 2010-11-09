@@ -36,7 +36,7 @@ import org.jboss.security.SecurityContextFactory;
  */
 class SecurityActions
 {
-   @SuppressWarnings("unchecked")
+   @SuppressWarnings({"rawtypes", "unchecked"})
    static SecurityContext createSecurityContext() throws PrivilegedActionException
    {
       return (SecurityContext) AccessController.doPrivileged(new PrivilegedExceptionAction()
