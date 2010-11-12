@@ -20,10 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.parsers.saml;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
+ 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -36,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 
@@ -56,16 +54,6 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
       
       StartElement conditionsElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       StaxParserUtil.validate(conditionsElement, JBossSAMLConstants.CONDITIONS.get() );
-       
-      DatatypeFactory dtf;
-      try
-      {
-         dtf = DatatypeFactory.newInstance();
-      }
-      catch (DatatypeConfigurationException e )
-      {
-         throw new ParsingException( e );
-      } 
       
       ConditionsType conditions = new ConditionsType();
       
@@ -87,17 +75,14 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
       
       if( notBeforeAttribute != null )
       {
-         String notBeforeValue = StaxParserUtil.getAttributeValue( notBeforeAttribute );
-         
-         XMLGregorianCalendar xmlcal = dtf.newXMLGregorianCalendar( notBeforeValue );
-         conditions.setNotBefore( xmlcal );
+         String notBeforeValue = StaxParserUtil.getAttributeValue( notBeforeAttribute ); 
+         conditions.setNotBefore( XMLTimeUtil.parse(notBeforeValue) );
       }
       
       if( notAfterAttribute != null )
       {
-         String notAfterValue = StaxParserUtil.getAttributeValue( notAfterAttribute ); 
-         XMLGregorianCalendar xmlcal = dtf.newXMLGregorianCalendar( notAfterValue );
-         conditions.setNotOnOrAfter( xmlcal );
+         String notAfterValue = StaxParserUtil.getAttributeValue( notAfterAttribute );  
+         conditions.setNotOnOrAfter( XMLTimeUtil.parse( notAfterValue ) );
       }
       
       
@@ -111,7 +96,10 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
          {
             EndElement nextEndElement = (EndElement) xmlEvent;
             if( StaxParserUtil.matches(nextEndElement, JBossSAMLConstants.CONDITIONS.get() ))
-               break;
+            {
+               nextEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               break; 
+            }
          } 
          
          String tag = null; 

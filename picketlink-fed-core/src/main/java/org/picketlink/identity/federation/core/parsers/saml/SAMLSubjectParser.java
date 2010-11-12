@@ -37,12 +37,15 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 
 /**
  * Parse the saml subject
@@ -125,8 +128,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             subject.getContent().add( jaxbEl );
          }
          else throw new RuntimeException( "Unknown tag:" + tag );    
-      }
-
+      } 
       return subject;
    }
 
@@ -142,6 +144,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
            && localPart.equals( JBossSAMLConstants.SUBJECT.get() );
    }
    
+   @SuppressWarnings({"unchecked", "rawtypes"})
    private SubjectConfirmationDataType parseSubjectConfirmationData( XMLEventReader xmlEventReader ) throws ParsingException
    {
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -178,10 +181,67 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
       {
          subjectConfirmationData.setAddress( StaxParserUtil.getAttributeValue( address )); 
       }
+      
+      XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+      if( ! ( xmlEvent instanceof EndElement ))
+      {
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         String tag = StaxParserUtil.getStartElementName(startElement);
+         if( tag.equals( WSTrustConstants.XMLDSig.KEYINFO ))
+         {
+            KeyInfoType keyInfo = parseKeyInfo(xmlEventReader);
+            QName qname = new QName( WSTrustConstants.XMLDSig.DSIG_NS, WSTrustConstants.XMLDSig.KEYINFO, 
+                  WSTrustConstants.XMLDSig.PREFIX );
+            JAXBElement<?> jaxb = new JAXBElement(qname, KeyInfoType.class, keyInfo );
+            subjectConfirmationData.getContent().add( jaxb );
+         } 
+      }
 
       //Get the end tag
       EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
       StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get() );
       return subjectConfirmationData;
+   }
+   
+   private KeyInfoType parseKeyInfo( XMLEventReader xmlEventReader ) throws ParsingException 
+   {
+      KeyInfoType keyInfo = new KeyInfoType();
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.KEYINFO );
+      
+      XMLEvent xmlEvent = null;
+      String tag = null;
+      
+      while( xmlEventReader.hasNext() )
+      {
+         xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            tag = StaxParserUtil.getEndElementName( (EndElement) xmlEvent );
+            if( tag.equals( WSTrustConstants.XMLDSig.KEYINFO ))
+            {
+               xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
+               break;
+            }
+         }
+         startElement = (StartElement) xmlEvent;
+         tag = StaxParserUtil.getStartElementName(startElement);
+         if( tag.equals( WSTrustConstants.XMLDSig.X509DATA ))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            X509DataType x509 = new X509DataType();
+            //Let us go for the X509 certificate
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.X509CERT );
+
+            String certValue = StaxParserUtil.getElementText(xmlEventReader);
+            QName qname = new QName( WSTrustConstants.DSIG_NS, WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.PREFIX  );
+            JAXBElement<?> cert = new JAXBElement<byte[]>( qname, byte[].class, certValue.getBytes() );
+            x509.getX509IssuerSerialOrX509SKIOrX509SubjectName().add( cert ); 
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA );
+         }
+      } 
+      return keyInfo;
    }
 }

@@ -31,73 +31,99 @@ import javax.xml.namespace.QName;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  */
-public class WSTrustConstants
+public interface WSTrustConstants
 {
-   public static final String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
-   public static final String PREFIX = "wst";
+    String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
+    String PREFIX = "wst";
 
    // WS-Trust request types
-   public static final String BATCH_ISSUE_REQUEST = BASE_NAMESPACE + "/BatchIssue";
-   public static final String ISSUE_REQUEST = BASE_NAMESPACE + "/Issue";
-   public static final String RENEW_REQUEST = BASE_NAMESPACE + "/Renew";
-   public static final String CANCEL_REQUEST = BASE_NAMESPACE + "/Cancel";
-   public static final String VALIDATE_REQUEST = BASE_NAMESPACE + "/Validate";
-   public static final String BATCH_VALIDATE_REQUEST = BASE_NAMESPACE + "/BatchValidate";
+    String BATCH_ISSUE_REQUEST = BASE_NAMESPACE + "/BatchIssue";
+    String ISSUE_REQUEST = BASE_NAMESPACE + "/Issue";
+    String RENEW_REQUEST = BASE_NAMESPACE + "/Renew";
+    String CANCEL_REQUEST = BASE_NAMESPACE + "/Cancel";
+    String VALIDATE_REQUEST = BASE_NAMESPACE + "/Validate";
+    String BATCH_VALIDATE_REQUEST = BASE_NAMESPACE + "/BatchValidate";
    
    // WS-Trust validation constants.
-   public static final String STATUS_TYPE = BASE_NAMESPACE + "/RSTR/Status";
-   public static final String STATUS_CODE_VALID = BASE_NAMESPACE + "/status/valid";
-   public static final String STATUS_CODE_INVALID = BASE_NAMESPACE + "/status/invalid";
+    String STATUS_TYPE = BASE_NAMESPACE + "/RSTR/Status";
+    String STATUS_CODE_VALID = BASE_NAMESPACE + "/status/valid";
+    String STATUS_CODE_INVALID = BASE_NAMESPACE + "/status/invalid";
    
    // WS-Trust key types.
-   public static final String KEY_TYPE_BEARER = BASE_NAMESPACE + "/Bearer";
-   public static final String KEY_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
-   public static final String KEY_TYPE_PUBLIC = BASE_NAMESPACE + "/PublicKey"; 
+    String KEY_TYPE_BEARER = BASE_NAMESPACE + "/Bearer";
+    String KEY_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
+    String KEY_TYPE_PUBLIC = BASE_NAMESPACE + "/PublicKey"; 
    
    // WS-Trust binary secret types.
-   public static final String BS_TYPE_ASYMMETRIC = BASE_NAMESPACE + "/AsymmetricKey";
-   public static final String BS_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
-   public static final String BS_TYPE_NONCE = BASE_NAMESPACE + "/Nonce";
+    String BS_TYPE_ASYMMETRIC = BASE_NAMESPACE + "/AsymmetricKey";
+    String BS_TYPE_SYMMETRIC = BASE_NAMESPACE + "/SymmetricKey";
+    String BS_TYPE_NONCE = BASE_NAMESPACE + "/Nonce";
    
    // WS-Trust computed key types.
-   public static final String CK_PSHA1 = BASE_NAMESPACE + "/CK/PSHA1";
+    String CK_PSHA1 = BASE_NAMESPACE + "/CK/PSHA1";
    
    // WSS namespaces values.
-   public static final String WSA_NS = "http://www.w3.org/2005/08/addressing";
-   public static final String WSP_NS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
-   public static final String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
-   public static final String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
-   public static final String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
-   public static final String XENC_NS = "http://www.w3.org/2001/04/xmlenc#";
-   public static final String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
-   public static final String SAML2_ASSERTION_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
+    String WSA_NS = "http://www.w3.org/2005/08/addressing";
+    String WSP_NS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
+    String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
+    String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+    String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
+    String XENC_NS = "http://www.w3.org/2001/04/xmlenc#";
+    String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+    String SAML2_ASSERTION_NS = "urn:oasis:names:tc:SAML:2.0:assertion";
    
    // WSS Fault codes
-   public static final QName SECURITY_TOKEN_UNAVAILABLE = new QName(WSSE_NS, "SecurityTokenUnavailable");
-   public static final QName INVALID_SECURITY_TOKEN = new QName(WSSE_NS, "InvalidSecurityToken");
-   public static final QName INVALID_SECURITY = new QName(WSSE_NS, "InvalidSecurity");
-   public static final QName FAILED_AUTHENTICATION = new QName(WSSE_NS, "FailedAuthentication");
+    QName SECURITY_TOKEN_UNAVAILABLE = new QName(WSSE_NS, "SecurityTokenUnavailable");
+    QName INVALID_SECURITY_TOKEN = new QName(WSSE_NS, "InvalidSecurityToken");
+    QName INVALID_SECURITY = new QName(WSSE_NS, "InvalidSecurity");
+    QName FAILED_AUTHENTICATION = new QName(WSSE_NS, "FailedAuthentication");
    
    //Token Types
-   public static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
-   public static final String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
+    String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+    String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
    
    //Element Names
-   public static final String BINARY_SECRET = "BinarySecret";
-   public static final String ENTROPY = "Entropy";
-   public static final String On_BEHALF_OF = "OnBehalfOf";
-   public static final String KEY_SIZE = "KeySize";
-   public static final String KEY_TYPE = "KeyType";
-   public static final String RST = "RequestSecurityToken";
-   public static final String RST_COLLECTION = "RequestSecurityTokenCollection";
-   public static final String REQUEST_TYPE = "RequestType";
-   public static final String TOKEN_TYPE = "TokenType";
-   public static final String CANCEL_TARGET = "CancelTarget";
-   public static final String RENEW_TARGET = "RenewTarget";
-   public static final String VALIDATE_TARGET = "ValidateTarget";
-   public static final String USE_KEY = "UseKey";
+    String BINARY_SECRET = "BinarySecret";
+    String CREATED = "Created";
+    String ENTROPY = "Entropy";
+    String EXPIRES = "Expires";
+    String On_BEHALF_OF = "OnBehalfOf";
+    String KEY_SIZE = "KeySize";
+    String KEY_TYPE = "KeyType";
+    String LIFETIME = "Lifetime";
+    String RST = "RequestSecurityToken";
+    String RSTR = "RequestSecurityTokenResponse";
+    String RST_COLLECTION = "RequestSecurityTokenCollection";
+    String RSTR_COLLECTION = "RequestSecurityTokenResponseCollection";
+    String REQUESTED_TOKEN = "RequestedSecurityToken";
+    String REQUESTED_ATTACHED_REFERENCE = "RequestedAttachedReference";
+    String REQUEST_TYPE = "RequestType";
+    String TOKEN_TYPE = "TokenType";
+    String CANCEL_TARGET = "CancelTarget";
+    String RENEW_TARGET = "RenewTarget";
+    String VALIDATE_TARGET = "ValidateTarget";
+    String USE_KEY = "UseKey";
    
    //Attribute Names
-   public static final String RST_CONTEXT = "Context";
-   public static final String TYPE = "Type";
+    String RST_CONTEXT = "Context";
+    String TYPE = "Type";
+    String VALUE_TYPE = "ValueType";
+    
+    public interface XMLDSig
+    {
+       String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+       String KEYINFO = "KeyInfo";
+       String PREFIX = "ds";
+       String X509DATA = "X509Data";
+       String X509CERT = "X509Certificate";
+    }
+    
+    public interface WSSE
+    {
+       String KEY_IDENTIFIER = "KeyIdentifier";
+       String KEY_IDENTIFIER_VALUETYPE_SAML = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID";
+       String PREFIX_11 = "wsse11";
+       String SECURITY_TOKEN_REFERENCE = "SecurityTokenReference";
+       String USERNAME_TOKEN = "UsernameToken";
+    }
 }

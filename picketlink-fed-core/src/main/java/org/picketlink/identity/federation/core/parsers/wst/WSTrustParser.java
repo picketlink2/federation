@@ -64,6 +64,16 @@ public class WSTrustParser extends AbstractParser
                WSTRequestSecurityTokenParser wst = new WSTRequestSecurityTokenParser();
                return wst.parse(xmlEventReader); 
             } 
+            else if( elementName.equalsIgnoreCase( WSTrustConstants.RSTR_COLLECTION ))
+            {
+               WSTRequestSecurityTokenResponseCollectionParser wstrcoll = new WSTRequestSecurityTokenResponseCollectionParser();
+               return wstrcoll.parse(xmlEventReader); 
+            } 
+            else if( elementName.equalsIgnoreCase( WSTrustConstants.RSTR ))
+            {
+               WSTRequestSecurityTokenResponseParser wst = new WSTRequestSecurityTokenResponseParser();
+               return wst.parse(xmlEventReader); 
+            } 
          }
          else
          {

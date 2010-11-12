@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.parsers.wsp;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -77,6 +78,9 @@ public class WSPolicyParser extends AbstractParser
                
                Object parsedObject = parser.parse( xmlEventReader );
                appliesTo.getAny().add( parsedObject );
+               
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement, WSPolicyConstants.APPLIES_TO );
                return appliesTo;
             }  
          }

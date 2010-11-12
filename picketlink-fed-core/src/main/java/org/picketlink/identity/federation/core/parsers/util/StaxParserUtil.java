@@ -31,8 +31,16 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stax.StAXSource;
 
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException; 
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
  
 
 /**
@@ -70,6 +78,52 @@ public class StaxParserUtil
    {
       return trim(attribute.getValue());
    }
+   
+   /**
+    * Given that the {@code XMLEventReader} is in {@code XMLStreamConstants.START_ELEMENT}
+    * mode, we parse into a DOM Element
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static Element getDOMElement( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      Transformer transformer = null;
+
+      final String JDK_TRANSFORMER_PROPERTY = "picketlink.jdk.transformer";
+      
+      boolean useJDKTransformer = Boolean.parseBoolean( SecurityActions.getSystemProperty(JDK_TRANSFORMER_PROPERTY, "false" ));
+
+      try
+      { 
+         if( useJDKTransformer )
+         {
+            transformer = TransformerUtil.getTransformer();
+         }
+         else
+         {
+            transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+         } 
+
+         Document resultDocument = DocumentUtil.createDocument();
+         DOMResult domResult = new DOMResult( resultDocument );
+ 
+         StAXSource source = new StAXSource( xmlEventReader );
+
+         TransformerUtil.transform( transformer, source, domResult );
+
+         Document doc = ( Document ) domResult.getNode();
+         return doc.getDocumentElement();
+      }
+      catch ( ConfigurationException e )
+      {
+         throw new ParsingException( e );
+      }
+      catch ( XMLStreamException e )
+      {
+         throw new ParsingException( e );
+      }
+   } 
    
    /**
     * Get the element text.  

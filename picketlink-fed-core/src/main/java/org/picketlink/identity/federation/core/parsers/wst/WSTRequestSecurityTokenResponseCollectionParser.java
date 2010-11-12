@@ -28,48 +28,51 @@ import javax.xml.stream.events.StartElement;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.parsers.wsse.WSSecurityParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
-import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 
 /**
- * Parser to parse the OnBehalfOf tag
+ * Parse the WS-Trust RequestSecurityTokenResponse Collection
  * @author Anil.Saldhana@redhat.com
- * @since Oct 18, 2010
+ * @since Nov 11, 2010
  */
-public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
+public class WSTRequestSecurityTokenResponseCollectionParser implements ParserNamespaceSupport
 {  
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
-      OnBehalfOfType onBehalfType = new OnBehalfOfType();
-      StartElement startElement =  StaxParserUtil.peekNextStartElement( xmlEventReader ); 
-      String tag = StaxParserUtil.getStartElementName( startElement );
+   public Object parse( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      StaxParserUtil.getNextEvent(xmlEventReader); 
       
-      if( tag.equals( WSTrustConstants.WSSE.USERNAME_TOKEN ) )
-      {
-         WSSecurityParser wsseParser = new WSSecurityParser();
+      RequestSecurityTokenResponseCollection requestCollection = new RequestSecurityTokenResponseCollection(); 
+      
+      //Peek at the next event
+      while( xmlEventReader.hasNext() )
+      { 
+         StartElement peekedElement = StaxParserUtil.peekNextStartElement( xmlEventReader  );
+         if( peekedElement == null )
+            break; 
+
+         String tag = StaxParserUtil.getStartElementName( peekedElement );
          
-         UsernameTokenType userNameToken = (UsernameTokenType) wsseParser.parse( xmlEventReader );
-         onBehalfType.setAny( userNameToken ); 
+         if( WSTrustConstants.RSTR.equalsIgnoreCase( tag ) )
+         {
+            WSTRequestSecurityTokenResponseParser rstrParser = new WSTRequestSecurityTokenResponseParser();
+            RequestSecurityTokenResponse rstr = ( RequestSecurityTokenResponse ) rstrParser.parse( xmlEventReader );
+            requestCollection.addRequestSecurityTokenResponse(rstr);
+         } 
       }
-       
-      return onBehalfType;
+      return requestCollection;
    }
-
-
+ 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
-   public boolean supports(QName qname)
+   public boolean supports( QName qname )
    {
-      String nsURI = qname.getNamespaceURI();
-      String localPart = qname.getLocalPart();
-      
-      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-             && WSTrustConstants.On_BEHALF_OF.equals( localPart );
-   } 
+      return ( qname.getNamespaceURI().equals( WSTrustConstants.BASE_NAMESPACE )
+            && qname.getLocalPart().equals( WSTrustConstants.RSTR_COLLECTION ) ); 
+   }
 }
