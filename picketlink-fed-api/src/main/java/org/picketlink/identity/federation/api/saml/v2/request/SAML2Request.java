@@ -50,6 +50,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUt
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
@@ -295,14 +296,14 @@ public class SAML2Request
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       
-      SAMLRequestWriter writer = new SAMLRequestWriter();
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(bos));
       if( rat instanceof AuthnRequestType )
       {
-         writer.write( (AuthnRequestType) rat, bos);
+         writer.write( (AuthnRequestType) rat);
       } 
       else if( rat instanceof LogoutRequestType )
       {
-         writer.write( (LogoutRequestType) rat, bos);
+         writer.write( (LogoutRequestType) rat);
       }
       
       return DocumentUtil.getDocument( new String( bos.toByteArray() )); 

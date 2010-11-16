@@ -37,6 +37,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
@@ -70,8 +71,9 @@ public class SAMLSloResponseParserTestCase
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue() );
       
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
-      SAMLResponseWriter writer = new SAMLResponseWriter();ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), baos );
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
       
       System.out.println( new String( baos.toByteArray() ));
       

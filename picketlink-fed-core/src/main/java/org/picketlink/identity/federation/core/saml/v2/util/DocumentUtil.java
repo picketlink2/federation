@@ -277,9 +277,12 @@ public class DocumentUtil
     */
    public static InputStream getNodeAsStream(Node node) throws ConfigurationException, ProcessingException
    {
-      Source source = new DOMSource(node);
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      return getSourceAsStream(new DOMSource(node));
+   }
 
+   public static InputStream getSourceAsStream(Source source) throws ConfigurationException, ProcessingException 
+   {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
       Result streamResult = new StreamResult(baos);
       // Write the DOM document to the stream
       Transformer transformer = TransformerUtil.getTransformer();
@@ -292,11 +295,9 @@ public class DocumentUtil
          throw new ProcessingException(e);
       }
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-
-      return bis;
+      return new ByteArrayInputStream(baos.toByteArray());
    }
-
+   
    /**
     * Stream a DOM Node as a String
     * @param node

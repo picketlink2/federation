@@ -27,7 +27,7 @@ import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.
 import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_NS;
 import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_PREFIX;
 
-import java.io.OutputStream;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -39,12 +39,17 @@ import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 5, 2010
  */
-public class WSAddressingWriter extends AbstractWSWriter
+public class WSAddressingWriter
 {
-   public void write( EndpointReferenceType endpointReference, OutputStream out ) throws ProcessingException
+   private XMLStreamWriter writer;
+   
+   public WSAddressingWriter(XMLStreamWriter writer)
    {
-      verifyWriter(out);
-      
+      this.writer = writer;
+   }
+   
+   public void write( EndpointReferenceType endpointReference) throws ProcessingException
+   {
       StaxUtil.writeStartElement( writer, WSA_PREFIX, ENDPOINT_REFERENCE, WSA_NS );   
       StaxUtil.writeNameSpace( writer, WSA_PREFIX, WSA_NS );
        

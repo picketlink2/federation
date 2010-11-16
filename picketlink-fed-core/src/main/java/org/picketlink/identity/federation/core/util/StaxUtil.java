@@ -29,6 +29,7 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.w3c.dom.Attr;
@@ -98,6 +99,19 @@ public class StaxUtil
       catch (XMLStreamException e)
       {
          throw new ProcessingException( e );
+      }
+   }
+   
+   public static XMLStreamWriter getXMLStreamWriter(final Result result) throws ProcessingException
+   {
+      XMLOutputFactory factory = XMLOutputFactory.newInstance();
+      try
+      {
+         return factory.createXMLStreamWriter(result);
+      }
+      catch (XMLStreamException xe)
+      {
+         throw new ProcessingException(xe);
       }
    }
    
@@ -286,7 +300,7 @@ public class StaxUtil
       //Should we register namespace
       if( domElementPrefix != "" && !registeredNSStack.get().contains(domElementNS) )
       {
-         writeNameSpace(writer, domElementPrefix, domElementNS ); 
+         // writeNameSpace(writer, domElementPrefix, domElementNS ); 
          registeredNSStack.get().push( domElementNS );
       }
 

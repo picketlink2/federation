@@ -27,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import javax.xml.transform.dom.DOMSource;
+
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -55,10 +57,10 @@ public class WSTrustIssueTestCase
       assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString() ); 
 
       //Now for the writing part
-      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter(baos);
 
-      rstWriter.write(requestToken, baos ); 
+      rstWriter.write(requestToken); 
 
       System.out.println( new String( baos.toByteArray() ));
       DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 

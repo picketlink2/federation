@@ -24,9 +24,8 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
-import java.io.OutputStream;
-
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -44,18 +43,20 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
  */
 public class SAMLRequestWriter extends BaseWriter
 {   
+   public SAMLRequestWriter(XMLStreamWriter writer) throws ProcessingException
+   {
+      super(writer);
+   }
+   
    /**
     * Write a {@code AuthnRequestType } to stream
     * @param request
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnRequestType request, OutputStream out ) throws ProcessingException
+   public void write( AuthnRequestType request ) throws ProcessingException
    { 
-      verifyWriter( out ); 
-      
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.AUTHN_REQUEST.get() , PROTOCOL_NSURI.get() ); 
-      
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
       StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
@@ -77,11 +78,11 @@ public class SAMLRequestWriter extends BaseWriter
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL );
       
       NameIDType issuer = request.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out );
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
       
       NameIDPolicyType nameIDPolicy = request.getNameIDPolicy();
       if( nameIDPolicy != null )
-         write( nameIDPolicy, out );
+         write( nameIDPolicy );
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -93,10 +94,8 @@ public class SAMLRequestWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( LogoutRequestType logOutRequest, OutputStream out ) throws ProcessingException
+   public void write( LogoutRequestType logOutRequest ) throws ProcessingException
    {
-      verifyWriter( out ); 
-      
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.LOGOUT_REQUEST.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
@@ -118,7 +117,7 @@ public class SAMLRequestWriter extends BaseWriter
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
       
       NameIDType issuer = logOutRequest.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out );
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 
@@ -130,10 +129,8 @@ public class SAMLRequestWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( NameIDPolicyType nameIDPolicy, OutputStream out ) throws ProcessingException
+   public void write( NameIDPolicyType nameIDPolicy ) throws ProcessingException
    {
-      verifyWriter( out );
-      
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.NAMEID_POLICY.get(), PROTOCOL_NSURI.get() );
       
       String format = nameIDPolicy.getFormat();

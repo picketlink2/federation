@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
@@ -59,9 +60,9 @@ public class SAMLSloRequestParserTestCase
       assertEquals( "http://localhost:8080/sales/", lotRequest.getIssuer().getValue() );
       
       //Try out writing
-      SAMLRequestWriter writer = new SAMLRequestWriter(); 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      writer.write( lotRequest, baos ); 
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos)); 
+      writer.write( lotRequest ); 
       
       System.out.println( new String( baos.toByteArray() ));
       

@@ -68,9 +68,11 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 
       QName contextQName = new QName( "", WSTrustConstants.RST_CONTEXT );
       Attribute contextAttribute = startElement.getAttributeByName( contextQName );
-      String contextValue = StaxParserUtil.getAttributeValue( contextAttribute );
-      requestToken.setContext( contextValue ); 
-
+      if (contextAttribute != null)
+      {
+         String contextValue = StaxParserUtil.getAttributeValue(contextAttribute);
+         requestToken.setContext(contextValue);
+      }
       while( xmlEventReader.hasNext() )
       {
          XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader );
@@ -125,7 +127,6 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.VALIDATE_TARGET ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-
                WSTValidateTargetParser wstValidateTargetParser = new WSTValidateTargetParser();
                ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setValidateTarget( validateTarget ); 
@@ -135,7 +136,6 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else if( tag.equals( WSTrustConstants.RENEW_TARGET ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-
                WSTRenewTargetParser wstValidateTargetParser = new WSTRenewTargetParser();
                RenewTargetType validateTarget = (RenewTargetType) wstValidateTargetParser.parse( xmlEventReader );
                requestToken.setRenewTarget( validateTarget ); 

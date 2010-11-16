@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2008, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.wstrust;
 
@@ -30,6 +26,7 @@ import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
@@ -41,6 +38,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -94,10 +92,10 @@ public class STSClient
    /**
     * Issues a Security Token for the ultimate recipient of the token.
     * 
-    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for
-    *                      the RequestSecurityToken which is an optional element so it may be null.
-    * @return Element - The Security Token Element which will be of the TokenType configured
-    *                  for the endpointURI passed in.
+    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
+    *           RequestSecurityToken which is an optional element so it may be null.
+    * @return Element - The Security Token Element which will be of the TokenType configured for the endpointURI passed
+    *         in.
     * @throws WSTrustException
     */
    public Element issueTokenForEndpoint(String endpointURI) throws WSTrustException
@@ -108,12 +106,11 @@ public class STSClient
    }
 
    /**
-    * Issues a Security Token from the STS. This methods has the option of 
-    * specifying one or both of endpointURI/tokenType but at least one must 
-    * specified.
+    * Issues a Security Token from the STS. This methods has the option of specifying one or both of
+    * endpointURI/tokenType but at least one must specified.
     * 
-    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for
-    *                      the RequestSecurityToken which is an optional element so it may be null.
+    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
+    *           RequestSecurityToken which is an optional element so it may be null.
     * @param tokenType - The type of security token to be issued.
     * @return Element - The Security Token Element issued.
     * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
@@ -135,11 +132,11 @@ public class STSClient
     * Issues a security token on behalf of the specified principal.
     * </p>
     * 
-    * @param endpointURI    the ultimate recipient of the token. This will be set at the AppliesTo for
-    *                      the RequestSecurityToken which is an optional element so it may be null.
-    * @param tokenType  the type of the token to be issued.
-    * @param principal  the {@code Principal} to whom the token will be issued.
-    * @return   an {@code Element} representing the issued security token.
+    * @param endpointURI the ultimate recipient of the token. This will be set at the AppliesTo for the
+    *           RequestSecurityToken which is an optional element so it may be null.
+    * @param tokenType the type of the token to be issued.
+    * @param principal the {@code Principal} to whom the token will be issued.
+    * @return an {@code Element} representing the issued security token.
     * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
     * @throws WSTrustException if an error occurs while issuing the security token.
     */
@@ -169,7 +166,7 @@ public class STSClient
          rst.setTokenType(URI.create(tokenType));
       return rst;
    }
-   
+
    private RequestSecurityToken setOnBehalfOf(Principal principal, RequestSecurityToken request)
    {
       if (principal != null)
@@ -183,8 +180,7 @@ public class STSClient
          request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
       if (request.getContext() == null)
          request.setContext("default-context");
-      WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
-      DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
+      DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
       NodeList nodes;
@@ -237,8 +233,7 @@ public class STSClient
       request.setRenewTarget(renewTarget);
 
       // send the token request to JBoss STS and get the response.
-      WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
-      DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
+      DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
       NodeList nodes;
@@ -291,13 +286,11 @@ public class STSClient
       validateTarget.setAny(token);
       request.setValidateTarget(validateTarget);
 
-      WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
-
-      DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
+      DOMSource requestSource = this.createSourceFromRequest(request);
 
       Source response = dispatchLocal.get().invoke(requestSource);
-      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) jaxbFactory
-            .parseRequestSecurityTokenResponse(response);
+      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) WSTrustJAXBFactory
+            .getInstance().parseRequestSecurityTokenResponse(response);
       RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
 
       StatusType status = tokenResponse.getStatus();
@@ -326,10 +319,11 @@ public class STSClient
       CancelTargetType cancelTarget = new CancelTargetType();
       cancelTarget.setAny(securityToken);
       request.setCancelTarget(cancelTarget);
+      request.setContext("context");
 
       // marshal the request and send it to the STS.
       WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
-      DOMSource requestSource = (DOMSource) jaxbFactory.marshallRequestSecurityToken(request);
+      DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
       // get the WS-Trust response and check for presence of the RequestTokenCanceled element.
@@ -344,5 +338,20 @@ public class STSClient
    public Dispatch<Source> getDispatch()
    {
       return dispatchLocal.get();
+   }
+
+   private DOMSource createSourceFromRequest(RequestSecurityToken request) throws WSTrustException
+   {
+      try
+      {
+         DOMResult result = new DOMResult(DocumentUtil.createDocument());
+         WSTrustRSTWriter writer = new WSTrustRSTWriter(result);
+         writer.write(request);
+         return new DOMSource(result.getNode());
+      }
+      catch (Exception e)
+      {
+         throw new WSTrustException("Error creating source from request: " + e.getMessage(), e);
+      }
    }
 }

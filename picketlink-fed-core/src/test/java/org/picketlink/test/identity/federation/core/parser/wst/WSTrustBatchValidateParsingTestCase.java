@@ -68,10 +68,10 @@ public class WSTrustBatchValidateParsingTestCase
       assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE , rst2.getTokenType().toASCIIString() );
       
       //Now for the writing part
-      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter(baos);
 
-      rstWriter.write( requestCollection, baos ); 
+      rstWriter.write( requestCollection ); 
 
       System.out.println( new String( baos.toByteArray() ));
       DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 

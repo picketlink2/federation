@@ -60,6 +60,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -352,16 +353,16 @@ public class SAML2Response
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-      SAMLResponseWriter writer = new SAMLResponseWriter();
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(bos));
       
       if( responseType instanceof ResponseType )
       {
          ResponseType response = (ResponseType) responseType;
-         writer.write(response, bos );
+         writer.write(response);
       }
       else
       {
-         writer.write(responseType, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"), bos );
+         writer.write(responseType, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
       }
       
       //System.out.println( new String( bos.toByteArray() ) );

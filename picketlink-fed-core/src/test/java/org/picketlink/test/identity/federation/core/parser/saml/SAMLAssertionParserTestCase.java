@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
@@ -247,9 +248,9 @@ public class SAMLAssertionParserTestCase
          }
       } 
       
-      SAMLAssertionWriter writer = new SAMLAssertionWriter();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      writer.write(assertion, baos );
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
       
       System.out.println( new String( baos.toByteArray() ));
       

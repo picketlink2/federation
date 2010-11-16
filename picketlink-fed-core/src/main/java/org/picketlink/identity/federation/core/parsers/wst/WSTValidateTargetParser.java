@@ -24,15 +24,20 @@ package org.picketlink.identity.federation.core.parsers.wst;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.w3c.dom.Document;
 
 /**
  * Stax parser for the wst:ValidateTarget element
@@ -47,8 +52,12 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {  
       ValidateTargetType validateTargetType = new ValidateTargetType();
-      
       StartElement startElement =  StaxParserUtil.peekNextStartElement( xmlEventReader ); 
+      // null start element indicates that the token to be validated hasn't been specified.
+      if (startElement == null)
+      {
+         throw new ParsingException("Unable to parse validate token request: security token is null");
+      }
       String tag = StaxParserUtil.getStartElementName( startElement );
       
       if( tag.equals( JBossSAMLConstants.ASSERTION.get() ) )
@@ -57,7 +66,24 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
          AssertionType assertion = (AssertionType) assertionParser.parse( xmlEventReader );
          validateTargetType.setAny( assertion );
       }
-      
+      else
+      {
+         // this is an unknown type - parse using the transformer.
+         try
+         {
+            Document resultDocument = DocumentUtil.createDocument();
+            DOMResult domResult = new DOMResult(resultDocument);
+            StAXSource source = new StAXSource(xmlEventReader);
+            TransformerUtil.transform(TransformerUtil.getStaxSourceToDomResultTransformer(), source, domResult);
+            Document doc = (Document) domResult.getNode();
+            validateTargetType.setAny(doc.getDocumentElement());
+         }
+         catch(Exception e)
+         {
+            throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
+         }
+      }
+
       return validateTargetType;
    }
 

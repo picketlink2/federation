@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import java.io.OutputStream;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -44,6 +42,11 @@ public class BaseWriter
    
    protected XMLStreamWriter writer = null;  
    
+   public BaseWriter(XMLStreamWriter writer) throws ProcessingException
+   {
+      this.writer = writer;
+   }
+   
    /**
     * Write {@code NameIDType} to stream
     * @param nameIDType
@@ -51,11 +54,8 @@ public class BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( NameIDType nameIDType, QName tag, OutputStream out ) throws ProcessingException
+   public void write( NameIDType nameIDType, QName tag ) throws ProcessingException
    {
-      if( writer == null )
-         writer = StaxUtil.getXMLStreamWriter( out ); 
-      
       StaxUtil.writeStartElement( writer, tag.getPrefix(), tag.getLocalPart() , tag.getNamespaceURI() );
       
       String format = nameIDType.getFormat();
@@ -91,10 +91,4 @@ public class BaseWriter
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 
    }
-   
-   protected void verifyWriter( OutputStream out ) throws ProcessingException
-   { 
-      if( writer == null )
-         writer = StaxUtil.getXMLStreamWriter( out ); 
-   } 
 }

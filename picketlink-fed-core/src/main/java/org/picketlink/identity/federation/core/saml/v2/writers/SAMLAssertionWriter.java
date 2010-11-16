@@ -23,7 +23,6 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -57,16 +57,19 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
  */
 public class SAMLAssertionWriter extends BaseWriter
 {
+   public SAMLAssertionWriter(XMLStreamWriter writer) throws ProcessingException
+   {
+      super(writer);
+   }
+   
    /**
     * Write an {@code AssertionType} to stream
     * @param assertion
     * @param out
     * @throws ProcessingException
     */
-   public void write( AssertionType assertion, OutputStream out ) throws ProcessingException
+   public void write( AssertionType assertion ) throws ProcessingException
    {
-      verifyWriter( out ); 
-
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ASSERTION.get() , ASSERTION_NSURI.get() ); 
       StaxUtil.writeNameSpace( writer, ASSERTION_PREFIX, ASSERTION_NSURI.get() );
       StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
@@ -77,12 +80,12 @@ public class SAMLAssertionWriter extends BaseWriter
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), assertion.getIssueInstant().toString() );     
 
       NameIDType issuer = assertion.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out ); 
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
       
       SubjectType subject = assertion.getSubject();
       if( subject != null )
       {
-         write(subject, out);
+         write(subject);
       }
       
       //TODO: conditions and advice
@@ -94,11 +97,11 @@ public class SAMLAssertionWriter extends BaseWriter
          {
             if( statement instanceof AuthnStatementType )
             {
-               write( ( AuthnStatementType )statement, out );
+               write( ( AuthnStatementType )statement );
             }
             else if( statement instanceof AttributeStatementType )
             {
-               write( ( AttributeStatementType )statement, out );
+               write( ( AttributeStatementType )statement );
             }
             else 
                 throw new RuntimeException( "unknown statement type=" + statement.getClass().getName() ); 
@@ -115,15 +118,13 @@ public class SAMLAssertionWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatementAbstractType statement, OutputStream out ) throws ProcessingException
+   public void write( StatementAbstractType statement ) throws ProcessingException
    {
-      verifyWriter( out );
       //TODO: handle this section
    }
    
-   public void write( AttributeStatementType statement, OutputStream out ) throws ProcessingException
+   public void write( AttributeStatementType statement ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get() , ASSERTION_NSURI.get() );  
       
       List<Object> attributes = statement.getAttributeOrEncryptedAttribute();
@@ -134,7 +135,7 @@ public class SAMLAssertionWriter extends BaseWriter
             if( attr instanceof AttributeType )
             {
                AttributeType attributeType = (AttributeType) attr; 
-               write( attributeType, out );
+               write( attributeType );
             }
          }
       } 
@@ -150,9 +151,8 @@ public class SAMLAssertionWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnStatementType authnStatement, OutputStream out ) throws ProcessingException
+   public void write( AuthnStatementType authnStatement ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get() , ASSERTION_NSURI.get() );  
       
       XMLGregorianCalendar authnInstant = authnStatement.getAuthnInstant();
@@ -163,7 +163,7 @@ public class SAMLAssertionWriter extends BaseWriter
       
       AuthnContextType authnContext = authnStatement.getAuthnContext();
       if( authnContext != null )
-        write( authnContext, out );
+        write( authnContext );
 
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -175,9 +175,8 @@ public class SAMLAssertionWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnContextType authContext, OutputStream out ) throws ProcessingException
+   public void write( AuthnContextType authContext ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get() , ASSERTION_NSURI.get() );  
       
       List< JAXBElement<?> > subList = authContext.getContent();
@@ -217,9 +216,8 @@ public class SAMLAssertionWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( AttributeType attributeType, OutputStream out ) throws ProcessingException
+   public void write( AttributeType attributeType ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get() , ASSERTION_NSURI.get() );  
 
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME.get(), attributeType.getName() );
@@ -287,9 +285,8 @@ public class SAMLAssertionWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( SubjectType subject, OutputStream out ) throws ProcessingException
+   public void write( SubjectType subject ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get() , ASSERTION_NSURI.get() );  
       List<JAXBElement<?>> contentList = subject.getContent();
       if( contentList != null )
@@ -307,17 +304,17 @@ public class SAMLAssertionWriter extends BaseWriter
                BaseIDAbstractType baseID = subjectConfirmationType.getBaseID();
                if( baseID != null )
                {
-                  write( baseID, out );
+                  write( baseID );
                }
                NameIDType nameIDType = subjectConfirmationType.getNameID();
                if( nameIDType != null )
                {
-                  write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX), out );
+                  write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
                }
                SubjectConfirmationDataType subjectConfirmationData = subjectConfirmationType.getSubjectConfirmationData();
                if( subjectConfirmationData != null )
                {
-                  write( subjectConfirmationData, out ); 
+                  write( subjectConfirmationData ); 
                } 
                
 
@@ -326,7 +323,7 @@ public class SAMLAssertionWriter extends BaseWriter
             else if( declaredType.equals( NameIDType.class ))
             {
                NameIDType nameIDType = (NameIDType) jaxbEl.getValue();
-               write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX), out );
+               write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
             }
             else 
                throw new RuntimeException( "SAMLAssertionWriter: NYI: declared Type:" + declaredType.getName() );
@@ -337,14 +334,13 @@ public class SAMLAssertionWriter extends BaseWriter
       StaxUtil.flush( writer );  
    }
    
-   private void write( BaseIDAbstractType baseId, OutputStream out ) throws ProcessingException
+   private void write( BaseIDAbstractType baseId ) throws ProcessingException
    {
       throw new RuntimeException( "NYI");
    }
    
-   private void write( SubjectConfirmationDataType subjectConfirmationData, OutputStream out ) throws ProcessingException
+   private void write( SubjectConfirmationDataType subjectConfirmationData ) throws ProcessingException
    {
-      verifyWriter(out);
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get(), ASSERTION_NSURI.get() );  
       
       //Let us look at attributes

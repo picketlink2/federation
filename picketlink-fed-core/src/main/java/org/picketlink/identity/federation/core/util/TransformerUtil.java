@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.ErrorListener;
@@ -285,13 +286,24 @@ public class TransformerUtil
             Attribute attr = attrs.next();
             QName attrName = attr.getName();
             ns = attrName.getNamespaceURI();
-            qual = attrName.getPrefix() + ":" + attrName.getLocalPart();
+            prefix = attrName.getPrefix();
+            localPart = attrName.getLocalPart();
+            qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart ;
 
             doc.createAttributeNS( ns, qual );
             el.setAttributeNS( ns, qual , attr.getValue() );
          } 
-          
-         
+
+         // look for namespaces
+         @SuppressWarnings("unchecked")
+         Iterator<Namespace> namespaces = startElement.getNamespaces(); 
+         while (namespaces != null && namespaces.hasNext())
+         {
+            Namespace namespace = namespaces.next();
+            QName name = namespace.getName();
+            el.setAttributeNS(name.getNamespaceURI(), "xmlns:" + name.getLocalPart(), namespace.getNamespaceURI());
+         }
+
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);
          if( nextEvent.getEventType() == XMLEvent.CHARACTERS )
          { 

@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2009, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2009, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.wstrust;
 
@@ -36,6 +32,7 @@ import javax.xml.crypto.dsig.SignatureMethod;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -95,10 +92,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler
    {
       if (trace)
          log.trace("Issuing token for principal " + callerPrincipal);
-
-      Document rstDocument = request.getRSTDocument();
-      if (rstDocument == null)
-         throw new IllegalArgumentException("Request does not contain the DOM Document");
 
       SecurityTokenProvider provider = null;
 
@@ -191,17 +184,19 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             requestedProofToken = new RequestedProofTokenType();
             ObjectFactory objFactory = new ObjectFactory();
 
-            byte[] clientSecret = null;
-            EntropyType clientEntropy = request.getEntropy();
-            if (clientEntropy != null)
-               clientSecret = WSTrustUtil.getBinarySecret(clientEntropy);
-
             byte[] serverSecret = WSTrustUtil.createRandomSecret((int) keySize / 8);
             BinarySecretType serverBinarySecret = new BinarySecretType();
             serverBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
-            serverBinarySecret.setValue(serverSecret);
-            serverEntropy = new EntropyType();
-            serverEntropy.getAny().add(objFactory.createBinarySecret(serverBinarySecret));
+            serverBinarySecret.setValue(Base64.encodeBytes(serverSecret).getBytes());
+
+            byte[] clientSecret = null;
+            EntropyType clientEntropy = request.getEntropy();
+            if (clientEntropy != null)
+            {
+               clientSecret = Base64.decode(new String(WSTrustUtil.getBinarySecret(clientEntropy)));
+               serverEntropy = new EntropyType();
+               serverEntropy.getAny().add(objFactory.createBinarySecret(serverBinarySecret));
+            }
 
             if (clientSecret != null && clientSecret.length != 0)
             {
@@ -210,7 +205,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                byte[] combinedSecret = null;
                try
                {
-                  combinedSecret = WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8);
+                  combinedSecret = Base64
+                        .encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8)).getBytes();
                }
                catch (Exception e)
                {
@@ -223,8 +219,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             {
                // client secret has not been specified - use the sts secret only.
                requestedProofToken.setAny(objFactory.createBinarySecret(serverBinarySecret));
-               requestContext
-                     .setProofTokenInfo(WSTrustUtil.createKeyInfo(serverSecret, providerPublicKey, keyWrapAlgo));
+               requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(),
+                     providerPublicKey, keyWrapAlgo));
             }
          }
          else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString()))
@@ -305,7 +301,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler
    public RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal)
          throws WSTrustException
    {
-      // first validate the provided token signature to make sure it has been issued by this STS and hasn't been tempered.
+      // first validate the provided token signature to make sure it has been issued by this STS and hasn't been
+      // tempered.
       if (trace)
          log.trace("Validating token for renew request " + request.getContext());
       if (request.getRenewTargetElement() == null)
@@ -391,9 +388,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler
    {
       if (trace)
          log.trace("Started validation for request " + request.getContext());
-      Document rstDocument = request.getRSTDocument();
-      if (rstDocument == null)
-         throw new IllegalArgumentException("Request does not contain the DOM Document");
 
       if (request.getValidateTargetElement() == null)
          throw new WSTrustException("Unable to validate token: request does not have a validate target");
@@ -488,9 +482,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          throws WSTrustException
    {
       // check if request contains all required elements.
-      Document rstDocument = request.getRSTDocument();
-      if (rstDocument == null)
-         throw new IllegalArgumentException("Request does not contain the DOM Document");
       if (request.getCancelTargetElement() == null)
          throw new WSTrustException("Unable to cancel token: request does not have a cancel target");
 
@@ -530,7 +521,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       {
          rstrDocument = DocumentUtil.normalizeNamespaces(rstrDocument);
 
-         //Sign the security token
+         // Sign the security token
          if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null)
          {
             KeyPair keyPair = this.configuration.getSTSKeyPair();
@@ -544,9 +535,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                if (trace)
                   log.trace("NamespaceURI of element to be signed:" + tokenElement.getNamespaceURI());
 
-               //Set the CanonicalizationMethod if any
-               XMLSignatureUtil.setCanonicalizationMethodType( configuration.getXMLDSigCanonicalizationMethod() );
-               
+               // Set the CanonicalizationMethod if any
+               XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
+
                rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
                      signatureMethod, "#" + tokenElement.getAttribute("ID"));
                if (trace)

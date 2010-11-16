@@ -30,9 +30,8 @@ import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.W
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.WSU_NS;
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.WSU_PREFIX;
 
-import java.io.OutputStream;
-
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -45,18 +44,17 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 8, 2010
  */
-public class WSSecurityWriter extends AbstractWSWriter
+public class WSSecurityWriter
 {
-   /**
-    * Write an {@code UsernameTokenType} to the stream
-    * @param appliesTo
-    * @param out
-    * @throws ProcessingException
-    */
-   public void write( UsernameTokenType usernameToken, OutputStream out ) throws ProcessingException
+   private XMLStreamWriter writer;
+   
+   public WSSecurityWriter(XMLStreamWriter writer)
    {
-      verifyWriter(out); 
-
+      this.writer = writer;
+   }
+   
+   public void write(UsernameTokenType usernameToken) throws ProcessingException
+   {
       StaxUtil.writeStartElement( writer, WSSE_PREFIX, USERNAME_TOKEN, WSSE_NS );   
       StaxUtil.writeNameSpace( writer, WSSE_PREFIX, WSSE_NS );
       
@@ -79,5 +77,5 @@ public class WSSecurityWriter extends AbstractWSWriter
 
       StaxUtil.writeEndElement( writer ); 
       StaxUtil.flush( writer );
-   } 
+   }
 }

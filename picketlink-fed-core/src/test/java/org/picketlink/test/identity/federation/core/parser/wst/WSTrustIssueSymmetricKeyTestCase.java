@@ -75,10 +75,10 @@ public class WSTrustIssueSymmetricKeyTestCase
       assertEquals( "M0/7qLpV49c=" , new String( binarySecret.getValue() ));
       
       //Now for the writing part
-      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter(baos);
 
-      rstWriter.write(requestToken, baos ); 
+      rstWriter.write(requestToken); 
 
       System.out.println( new String( baos.toByteArray() ));
       DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 

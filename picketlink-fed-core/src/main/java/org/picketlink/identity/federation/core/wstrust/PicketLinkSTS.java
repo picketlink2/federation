@@ -38,7 +38,8 @@ import javax.xml.ws.WebServiceProvider;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
@@ -78,17 +79,23 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
    public Source invoke(Source request)
    {
       BaseRequestSecurityToken baseRequest;
+      Document document;
       try
       {
-         baseRequest = WSTrustJAXBFactory.getInstance().parseRequestSecurityToken(request);
+         document = (Document) DocumentUtil.getNodeFromSource(request);
+         baseRequest = (BaseRequestSecurityToken) new WSTrustParser().parse(DocumentUtil.getSourceAsStream(request));
       }
-      catch (WSTrustException we)
+      catch (Exception e)
       {
-         throw new RuntimeException(we);
+         throw new WebServiceException("Exception parsing token request: " + e.getMessage(), e);
       }
 
       if (baseRequest instanceof RequestSecurityToken)
-         return this.handleTokenRequest((RequestSecurityToken) baseRequest);
+      {
+         RequestSecurityToken req = (RequestSecurityToken) baseRequest;
+         req.setRSTDocument(document);
+         return this.handleTokenRequest(req);
+      }
       else if (baseRequest instanceof RequestSecurityTokenCollection)
          return this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest);
       else
@@ -106,13 +113,6 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
     */
    protected Source handleTokenRequest(RequestSecurityToken request)
    {
-      SAMLDocumentHolder holder = WSTrustJAXBFactory.getInstance().getSAMLDocumentHolderOnThread();
-
-      /**
-       * The RST Document is very important for XML Signatures
-       */
-      request.setRSTDocument(holder.getSamlDocument());
-
       if (this.config == null)
          try
          {

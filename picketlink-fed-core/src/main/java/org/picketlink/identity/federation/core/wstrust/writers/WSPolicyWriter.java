@@ -26,10 +26,10 @@ import static org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants
 import static org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants.WSP_PREFIX;
 import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.WSP_NS;
 
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -41,18 +41,22 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 5, 2010
  */
-public class WSPolicyWriter extends AbstractWSWriter
+public class WSPolicyWriter
 {
+   private XMLStreamWriter writer;
+   
+   public WSPolicyWriter(XMLStreamWriter writer)
+   {
+      this.writer = writer;
+   }
    /**
     * Write an {@code AppliesTo} to the stream
     * @param appliesTo
     * @param out
     * @throws ProcessingException
     */
-   public void write( AppliesTo appliesTo, OutputStream out ) throws ProcessingException
+   public void write( AppliesTo appliesTo) throws ProcessingException
    {
-      verifyWriter(out); 
-
       StaxUtil.writeStartElement( writer, WSP_PREFIX, APPLIES_TO, WSP_NS );   
       StaxUtil.writeNameSpace( writer, WSP_PREFIX, WSP_NS );
       StaxUtil.writeCharacters(writer, "" ); //Seems like JDK bug - not writing end character
@@ -66,8 +70,8 @@ public class WSPolicyWriter extends AbstractWSWriter
             if( EndpointReferenceType.class.equals( jaxb.getDeclaredType() ) )
             {
                EndpointReferenceType endpointReference = (EndpointReferenceType) jaxb.getValue();
-               WSAddressingWriter wsAddressingWriter = new WSAddressingWriter();
-               wsAddressingWriter.write(endpointReference, out);
+               WSAddressingWriter wsAddressingWriter = new WSAddressingWriter(this.writer);
+               wsAddressingWriter.write(endpointReference);
             }
          }
       }

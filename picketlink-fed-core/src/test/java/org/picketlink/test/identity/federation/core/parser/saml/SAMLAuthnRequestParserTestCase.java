@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 
@@ -70,9 +71,9 @@ public class SAMLAuthnRequestParserTestCase
       assertEquals( Boolean.TRUE , nameIDPolicy.isAllowCreate() );
       
       //Try out writing
-      SAMLRequestWriter writer = new SAMLRequestWriter(); 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      writer.write( authnRequest, baos );
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos)); 
+      writer.write( authnRequest );
       
       System.out.println( new String( baos.toByteArray() ));
       

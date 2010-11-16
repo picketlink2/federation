@@ -24,11 +24,11 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.xml.namespace.QName;
- 
+import javax.xml.stream.XMLStreamWriter;
+
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -48,7 +48,13 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
  */
 public class SAMLResponseWriter extends BaseWriter
 {  
-   private  SAMLAssertionWriter assertionWriter = new SAMLAssertionWriter();
+   private  SAMLAssertionWriter assertionWriter;
+   
+   public SAMLResponseWriter(XMLStreamWriter writer) throws ProcessingException
+   {
+      super(writer);
+      this.assertionWriter = new SAMLAssertionWriter(writer);
+   }
    
    /**
     * Write a {@code ResponseType} to stream
@@ -56,10 +62,8 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( ResponseType response, OutputStream out ) throws ProcessingException
+   public void write( ResponseType response ) throws ProcessingException
    {
-      verifyWriter( out );
-      
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.RESPONSE.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
@@ -68,10 +72,10 @@ public class SAMLResponseWriter extends BaseWriter
       writeBaseAttributes( response ); 
 
       NameIDType issuer = response.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out ); 
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
       
       StatusType status = response.getStatus();
-      write( status, out );
+      write( status );
       
       List<Object> assertions = response.getAssertionOrEncryptedAssertion();
       if( assertions != null )
@@ -80,7 +84,7 @@ public class SAMLResponseWriter extends BaseWriter
          {
             if( assertion instanceof AssertionType )
             {
-               assertionWriter.write( (AssertionType) assertion, out );
+               assertionWriter.write( (AssertionType) assertion );
             }
          }
       }
@@ -95,10 +99,8 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusResponseType response, QName qname, OutputStream out ) throws ProcessingException
+   public void write( StatusResponseType response, QName qname ) throws ProcessingException
    {
-      verifyWriter( out );
-      
       if( qname == null )
       {
          StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_RESPONSE_TYPE.get() , PROTOCOL_NSURI.get() ); 
@@ -114,10 +116,10 @@ public class SAMLResponseWriter extends BaseWriter
       writeBaseAttributes( response ); 
 
       NameIDType issuer = response.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ), out ); 
+      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
       
       StatusType status = response.getStatus();
-      write( status, out );
+      write( status );
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -129,13 +131,12 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusType status, OutputStream out ) throws ProcessingException
+   public void write( StatusType status ) throws ProcessingException
    {
-      verifyWriter( out );
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS.get() , PROTOCOL_NSURI.get() ); 
       
       StatusCodeType statusCodeType = status.getStatusCode();
-      write( statusCodeType , out );
+      write( statusCodeType );
       
       String statusMessage = status.getStatusMessage();
       if( StringUtil.isNotNull( statusMessage ))
@@ -146,7 +147,7 @@ public class SAMLResponseWriter extends BaseWriter
       
       StatusDetailType statusDetail = status.getStatusDetail();
       if( statusDetail != null )
-         write( statusDetail, out );
+         write( statusDetail );
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -158,10 +159,8 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusCodeType statusCodeType, OutputStream out ) throws ProcessingException
+   public void write( StatusCodeType statusCodeType ) throws ProcessingException
    {
-      verifyWriter( out );
-
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get() , PROTOCOL_NSURI.get() ); 
       
       String value = statusCodeType.getValue();
@@ -171,7 +170,7 @@ public class SAMLResponseWriter extends BaseWriter
       }
       StatusCodeType subStatusCode = statusCodeType.getStatusCode();
       if( subStatusCode != null )
-         write( subStatusCode, out );
+         write( subStatusCode );
       
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 
@@ -183,12 +182,9 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusDetailType statusDetailType, OutputStream out ) throws ProcessingException
+   public void write( StatusDetailType statusDetailType ) throws ProcessingException
    {
-      verifyWriter( out );
-
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get() , PROTOCOL_NSURI.get() ); 
-      
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 
    }

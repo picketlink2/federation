@@ -47,6 +47,7 @@ import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -243,7 +244,6 @@ public class WSTrustUtil
     */
    public static OnBehalfOfType createOnBehalfOfWithUsername(String username, String id)
    {
-      org.picketlink.identity.federation.ws.wss.secext.ObjectFactory secextFactory = new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory();
       AttributedString attrString = new AttributedString();
       attrString.setValue(username);
       UsernameTokenType usernameToken = new UsernameTokenType();
@@ -251,7 +251,7 @@ public class WSTrustUtil
       usernameToken.setUsername(attrString);
       // create the OnBehalfOfType and set the UsernameTokenType.
       OnBehalfOfType onBehalfOf = new OnBehalfOfType();
-      onBehalfOf.setAny(secextFactory.createUsernameToken(usernameToken));
+      onBehalfOf.setAny(usernameToken);
       return onBehalfOf;
    }
 
@@ -271,10 +271,9 @@ public class WSTrustUtil
 
       for (Object obj : entropy.getAny())
       {
-         JAXBElement element = (JAXBElement) obj;
-         if (element.getDeclaredType().equals(BinarySecretType.class))
+         if (obj instanceof BinarySecretType)
          {
-            BinarySecretType binarySecret = (BinarySecretType) element.getValue();
+            BinarySecretType binarySecret = (BinarySecretType) obj;
             secret = binarySecret.getValue();
             break;
          }
@@ -476,7 +475,6 @@ public class WSTrustUtil
     */
    public static KeyValueType createKeyValue(PublicKey key)
    {
-      org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
       if (key instanceof RSAPublicKey)
       {
          RSAPublicKey pubKey = (RSAPublicKey) key;
@@ -484,11 +482,11 @@ public class WSTrustUtil
          byte[] exponent = pubKey.getPublicExponent().toByteArray();
 
          RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
-         rsaKeyValue.setModulus(modulus);
-         rsaKeyValue.setExponent(exponent);
+         rsaKeyValue.setModulus(Base64.encodeBytes(modulus).getBytes());
+         rsaKeyValue.setExponent(Base64.encodeBytes(exponent).getBytes());
 
          KeyValueType keyValue = new KeyValueType();
-         keyValue.getContent().add(factory.createRSAKeyValue(rsaKeyValue));
+         keyValue.getContent().add(rsaKeyValue);
          return keyValue;
       }
       else if (key instanceof DSAPublicKey)
@@ -500,13 +498,13 @@ public class WSTrustUtil
          byte[] Y = pubKey.getY().toByteArray();
 
          DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
-         dsaKeyValue.setP(P);
-         dsaKeyValue.setQ(Q);
-         dsaKeyValue.setG(G);
-         dsaKeyValue.setY(Y);
+         dsaKeyValue.setP(Base64.encodeBytes(P).getBytes());
+         dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
+         dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
+         dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
          
          KeyValueType keyValue = new KeyValueType();
-         keyValue.getContent().add(factory.createDSAKeyValue(dsaKeyValue));
+         keyValue.getContent().add(dsaKeyValue);
          return keyValue;
       }
       else

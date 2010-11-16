@@ -36,6 +36,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
@@ -45,8 +47,10 @@ import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
@@ -64,6 +68,7 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
@@ -243,10 +248,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // create a simple token request, asking for a "special" test token.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
             "http://www.tokens.org/SpecialToken", null);
-
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -299,10 +301,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // create a simple token request, asking for a SAMLv2.0 token.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
-
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -327,10 +326,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // create a simple token request, this time using the applies to get to the token type.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
             "http://services.testcorp.org/provider1");
-
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -354,10 +350,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    {
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
             "http://services.testcorp.org/provider2");
-
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -397,9 +390,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       OnBehalfOfType onBehalfOf = WSTrustUtil.createOnBehalfOfWithUsername("anotherduke", "id");
       request.setOnBehalfOf(onBehalfOf);
 
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -418,7 +409,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
-    */ 
+    */
    @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithSTSGeneratedSymmetricKey() throws Exception
    {
@@ -428,10 +419,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // add a symmetric key type to the request, but don't supply any client key - STS should generate one.
       request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_SYMMETRIC));
-
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -457,7 +445,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       BinarySecretType serverBinarySecret = (BinarySecretType) proofElement.getValue();
       assertNotNull("Unexpected null secret", serverBinarySecret.getValue());
       // default key size is 128 bits (16 bytes).
-      assertEquals("Unexpected secret size", 16, serverBinarySecret.getValue().length);
+      byte[] encodedSecret = serverBinarySecret.getValue();
+      assertEquals("Unexpected secret size", 16, Base64.decode(encodedSecret, 0, encodedSecret.length).length);
    }
 
    /**
@@ -469,7 +458,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * </p>
     * 
     * @throws Exception if an error occurs while running the test.
-    */ 
+    */
    @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
    {
@@ -477,12 +466,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       byte[] clientSecret = WSTrustUtil.createRandomSecret(8);
       BinarySecretType clientBinarySecret = new BinarySecretType();
       clientBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
-      clientBinarySecret.setValue(clientSecret);
+      clientBinarySecret.setValue(Base64.encodeBytes(clientSecret).getBytes());
 
       // set the client secret in the client entropy.
       EntropyType clientEntropy = new EntropyType();
-      clientEntropy.getAny().add(
-            new org.picketlink.identity.federation.ws.trust.ObjectFactory().createBinarySecret(clientBinarySecret));
+      clientEntropy.getAny().add(clientBinarySecret);
 
       // create a token request specifying the key type, key size, and client entropy.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
@@ -492,7 +480,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       request.setKeySize(64);
 
       // invoke the token service.
-      Source requestMessage = WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
       BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
             .parseRequestSecurityTokenResponse(responseMessage);
@@ -525,7 +513,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       BinarySecretType serverBinarySecret = (BinarySecretType) serverEntropyContent.getValue();
       assertEquals("Unexpected binary secret type", WSTrustConstants.BS_TYPE_NONCE, serverBinarySecret.getType());
       assertNotNull("Unexpected null secret value", serverBinarySecret.getValue());
-      assertEquals("Unexpected secret size", 8, serverBinarySecret.getValue().length);
+      // get the base64 decoded
+      byte[] encodedSecret = serverBinarySecret.getValue();
+      assertEquals("Unexpected secret size", 8, Base64.decode(encodedSecret, 0, encodedSecret.length).length);
    }
 
    /**
@@ -545,14 +535,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // include a UseKey section that specifies the certificate in the request.
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
-      JAXBElement<byte[]> certElement = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory()
-            .createX509DataTypeX509Certificate(certificate.getEncoded());
       UseKeyType useKey = new UseKeyType();
-      useKey.setAny(certElement);
+      useKey.setAny(Base64.encodeBytes(certificate.getEncoded()).getBytes());
       request.setUseKey(useKey);
 
       // invoke the token service.
-      Source requestMessage = WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
       BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
             .parseRequestSecurityTokenResponse(responseMessage);
@@ -585,11 +573,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
       KeyValueType keyValue = WSTrustUtil.createKeyValue(certificate.getPublicKey());
       UseKeyType useKey = new UseKeyType();
-      useKey.setAny(new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory().createKeyValue(keyValue));
+      useKey.setAny(keyValue);
       request.setUseKey(useKey);
 
       // invoke the token service.
-      Source requestMessage = WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
       BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
             .parseRequestSecurityTokenResponse(responseMessage);
@@ -619,17 +607,18 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // use the factory to marshall the request.
       WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
       BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response and get the SAML assertion from the request.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+            SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
-            .getAny();
+          .getAny();
 
       // now construct a WS-Trust validate request with the generated assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, WSTrustConstants.STATUS_TYPE,
@@ -639,7 +628,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       request.setValidateTarget(validateTarget);
 
       // invoke the token service.
-      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
       baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response contents.
@@ -658,7 +647,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // now let's temper the SAML assertion and try to validate it again.
       assertion.getFirstChild().getFirstChild().setNodeValue("Tempered Issuer");
       request.getValidateTarget().setAny(assertion);
-      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
       collection = (RequestSecurityTokenResponseCollection) WSTrustJAXBFactory.getInstance()
             .parseRequestSecurityTokenResponse(responseMessage);
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
@@ -687,7 +676,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // use the factory to marshall the request.
       WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -706,7 +695,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       request.setRenewTarget(renewTarget);
 
       // invoke the token service.
-      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
       baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the renew response contents and get the renewed token.
@@ -744,7 +733,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // use the factory to marshall the request.
       WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
@@ -763,7 +752,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       request.setCancelTarget(cancelTarget);
 
       // invoke the token service.
-      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
       baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
 
       // validate the response contents.
@@ -783,7 +772,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       request.setValidateTarget(validateTarget);
 
       // the response should contain a status indicating that the token is not valid.
-      responseMessage = this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
       collection = (RequestSecurityTokenResponseCollection) factory.parseRequestSecurityTokenResponse(responseMessage);
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       response = collection.getRequestSecurityTokenResponses().get(0);
@@ -804,7 +793,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // we should receive an exception when renewing the token.
       try
       {
-         this.tokenService.invoke(factory.marshallRequestSecurityToken(request));
+         this.tokenService.invoke(this.createSourceFromRequest(request));
          fail("Renewing a canceled token should result in an exception being thrown");
       }
       catch (WebServiceException we)
@@ -829,9 +818,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
             "http://www.tokens.org/UnknownToken", null);
 
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the security token service.
       try
@@ -859,8 +846,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    {
       // lets create an issue request that container neither an applies-to nor a token type.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null, null);
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service. A WSTrustException should be raised.
       try
@@ -879,7 +865,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // a request that asks for a public key to be used as proof key will fail if the public key is not available.
       request.setTokenType(URI.create(SAMLUtil.SAML2_TOKEN_TYPE));
       request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
 
       try
       {
@@ -906,8 +892,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // first create a request that doesn't have a renew target element.
       RequestSecurityToken request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       try
@@ -924,7 +909,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // a request with an empty renew target should also result in a failure.
       request.setRenewTarget(new RenewTargetType());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -933,13 +918,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       catch (WebServiceException we)
       {
          assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to renew token: security token is null", we.getCause().getMessage());
+         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
+         assertEquals("Unable to parse renew token request: security token is null", we.getCause().getMessage());
       }
 
       // a request to renew an unknown token (i.e. there's no provider can handle the token) should also fail.
       request.getRenewTarget().setAny(this.createUnknownToken());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -966,8 +951,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // first create a request that doesn't have a validate target element.
       RequestSecurityToken request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       try
@@ -984,7 +968,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // a request with an empty validate target should also result in a failure.
       request.setValidateTarget(new ValidateTargetType());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -993,13 +977,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       catch (WebServiceException we)
       {
          assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to validate token: security token is null", we.getCause().getMessage());
+         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
+         assertEquals("Unable to parse validate token request: security token is null", we.getCause().getMessage());
       }
 
       // a request to validate an unknown token (i.e. there's no provider can handle the token) should also fail.
       request.getValidateTarget().setAny(this.createUnknownToken());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -1026,8 +1010,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // first create a request that doesn't have a cancel target element.
       RequestSecurityToken request = this.createRequest("cancelcontext", WSTrustConstants.CANCEL_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
-      Source requestMessage = factory.marshallRequestSecurityToken(request);
+      Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       try
@@ -1044,7 +1027,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // a request with an empty cancel target should also result in a failure.
       request.setCancelTarget(new CancelTargetType());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -1053,13 +1036,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       catch (WebServiceException we)
       {
          assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to cancel token: security token is null", we.getCause().getMessage());
+         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
+         assertEquals("Unable to parse cancel token request: security token is null", we.getCause().getMessage());
       }
 
       // a request to cancel an unknown token (i.e. there's no provider can handle the token) should also fail.
       request.getCancelTarget().setAny(this.createUnknownToken());
-      requestMessage = factory.marshallRequestSecurityToken(request);
+      requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
@@ -1318,10 +1301,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       Document doc = DocumentUtil.createDocument();
       String namespaceURI = "http://www.unknowntoken.org";
       Element root = doc.createElementNS(namespaceURI, "token:UnknownToken");
-      root.appendChild(doc.createTextNode("Unknown content"));
+      Element child = doc.createElementNS(namespaceURI, "token:UnknownTokenValue");
+      child.appendChild(doc.createTextNode("Unknown content"));
+      root.appendChild(child);
       String id = IDGenerator.create("ID_");
       root.setAttributeNS(namespaceURI, "ID", id);
-
+      root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:token", namespaceURI);
       return root;
    }
 
@@ -1344,6 +1329,15 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       Certificate certificate = keyStore.getCertificate(certificateAlias);
       return certificate;
+   }
+
+   private Source createSourceFromRequest(RequestSecurityToken request) throws Exception
+   {
+      // write the request XML to a byte[]
+      DOMResult result = new DOMResult(DocumentUtil.createDocument());
+      WSTrustRSTWriter writer = new WSTrustRSTWriter(result);
+      writer.write(request);
+      return new DOMSource(result.getNode());
    }
 
    /**
