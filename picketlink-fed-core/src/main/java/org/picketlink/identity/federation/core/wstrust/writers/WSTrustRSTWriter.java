@@ -257,8 +257,9 @@ public class WSTrustRSTWriter
       else if (useKeyTypeValue instanceof byte[])
       {
          byte[] certificate = (byte[]) useKeyTypeValue;
-         StaxUtil.writeStartElement(writer, "dsig", "X509Certificate", WSTrustConstants.DSIG_NS);
-         StaxUtil.writeNameSpace( writer, "dsig", WSTrustConstants.DSIG_NS);
+         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.XMLDSig.X509CERT, 
+               WSTrustConstants.DSIG_NS);
+         StaxUtil.writeNameSpace( writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.DSIG_NS);
          StaxUtil.writeCharacters(writer, new String(certificate));
          StaxUtil.writeEndElement(writer);
       }
@@ -274,8 +275,8 @@ public class WSTrustRSTWriter
 
    private void writeKeyValueType(KeyValueType type) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.KEY_VALUE, WSTrustConstants.DSIG_NS);
-      StaxUtil.writeNameSpace(writer, "dsig", WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.XMLDSig.KEYVALUE, WSTrustConstants.DSIG_NS);
+      StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.DSIG_NS);
       if (type.getContent().size() == 0)
          throw new ProcessingException("KeyValueType must contain at least one value");
       
@@ -292,16 +293,16 @@ public class WSTrustRSTWriter
    
    private void writeRSAKeyValueType(RSAKeyValueType type) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, "dsig", "RSAKeyValue", WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.RSA_KEYVALUE , WSTrustConstants.DSIG_NS);
       // write the rsa key modulus.
       byte[] modulus = type.getModulus();
-      StaxUtil.writeStartElement(writer, "dsig", "Modulus", WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.MODULUS , WSTrustConstants.DSIG_NS);
       StaxUtil.writeCharacters(writer, new String(modulus));
       StaxUtil.writeEndElement(writer);
       
       // write the rsa key exponent.
       byte[] exponent = type.getExponent();
-      StaxUtil.writeStartElement(writer, "dsig", "Exponent", WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.EXPONENT , WSTrustConstants.DSIG_NS);
       StaxUtil.writeCharacters(writer, new String(exponent));
       StaxUtil.writeEndElement(writer);
       

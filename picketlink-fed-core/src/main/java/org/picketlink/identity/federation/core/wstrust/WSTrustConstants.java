@@ -112,8 +112,12 @@ public interface WSTrustConstants
     public interface XMLDSig
     {
        String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+       String EXPONENT = "Exponent";
        String KEYINFO = "KeyInfo";
+       String KEYVALUE = "KeyValue";
+       String MODULUS = "Modulus";
        String PREFIX = "ds";
+       String RSA_KEYVALUE = "RSAKeyValue";
        String X509DATA = "X509Data";
        String X509CERT = "X509Certificate";
     }
