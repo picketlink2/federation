@@ -263,8 +263,7 @@ public class WSTrustUtil
     * @param entropy a reference to the {@code EntropyType} that contains the binary secret.
     * @return a {@code byte[]} containing the secret; {@code null} if the specified entropy doesn't contain
     * any secret.
-    */
-   @SuppressWarnings("rawtypes")
+    */ 
    public static byte[] getBinarySecret(EntropyType entropy)
    {
       byte[] secret = null;
