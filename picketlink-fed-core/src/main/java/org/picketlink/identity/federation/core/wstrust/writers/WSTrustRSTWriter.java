@@ -257,9 +257,9 @@ public class WSTrustRSTWriter
       else if (useKeyTypeValue instanceof byte[])
       {
          byte[] certificate = (byte[]) useKeyTypeValue;
-         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.XMLDSig.X509CERT, 
+         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.XMLDSig.X509CERT, 
                WSTrustConstants.DSIG_NS);
-         StaxUtil.writeNameSpace( writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.DSIG_NS);
+         StaxUtil.writeNameSpace( writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.DSIG_NS);
          StaxUtil.writeCharacters(writer, new String(certificate));
          StaxUtil.writeEndElement(writer);
       }
@@ -275,8 +275,8 @@ public class WSTrustRSTWriter
 
    private void writeKeyValueType(KeyValueType type) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.XMLDSig.KEYVALUE, WSTrustConstants.DSIG_NS);
-      StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.PREFIX , WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.XMLDSig.KEYVALUE, WSTrustConstants.DSIG_NS);
+      StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.DSIG_NS);
       if (type.getContent().size() == 0)
          throw new ProcessingException("KeyValueType must contain at least one value");
       

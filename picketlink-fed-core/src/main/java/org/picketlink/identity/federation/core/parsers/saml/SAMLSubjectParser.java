@@ -191,7 +191,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          {
             KeyInfoType keyInfo = parseKeyInfo(xmlEventReader);
             QName qname = new QName( WSTrustConstants.XMLDSig.DSIG_NS, WSTrustConstants.XMLDSig.KEYINFO, 
-                  WSTrustConstants.XMLDSig.PREFIX );
+                  WSTrustConstants.XMLDSig.DSIG_PREFIX );
             JAXBElement<?> jaxb = new JAXBElement(qname, KeyInfoType.class, keyInfo );
             subjectConfirmationData.getContent().add( jaxb );
          } 
@@ -235,7 +235,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.X509CERT );
 
             String certValue = StaxParserUtil.getElementText(xmlEventReader);
-            QName qname = new QName( WSTrustConstants.DSIG_NS, WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.PREFIX  );
+            QName qname = new QName( WSTrustConstants.DSIG_NS, WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.DSIG_PREFIX  );
             JAXBElement<?> cert = new JAXBElement<byte[]>( qname, byte[].class, certValue.getBytes() );
             x509.getX509IssuerSerialOrX509SKIOrX509SubjectName().add( cert ); 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
