@@ -21,9 +21,7 @@
  */
 package org.picketlink.test.identity.federation.api.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -101,47 +99,7 @@ public class XMLEncryptionUnitTestCase extends TestCase
       AssertionType assertion = (AssertionType) newRT.getAssertions().get(0).getAssertion();
       assertEquals("testPrincipal", assertion.getIssuer().getValue());
     
-   }
-   
-   public void testEncryptAssertionWithMarshalling() throws Exception
-   {
-      KeyPair kp = this.getKeyPair("RSA");
-      SecretKey sk = this.getSecretKey();
-      
-      ResponseType rt = createResponse();
-      Document responseDoc = sr.convert(rt); 
-      
-      String assertionNS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
-   
-      QName assertionQName = new QName(assertionNS, "EncryptedAssertion", "saml");
-      
-      Element docElement = XMLEncryptionUtil.encryptElementInDocument(responseDoc,kp.getPublic(), sk, 
-            128, assertionQName, true); 
-       
-      EncryptedAssertionType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement));
-      rt.addAssertion( new RTChoiceType( eet )); 
-      
-      StringWriter sw = new StringWriter();
-      sr.marshall(rt, sw);
-      
-
-      System.out.println( sw.toString() );
-      
-      //Create a brand new ResponseType
-      ResponseType received = sr.getResponseType(new ByteArrayInputStream(sw.toString().getBytes("UTF-8")));
-      
-      EncryptedAssertionType encryptedAssertionType = received.getAssertions().get(0).getEncryptedAssertion();
-      Document eetDoc = sr.convert( encryptedAssertionType );
-      
-      Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,kp.getPrivate());
-      
-      //Let us use the encrypted doc element to decrypt it
-      ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
-
-      AssertionType assertion = newRT.getAssertions().get(0).getAssertion();
-      assertEquals("http://identityurl", assertion.getIssuer().getValue());
-   }
-   
+   } 
    
    public void testArbitraryXML() throws Exception
    {

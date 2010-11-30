@@ -244,6 +244,25 @@ public class StaxUtil
          throw new ProcessingException(e);
       }
    }
+   
+   /**
+    * Write a string as text node
+    * 
+    * @param writer
+    * @param value
+    * @throws ProcessingException
+    */
+   public static void writeCData(XMLStreamWriter writer, String value) throws ProcessingException
+   {
+      try
+      {
+         writer.writeCData( value );
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException(e);
+      }
+   }
 
    /**
     * Write the default namespace
