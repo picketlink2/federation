@@ -31,17 +31,11 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Arrays;
 
-import javax.xml.bind.Binder;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -50,33 +44,29 @@ import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ActionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthzDecisionStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.DecisionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EvidenceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.DecisionType;
-import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.assertion.EvidenceType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /**
  * API for dealing with SAML2 Response objects
@@ -106,13 +96,11 @@ public class SAML2Response
     */
    public AuthnStatementType createAuthnStatement(String authnContextDeclRef,
          XMLGregorianCalendar issueInstant)
-   {
-      ObjectFactory objectFactory = SAMLAssertionFactory.getObjectFactory();
-      AuthnStatementType authnStatement = objectFactory.createAuthnStatementType();
-      authnStatement.setAuthnInstant(issueInstant);
-      AuthnContextType act = objectFactory.createAuthnContextType();
+   { 
+      AuthnStatementType authnStatement = new AuthnStatementType( issueInstant ); 
+      AuthnContextType act = new AuthnContextType();
       String authContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
-      act.getContent().add(objectFactory.createAuthnContextDeclRef(authContextDeclRef));
+      act.addAuthenticatingAuthority( NetworkUtil.createURI( authContextDeclRef )); 
       authnStatement.setAuthnContext(act);
       return authnStatement;
    }
@@ -129,9 +117,8 @@ public class SAML2Response
          DecisionType decision,
          EvidenceType evidence,
          ActionType... actions)
-   {
-      ObjectFactory objectFactory = SAMLAssertionFactory.getObjectFactory();
-      AuthzDecisionStatementType authzDecST = objectFactory.createAuthzDecisionStatementType();
+   { 
+      AuthzDecisionStatementType authzDecST = new AuthzDecisionStatementType();
       authzDecST.setResource(resource);
       authzDecST.setDecision(decision);
       if(evidence != null)
@@ -199,37 +186,39 @@ public class SAML2Response
    /**
     * Get an encrypted assertion from the stream
     * @param is
-    * @return 
-    * @throws SAXException 
-    * @throws JAXBException 
-    */
-   @SuppressWarnings("unchecked")
-   public EncryptedElementType getEncryptedAssertion(InputStream is) throws JAXBException, SAXException 
+    * @return   
+    * @throws ParsingException 
+    */ 
+   public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException  
    {
       if(is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException( "inputstream is null" );
       
-      Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
+      SAMLParser samlParser = new SAMLParser();
+      return ( EncryptedAssertionType ) samlParser.parse(is);
+      
+      /*Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
       JAXBElement<EncryptedElementType> jaxb = (JAXBElement<EncryptedElementType>) un.unmarshal(is);
-      return jaxb.getValue(); 
+      return jaxb.getValue(); */
    }
    
    /**
     * Read an assertion from an input stream
     * @param is
-    * @return
-    * @throws JAXBException
-    * @throws SAXException
-    */
-   @SuppressWarnings("unchecked")
-   public AssertionType getAssertionType(InputStream is) throws JAXBException, SAXException 
+    * @return 
+    * @throws ParsingException 
+    */ 
+   public AssertionType getAssertionType(InputStream is) throws ParsingException
    {
       if(is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException( "inputstream is null" );
       
-      Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
+      SAMLParser samlParser = new SAMLParser();
+      return (AssertionType) samlParser.parse(is);
+      
+      /*Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
       JAXBElement<AssertionType> jaxb = (JAXBElement<AssertionType>) un.unmarshal(is);
-      return jaxb.getValue(); 
+      return jaxb.getValue(); */
    }
   
    /**
@@ -247,28 +236,24 @@ public class SAML2Response
     * @return
     * @throws ParsingException 
     * @throws ConfigurationException 
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public ResponseType getResponseType(InputStream is) 
    throws ParsingException, ConfigurationException, ProcessingException
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      
+
       Document samlResponseDocument = DocumentUtil.getDocument(is);
-       
-      try
-      {
-         Binder<Node> binder = getBinder();
+
+      SAMLParser samlParser = new SAMLParser();
+      ResponseType responseType = (ResponseType) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
+
+
+      /*Binder<Node> binder = getBinder();
          JAXBElement<ResponseType> jaxbResponseType = (JAXBElement<ResponseType>) binder.unmarshal(samlResponseDocument);
-         ResponseType responseType = jaxbResponseType.getValue();
-         samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
-         return responseType;
-      }
-      catch (JAXBException e)
-      {
-         throw new ParsingException(e);
-      }  
+         ResponseType responseType = jaxbResponseType.getValue();*/
+      samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
+      return responseType; 
    }
    
    
@@ -311,30 +296,21 @@ public class SAML2Response
    /**
     * Convert an EncryptedElement into a Document
     * @param encryptedElementType
-    * @return
-    * @throws JAXBException
-    * @throws ParserConfigurationException
+    * @return 
+    * @throws ConfigurationException
     */
    public Document convert(EncryptedElementType encryptedElementType) 
-   throws JAXBException, ConfigurationException 
-   {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(EncryptedElementType.class);
+   throws  ConfigurationException 
+   { 
+      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(EncryptedElementType.class);
       Binder<Node> binder = jaxb.createBinder();
-      
+      */
       Document doc = DocumentUtil.createDocument();
-      binder.marshal(JAXBElementMappingUtil.get(encryptedElementType), doc);
+      Node importedNode = doc.importNode( encryptedElementType.getEncryptedElement(), true );
+      doc.appendChild(importedNode);
+      
+      //binder.marshal(JAXBElementMappingUtil.get(encryptedElementType), doc);
       return doc; 
-   }
-   
-   /**
-    * Get the Binder 
-    * @return
-    * @throws JAXBException
-    */
-   public Binder<Node> getBinder() throws JAXBException
-   {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(ResponseType.class);
-      return jaxb.createBinder();
    }
    
    /**
@@ -349,7 +325,7 @@ public class SAML2Response
    public Document convert(StatusResponseType responseType) throws JAXBException, ConfigurationException*/
    
 
-   public Document convert(StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException
+   public Document convert( StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -385,12 +361,11 @@ public class SAML2Response
     * 
     * @param responseType
     * @param os 
-    * @throws SAXException 
-    * @throws JAXBException 
+    * @throws ProcessingException 
     */
-   public void marshall(ResponseType responseType, OutputStream os) throws JAXBException, SAXException 
+   public void marshall(ResponseType responseType, OutputStream os) throws ProcessingException  
    {
-		String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
+		/*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
 		boolean validate = Boolean.parseBoolean(SecurityActions
 				.getSystemProperty(key, "false"));
 
@@ -398,20 +373,25 @@ public class SAML2Response
 				.getValidatingMarshaller(validate);
 		JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory()
 				.createResponse(responseType);
-		marshaller.marshal(jaxb, os); 
+		marshaller.marshal(jaxb, os); */
+      
+      SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter(os));
+      samlWriter.write(responseType); 
    }
    
    /**
     * Marshall the ResponseType into a writer
     * @param responseType
     * @param writer
-    * @throws SAXException 
-    * @throws JAXBException  
+    * @throws ProcessingException  
     */
-   public void marshall(ResponseType responseType, Writer writer) throws JAXBException, SAXException 
+   public void marshall(ResponseType responseType, Writer writer) throws ProcessingException 
    {
-      Marshaller marshaller = JBossSAMLAuthnResponseFactory.getMarshaller();
+      SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter( writer ));
+      samlWriter.write(responseType); 
+      
+      /*Marshaller marshaller = JBossSAMLAuthnResponseFactory.getMarshaller();
       JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory().createResponse(responseType);
-      marshaller.marshal(jaxb, writer);
+      marshaller.marshal(jaxb, writer);*/
    }
 }

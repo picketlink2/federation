@@ -45,10 +45,11 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -79,18 +80,20 @@ public class XMLEncryptionUnitTestCase extends TestCase
       Element docElement = XMLEncryptionUtil.encryptElementInDocument(responseDoc,kp.getPublic(), sk, 
             128, assertionQName, true); 
        
-      EncryptedElementType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement));
-      rt.getAssertionOrEncryptedAssertion().set(0,eet); 
+      EncryptedAssertionType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement)); 
+      rt.addAssertion( new RTChoiceType( eet ) ); 
       
-      EncryptedElementType myeet = (EncryptedElementType) rt.getAssertionOrEncryptedAssertion().get(0);
-      Document eetDoc = sr.convert(myeet);
+      RTChoiceType choiceType = rt.getAssertions().get(0);
+      EncryptedAssertionType encryptedAssertionType = choiceType.getEncryptedAssertion();
+      
+      Document eetDoc = sr.convert( encryptedAssertionType );
       
       Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,kp.getPrivate());
       
       //Let us use the encrypted doc element to decrypt it
       ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
 
-      AssertionType assertion = (AssertionType) newRT.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = (AssertionType) newRT.getAssertions().get(0).getAssertion();
       assertEquals("http://identityurl", assertion.getIssuer().getValue());
     
    }
@@ -110,8 +113,8 @@ public class XMLEncryptionUnitTestCase extends TestCase
       Element docElement = XMLEncryptionUtil.encryptElementInDocument(responseDoc,kp.getPublic(), sk, 
             128, assertionQName, true); 
        
-      EncryptedElementType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement));
-      rt.getAssertionOrEncryptedAssertion().set(0,eet); 
+      EncryptedAssertionType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement));
+      rt.addAssertion( new RTChoiceType( eet )); 
       
       StringWriter sw = new StringWriter();
       sr.marshall(rt, sw);
@@ -119,15 +122,15 @@ public class XMLEncryptionUnitTestCase extends TestCase
       //Create a brand new ResponseType
       ResponseType received = sr.getResponseType(new ByteArrayInputStream(sw.toString().getBytes("UTF-8")));
       
-      EncryptedElementType myeet = (EncryptedElementType) received.getAssertionOrEncryptedAssertion().get(0);
-      Document eetDoc = sr.convert(myeet);
+      EncryptedAssertionType encryptedAssertionType = received.getAssertions().get(0).getEncryptedAssertion();
+      Document eetDoc = sr.convert( encryptedAssertionType );
       
       Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,kp.getPrivate());
       
       //Let us use the encrypted doc element to decrypt it
       ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
 
-      AssertionType assertion = (AssertionType) newRT.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = newRT.getAssertions().get(0).getAssertion();
       assertEquals("http://identityurl", assertion.getIssuer().getValue());
    }
    
@@ -210,10 +213,10 @@ public class XMLEncryptionUnitTestCase extends TestCase
       SPInfoHolder sp = new SPInfoHolder();
       sp.setResponseDestinationURI("http://service");
       responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
-      AssertionType assertion = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
 
       AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attrStatement);
+      assertion.addStatement( attrStatement );
       
       //Add timed conditions
       saml2Response.createTimedConditions(assertion, 5000L);

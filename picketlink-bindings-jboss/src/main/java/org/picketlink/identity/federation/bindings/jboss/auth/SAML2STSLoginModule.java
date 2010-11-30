@@ -32,23 +32,24 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import javax.xml.bind.JAXBElement;
 
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.w3c.dom.Element;
 
 /**
@@ -183,7 +184,14 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          SubjectType subject = assertion.getSubject();
          if (subject != null)
          {
-            for (JAXBElement<?> element : subject.getContent())
+            BaseIDAbstractType baseID = subject.getSubType().getBaseID();
+            if( baseID instanceof NameIDType )
+            {
+               NameIDType nameID = (NameIDType) baseID;
+               this.principal = new PicketLinkPrincipal(nameID.getValue()); 
+            }
+               
+            /*for (JAXBElement<?> element : subject.getContent())
             {
                if (element.getDeclaredType().equals(NameIDType.class))
                {
@@ -191,7 +199,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
                   this.principal = new PicketLinkPrincipal(nameID.getValue());
                   break;
                }
-            }
+            }*/
          }
       }
       catch (Exception e)
@@ -246,12 +254,12 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       if (attributeStatement != null)
       {
          Set<Principal> roles = new HashSet<Principal>();
-         List<Object> attributeList = attributeStatement.getAttributeOrEncryptedAttribute();
-         for (Object obj : attributeList)
+         List<ASTChoiceType> attributeList = attributeStatement.getAttributes();
+         for ( ASTChoiceType obj : attributeList )
          {
-            if (obj instanceof AttributeType)
+            AttributeType attribute = obj.getAttribute();
+            if( attribute != null ) 
             {
-               AttributeType attribute = (AttributeType) obj;
                // if this is a role attribute, get its values and add them to the role set.
                if (attribute.getName().equals("role"))
                {
@@ -280,7 +288,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
     */
    private AttributeStatementType getAttributeStatement(AssertionType assertion)
    {
-      List<StatementAbstractType> statementList = assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement();
+      Set<StatementAbstractType> statementList = assertion.getStatements();
       if (statementList.size() != 0)
       {
          for (StatementAbstractType statement : statementList)

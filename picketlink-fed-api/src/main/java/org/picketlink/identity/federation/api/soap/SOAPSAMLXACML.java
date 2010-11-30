@@ -32,18 +32,14 @@ import javax.xml.bind.Unmarshaller;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.factories.SOAPFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
+import org.picketlink.identity.federation.core.factories.SOAPFactory; 
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Body;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault; 
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
@@ -67,20 +63,20 @@ public class SOAPSAMLXACML
     */
    public Result send(String endpoint, String issuer, RequestType xacmlRequest) throws ProcessingException
    {
+      throw new RuntimeException( "NYI" );/*
       try
       {
-         XACMLAuthzDecisionQueryType queryType = SOAPSAMLXACMLUtil.createXACMLAuthzDecisionQueryType();
+         XACMLAuthzDecisionQueryType queryType = new XACMLAuthzDecisionQueryType();
          queryType.setRequest(xacmlRequest);
          
          //Create Issue Instant
          queryType.setIssueInstant(XMLTimeUtil.getIssueInstant());
          
          //Create Issuer
-         NameIDType nameIDType = SAMLAssertionFactory.getObjectFactory().createNameIDType();
+         NameIDType nameIDType = new NameIDType();
          nameIDType.setValue(issuer);
          queryType.setIssuer(nameIDType);
-         
-         JAXBElement<?> jaxbQueryType = SOAPSAMLXACMLUtil.getJAXB(queryType);
+          
          
          Envelope envelope = createEnvelope(jaxbQueryType);
          
@@ -125,7 +121,7 @@ public class SOAPSAMLXACML
       catch (ConfigurationException e)
       {
          throw new ProcessingException(e);
-      } 
+      }*/ 
    }
    
    private Envelope createEnvelope(JAXBElement<?> jaxbElement)

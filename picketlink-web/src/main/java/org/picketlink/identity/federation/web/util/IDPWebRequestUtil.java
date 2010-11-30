@@ -38,7 +38,6 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
@@ -63,12 +62,11 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * Request Util
@@ -220,10 +218,10 @@ public class IDPWebRequestUtil
       responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
       
       //Add information on the roles
-      AssertionType assertion = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
 
       AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attrStatement);
+      assertion.addStatement( attrStatement );
       
       //Add timed conditions
       saml2Response.createTimedConditions(assertion, assertionValidity);
@@ -236,7 +234,7 @@ public class IDPWebRequestUtil
             Map<String, Object> attribs = 
                attributeManager.getAttributes(userPrincipal, this.attribKeys);
             AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
-            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attStatement);
+            assertion.addStatement( attStatement );
          }
          catch(Exception e)
          {
@@ -252,14 +250,10 @@ public class IDPWebRequestUtil
          {
             saml2Response.marshall(responseType, sw);
          }
-         catch (JAXBException e)
+         catch ( ProcessingException e)
          {
             log.trace(e);
-         }
-         catch (SAXException e)
-         {
-            log.trace(e);
-         }
+         } 
          log.trace("Response="+sw.toString()); 
       }
       
@@ -546,14 +540,10 @@ public class IDPWebRequestUtil
          {
             saml2Response.marshall(responseType, sw);
          }
-         catch (JAXBException e)
+         catch ( ProcessingException e)
          {
             log.trace(e);
-         }
-         catch (SAXException e)
-         {
-            log.trace(e);
-         }
+         } 
          log.trace("Response="+sw.toString()); 
       }
 

@@ -29,8 +29,6 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
@@ -45,26 +43,27 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /**
  * Handles for dealing with SAML2 Authentication
@@ -160,7 +159,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          {
             Map<String,Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
             long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
-            String destination = art.getAssertionConsumerServiceURL();
+            String destination = art.getAssertionConsumerServiceURL().toASCIIString();
             Document samlResponse = this.getResponse(destination,
                   userPrincipal, roles, request.getIssuer().getValue(),
                   attribs,
@@ -216,10 +215,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
          
          //Add information on the roles
-         AssertionType assertion = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
+         AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
 
          AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-         assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attrStatement);
+         assertion.addStatement( attrStatement );
          
          //Add timed conditions
          saml2Response.createTimedConditions(assertion, assertionValidity);
@@ -228,7 +227,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if(attribs != null && attribs.size() > 0 )
          {
             AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
-            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attStatement);
+            assertion.addStatement( attStatement );
          } 
     
          //Lets see how the response looks like 
@@ -239,14 +238,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             {
                saml2Response.marshall(responseType, sw);
             }
-            catch (JAXBException e)
+            catch ( ProcessingException e)
             {
                log.trace(e);
-            }
-            catch (SAXException e)
-            {
-               log.trace(e);
-            }
+            } 
             log.trace("Response="+sw.toString()); 
          }
          try
@@ -291,12 +286,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       { 
          HTTPContext httpContext = (HTTPContext) request.getContext();
          ResponseType responseType = (ResponseType) request.getSAML2Object();
-         List<Object> assertions = responseType.getAssertionOrEncryptedAssertion();
+         List<RTChoiceType> assertions = responseType.getAssertions();
          if(assertions.size() == 0)
             throw new IllegalStateException("No assertions in reply from IDP"); 
          
-         Object assertion = assertions.get(0);
-         if(assertion instanceof EncryptedElementType)
+         Object assertion = assertions.get(0).getEncryptedAssertion();
+         if(assertion instanceof EncryptedAssertionType)
          {
             responseType = this.decryptAssertion(responseType);
          }
@@ -323,8 +318,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       {
          throw new RuntimeException("This authenticator does not handle encryption");
       }
-      
-      @SuppressWarnings("unchecked")
+       
       private Principal handleSAMLResponse(ResponseType responseType, SAML2HandlerResponse response) 
       throws ProcessingException 
       { 
@@ -335,15 +329,15 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if(statusType == null)
             throw new IllegalArgumentException("Status Type from the IDP is null");
 
-         String statusValue = statusType.getStatusCode().getValue();
+         String statusValue = statusType.getStatusCode().getValue().toASCIIString();
          if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
             throw new SecurityException("IDP forbid the user");
 
-         List<Object> assertions = responseType.getAssertionOrEncryptedAssertion();
+         List<RTChoiceType> assertions = responseType.getAssertions();
          if(assertions.size() == 0)
             throw new IllegalStateException("No assertions in reply from IDP"); 
          
-         AssertionType assertion = (AssertionType)assertions.get(0);
+         AssertionType assertion = assertions.get(0).getAssertion();
          //Check for validity of assertion
          boolean expiredAssertion;
          try
@@ -361,17 +355,20 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          } 
          
          SubjectType subject = assertion.getSubject(); 
-         JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0);
+         /*JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0);
          NameIDType nameID = jnameID.getValue();
+         */
+         NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
+         
          final String userName = nameID.getValue();
          List<String> roles = new ArrayList<String>();
 
          //Let us get the roles
-         AttributeStatementType attributeStatement = (AttributeStatementType) assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().get(0);
-         List<Object> attList = attributeStatement.getAttributeOrEncryptedAttribute();
-         for(Object obj:attList)
+         AttributeStatementType attributeStatement = (AttributeStatementType) assertion.getStatements().iterator().next();
+         List<ASTChoiceType> attList = attributeStatement.getAttributes();
+         for(ASTChoiceType obj:attList)
          {
-            AttributeType attr = (AttributeType) obj;
+            AttributeType attr = obj.getAttribute();
             List<Object> attributeValues = attr.getAttributeValue();
             if( attributeValues != null)
             {

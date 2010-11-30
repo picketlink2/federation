@@ -41,11 +41,11 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -109,7 +109,7 @@ public class SignatureValidationUnitTestCase
 
       // Create an assertion
       AssertionType assertion = response.createAssertion(id, issuerInfo.getIssuer());
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(authnStatement);
+      assertion.addStatement( authnStatement );
 
       KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
       KeyPair kp = kpg.genKeyPair();
@@ -176,7 +176,7 @@ public class SignatureValidationUnitTestCase
        * Now the signed document is marshalled across the wire using dom
        * write
        */
-      Binder<Node> binder = response.getBinder();
+      //Binder<Node> binder = response.getBinder();
       //We have to parse the dom coming from the stream and feed to binder
       Document readDoc = DocumentUtil.getDocument(DocumentUtil.getNodeAsStream(signedDoc));
       
@@ -191,9 +191,9 @@ public class SignatureValidationUnitTestCase
       // The client re-validates the signature.  
       assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));
       
-      JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc);
+      /*JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc);
       responseType = jaxbresponseType.getValue();
-      assertNotNull(responseType); 
+      assertNotNull(responseType); */
    }
 
    /**

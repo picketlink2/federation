@@ -2,6 +2,7 @@ package org.picketlink.identity.federation.bindings.jboss.auth.mapping;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -14,10 +15,11 @@ import org.jboss.security.mapping.MappingResult;
 import org.picketlink.identity.federation.bindings.jboss.auth.SAML20TokenRoleAttributeProvider;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.w3c.dom.Element;
 
 /**
@@ -112,10 +114,22 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
          if (attributeStatement != null)
          {
             RoleGroup rolesGroup = new SimpleRoleGroup(SAML20TokenRoleAttributeProvider.JBOSS_ROLE_PRINCIPAL_NAME);
-            List<Object> attributeList = attributeStatement.getAttributeOrEncryptedAttribute();
-            for (Object obj : attributeList)
+            List<ASTChoiceType> attributeList = attributeStatement.getAttributes();
+            for ( ASTChoiceType obj : attributeList)
             {
-               if (obj instanceof AttributeType)
+               AttributeType attribute = obj.getAttribute();
+               if( attribute != null )
+               {
+               // if this is a role attribute, get its values and add them to the role set.
+                  if (tokenRoleAttributeName.equals(attribute.getName()))
+                  {
+                     for (Object value : attribute.getAttributeValue())
+                     {
+                        rolesGroup.addRole(new SimpleRole((String) value));
+                     }
+                  }
+               }
+               /*if (obj instanceof AttributeType)
                {
                   AttributeType attribute = (AttributeType) obj;
                   // if this is a role attribute, get its values and add them to the role set.
@@ -126,7 +140,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
                         rolesGroup.addRole(new SimpleRole((String) value));
                      }
                   }
-               }
+               }*/
             }
             result.setMappedObject(rolesGroup);
             if (log.isDebugEnabled())
@@ -169,7 +183,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
     */
    private AttributeStatementType getAttributeStatement(AssertionType assertion)
    {
-      List<StatementAbstractType> statementList = assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement();
+      Set<StatementAbstractType> statementList = assertion.getStatements();
       if (statementList.size() != 0)
       {
          for (StatementAbstractType statement : statementList)

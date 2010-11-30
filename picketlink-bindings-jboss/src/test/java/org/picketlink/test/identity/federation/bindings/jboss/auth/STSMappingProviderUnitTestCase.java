@@ -25,9 +25,6 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
 
 import org.jboss.security.identity.RoleGroup;
@@ -36,14 +33,17 @@ import org.jboss.security.mapping.MappingResult;
 import org.picketlink.identity.federation.bindings.jboss.auth.SAML20TokenRoleAttributeProvider;
 import org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSGroupMappingProvider;
 import org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSPrincipalMappingProvider;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.w3c.dom.Element;
 
 /**
@@ -75,11 +75,11 @@ public class STSMappingProviderUnitTestCase extends TestCase
       String role1 = "userRole1";
       String role2 = "userRole2";
       
-      AssertionType assertion = new AssertionType();
+      AssertionType assertion = new AssertionType( "ID_SOME", XMLTimeUtil.getIssueInstant(), JBossSAMLConstants.VERSION_2_0.get());
       AttributeStatementType attributeStatementType = new AttributeStatementType();
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attributeStatementType);
+      assertion.addStatement( attributeStatementType );
       AttributeType attributeType = new AttributeType();
-      attributeStatementType.getAttributeOrEncryptedAttribute().add(attributeType);
+      attributeStatementType.addAttribute( new ASTChoiceType(attributeType));
       attributeType.setName(roleAttributeName);
       attributeType.getAttributeValue().add(role1);
       attributeType.getAttributeValue().add(role2);
@@ -112,15 +112,18 @@ public class STSMappingProviderUnitTestCase extends TestCase
    {
       String userId = "babak";
       
-      AssertionType assertion = new AssertionType();
+      AssertionType assertion = new AssertionType( "ID_SOME", XMLTimeUtil.getIssueInstant(), JBossSAMLConstants.VERSION_2_0.get() );
       SubjectType subjectType = new SubjectType();
       assertion.setSubject(subjectType);
-      QName name = new QName(WSTrustConstants.SAML2_ASSERTION_NS, "NameID");
-      Class<NameIDType> declaredType = NameIDType.class;
+      //QName name = new QName(WSTrustConstants.SAML2_ASSERTION_NS, "NameID");
       NameIDType nameIDType = new NameIDType();
       nameIDType.setValue(userId);
-      JAXBElement<NameIDType> jaxbElement = new JAXBElement<NameIDType>(name, declaredType, JAXBElement.GlobalScope.class, nameIDType);
-      subjectType.getContent().add(jaxbElement);
+      STSubType subType = new STSubType();
+      subType.addBaseID( nameIDType );
+      
+      subjectType.setSubType( subType );
+      /*JAXBElement<NameIDType> jaxbElement = new JAXBElement<NameIDType>(name, declaredType, JAXBElement.GlobalScope.class, nameIDType);
+      subjectType.getContent().add(jaxbElement);*/
       
       MappingResult<Principal> mappingResult = new MappingResult<Principal>();
       Map<String, Object> contextMap = new HashMap<String, Object>();

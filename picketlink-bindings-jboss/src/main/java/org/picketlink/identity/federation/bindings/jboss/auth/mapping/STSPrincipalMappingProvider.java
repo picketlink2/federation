@@ -3,7 +3,6 @@ package org.picketlink.identity.federation.bindings.jboss.auth.mapping;
 import java.security.Principal;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
@@ -12,9 +11,10 @@ import org.jboss.security.mapping.MappingResult;
 import org.jboss.security.mapping.providers.principal.AbstractPrincipalMappingProvider;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.w3c.dom.Element;
 
 /**
@@ -75,7 +75,19 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
          SubjectType subject = assertion.getSubject();
          if (subject != null)
          {
-            for (JAXBElement<?> element : subject.getContent())
+            BaseIDAbstractType baseID = subject.getSubType().getBaseID();
+            if( baseID != null && baseID instanceof NameIDType )
+            {
+               NameIDType nameID = (NameIDType) baseID;
+               Principal mappedPrincipal = new SimplePrincipal(nameID.getValue());
+               result.setMappedObject(mappedPrincipal);
+               if (log.isDebugEnabled())
+               {
+                  log.debug("Mapped principal to " + mappedPrincipal);
+               }
+               return;
+            }
+            /*for (JAXBElement<?> element : subject.getContent())
             {
                if (element.getDeclaredType().equals(NameIDType.class))
                {
@@ -88,7 +100,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
                   }
                   return;
                }
-            }
+            }*/
          }
       }
       catch (JAXBException e)

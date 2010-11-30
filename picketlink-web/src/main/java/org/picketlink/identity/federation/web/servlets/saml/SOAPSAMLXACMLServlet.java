@@ -51,14 +51,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUt
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Body;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault; 
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.core.JBossRequestContext;
 import org.jboss.security.xacml.core.model.context.RequestType;
@@ -145,7 +142,8 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
    @Override
    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
    {
-      JAXBElement<RequestAbstractType> jaxbRequestType = null;
+      throw new RuntimeException( "FIX" );
+      /*JAXBElement<RequestAbstractType> jaxbRequestType = null;
       
       Envelope envelope = null;
       XACMLAuthzDecisionQueryType xacmlRequest = null;
@@ -256,7 +254,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          {
             log("marshalling exception",e);
          }  
-      } 
+      } */
    } 
    
    private PolicyDecisionPoint getPDP() throws PrivilegedActionException

@@ -22,22 +22,22 @@
 package org.picketlink.test.identity.federation.api.saml.v2;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.util.List;
-
-import javax.xml.bind.JAXBElement;
 
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestedAuthnContextType;
+import org.w3c.dom.Element;
  
 
 
@@ -68,23 +68,22 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
       SubjectType subjectType = authnRequestType.getSubject();
       assertNotNull(subjectType);
       
-      List<JAXBElement<?>> subjectContentList = subjectType.getContent();
-      JAXBElement<?> elem1 = subjectContentList.get(0);
-      NameIDType nameIDType = (NameIDType) elem1.getValue();
+      STSubType subType = subjectType.getSubType();
+      NameIDType nameIDType = (NameIDType) subType.getBaseID(); 
       
       assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",nameIDType.getFormat());
       assertEquals("j.doe@company.com",nameIDType.getValue()); 
       
       ConditionsType conditionsType = authnRequestType.getConditions();
-      List<ConditionAbstractType> conditions = conditionsType.getConditionOrAudienceRestrictionOrOneTimeUse();
+      List<ConditionAbstractType> conditions = conditionsType.getConditions();
       assertTrue(conditions.size() == 1);
       
       ConditionAbstractType condition = conditions.get(0);
       assertTrue(condition instanceof AudienceRestrictionType);
       AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) condition;
-      List<String> audiences = audienceRestrictionType.getAudience();
+      List<URI> audiences = audienceRestrictionType.getAudience();
       assertTrue(audiences.size() == 1);
-      assertEquals("urn:foo:sp.example.org", audiences.get(0));
+      assertEquals("urn:foo:sp.example.org", audiences.get(0).toASCIIString());
       
       RequestedAuthnContextType requestedAuthnContext = authnRequestType.getRequestedAuthnContext();
       assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
@@ -109,7 +108,7 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
       AuthnRequestType authnRequestType = request.getAuthnRequestType(resourceName);
       assertNotNull(authnRequestType);
       
-      SignatureType signatureType = authnRequestType.getSignature();
+      Element signatureType = authnRequestType.getSignature();
       assertNotNull("Signature is not null", signatureType);
       
       //Let us marshall it back to an output stream

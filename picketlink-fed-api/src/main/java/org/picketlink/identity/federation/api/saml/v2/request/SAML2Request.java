@@ -21,17 +21,16 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.request;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import javax.xml.bind.Binder;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,22 +43,20 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.JAXBElementMappingUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -92,31 +89,21 @@ public class SAML2Request
    /**
     * Get AuthnRequestType from a file
     * @param fileName file with the serialized AuthnRequestType
-    * @return AuthnRequestType
-    * @throws SAXException 
-    * @throws JAXBException 
+    * @return AuthnRequestType 
+    * @throws ParsingException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException 
     * @throws IllegalArgumentException if the input fileName is null
     *         IllegalStateException if the InputStream from the fileName is null
     */
-   public AuthnRequestType getAuthnRequestType(String fileName) throws JAXBException, SAXException 
+   public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException, ParsingException  
    {   
       if(fileName == null)
          throw new IllegalArgumentException("fileName is null");
       ClassLoader tcl = SecurityActions.getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(fileName);
       return getAuthnRequestType(is);
-   } 
-   
-   /**
-    * Get the Binder 
-    * @return
-    * @throws JAXBException
-    */
-   public Binder<Node> getBinder() throws JAXBException
-   {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(RequestAbstractType.class);
-      return jaxb.createBinder();
-   }
+   }  
    
    /**
     * Get the Underlying SAML2Object from the input stream
@@ -160,49 +147,51 @@ public class SAML2Request
     * @throws ConfigurationException 
     * @throws  
     * @throws IllegalArgumentException inputstream is null
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public RequestAbstractType getRequestType(InputStream is) 
    throws ParsingException, ConfigurationException, ProcessingException 
    {
       if(is == null)
          throw new IllegalStateException("InputStream is null"); 
-      
-      Document samlDocument = DocumentUtil.getDocument(is);
-        
-      try
-      {
-         Binder<Node> binder = getBinder();
+
+      Document samlDocument = DocumentUtil.getDocument( is );
+
+      SAMLParser samlParser = new SAMLParser();
+      RequestAbstractType requestType = (RequestAbstractType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
+
+      /*Binder<Node> binder = getBinder();
          JAXBElement<RequestAbstractType> jaxbAuthnRequestType = (JAXBElement<RequestAbstractType>) binder.unmarshal(samlDocument);
-         RequestAbstractType requestType = jaxbAuthnRequestType.getValue();
-         samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
-         return requestType;
-      }
-      catch (JAXBException e)
-      {
-         throw new ParsingException(e);
-      }
+         RequestAbstractType requestType = jaxbAuthnRequestType.getValue();*/
+      samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
+      return requestType; 
    }
    
    /**
     * Get the AuthnRequestType from an input stream
     * @param is Inputstream containing the AuthnRequest
-    * @return
-    * @throws SAXException 
-    * @throws JAXBException 
+    * @return 
+    * @throws ParsingException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException 
     * @throws IllegalArgumentException inputstream is null
-    */
-   @SuppressWarnings("unchecked")
-   public AuthnRequestType getAuthnRequestType(InputStream is) throws JAXBException, SAXException 
+    */ 
+   public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException, ParsingException 
    {
       if(is == null)
          throw new IllegalStateException("InputStream is null");
       String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-      boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
+      //boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
-      Unmarshaller un = JBossSAMLAuthnRequestFactory.getValidatingUnmarshaller(validate);
+      Document samlDocument = DocumentUtil.getDocument( is );
+
+      SAMLParser samlParser = new SAMLParser();
+      AuthnRequestType requestType = (AuthnRequestType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
+      samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
+      return requestType; 
+      
+      /*Unmarshaller un = JBossSAMLAuthnRequestFactory.getValidatingUnmarshaller(validate);
       JAXBElement<AuthnRequestType> jaxbAuthnRequestType = (JAXBElement<AuthnRequestType>) un.unmarshal(is);
-      return jaxbAuthnRequestType.getValue();  
+      return jaxbAuthnRequestType.getValue();*/  
    } 
    
 
@@ -222,17 +211,16 @@ public class SAML2Request
     * @throws ConfigurationException 
     */
    public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException 
-   {
-      org.picketlink.identity.federation.saml.v2.protocol.ObjectFactory of
-             = new org.picketlink.identity.federation.saml.v2.protocol.ObjectFactory();
-      LogoutRequestType lrt = of.createLogoutRequestType();
+   {   
+      LogoutRequestType lrt = new LogoutRequestType();
       lrt.setID(IDGenerator.create("ID_"));
       lrt.setIssueInstant(XMLTimeUtil.getIssueInstant());
       lrt.setVersion( JBossSAMLConstants.VERSION_2_0.get() ); 
       
       //Create an issuer 
-      NameIDType issuerNameID = JBossSAMLBaseFactory.createNameID();
+      NameIDType issuerNameID = new NameIDType(); 
       issuerNameID.setValue(issuer);
+      
       lrt.setIssuer(issuerNameID);
       
       return lrt;
@@ -323,14 +311,14 @@ public class SAML2Request
     * @throws JAXBException
     * @throws ParserConfigurationException
     */
-   public Document convert(ResponseType responseType) throws JAXBException, ConfigurationException 
+   public Document convert( ResponseType responseType) throws ProcessingException, ParsingException, ConfigurationException
    {
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(ResponseType.class);
-      Binder<Node> binder = jaxb.createBinder();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos)); 
+      writer.write( responseType );
       
-      Document doc = DocumentUtil.createDocument();
-      binder.marshal(JAXBElementMappingUtil.get(responseType), doc);
-      return doc; 
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      return DocumentUtil.getDocument(bis);  
    }
    
    /**
@@ -340,14 +328,26 @@ public class SAML2Request
     * @throws JAXBException 
     * @throws SAXException 
     */
-   public void marshall(RequestAbstractType requestType, OutputStream os) throws SAXException, JAXBException 
+   public void marshall(RequestAbstractType requestType, OutputStream os) throws ProcessingException 
    {
-      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
+      /*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);
       JAXBElement<?> j = JAXBElementMappingUtil.get(requestType);
       marshaller.marshal(j, os);
+      */
+      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter(os));
+      if( requestType instanceof AuthnRequestType )
+      {
+         samlRequestWriter.write((AuthnRequestType)requestType ); 
+      }
+      else if( requestType instanceof LogoutRequestType )
+      {
+         samlRequestWriter.write((LogoutRequestType)requestType ); 
+      }
+      else
+         throw new RuntimeException( "Unsupported" );
    }
    
    /**
@@ -357,13 +357,25 @@ public class SAML2Request
     * @throws JAXBException 
     * @throws SAXException 
     */
-   public void marshall(RequestAbstractType requestType, Writer writer) throws SAXException, JAXBException 
+   public void marshall(RequestAbstractType requestType, Writer writer) throws ProcessingException  
    {
-      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
+      /*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);
       JAXBElement<?> j = JAXBElementMappingUtil.get(requestType);
-      marshaller.marshal(j, writer);
+      marshaller.marshal(j, writer);*/
+      
+      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter( writer ));
+      if( requestType instanceof AuthnRequestType )
+      {
+         samlRequestWriter.write((AuthnRequestType)requestType ); 
+      }
+      else if( requestType instanceof LogoutRequestType )
+      {
+         samlRequestWriter.write((LogoutRequestType)requestType ); 
+      }
+      else
+         throw new RuntimeException( "Unsupported" );
    }
 }

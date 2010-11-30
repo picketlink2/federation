@@ -35,10 +35,13 @@ import javax.xml.bind.JAXBException;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -152,13 +155,14 @@ public class RedirectBindingSignatureUtil
    /**
     * From the SAML Request URL, get the Request object
     * @param signedURL
-    * @return 
+    * @return  
     * @throws IOException 
-    * @throws SAXException 
-    * @throws JAXBException 
+    * @throws ParsingException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException 
     */
    public static AuthnRequestType getRequestFromSignedURL(String signedURL) 
-   throws JAXBException, SAXException, IOException  
+   throws ConfigurationException, ProcessingException, ParsingException, IOException 
    {
       String samlRequestTokenValue =  getTokenValue(signedURL, "SAMLRequest");
       
