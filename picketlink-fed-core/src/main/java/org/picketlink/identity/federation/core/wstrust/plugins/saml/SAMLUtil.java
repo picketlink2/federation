@@ -21,16 +21,18 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.dom.DOMResult;
 
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -65,13 +67,20 @@ public class SAMLUtil
     * @throws Exception
     *            if an error occurs while marshaling the assertion.
     */
-   public static Element toElement(AssertionType assertion) throws Exception
+   public static Element toElement( AssertionType assertion ) throws Exception
    {
-      Document document = DocumentUtil.createDocument();
+      /*Document document = DocumentUtil.createDocument();
       DOMResult result = new DOMResult(document);
-      Marshaller marshaller = JAXBUtil.getMarshaller("org.picketlink.identity.federation.saml.v2.assertion");
+      */
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos)); 
+      writer.write( assertion ); 
+      
+      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
+      Document document = DocumentUtil.getDocument( bis ); //throws exceptions
+      /*Marshaller marshaller = JAXBUtil.getMarshaller("org.picketlink.identity.federation.saml.v2.assertion");
       marshaller.marshal(new ObjectFactory().createAssertion(assertion), result);
-
+*/
       // normalize the document to remove unused namespaces.
       // DOMConfiguration docConfig = document.getDomConfig(); 
       // docConfig.setParameter("namespaces", Boolean.TRUE); 

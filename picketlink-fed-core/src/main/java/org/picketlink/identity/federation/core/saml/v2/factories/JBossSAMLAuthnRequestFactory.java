@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -31,8 +30,9 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.xml.sax.SAXException;
 
 /**
@@ -44,16 +44,6 @@ public class JBossSAMLAuthnRequestFactory
 { 
    private static String pkgName = "org.picketlink.identity.federation.saml.v2.protocol:org.picketlink.identity.xmlsec.w3.xmldsig";
    private static String schemaLocation = "schema/saml/v2/saml-schema-protocol-2.0.xsd";
-   
-   /**
-    * Create a AuthnRequestType
-    * @return
-    */
-   public static AuthnRequestType createAuthnRequestType()
-   {
-      AuthnRequestType authnRequestType = SAMLProtocolFactory.getObjectFactory().createAuthnRequestType();
-      return authnRequestType;
-   }
    
    /**
     * Create an AuthnRequestType
@@ -68,32 +58,21 @@ public class JBossSAMLAuthnRequestFactory
    {
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
-      AuthnRequestType authnRequest = SAMLProtocolFactory.getObjectFactory().createAuthnRequestType();
+      AuthnRequestType authnRequest = new AuthnRequestType();
       authnRequest.setID(id);
       authnRequest.setVersion(JBossSAMLConstants.VERSION_2_0.get());
-      authnRequest.setAssertionConsumerServiceURL(assertionConsumerURL);
-      authnRequest.setProtocolBinding(JBossSAMLConstants.HTTP_POST_BINDING.get());
-      authnRequest.setDestination(destination);
+      authnRequest.setAssertionConsumerServiceURL( NetworkUtil.createURI( assertionConsumerURL ));
+      authnRequest.setProtocolBinding( NetworkUtil.createURI( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
+      authnRequest.setDestination(  NetworkUtil.createURI( destination ));
       authnRequest.setIssueInstant(issueInstant);
       
       //Create an issuer 
-      NameIDType issuer = JBossSAMLBaseFactory.createNameID();
+      NameIDType issuer = new NameIDType();
       issuer.setValue(issuerValue);
       
       authnRequest.setIssuer(issuer);
       
-      return authnRequest;
-      
-   }
-   
-   /**
-    * Create a JAXBElement for the AuthnRequestType
-    * @param authnRequestType
-    * @return
-    */
-   public static JAXBElement<AuthnRequestType> createAuthnRequestType(AuthnRequestType authnRequestType)
-   {
-      return SAMLProtocolFactory.getObjectFactory().createAuthnRequest(authnRequestType);
+      return authnRequest; 
    } 
    
    /**

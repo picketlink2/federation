@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -34,13 +35,8 @@ import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.*;
 
 /**
  * Parse the saml assertion
@@ -121,12 +117,12 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          else if( JBossSAMLConstants.AUTHN_STATEMENT.get().equalsIgnoreCase( tag ) )
          {
             AuthnStatementType authnStatementType = SAMLParserUtil.parseAuthnStatement( xmlEventReader );
-            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add( authnStatementType ); 
+            assertion.addStatement(authnStatementType);  
          }
          else if( JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equalsIgnoreCase( tag ) )
          {
-            AttributeStatementType attributeStatementType = SAMLParserUtil.parseAttributeStatement( xmlEventReader );
-            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add( attributeStatementType ); 
+            AttributeStatementType attributeStatementType = SAMLParserUtil.parseAttributeStatement( xmlEventReader ); 
+            assertion.addStatement(attributeStatementType); 
          }
          else throw new RuntimeException( "SAMLAssertionParser:: unknown: " +   tag );
       }
@@ -147,19 +143,15 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
    
    private AssertionType parseBaseAttributes( StartElement nextElement ) throws ParsingException
    { 
-      AssertionType assertion = new AssertionType(); 
       Attribute idAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.ID.get() ) );
-      assertion.setID( StaxParserUtil.getAttributeValue( idAttribute ));
+      String id =  StaxParserUtil.getAttributeValue( idAttribute );
 
       Attribute versionAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.VERSION.get() ));
-      assertion.setVersion( StaxParserUtil.getAttributeValue(versionAttribute) );
+      String version = StaxParserUtil.getAttributeValue(versionAttribute) ;
 
       Attribute issueInstantAttribute = nextElement.getAttributeByName( new QName( JBossSAMLConstants.ISSUE_INSTANT.get() ));
-      if( issueInstantAttribute != null )
-      {
-         assertion.setIssueInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue(issueInstantAttribute )));
-      } 
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.parse( StaxParserUtil.getAttributeValue(issueInstantAttribute ));
       
-      return assertion;
+      return new AssertionType( id, issueInstant, version );
    }
 }

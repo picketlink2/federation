@@ -30,9 +30,10 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants; 
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
 
 /**
  * Parse the SAML2 AuthnRequest
@@ -93,7 +94,11 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       
       Attribute assertionConsumerServiceURL = startElement.getAttributeByName( new QName( "AssertionConsumerServiceURL" ));
       if( assertionConsumerServiceURL != null )
-         authnRequest.setAssertionConsumerServiceURL( StaxParserUtil.getAttributeValue( assertionConsumerServiceURL )); 
+      {
+         String uri = StaxParserUtil.getAttributeValue( assertionConsumerServiceURL );
+         authnRequest.setAssertionConsumerServiceURL(  NetworkUtil.createURI(uri));
+      }
+          
 
       Attribute assertionConsumerServiceIndex = startElement.getAttributeByName( new QName( "AssertionConsumerServiceIndex" ));
       if( assertionConsumerServiceIndex != null )
@@ -101,7 +106,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       
       Attribute protocolBinding = startElement.getAttributeByName( new QName( "ProtocolBinding" ));
       if( protocolBinding != null )
-         authnRequest.setProtocolBinding( StaxParserUtil.getAttributeValue( protocolBinding ));
+         authnRequest.setProtocolBinding( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( protocolBinding )));
       
       Attribute providerName = startElement.getAttributeByName( new QName( "ProviderName" ));
       if( providerName != null )
@@ -136,7 +141,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
       Attribute format = startElement.getAttributeByName( new QName( "Format" ));
       if( format != null )
-         nameIDPolicy.setFormat( StaxParserUtil.getAttributeValue( format ));
+         nameIDPolicy.setFormat( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( format )));
       
       Attribute allowCreate = startElement.getAttributeByName( new QName( "AllowCreate" ));
       if( allowCreate != null )

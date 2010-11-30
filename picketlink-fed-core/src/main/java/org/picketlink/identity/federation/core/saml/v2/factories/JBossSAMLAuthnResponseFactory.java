@@ -21,7 +21,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
-import javax.xml.bind.JAXBElement;
+import java.util.List;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -33,14 +34,18 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
 import org.xml.sax.SAXException;
 
 /**
@@ -60,10 +65,10 @@ public class JBossSAMLAuthnResponseFactory
     */
    public static StatusType createStatusType(String statusCodeURI)
    {
-      StatusCodeType sct = SAMLProtocolFactory.getObjectFactory().createStatusCodeType(); 
-      sct.setValue(statusCodeURI);
+      StatusCodeType sct = new StatusCodeType(); 
+      sct.setValue( NetworkUtil.createURI( statusCodeURI ));
       
-      StatusType statusType = SAMLProtocolFactory.getObjectFactory().createStatusType();
+      StatusType statusType = new StatusType(); 
       statusType.setStatusCode(sct);
       return statusType;
    }
@@ -74,7 +79,7 @@ public class JBossSAMLAuthnResponseFactory
     */
    public static ResponseType createResponseType()
    {
-      return SAMLProtocolFactory.getObjectFactory().createResponseType();
+      return new ResponseType();
    }
    
    /**
@@ -94,39 +99,35 @@ public class JBossSAMLAuthnResponseFactory
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
       //Create an assertion
-      AssertionType assertionType = JBossSAMLBaseFactory.createAssertion();
-      assertionType.setID("ID_" + JBossSAMLBaseFactory.createUUID());
-      assertionType.setVersion(issuerInfo.getSamlVersion());
-      assertionType.setIssueInstant(issueInstant);
-      
-      assertionType.setIssuer(issuerInfo.getIssuer());
+      String id = "ID_" + JBossSAMLBaseFactory.createUUID(); 
       
       //Create assertion -> subject
-      SubjectType subjectType = JBossSAMLBaseFactory.createSubject();
+      SubjectType subjectType = new SubjectType();
       
       //subject -> nameid
-      NameIDType nameIDType = JBossSAMLBaseFactory.createNameID();
-      nameIDType.setFormat(idp.getNameIDFormat());
+      NameIDType nameIDType = new NameIDType();
+      nameIDType.setFormat( NetworkUtil.createURI( idp.getNameIDFormat() ));
       nameIDType.setValue(idp.getNameIDFormatValue());
       
-      JAXBElement<NameIDType> jaxbNameIDType = JBossSAMLBaseFactory.createNameID(nameIDType);
-      subjectType.getContent().add(jaxbNameIDType);
+      SubjectType.STSubType subType = new SubjectType.STSubType();
+      subType.addBaseID(nameIDType); 
       
-      SubjectConfirmationType subjectConfirmation = 
-            JBossSAMLBaseFactory.createSubjectConfirmation(idp.getSubjectConfirmationMethod());
-      SubjectConfirmationDataType subjectConfirmationData = 
-           JBossSAMLBaseFactory.createSubjectConfirmationData(sp.getRequestID(), 
-                 responseDestinationURI, issueInstant);
-      subjectConfirmationData.setRecipient(sp.getResponseDestinationURI());
+      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
+      subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
+      
+      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
+      subjectConfirmationData.setInResponseTo(  sp.getRequestID() );
+      subjectConfirmationData.setRecipient( responseDestinationURI );
+      subjectConfirmationData.setNotBefore(issueInstant);
+      subjectConfirmationData.setNotOnOrAfter(issueInstant);
       
       subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
+
+      subjectType.addConfirmation(subjectConfirmation);
       
-      JAXBElement<SubjectConfirmationType> jaxbSubjectConfirmationType = 
-         JBossSAMLBaseFactory.createSubjectConfirmation(subjectConfirmation);
+      AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, 
+            nameIDType , issueInstant, (ConditionsType) null, subjectType, (List<StatementAbstractType>)null );
       
-      subjectType.getContent().add(jaxbSubjectConfirmationType);
-      
-      assertionType.setSubject(subjectType);
       
       ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
       //InResponseTo ID
@@ -148,7 +149,7 @@ public class JBossSAMLAuthnResponseFactory
    public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType) 
    throws ConfigurationException 
    {
-      ResponseType responseType = SAMLProtocolFactory.getObjectFactory().createResponseType();
+      ResponseType responseType = new ResponseType();
       responseType.setVersion(issuerInfo.getSamlVersion());
       
       //ID
@@ -168,11 +169,9 @@ public class JBossSAMLAuthnResponseFactory
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
       //IssueInstant
-      responseType.setIssueInstant(issueInstant);
-      if(assertionType.getIssueInstant() == null)
-         assertionType.setIssueInstant(issueInstant);
-    
-      responseType.getAssertionOrEncryptedAssertion().add(assertionType); 
+      responseType.setIssueInstant(issueInstant); 
+      
+      responseType.addAssertion( new RTChoiceType( assertionType )); 
       return responseType; 
    }
    

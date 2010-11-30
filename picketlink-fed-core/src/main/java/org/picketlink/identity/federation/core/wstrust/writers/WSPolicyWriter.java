@@ -28,7 +28,6 @@ import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.W
 
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;

@@ -43,16 +43,16 @@ import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocation
 import org.picketlink.identity.federation.core.wstrust.plugins.FileBasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.JPABasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.KeyInfoConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -262,7 +262,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
          AttributeStatementType attributeStatement = this.attributeProvider.getAttributeStatement();
          if (attributeStatement != null)
          {
-            assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attributeStatement);
+            assertion.addStatement( attributeStatement );
          }
       }
 
@@ -329,11 +329,14 @@ public class SAML20TokenProvider implements SecurityTokenProvider
 
       // create a new unique ID for the renewed assertion.
       String assertionID = IDGenerator.create("ID_");
+      
+      List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
+      statements.addAll( oldAssertion.getStatements() );
 
       // create the new assertion.
       AssertionType newAssertion = SAMLAssertionFactory.createAssertion(assertionID, oldAssertion.getIssuer(), context
-            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), oldAssertion
-            .getStatementOrAuthnStatementOrAuthzDecisionStatement());
+            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), 
+            statements );
 
       // create a security token with the new assertion.
       Element assertionElement = null;

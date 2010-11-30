@@ -23,12 +23,13 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
@@ -38,17 +39,25 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclRefType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.URIType;
 
 /**
  * Write the SAML Assertion to stream
@@ -90,7 +99,7 @@ public class SAMLAssertionWriter extends BaseWriter
       
       //TODO: conditions and advice
       
-      List<StatementAbstractType> statements = assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement();
+      Set<StatementAbstractType> statements = assertion.getStatements();
       if( statements != null )
       {
          for( StatementAbstractType statement: statements )
@@ -127,16 +136,19 @@ public class SAMLAssertionWriter extends BaseWriter
    {
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get() , ASSERTION_NSURI.get() );  
       
-      List<Object> attributes = statement.getAttributeOrEncryptedAttribute();
+      List<ASTChoiceType> attributes = statement.getAttributes();
       if( attributes != null )
       {
-         for( Object attr : attributes )
+         for( ASTChoiceType attr : attributes )
          {
-            if( attr instanceof AttributeType )
+            AttributeType attributeType = attr.getAttribute();
+            if( attributeType != null ) 
             {
-               AttributeType attributeType = (AttributeType) attr; 
                write( attributeType );
             }
+            EncryptedElementType encType = attr.getEncryptedAssertion();
+            if( encType != null )
+               throw new RuntimeException( "unable to write as it is NYI" );
          }
       } 
 
@@ -179,32 +191,52 @@ public class SAMLAssertionWriter extends BaseWriter
    {
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get() , ASSERTION_NSURI.get() );  
       
-      List< JAXBElement<?> > subList = authContext.getContent();
-      if( subList != null )
+      AuthnContextTypeSequence sequence = authContext.getSequence();
+      if( sequence != null )
       {
-         for( JAXBElement<?> el: subList )
+         AuthnContextClassRefType authnContextClassRefType = sequence.getClassRef();
+         if( authnContextClassRefType != null )
          {
-            QName elName = el.getName();
-            if( elName.getLocalPart().equals( JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get() ))
+            StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ,
+                  ASSERTION_NSURI.get() ); 
+            StaxUtil.writeCharacters( writer,  authnContextClassRefType.getValue().toASCIIString() ); 
+            StaxUtil.writeEndElement( writer);  
+         } 
+         
+         Set<URIType> uriTypes = sequence.getURIType();
+         if( uriTypes != null )
+         {
+            for( URIType uriType: uriTypes )
             {
-               String decl = (String) el.getValue();
-               StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get() ,
-                     ASSERTION_NSURI.get() );  
-               StaxUtil.writeCharacters( writer, decl );
-               StaxUtil.writeEndElement( writer);  
-            } 
-            else if( elName.getLocalPart().equals( JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ))
-            {
-               String decl = (String) el.getValue();
-               StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ,
-                     ASSERTION_NSURI.get() );  
-               StaxUtil.writeCharacters( writer, decl );
-               StaxUtil.writeEndElement( writer);  
-            } 
-            else
-               throw new RuntimeException( "Unsupported :" + elName );
-         }
+               if( uriType instanceof AuthnContextDeclType )
+               {
+                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get() ,
+                        ASSERTION_NSURI.get() );  
+                  StaxUtil.writeCharacters( writer, uriType.getValue().toASCIIString() );
+                  StaxUtil.writeEndElement( writer);  
+               }
+               if( uriType instanceof AuthnContextDeclRefType )
+               {
+                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get() ,
+                        ASSERTION_NSURI.get() );  
+                  StaxUtil.writeCharacters( writer, uriType.getValue().toASCIIString() );
+                  StaxUtil.writeEndElement( writer);  
+               }
+            }
+         } 
       }
+      
+      Set<URI> authAuthorities = authContext.getAuthenticatingAuthority();
+      if( authAuthorities != null )
+      {
+         for( URI aa: authAuthorities )
+         {
+            StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHENTICATING_AUTHORITY.get() ,
+                  ASSERTION_NSURI.get() );  
+            StaxUtil.writeCharacters( writer, aa.toASCIIString() );
+            StaxUtil.writeEndElement( writer);   
+         }
+      } 
 
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -287,48 +319,38 @@ public class SAMLAssertionWriter extends BaseWriter
     */
    public void write( SubjectType subject ) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get() , ASSERTION_NSURI.get() );  
-      List<JAXBElement<?>> contentList = subject.getContent();
-      if( contentList != null )
+      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get() , ASSERTION_NSURI.get() ); 
+      
+      STSubType subType = subject.getSubType();
+      if( subType != null )
       {
-         for( JAXBElement<?> jaxbEl: contentList )
+         BaseIDAbstractType baseID = subType.getBaseID();
+         if( baseID instanceof NameIDType )
          {
-            Class<?> declaredType = jaxbEl.getDeclaredType();
-            if( declaredType.equals( SubjectConfirmationType.class) )
+            NameIDType nameIDType = (NameIDType) baseID;
+            write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) ); 
+         }
+         EncryptedElementType enc = subType.getEncryptedID();
+         if( enc != null )
+            throw new RuntimeException( "NYI" );
+         List<SubjectConfirmationType> confirmations = subType.getConfirmation();
+         if( confirmations != null )
+         {
+            for( SubjectConfirmationType confirmation: confirmations )
             {
-               SubjectConfirmationType subjectConfirmationType = (SubjectConfirmationType) jaxbEl.getValue();
-               StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION.get(), ASSERTION_NSURI.get() );
-               
-               StaxUtil.writeAttribute(writer, JBossSAMLConstants.METHOD.get(), subjectConfirmationType.getMethod() );
-               
-               BaseIDAbstractType baseID = subjectConfirmationType.getBaseID();
-               if( baseID != null )
-               {
-                  write( baseID );
-               }
-               NameIDType nameIDType = subjectConfirmationType.getNameID();
-               if( nameIDType != null )
-               {
-                  write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
-               }
-               SubjectConfirmationDataType subjectConfirmationData = subjectConfirmationType.getSubjectConfirmationData();
-               if( subjectConfirmationData != null )
-               {
-                  write( subjectConfirmationData ); 
-               } 
-               
-
-               StaxUtil.writeEndElement( writer);
+               write( confirmation );
             }
-            else if( declaredType.equals( NameIDType.class ))
-            {
-               NameIDType nameIDType = (NameIDType) jaxbEl.getValue();
-               write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
-            }
-            else 
-               throw new RuntimeException( "SAMLAssertionWriter: NYI: declared Type:" + declaredType.getName() );
          }
       }
+      List<SubjectConfirmationType> subjectConfirmations = subject.getConfirmation();
+      if( subjectConfirmations != null )
+      {
+         for( SubjectConfirmationType subjectConfirmationType : subjectConfirmations )
+         {
+            write( subjectConfirmationType );  
+         }
+      }
+       
 
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
@@ -337,6 +359,30 @@ public class SAMLAssertionWriter extends BaseWriter
    private void write( BaseIDAbstractType baseId ) throws ProcessingException
    {
       throw new RuntimeException( "NYI");
+   }
+   
+   private void write( SubjectConfirmationType subjectConfirmationType ) throws ProcessingException
+   {
+      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION.get(), ASSERTION_NSURI.get() );
+      
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.METHOD.get(), subjectConfirmationType.getMethod() );
+      
+      BaseIDAbstractType baseID = subjectConfirmationType.getBaseID();
+      if( baseID != null )
+      {
+         write( baseID );
+      }
+      NameIDType nameIDType = subjectConfirmationType.getNameID();
+      if( nameIDType != null )
+      {
+         write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
+      }
+      SubjectConfirmationDataType subjectConfirmationData = subjectConfirmationType.getSubjectConfirmationData();
+      if( subjectConfirmationData != null )
+      {
+         write( subjectConfirmationData ); 
+      }  
+      StaxUtil.writeEndElement( writer);
    }
    
    private void write( SubjectConfirmationDataType subjectConfirmationData ) throws ProcessingException

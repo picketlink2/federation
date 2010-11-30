@@ -69,17 +69,14 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
-import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
-import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
-import org.picketlink.identity.federation.ws.policy.AppliesTo;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
@@ -367,9 +364,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // in this scenario, the conditions section should have an audience restriction.
       ConditionsType conditions = assertion.getConditions();
-      assertEquals("Unexpected restriction list size", 1, conditions.getConditionOrAudienceRestrictionOrOneTimeUse()
-            .size());
-      ConditionAbstractType abstractType = conditions.getConditionOrAudienceRestrictionOrOneTimeUse().get(0);
+      assertEquals("Unexpected restriction list size", 1, conditions.getConditions().size());
+      ConditionAbstractType abstractType = conditions.getConditions().get(0);
       assertTrue("Unexpected restriction type", abstractType instanceof AudienceRestrictionType);
       AudienceRestrictionType audienceRestriction = (AudienceRestrictionType) abstractType;
       assertEquals("Unexpected audience restriction list size", 1, audienceRestriction.getAudience().size());
@@ -415,8 +411,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * @throws Exception
     *            if an error occurs while running the test.
-    */
-   @SuppressWarnings("rawtypes")
+    */ 
    public void testInvokeSAML20WithSTSGeneratedSymmetricKey() throws Exception
    {
       // create a simple token request, asking for a SAMLv2.0 token.
@@ -436,8 +431,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
-            .getValue();
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       // check if the response contains the STS-generated key.
@@ -463,8 +457,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * @throws Exception
     *            if an error occurs while running the test.
-    */
-   @SuppressWarnings("rawtypes")
+    */ 
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
    {
       // create a 64-bit random client secret.
@@ -494,8 +487,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
-            .getValue();
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1) ;
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
@@ -549,8 +541,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
-            .getValue();
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, false);
    }
 
@@ -587,8 +578,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getContent().get(1)
-            .getValue();
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1) ;
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, true);
    }
 
@@ -1175,15 +1165,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // validate the assertion subject.
       assertNotNull("Unexpected null subject", assertion.getSubject());
-      List<JAXBElement<?>> content = assertion.getSubject().getContent();
-      assertNotNull("Unexpected null subject content");
-      assertEquals(2, content.size());
-      assertEquals("Unexpected type found", NameIDType.class, content.get(0).getDeclaredType());
-      NameIDType nameID = (NameIDType) content.get(0).getValue();
+      SubjectType subject = assertion.getSubject();
+       
+      NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id value", principal, nameID.getValue());
-      assertEquals("Unexpected type found", SubjectConfirmationType.class, content.get(1).getDeclaredType());
-      SubjectConfirmationType subjType = (SubjectConfirmationType) content.get(1).getValue();
+       
+      SubjectConfirmationType subjType = (SubjectConfirmationType) subject.getConfirmation().get(1);
       assertEquals("Unexpected confirmation method", confirmationMethod, subjType.getMethod());
 
       // validate the assertion conditions.
@@ -1219,11 +1207,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
    {
       SubjectConfirmationDataType subjConfirmationDataType = subjectConfirmation.getSubjectConfirmationData();
       assertNotNull("Unexpected null subject confirmation data", subjConfirmationDataType);
-      List<Object> confirmationContent = subjConfirmationDataType.getContent();
-      assertEquals("Unexpected subject confirmation content size", 1, confirmationContent.size());
-      JAXBElement<?> keyInfoElement = (JAXBElement<?>) confirmationContent.get(0);
-      assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement.getDeclaredType());
-      KeyInfoType keyInfo = (KeyInfoType) keyInfoElement.getValue();
+      KeyInfoType keyInfo = (KeyInfoType)subjConfirmationDataType.getAnyType(); 
       assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
 
       // if the key is a symmetric key, the KeyInfo should contain an encrypted element.

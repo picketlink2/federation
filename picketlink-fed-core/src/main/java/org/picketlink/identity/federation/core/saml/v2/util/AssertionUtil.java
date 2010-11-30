@@ -27,13 +27,10 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 
 /**
  * Utility to deal with assertions
@@ -53,10 +50,17 @@ public class AssertionUtil
     */
    public static AssertionType createAssertion(String id, NameIDType issuer)
    {
-      AssertionType assertion = SAMLAssertionFactory.getObjectFactory().createAssertionType();
-      assertion.setID(id);
-      assertion.setVersion(JBossSAMLConstants.VERSION_2_0.get());
-      assertion.setIssuer(issuer);
+      XMLGregorianCalendar issueInstant = null;
+      try
+      {
+         issueInstant = XMLTimeUtil.getIssueInstant();
+      }
+      catch (ConfigurationException e)
+      {
+         throw new RuntimeException( e );
+      }
+      AssertionType assertion =  new AssertionType( id, issueInstant, JBossSAMLConstants.VERSION_2_0.get() ); 
+      assertion.setIssuer( issuer );
       return assertion; 
    }
    
@@ -69,16 +73,15 @@ public class AssertionUtil
     */
    public static AttributeType createAttribute(String name, String nameFormat,
          Object... attributeValues)
-   {
-      ObjectFactory of = SAMLAssertionFactory.getObjectFactory();
-      AttributeType att = of.createAttributeType();
+   { 
+      AttributeType att = new AttributeType();
       att.setName(name);
       att.setNameFormat(nameFormat);
       if(attributeValues != null && attributeValues.length > 0)
       {
          for(Object attributeValue:attributeValues)
          {
-            att.getAttributeValue().add(of.createAttributeValue(attributeValue));
+            att.addAttributeValue(attributeValue);
          } 
       }
  
@@ -99,7 +102,7 @@ public class AssertionUtil
       if(issueInstant == null)
          throw new IssueInstantMissingException("assertion does not have issue instant");
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis);
-      ConditionsType conditionsType = JBossSAMLBaseFactory.getObjectFactory().createConditionsType();
+      ConditionsType conditionsType = new ConditionsType();
       conditionsType.setNotBefore(issueInstant);
       conditionsType.setNotOnOrAfter(assertionValidityLength);
       

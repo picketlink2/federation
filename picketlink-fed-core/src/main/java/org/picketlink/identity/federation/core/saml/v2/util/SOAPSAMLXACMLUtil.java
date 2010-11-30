@@ -33,9 +33,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.ObjectFactory; 
 import org.w3c.dom.Element;
 
 /**
@@ -82,26 +81,6 @@ public class SOAPSAMLXACMLUtil
       if(xacmlObject instanceof XACMLAuthzDecisionQueryType == false)
          throw new RuntimeException("Unsupported type:" + xacmlObject);
       return (XACMLAuthzDecisionQueryType)xacmlObject;  
-   }
-   
-   public static XACMLAuthzDecisionQueryType createXACMLAuthzDecisionQueryType()
-   {
-      return queryTypeObjectFactory.createXACMLAuthzDecisionQueryType();
-   } 
-   
-   public static XACMLAuthzDecisionStatementType createXACMLAuthzDecisionStatementType()
-   {
-      return statementObjectFactory.createXACMLAuthzDecisionStatementType();
-   }
-   
-   public static JAXBElement<XACMLAuthzDecisionQueryType> getJAXB(XACMLAuthzDecisionQueryType queryType)
-   {
-      return queryTypeObjectFactory.createXACMLAuthzDecisionQuery(queryType);
-   }
-   
-   public static JAXBElement<XACMLAuthzDecisionStatementType> getJAXB(XACMLAuthzDecisionStatementType stmtType)
-   {
-      return statementObjectFactory.createXACMLAuthzDecisionStatement(stmtType);
    }
    
    public static Marshaller getMarshaller() throws JAXBException

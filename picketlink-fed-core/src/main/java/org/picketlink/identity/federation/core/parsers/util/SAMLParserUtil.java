@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
-import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -31,13 +31,16 @@ import javax.xml.stream.events.StartElement;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 
 /**
  * Utility methods for SAML Parser
@@ -68,7 +71,7 @@ public class SAMLParserUtil
          if( JBossSAMLConstants.ATTRIBUTE.get().equals( tag ) )
          {
             AttributeType attribute = parseAttribute(xmlEventReader);
-            attributeStatementType.getAttributeOrEncryptedAttribute().add( attribute );
+            attributeStatementType.addAttribute( new ASTChoiceType( attribute ));
          }
          else throw new RuntimeException( "Unknown tag:" + tag );
       } 
@@ -165,7 +168,6 @@ public class SAMLParserUtil
     */
    public static AuthnStatementType parseAuthnStatement( XMLEventReader xmlEventReader ) throws ParsingException
    {
-      AuthnStatementType authnStatementType = new AuthnStatementType();
       
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       String AUTHNSTATEMENT = JBossSAMLConstants.AUTHN_STATEMENT.get();
@@ -174,7 +176,9 @@ public class SAMLParserUtil
       Attribute authnInstant = startElement.getAttributeByName( new QName( "AuthnInstant" ));
       if( authnInstant == null )
          throw new RuntimeException( "Required attribute AuthnInstant in " + AUTHNSTATEMENT );
-      authnStatementType.setAuthnInstant( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( authnInstant )));
+
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( authnInstant ));
+      AuthnStatementType authnStatementType = new AuthnStatementType( issueInstant ); 
       
       Attribute sessionIndex = startElement.getAttributeByName( new QName( "SessionIndex" ));
       if( sessionIndex != null )
@@ -216,8 +220,8 @@ public class SAMLParserUtil
       {
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
-         JAXBElement<?> acDeclRef = SAMLAssertionFactory.getObjectFactory().createAuthnContextDeclRef( text );
-         authnContextType.getContent().add(acDeclRef);
+         AuthnContextDeclType aAuthnContextDeclType = new AuthnContextDeclType( NetworkUtil.createURI(text));
+         authnContextType.addURIType(aAuthnContextDeclType); 
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
       }
@@ -225,8 +229,8 @@ public class SAMLParserUtil
       {
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
-         JAXBElement<?> acDeclRef = SAMLAssertionFactory.getObjectFactory().createAuthnContextClassRef(text );
-         authnContextType.getContent().add(acDeclRef);
+         AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType( NetworkUtil.createURI(text));
+         authnContextType.addURIType( aAuthnContextClassRefType );  
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
       }
@@ -256,7 +260,7 @@ public class SAMLParserUtil
       Attribute format = nameIDElement.getAttributeByName( new QName( JBossSAMLConstants.FORMAT.get() ));
       if( format != null )
       {
-         nameID.setFormat( StaxParserUtil.getAttributeValue( format ));
+         nameID.setFormat( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( format )) );
       }
       
       Attribute spProvidedID = nameIDElement.getAttributeByName( new QName( JBossSAMLConstants.SP_PROVIDED_ID.get() ));

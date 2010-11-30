@@ -23,8 +23,7 @@ package org.picketlink.identity.federation.core.saml.v2.holders;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 
 /**
  * Holds info about the issuer for saml messages creation
@@ -50,9 +49,8 @@ public class IssuerInfoHolder
    public IssuerInfoHolder(String issuerAsString)
    {
       if(issuerAsString == null)
-         throw new IllegalArgumentException("issuerAsString is null");
-      ObjectFactory assertionObjectFactory = new ObjectFactory();
-      issuer = assertionObjectFactory.createNameIDType();
+         throw new IllegalArgumentException("issuerAsString is null"); 
+      issuer = new NameIDType();
       issuer.setValue(issuerAsString);
    }
    

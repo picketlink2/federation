@@ -97,7 +97,8 @@ public class JAXBElementMappingUtil
     */
    public static JAXBElement<?> get(EncryptedElementType encryptedAssertion)
    {
-      return SAMLAssertionFactory.getObjectFactory().createEncryptedAssertion(encryptedAssertion);
+      throw new RuntimeException( "NYI" );
+      //return SAMLAssertionFactory.getObjectFactory().createEncryptedAssertion(encryptedAssertion);
    }
    
    /**

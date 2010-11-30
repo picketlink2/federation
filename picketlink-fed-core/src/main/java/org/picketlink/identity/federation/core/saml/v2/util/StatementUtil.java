@@ -31,10 +31,9 @@ import javax.xml.namespace.QName;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 
 /**
  * Deals with SAML2 Statements
@@ -43,9 +42,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
  */
 public class StatementUtil
 {
-   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding");
-
-   private static ObjectFactory factory = new ObjectFactory();
+   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding"); 
 
    /**
     * Create an attribute statement with all the attributes
@@ -64,7 +61,7 @@ public class StatementUtil
          if (i == 0)
          {
             //Deal with the X500 Profile of SAML2
-            attrStatement = JBossSAMLBaseFactory.createAttributeStatement();
+            attrStatement = new AttributeStatementType(); 
             i++;
          }
 
@@ -77,8 +74,9 @@ public class StatementUtil
                Collection<?> roles = (Collection<?>) value;
                for (Object role : roles)
                {
-                  AttributeType roleAttr = JBossSAMLBaseFactory.createAttributeForRole((String) role);
-                  attrStatement.getAttributeOrEncryptedAttribute().add(factory.createAttribute(roleAttr));
+                  AttributeType roleAttr = new AttributeType();
+                  roleAttr.addAttributeValue(role);
+                  attrStatement.addAttribute( new ASTChoiceType( roleAttr ));
                }
             }
          }
@@ -108,8 +106,8 @@ public class StatementUtil
                att.setFriendlyName(X500SAMLProfileConstants.TELEPHONE.getFriendlyName());
                att.setName(X500SAMLProfileConstants.TELEPHONE.get());
             }
-            att.getAttributeValue().add(value);
-            attrStatement.getAttributeOrEncryptedAttribute().add(att);
+            att.addAttributeValue( value );
+            attrStatement.addAttribute( new ASTChoiceType( att ));
          }
       }
       return attrStatement;
@@ -122,18 +120,19 @@ public class StatementUtil
     */
    public static AttributeStatementType createAttributeStatement(List<String> roles)
    {
-      AttributeStatementType attrStatement = JBossSAMLBaseFactory.createAttributeStatement();
+      AttributeStatementType attrStatement = new AttributeStatementType();
       for (String role : roles)
       {
-         AttributeType attr = JBossSAMLBaseFactory.createAttributeForRole(role);
-         attrStatement.getAttributeOrEncryptedAttribute().add(attr);
+         AttributeType attr = new AttributeType();
+         attr.addAttributeValue( role );
+         attrStatement.addAttribute( new ASTChoiceType(  attr ));
       }
       return attrStatement;
    }
 
    private static AttributeType getX500Attribute()
    {
-      AttributeType att = factory.createAttributeType();
+      AttributeType att = new AttributeType();
       att.getOtherAttributes().put(X500_QNAME, "LDAP");
 
       att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get());

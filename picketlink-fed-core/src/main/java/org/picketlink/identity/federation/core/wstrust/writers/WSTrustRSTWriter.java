@@ -39,7 +39,7 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWrit
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection; 
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;  
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
@@ -59,47 +59,47 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 19, 2010
  */
-public class WSTrustRequestWriter
+public class WSTrustRSTWriter
 {
    private XMLStreamWriter writer;
    
    /**
     * <p>
-    * Creates a {@code WSTrustRequestWriter} that writes {@code RequestSecurityToken} instances to the specified
+    * Creates a {@code WSTrustRSTWriter} that writes {@code RequestSecurityToken} instances to the specified
     * {@code OutputStream}.
     * </p>
     * 
     * @param out the stream where the request is to be written.
     * @throws ProcessingException if an error occurs while processing the request.
     */
-   public WSTrustRequestWriter(OutputStream out) throws ProcessingException
+   public WSTrustRSTWriter(OutputStream out) throws ProcessingException
    {
       this.writer = StaxUtil.getXMLStreamWriter(out);
    }
 
    /**
     * <p>
-    * Creates a {@code WSTrustRequestWriter} that writes {@code RequestSecurityToken} instances to the specified
+    * Creates a {@code WSTrustRSTWriter} that writes {@code RequestSecurityToken} instances to the specified
     * {@code Result}.
     * </p>
     * 
     * @param result the {@code Result} where the request it to be written.
     * @throws ProcessingException if an error occurs while processing the request.
     */
-   public WSTrustRequestWriter(Result result) throws ProcessingException
+   public WSTrustRSTWriter(Result result) throws ProcessingException
    {
       this.writer = StaxUtil.getXMLStreamWriter(result);
    }
 
    /**
     * <p>
-    * Creates a {@code WSTrustRequestWriter} that uses the specified {@code XMLStreamWriter} to write the request
+    * Creates a {@code WSTrustRSTWriter} that uses the specified {@code XMLStreamWriter} to write the request
     * objects. 
     * </p>
     * 
     * @param writer the {@code XMLStreamWriter} to be used to write requests.
     */
-   public WSTrustRequestWriter(XMLStreamWriter writer)
+   public WSTrustRSTWriter(XMLStreamWriter writer)
    {
       this.writer = writer;
    }
@@ -317,6 +317,8 @@ public class WSTrustRequestWriter
    private void writeOnBehalfOfType(OnBehalfOfType onBehalfOf) throws ProcessingException
    {
       StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.ON_BEHALF_OF, BASE_NAMESPACE); 
+      StaxUtil.writeCharacters(writer, "" ); 
+      
       UsernameTokenType usernameToken = (UsernameTokenType) onBehalfOf.getAny(); 
       WSSecurityWriter wsseWriter = new WSSecurityWriter(this.writer);
       wsseWriter.write( usernameToken );

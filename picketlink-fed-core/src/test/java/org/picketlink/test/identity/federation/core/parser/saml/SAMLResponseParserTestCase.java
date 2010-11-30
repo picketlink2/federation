@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -36,17 +37,20 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.core.util.StaxUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclRefType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.*;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 
 /**
  * Validate the parsing of SAML2 Response
@@ -76,30 +80,42 @@ public class SAMLResponseParserTestCase
       StatusType status = response.getStatus();
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue() );
       
-      List<Object> assertionList = response.getAssertionOrEncryptedAssertion();
+      List<RTChoiceType> assertionList = response.getAssertions();
       assertEquals( 2, assertionList.size() );
       
-      AssertionType assertion1 = (AssertionType) assertionList.get( 0 );
+      AssertionType assertion1 = assertionList.get( 0 ).getAssertion();
       assertEquals( "ID_0be488d8-7089-4892-8aeb-83594c800706", assertion1.getID() );
       assertEquals( XMLTimeUtil.parse( "2009-05-26T14:06:26.362-05:00" ), assertion1.getIssueInstant() );
       assertEquals( "2.0", assertion1.getVersion() );
-      assertEquals( "testIssuer", assertion1.getIssuer().getValue() );
-      AuthnStatementType authnStatement = (AuthnStatementType) assertion1.getStatementOrAuthnStatementOrAuthzDecisionStatement().get( 0 );
+      assertEquals( "testIssuer", assertion1.getIssuer().getValue() ) ;
+      
+      Iterator<StatementAbstractType> iterator = assertion1.getStatements().iterator();
+      
+      AuthnStatementType authnStatement = (AuthnStatementType) iterator.next();
       assertEquals( XMLTimeUtil.parse( "2009-05-26T14:06:26.359-05:00" ), authnStatement.getAuthnInstant() );
+      
+
+      AuthnContextType authnContext = authnStatement.getAuthnContext();
+      
+      AuthnContextDeclRefType refType = (AuthnContextDeclRefType) authnContext.getURIType().iterator().next();
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", refType.getValue().toASCIIString() ); 
+      /*
       JAXBElement<?> authnContextDeclRefJaxb = (JAXBElement<?>) authnStatement.getAuthnContext().getContent().get(0);
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", authnContextDeclRefJaxb.getValue() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", authnContextDeclRefJaxb.getValue() );*/
       
       
-      AssertionType assertion2 = (AssertionType) assertionList.get( 1 );
+      AssertionType assertion2 = (AssertionType) assertionList.get( 1 ).getAssertion();
       assertEquals( "ID_976d8310-658a-450d-be39-f33c73c8afa6", assertion2.getID() );
       assertEquals( XMLTimeUtil.parse( "2009-05-26T14:06:26.363-05:00" ), assertion2.getIssueInstant() );
       assertEquals( "2.0", assertion2.getVersion() );
       assertEquals( "testIssuer", assertion2.getIssuer().getValue() );
       
-      authnStatement = (AuthnStatementType) assertion2.getStatementOrAuthnStatementOrAuthzDecisionStatement().get( 0 );
+      authnStatement = (AuthnStatementType) assertion2.getStatements().iterator().next();
       assertEquals( XMLTimeUtil.parse( "2009-05-26T14:06:26.359-05:00" ), authnStatement.getAuthnInstant() );
-      authnContextDeclRefJaxb = (JAXBElement<?>) authnStatement.getAuthnContext().getContent().get(0);
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", authnContextDeclRefJaxb.getValue() ); 
+      authnContext = authnStatement.getAuthnContext();
+      
+      refType = (AuthnContextDeclRefType) authnContext.getURIType().iterator().next();
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport", refType.getValue().toASCIIString() ); 
       
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
       ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
@@ -136,7 +152,7 @@ public class SAMLResponseParserTestCase
       assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue() );
       
       //Get the assertion
-      AssertionType assertion = (AssertionType) response.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = (AssertionType) response.getAssertions().get(0).getAssertion();
       assertEquals( "ID_8be1534d-9155-4837-9f26-70ea2c15e327", assertion.getID() );
       assertEquals( XMLTimeUtil.parse( "2010-11-04T00:19:16.842-05:00" ), assertion.getIssueInstant() );
       assertEquals( "2.0", assertion.getVersion() );
@@ -145,7 +161,41 @@ public class SAMLResponseParserTestCase
       
       //Subject
       SubjectType subject = assertion.getSubject();
-      List<JAXBElement<?>> content = subject.getContent(); 
+      
+      NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
+      assertEquals( "anil", subjectNameID.getValue() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent", subjectNameID.getFormat() ); 
+      
+      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0);
+
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() );
+      
+      SubjectConfirmationDataType subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
+      assertEquals( "ID_04ded476-d73c-48af-b3a9-232a52905ffb", subjectConfirmationData.getInResponseTo() );
+      assertEquals( XMLTimeUtil.parse( "2010-11-04T00:19:16.842-05:00" ), subjectConfirmationData.getNotBefore() );
+      assertEquals(  XMLTimeUtil.parse( "2010-11-04T00:19:16.842-05:00" ), subjectConfirmationData.getNotOnOrAfter() );
+      assertEquals( "http://localhost:8080/employee/", subjectConfirmationData.getRecipient());
+      
+      AttributeStatementType attributeStatement = (AttributeStatementType)  assertion.getStatements().iterator().next();
+      
+      List<org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType> attributes = attributeStatement.getAttributes();
+      assertEquals( 2, attributes.size() ); 
+      
+      for( org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType attr: attributes )
+      {
+         AttributeType attribute = attr.getAttribute();
+         assertEquals( "role", attribute.getFriendlyName() );
+         assertEquals( "role", attribute.getName() );
+         assertEquals( "role", attribute.getNameFormat() );
+         List<Object> attributeValues = attribute.getAttributeValue();
+         assertEquals( 1, attributeValues.size() );
+         
+         String str = (String ) attributeValues.get( 0 ); 
+         if( ! ( str.equals( "employee") || str.equals( "manager" )))
+            throw new RuntimeException( "attrib value not found" );
+      } 
+      
+      /*List<JAXBElement<?>> content = subject.getContent(); 
       
       int size = content.size();
       
@@ -196,6 +246,6 @@ public class SAMLResponseParserTestCase
          }
          else 
             throw new RuntimeException( "unknown" );
-      } 
+      } */
    }
 }

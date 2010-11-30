@@ -21,11 +21,9 @@
  */
 package org.picketlink.identity.federation.core.factories;
 
-import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
  
 
 /**
@@ -34,14 +32,7 @@ import org.jboss.security.xacml.core.model.context.ResponseType;
  * @since Jul 30, 2009
  */
 public class XACMLContextFactory
-{
-   private static ObjectFactory _objectFactory = new ObjectFactory();
-   
-   public static ObjectFactory getObjectFactory()
-   {
-      return _objectFactory;
-   } 
-   
+{   
    /**
     * Create an XACML Authorization Decision Statement Type
     * @param request
@@ -51,7 +42,7 @@ public class XACMLContextFactory
    public static XACMLAuthzDecisionStatementType createXACMLAuthzDecisionStatementType(RequestType request,
          ResponseType response)
    {
-      XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.createXACMLAuthzDecisionStatementType();
+      XACMLAuthzDecisionStatementType xacmlStatement =  new XACMLAuthzDecisionStatementType();
       xacmlStatement.setRequest(request);
       xacmlStatement.setResponse(response);
       return xacmlStatement;

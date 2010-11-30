@@ -19,20 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.saml.v2.common;
+package org.picketlink.identity.federation.core.util;
 
-import java.util.Set;
-
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
- * Thread Local holding the statements 
- * returned by IDP
+ * General utility class for network related stuff
  * @author Anil.Saldhana@redhat.com
- * @since Sep 14, 2009
+ * @since Nov 29, 2010
  */
-public class StatementLocal
+public class NetworkUtil
 {
-   public static ThreadLocal<Set<StatementAbstractType>> statements
-     = new InheritableThreadLocal<Set<StatementAbstractType>>(); 
+   /**
+    * Create {@code URI}
+    * @param value
+    * @return
+    */
+   public static URI createURI( String value )
+   {
+      try
+      {
+         return new URI( value );
+      }
+      catch (URISyntaxException e)
+      {
+         throw new RuntimeException( "value is not of type URI:", e );
+      } 
+   } 
 }

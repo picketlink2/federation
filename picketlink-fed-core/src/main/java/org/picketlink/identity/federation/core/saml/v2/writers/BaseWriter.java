@@ -21,14 +21,16 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
+import java.net.URI;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.core.util.StringUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 
 /**
  * Base Class for the Stax writers for SAML
@@ -58,11 +60,11 @@ public class BaseWriter
    {
       StaxUtil.writeStartElement( writer, tag.getPrefix(), tag.getLocalPart() , tag.getNamespaceURI() );
       
-      String format = nameIDType.getFormat();
-      if( StringUtil.isNotNull( format ))
+      URI format = nameIDType.getFormat();
+      if( format != null )
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format );
-      }
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString() );
+      } 
       
       String spProvidedID = nameIDType.getSPProvidedID();
       if( StringUtil.isNotNull( spProvidedID ))

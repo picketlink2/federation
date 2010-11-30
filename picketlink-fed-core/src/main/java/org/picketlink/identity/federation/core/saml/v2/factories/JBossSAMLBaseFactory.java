@@ -22,18 +22,15 @@
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
 
 /**
  * Base methods for the factories
@@ -41,25 +38,14 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
  * @since Dec 9, 2008
  */
 public class JBossSAMLBaseFactory
-{
-   private static ObjectFactory assertionObjectFactory = new ObjectFactory();
-  
-   /**
-    * Create a plain assertion type
-    * @return
-    */
-   public static AssertionType createAssertion()
-   {
-      return assertionObjectFactory.createAssertionType();  
-   }
-   
+{   
    /**
     * Create an empty attribute statement
     * @return
     */
    public static AttributeStatementType createAttributeStatement()
    {
-      return assertionObjectFactory.createAttributeStatementType();
+      return new AttributeStatementType(); 
    }
    
    /**
@@ -69,13 +55,13 @@ public class JBossSAMLBaseFactory
     */
    public static AttributeType createAttributeForRole(String roleName)
    {
-      AttributeType att = assertionObjectFactory.createAttributeType();
+      AttributeType att = new AttributeType();
       att.setFriendlyName("role");
       att.setName("role");
       att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get());
       
       //rolename 
-      att.getAttributeValue().add(roleName);
+      att.addAttributeValue( roleName );
       
       return att;
    }
@@ -87,41 +73,12 @@ public class JBossSAMLBaseFactory
     */
    public static AttributeStatementType createAttributeStatement(String attributeValue)
    {
-      AttributeStatementType attribStatement = assertionObjectFactory.createAttributeStatementType();
-      AttributeType att = assertionObjectFactory.createAttributeType();
-      JAXBElement<Object> attValue = assertionObjectFactory.createAttributeValue(attributeValue);
-      att.getAttributeValue().add(attValue);
-      attribStatement.getAttributeOrEncryptedAttribute().add(att);
+      AttributeStatementType attribStatement = new AttributeStatementType();
+      AttributeType att = new AttributeType();
+      att.addAttributeValue(attributeValue);
+      
+      attribStatement.addAttribute( new ASTChoiceType( att ));
       return attribStatement;
-   }
-   
-   /**
-    * Create an empty name id
-    * @return
-    */
-   public static NameIDType createNameID()
-   {
-      return assertionObjectFactory.createNameIDType();
-   }
-   
-   /**
-    * Create the JAXBElement type of nameid
-    * @param nameIDType
-    * @return
-    */
-   public static JAXBElement<NameIDType> createNameID(NameIDType nameIDType)
-   {
-      return assertionObjectFactory.createNameID(nameIDType);
-   }
-   
-   /**
-    * Create an empty subject
-    * @return
-    */
-   public static SubjectType createSubject()
-   {
-      SubjectType subjectType = assertionObjectFactory.createSubjectType();
-      return subjectType;
    }
    
    /**
@@ -131,20 +88,9 @@ public class JBossSAMLBaseFactory
     */
    public static SubjectConfirmationType createSubjectConfirmation(String method)
    {
-      SubjectConfirmationType sct = assertionObjectFactory.createSubjectConfirmationType();
+      SubjectConfirmationType sct = new SubjectConfirmationType();
       sct.setMethod(method);
       return sct;
-   }
-   
-   /**
-    * Create a JAXBElement for subject confirmtation type
-    * @param sct
-    * @return
-    */
-   
-   public static JAXBElement<SubjectConfirmationType> createSubjectConfirmation(SubjectConfirmationType sct)
-   {
-      return assertionObjectFactory.createSubjectConfirmation(sct);
    }
    
    /**
@@ -157,7 +103,7 @@ public class JBossSAMLBaseFactory
    public static SubjectConfirmationDataType createSubjectConfirmationData(String inResponseTo, 
          String destinationURI, XMLGregorianCalendar issueInstant)
    {
-      SubjectConfirmationDataType subjectConfirmationData = assertionObjectFactory.createSubjectConfirmationDataType();
+      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
       subjectConfirmationData.setInResponseTo(inResponseTo);
       subjectConfirmationData.setRecipient(destinationURI);
       subjectConfirmationData.setNotBefore(issueInstant);
@@ -174,15 +120,7 @@ public class JBossSAMLBaseFactory
    {
       return java.util.UUID.randomUUID().toString(); 
    }
-   
-   /**
-    * Get the Object Factory
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return assertionObjectFactory;
-   }
+    
    
    /**
     * Return the NameIDType for the issuer
@@ -191,7 +129,7 @@ public class JBossSAMLBaseFactory
     */
    public static NameIDType getIssuer(String issuerID)
    {
-      NameIDType nid = assertionObjectFactory.createNameIDType();
+      NameIDType nid = new NameIDType();
       nid.setValue(issuerID);
       return nid;
    }

@@ -2,7 +2,7 @@ package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
 import java.util.Map;
 
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 
 /**
  * <p>

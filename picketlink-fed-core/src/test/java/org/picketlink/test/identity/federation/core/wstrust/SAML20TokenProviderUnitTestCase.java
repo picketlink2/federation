@@ -50,13 +50,9 @@ import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenP
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
@@ -97,7 +93,9 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     */
    public void testIssueSAMLV20Token() throws Exception
    {
-      // create a WSTrustRequestContext with a simple WS-Trust request.
+      fail( "Work on this");
+      
+      /*// create a WSTrustRequestContext with a simple WS-Trust request.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setLifetime(WSTrustUtil.createDefaultLifetime(3600000));
       request.setAppliesTo(WSTrustUtil.createAppliesTo("http://services.testcorp.org/provider2"));
@@ -163,7 +161,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       KeyIdentifierType keyId = (KeyIdentifierType) securityRef.getAny().get(0);
       assertEquals("Unexpected key value type", SAMLUtil.SAML2_VALUE_TYPE, keyId.getValueType());
       assertNotNull("Unexpected null key identifier value", keyId.getValue());
-      assertEquals(assertion.getID(), keyId.getValue().substring(1));
+      assertEquals(assertion.getID(), keyId.getValue().substring(1));*/
    }
 
    /**
@@ -176,7 +174,8 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     */
    public void testIssueSAMLV20HolderOfKeyToken() throws Exception
    {
-      // create a WSTrustRequestContext with a simple WS-Trust request.
+      fail( "work" );
+      /*// create a WSTrustRequestContext with a simple WS-Trust request.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setLifetime(WSTrustUtil.createDefaultLifetime(3600000));
       request.setAppliesTo(WSTrustUtil.createAppliesTo("http://services.testcorp.org/provider2"));
@@ -254,7 +253,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertEquals("Unexpected X509 data content type", byte[].class, x509CertElement.getDeclaredType());
       // certificate should have been encoded to Base64, so we need to decode it first.
       byte[] encodedCert = (byte[]) x509CertElement.getValue();
-      assertTrue("Invalid encoded certificate found", Arrays.equals(certificate.getEncoded(), encodedCert));
+      assertTrue("Invalid encoded certificate found", Arrays.equals(certificate.getEncoded(), encodedCert));*/
    }
 
    /**

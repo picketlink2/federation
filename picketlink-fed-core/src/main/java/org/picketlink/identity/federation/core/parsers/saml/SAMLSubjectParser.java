@@ -35,15 +35,13 @@ import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 
@@ -53,9 +51,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
  * @since Oct 12, 2010
  */
 public class SAMLSubjectParser implements ParserNamespaceSupport
-{
-   private ObjectFactory objectFactory = new ObjectFactory();
-
+{  
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
@@ -85,8 +81,9 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          if( JBossSAMLConstants.NAMEID.get().equalsIgnoreCase( tag ) )
          {
             NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
-            JAXBElement<NameIDType> jaxbNameID =  objectFactory.createNameID( nameID );
-            subject.getContent().add( jaxbNameID ); 
+            STSubType subType = new STSubType();
+            subType.addBaseID(nameID);
+            subject.setSubType( subType );  
          }  
          else if( JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase( tag ) )
          {
@@ -114,8 +111,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                }
             }
 
-            JAXBElement<SubjectConfirmationType> jaxbSubjectConf = objectFactory.createSubjectConfirmation( subjectConfirmationType );
-            subject.getContent().add(jaxbSubjectConf);
+            subject.addConfirmation(subjectConfirmationType);
 
             //Get the end tag
             EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
@@ -123,9 +119,10 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          }  
          else if( JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equals( tag ))
          {
-            AttributeStatementType attributeStatement = SAMLParserUtil.parseAttributeStatement(xmlEventReader);
+            throw new RuntimeException( "NYI" );
+            /*AttributeStatementType attributeStatement = SAMLParserUtil.parseAttributeStatement(xmlEventReader);
             JAXBElement<?> jaxbEl = SAMLAssertionFactory.getObjectFactory().createAttributeStatement(attributeStatement);
-            subject.getContent().add( jaxbEl );
+            subject.getContent().add( jaxbEl );*/
          }
          else throw new RuntimeException( "Unknown tag:" + tag );    
       } 
@@ -143,8 +140,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
       return nsURI.equals( JBossSAMLURIConstants.ASSERTION_NSURI.get() ) 
            && localPart.equals( JBossSAMLConstants.SUBJECT.get() );
    }
-   
-   @SuppressWarnings({"unchecked", "rawtypes"})
+    
    private SubjectConfirmationDataType parseSubjectConfirmationData( XMLEventReader xmlEventReader ) throws ParsingException
    {
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -189,11 +185,8 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          String tag = StaxParserUtil.getStartElementName(startElement);
          if( tag.equals( WSTrustConstants.XMLDSig.KEYINFO ))
          {
-            KeyInfoType keyInfo = parseKeyInfo(xmlEventReader);
-            QName qname = new QName( WSTrustConstants.XMLDSig.DSIG_NS, WSTrustConstants.XMLDSig.KEYINFO, 
-                  WSTrustConstants.XMLDSig.DSIG_PREFIX );
-            JAXBElement<?> jaxb = new JAXBElement(qname, KeyInfoType.class, keyInfo );
-            subjectConfirmationData.getContent().add( jaxb );
+            KeyInfoType keyInfo = parseKeyInfo(xmlEventReader); 
+            subjectConfirmationData.setAnyType(keyInfo);
          } 
       }
 

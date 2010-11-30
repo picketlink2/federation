@@ -23,9 +23,12 @@ package org.picketlink.identity.federation.core.wstrust.auth;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
 
 /**
@@ -42,7 +45,9 @@ public final class Util
     
     public static Element createSamlToken() throws Exception
     {
-        final AssertionType assertionType = new AssertionType();
+        String id = "ID+" + JBossSAMLBaseFactory.createUUID();
+        final AssertionType assertionType = new AssertionType( id, XMLTimeUtil.getIssueInstant(),
+              JBossSAMLConstants.VERSION_2_0.get() );
         return SAMLUtil.toElement(assertionType);
     }
     

@@ -42,7 +42,6 @@ import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.ClaimsType;
 import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
-import org.picketlink.identity.federation.ws.trust.ObjectFactory;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedTokenCancelledType;
@@ -183,8 +182,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          {
             // symmetric key case: if client entropy is found, compute a key. If not, generate a new key.
             requestedProofToken = new RequestedProofTokenType();
-            ObjectFactory objFactory = new ObjectFactory();
-
+            
             byte[] serverSecret = WSTrustUtil.createRandomSecret((int) keySize / 8);
             BinarySecretType serverBinarySecret = new BinarySecretType();
             serverBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);

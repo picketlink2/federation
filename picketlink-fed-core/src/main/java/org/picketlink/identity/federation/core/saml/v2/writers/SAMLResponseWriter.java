@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -33,13 +34,14 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusDetailType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
 
 /**
  * Write a SAML Response to stream
@@ -77,11 +79,12 @@ public class SAMLResponseWriter extends BaseWriter
       StatusType status = response.getStatus();
       write( status );
       
-      List<Object> assertions = response.getAssertionOrEncryptedAssertion();
-      if( assertions != null )
+      List<RTChoiceType> choiceTypes = response.getAssertions();
+      if( choiceTypes != null )
       {
-         for( Object assertion: assertions )
+         for( RTChoiceType choiceType: choiceTypes )
          {
+            AssertionType assertion = choiceType.getAssertion();
             if( assertion instanceof AssertionType )
             {
                assertionWriter.write( (AssertionType) assertion );
@@ -163,10 +166,10 @@ public class SAMLResponseWriter extends BaseWriter
    {
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get() , PROTOCOL_NSURI.get() ); 
       
-      String value = statusCodeType.getValue();
-      if( StringUtil.isNotNull( value ))
+      URI value = statusCodeType.getValue();
+      if( value != null )
       { 
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.VALUE.get(), value );
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.VALUE.get(), value.toASCIIString() );
       }
       StatusCodeType subStatusCode = statusCodeType.getStatusCode();
       if( subStatusCode != null )

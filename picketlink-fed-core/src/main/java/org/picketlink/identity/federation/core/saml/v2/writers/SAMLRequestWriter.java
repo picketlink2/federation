@@ -24,17 +24,19 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
+import java.net.URI;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.core.util.StringUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
 
 /**
  * Writes a SAML2 Request Type to Stream
@@ -65,17 +67,17 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), request.getVersion() );
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), request.getIssueInstant().toString() );
        
-      String destination = request.getDestination();
-      if( StringUtil.isNotNull( destination ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination ); 
+      URI destination = request.getDestination();
+      if( destination != null )
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() ); 
 
       String consent = request.getConsent();
       if( StringUtil.isNotNull( consent ))
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
       
-      String assertionURL = request.getAssertionConsumerServiceURL();
-      if( StringUtil.isNotNull( assertionURL ) )
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL );
+      URI assertionURL = request.getAssertionConsumerServiceURL();
+      if( assertionURL != null )
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL.toASCIIString() );
       
       NameIDType issuer = request.getIssuer();
       write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
@@ -106,10 +108,10 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), logOutRequest.getVersion() );
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), logOutRequest.getIssueInstant().toString() );
       
-      String destination = logOutRequest.getDestination();
-      if( StringUtil.isNotNull( destination ))
+      URI destination = logOutRequest.getDestination();
+      if( destination != null )
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(),destination );
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() );
       }
       
       String consent = logOutRequest.getConsent();
@@ -133,10 +135,10 @@ public class SAMLRequestWriter extends BaseWriter
    {
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.NAMEID_POLICY.get(), PROTOCOL_NSURI.get() );
       
-      String format = nameIDPolicy.getFormat();
-      if( StringUtil.isNotNull( format ))
+      URI format = nameIDPolicy.getFormat();
+      if( format != null )
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format );
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString() );
       }
       
       String spNameQualifier = nameIDPolicy.getSPNameQualifier();

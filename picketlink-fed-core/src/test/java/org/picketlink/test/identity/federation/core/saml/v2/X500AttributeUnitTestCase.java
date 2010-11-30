@@ -25,24 +25,22 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLProtocolFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,15 +71,18 @@ public class X500AttributeUnitTestCase extends TestCase
              new SPInfoHolder(), idp, issuerHolder);
       assertNotNull(rt);
       
-      AssertionType assertion = (AssertionType) rt.getAssertionOrEncryptedAssertion().get(0);
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attrStat);
+      AssertionType assertion = (AssertionType) rt.getAssertions().get(0).getAssertion();
+      assertion.addStatement( attrStat );
       
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       
-      Marshaller marshaller = JBossSAMLAuthnResponseFactory.getValidatingMarshaller(false);
+      SAMLResponseWriter writer = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter(baos) );
+      writer.write(rt);
+      
+      /*Marshaller marshaller = JBossSAMLAuthnResponseFactory.getValidatingMarshaller(false);
       JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory().createResponse(rt);
       marshaller.marshal(jaxb, baos);
-      //marshaller.marshal(jaxb, System.out);
+      *///marshaller.marshal(jaxb, System.out);
       
       Document samlDom = DocumentUtil.getDocument(new String(baos.toByteArray()));
       NodeList nl = samlDom.getElementsByTagName("Attribute");     

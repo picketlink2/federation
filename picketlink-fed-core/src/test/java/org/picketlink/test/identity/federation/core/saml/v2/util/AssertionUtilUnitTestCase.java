@@ -26,14 +26,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
-
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 
 /**
  * Unit test the AssertionUtil
@@ -41,17 +38,14 @@ import org.picketlink.identity.federation.saml.v2.assertion.ObjectFactory;
  * @since Jun 3, 2009
  */
 public class AssertionUtilUnitTestCase extends TestCase
-{
-   private ObjectFactory of = SAMLAssertionFactory.getObjectFactory();
+{ 
    
    public void testValidAssertion() throws Exception
    {
-      NameIDType nameIdType = of.createNameIDType();
+      NameIDType nameIdType =  new NameIDType();
       nameIdType.setValue("somename");
       
-      AssertionType assertion = of.createAssertionType();
-      assertion.setID("SomeID");
-      assertion.setVersion(JBossSAMLConstants.VERSION_2_0.get());
+      AssertionType assertion = new AssertionType( "SomeID", XMLTimeUtil.getIssueInstant(), JBossSAMLConstants.VERSION_2_0.get() );
       assertion.setIssuer(nameIdType);
       
       //Assertions with no conditions are everlasting
@@ -61,7 +55,7 @@ public class AssertionUtilUnitTestCase extends TestCase
       
       XMLGregorianCalendar sometimeLater = XMLTimeUtil.add(now, 5555);
       
-      ConditionsType conditions = of.createConditionsType();
+      ConditionsType conditions = new ConditionsType();
       conditions.setNotBefore(now);
       conditions.setNotOnOrAfter(sometimeLater);
       assertion.setConditions(conditions); 
@@ -71,19 +65,17 @@ public class AssertionUtilUnitTestCase extends TestCase
    public void testExpiredAssertion() throws Exception
    {
       
-      NameIDType nameIdType = of.createNameIDType();
+      NameIDType nameIdType = new NameIDType();
       nameIdType.setValue("somename");
       
-      AssertionType assertion = of.createAssertionType();
-      assertion.setID("SomeID");
-      assertion.setVersion(JBossSAMLConstants.VERSION_2_0.get());
+      AssertionType assertion = new AssertionType( "SomeID", XMLTimeUtil.getIssueInstant(), JBossSAMLConstants.VERSION_2_0.get());
       assertion.setIssuer(nameIdType); 
       
       XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
       
       XMLGregorianCalendar sometimeAgo = XMLTimeUtil.subtract(now, 55555);
       
-      ConditionsType conditions = of.createConditionsType();
+      ConditionsType conditions = new ConditionsType();
       conditions.setNotBefore(XMLTimeUtil.subtract(now,55575));
       conditions.setNotOnOrAfter(sometimeAgo);
       assertion.setConditions(conditions); 

@@ -18,6 +18,7 @@
 package org.picketlink.identity.federation.core.util;
 
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Stack;
 
 import javax.xml.namespace.QName;
@@ -95,6 +96,26 @@ public class StaxUtil
       try
       {
          return xmlOutputFactory.createXMLStreamWriter(outStream, "UTF-8");
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException(e);
+      }
+   }
+   
+   /**
+    * Get an {@code XMLStreamWriter}
+    * 
+    * @param writer {@code Writer}
+    * @return
+    * @throws ProcessingException
+    */
+   public static XMLStreamWriter getXMLStreamWriter(final Writer writer ) throws ProcessingException
+   {
+      XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+      try
+      {
+         return xmlOutputFactory.createXMLStreamWriter( writer );
       }
       catch (XMLStreamException e)
       {

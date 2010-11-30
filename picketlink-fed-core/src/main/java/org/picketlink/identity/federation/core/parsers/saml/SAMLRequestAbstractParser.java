@@ -29,9 +29,10 @@ import javax.xml.stream.events.StartElement;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil; 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 
 /**
  * Base Class for SAML Request Parsing
@@ -65,7 +66,7 @@ public abstract class SAMLRequestAbstractParser
       
       Attribute destination = startElement.getAttributeByName( new QName( "Destination" ));
       if( destination != null )
-         request.setDestination( StaxParserUtil.getAttributeValue( destination ));
+         request.setDestination( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( destination )));
       
       Attribute consent = startElement.getAttributeByName( new QName( "Consent" ));
       if( consent != null )
