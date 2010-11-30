@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -51,38 +52,22 @@ public class AuthzDecisionStatementType
     extends StatementAbstractType
 {
 
-    protected List<ActionType> action; 
+    protected List<ActionType> action = new ArrayList<ActionType>(); 
     protected EvidenceType evidence; 
     protected String resource; 
     protected DecisionType decision;
 
     /**
-     * Gets the value of the action property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the action property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getAction().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link ActionType }
-     * 
-     * 
+     * Gets the value of the action property. 
      */
-    public List<ActionType> getAction() {
-        if (action == null) {
-            action = new ArrayList<ActionType>();
-        }
-        return this.action;
+    public List<ActionType> getAction() 
+    { 
+        return Collections.unmodifiableList( this.action );
+    }
+    
+    public void addAction( ActionType actionType )
+    {
+       action.add(actionType); 
     }
 
     /**

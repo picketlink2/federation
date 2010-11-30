@@ -65,6 +65,8 @@ public class AssertionType
    private AdviceType advice;
 
    private NameIDType issuer;
+   
+   private SubjectType subject;
 
    private ConditionsType conditions;
 
@@ -80,6 +82,16 @@ public class AssertionType
    public String getID()
    {
       return ID;
+   }
+
+   public SubjectType getSubject()
+   {
+      return subject;
+   }
+
+   public void setSubject(SubjectType subject)
+   {
+      this.subject = subject;
    }
 
    public XMLGregorianCalendar getIssueInstant()

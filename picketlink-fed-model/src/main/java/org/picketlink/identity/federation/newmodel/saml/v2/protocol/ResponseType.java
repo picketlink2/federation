@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType; 
 
 /**
  * <p>Java class for ResponseType complex type.
@@ -51,9 +51,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 public class ResponseType
 extends StatusResponseType
 { 
-   protected List<ChoiceType> assertions = new ArrayList<ResponseType.ChoiceType>();
+   protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
 
-   public void addAssertion( ChoiceType choice )
+   public void addAssertion( RTChoiceType choice )
    {
       assertions.add(choice);
    }
@@ -61,20 +61,20 @@ extends StatusResponseType
    /**
     * Gets a read only list of assertions
     */
-   public List<ChoiceType> getAssertions() 
+   public List<RTChoiceType> getAssertions() 
    {
       return Collections.unmodifiableList( assertions );
    }
 
-   public static class ChoiceType
+   public static class RTChoiceType
    {
       private AssertionType assertion;
       private EncryptedAssertionType encryptedAssertion;
-      public ChoiceType(AssertionType assertion)
+      public RTChoiceType(AssertionType assertion)
       { 
          this.assertion = assertion;
       }
-      public ChoiceType(EncryptedAssertionType encryptedAssertion)
+      public RTChoiceType(EncryptedAssertionType encryptedAssertion)
       { 
          this.encryptedAssertion = encryptedAssertion;
       }

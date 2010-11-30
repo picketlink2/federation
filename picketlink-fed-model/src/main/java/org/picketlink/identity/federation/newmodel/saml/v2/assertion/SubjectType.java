@@ -58,14 +58,14 @@ public class SubjectType
 {
    protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
-   protected SubType subType; 
+   protected STSubType subType; 
 
-   public SubType getSubType()
+   public STSubType getSubType()
    {
       return subType;
    }
 
-   public void setSubType(SubType subType)
+   public void setSubType(STSubType subType)
    {
       this.subType = subType;
    }
@@ -85,9 +85,11 @@ public class SubjectType
       subjectConfirmation.add( con );
    } 
 
-   public static class SubType
+   public static class STSubType
    {
       private BaseIDAbstractType baseID;
+      
+      private EncryptedElementType encryptedID;
 
       protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
@@ -99,6 +101,16 @@ public class SubjectType
       public BaseIDAbstractType getBaseID()
       {
          return baseID;
+      }  
+      
+      public EncryptedElementType getEncryptedID()
+      {
+         return encryptedID;
+      }
+
+      public void setEncryptedID(EncryptedElementType encryptedID)
+      {
+         this.encryptedID = encryptedID;
       }
 
       public void addConfirmation( SubjectConfirmationType con )

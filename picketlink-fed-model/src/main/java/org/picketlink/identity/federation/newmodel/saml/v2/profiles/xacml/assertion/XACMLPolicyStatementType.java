@@ -19,27 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
+package org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-
+import org.jboss.security.xacml.core.model.policy.PolicySetType;
+import org.jboss.security.xacml.core.model.policy.PolicyType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 
 /**
- * <p>Java class for AttributeStatementType complex type.
+ * <p>Java class for XACMLPolicyStatementType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="AttributeStatementType">
+ * &lt;complexType name="XACMLPolicyStatementType">
  *   &lt;complexContent>
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:assertion}StatementAbstractType">
- *       &lt;choice maxOccurs="unbounded">
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}Attribute"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}EncryptedAttribute"/>
+ *       &lt;choice maxOccurs="unbounded" minOccurs="0">
+ *         &lt;element ref="{urn:oasis:names:tc:xacml:2.0:policy:schema:os}Policy"/>
+ *         &lt;element ref="{urn:oasis:names:tc:xacml:2.0:policy:schema:os}PolicySet"/>
  *       &lt;/choice>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -48,46 +48,44 @@ import java.util.List;
  * 
  * 
  */ 
-public class AttributeStatementType
-extends StatementAbstractType
+public class XACMLPolicyStatementType
+    extends StatementAbstractType
 {
-   protected List<ASTChoiceType> attributes = new ArrayList<ASTChoiceType>();
-
-   public void addAttribute( ASTChoiceType attribute )
-   {
-      attributes.add( attribute );
-   }
-
-   /**
-    * Gets the attributes. 
-    */
-   public List<ASTChoiceType> getAttributes() 
-   {
-      return Collections.unmodifiableList( this.attributes );
-   }
-
-   public static class ASTChoiceType
-   {
-      private AttributeType attribute;
-      private EncryptedElementType encryptedAssertion;
-
-      public ASTChoiceType(AttributeType attribute)
+    public static class ChoiceType
+    {
+       private PolicyType policy;
+       private PolicySetType policySet;
+      public PolicyType getPolicy()
       {
-         super();
-         this.attribute = attribute;
+         return policy;
       }
-      public ASTChoiceType(EncryptedElementType encryptedAssertion)
+      public void setPolicy(PolicyType policy)
       {
-         super();
-         this.encryptedAssertion = encryptedAssertion;
+         this.policy = policy;
       }
-      public AttributeType getAttribute()
+      public PolicySetType getPolicySet()
       {
-         return attribute;
+         return policySet;
       }
-      public EncryptedElementType getEncryptedAssertion()
+      public void setPolicySet(PolicySetType policySet)
       {
-         return encryptedAssertion;
+         this.policySet = policySet;
       } 
-   }
+    }
+
+    protected List<ChoiceType> choiceTypeList = new ArrayList<ChoiceType>();
+
+    public void add(ChoiceType choice )
+    {
+       choiceTypeList.add(choice);
+    }
+    
+    /**
+     * Gets the value of the choiceTypeList property. 
+     */
+    public List<ChoiceType> getChoiceType() 
+    {
+        return choiceTypeList;
+    }
+
 }

@@ -47,10 +47,19 @@ public class NameIDType extends BaseIDAbstractType
     </attributeGroup>
     */
    
-   
+   private String value;
    private URI format;
-   private String sPProvidedID;
-  
+   private String sPProvidedID; 
+   
+   public String getValue()
+   {
+      return value;
+   }
+   public void setValue(String value)
+   {
+      this.value = value;
+   }
+   
    public String getsPProvidedID()
    {
       return sPProvidedID;
