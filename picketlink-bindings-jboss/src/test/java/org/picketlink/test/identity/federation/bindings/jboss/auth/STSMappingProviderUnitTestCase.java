@@ -78,9 +78,8 @@ public class STSMappingProviderUnitTestCase extends TestCase
       AssertionType assertion = new AssertionType( "ID_SOME", XMLTimeUtil.getIssueInstant(), JBossSAMLConstants.VERSION_2_0.get());
       AttributeStatementType attributeStatementType = new AttributeStatementType();
       assertion.addStatement( attributeStatementType );
-      AttributeType attributeType = new AttributeType();
-      attributeStatementType.addAttribute( new ASTChoiceType(attributeType));
-      attributeType.setName(roleAttributeName);
+      AttributeType attributeType = new AttributeType( roleAttributeName );
+      attributeStatementType.addAttribute( new ASTChoiceType(attributeType)); 
       attributeType.getAttributeValue().add(role1);
       attributeType.getAttributeValue().add(role2);
       

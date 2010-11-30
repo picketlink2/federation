@@ -252,7 +252,11 @@ public class SAMLAssertionWriter extends BaseWriter
    {
       StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get() , ASSERTION_NSURI.get() );  
 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME.get(), attributeType.getName() );
+      String attributeName = attributeType.getName();
+      if( attributeName != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME.get(), attributeName );
+      }
       
       String friendlyName = attributeType.getFriendlyName();
       if( StringUtil.isNotNull( friendlyName ))

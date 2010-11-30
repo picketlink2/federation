@@ -57,6 +57,11 @@ public class AttributeType
    protected String nameFormat; 
    protected String friendlyName; 
    private Map<QName, String> otherAttributes = new HashMap<QName, String>();
+   
+   public AttributeType( String name )
+   {
+      this.name = name;
+   }
 
    public void addAttributeValue( Object value )
    {

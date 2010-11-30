@@ -49,6 +49,7 @@ public enum JBossSAMLConstants
    CONSENT( "Consent" ),
    DESTINATION( "Destination" ),
    ENCODING( "Encoding" ),
+   ENCRYPTED_ASSERTION( "EncryptedAssertion" ),
    FORMAT( "Format" ),
    FRIENDLY_NAME( "FriendlyName" ),
    ID( "ID" ),

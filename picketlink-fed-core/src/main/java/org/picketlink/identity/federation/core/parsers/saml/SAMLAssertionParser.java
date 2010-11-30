@@ -28,6 +28,9 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -35,8 +38,11 @@ import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.*;
+import org.w3c.dom.Document;
 
 /**
  * Parse the saml assertion
@@ -52,7 +58,39 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {  
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+      String startElementName = StaxParserUtil.getStartElementName(startElement);
+      if( startElementName.equals( JBossSAMLConstants.ENCRYPTED_ASSERTION.get() ))
+      {
+         Document resultDocument;
+         try
+         {
+            resultDocument = DocumentUtil.createDocument();
+            DOMResult domResult = new DOMResult( resultDocument );
+            
+            //Let us parse <b><c><d> using transformer
+            StAXSource source = new StAXSource(xmlEventReader);
+            
+            Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+            transformer.transform( source, domResult );
+         }
+         catch ( Exception e)
+         {
+            throw new RuntimeException( e );
+         } 
+         
+         EncryptedAssertionType encryptedAssertion = new EncryptedAssertionType();
+         encryptedAssertion.setEncryptedElement( resultDocument.getDocumentElement() );
+         return encryptedAssertion; 
+      }
+      
+         
+         
+         
+         
+      startElement =  StaxParserUtil.getNextStartElement(xmlEventReader);
+      
+      //Special case: Encrypted Assertion 
       StaxParserUtil.validate(startElement, ASSERTION );
       AssertionType assertion = parseBaseAttributes( startElement ); 
 

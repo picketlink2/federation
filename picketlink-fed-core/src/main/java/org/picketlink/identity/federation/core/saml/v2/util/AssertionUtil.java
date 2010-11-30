@@ -74,8 +74,7 @@ public class AssertionUtil
    public static AttributeType createAttribute(String name, String nameFormat,
          Object... attributeValues)
    { 
-      AttributeType att = new AttributeType();
-      att.setName(name);
+      AttributeType att = new AttributeType( name ); 
       att.setNameFormat(nameFormat);
       if(attributeValues != null && attributeValues.length > 0)
       {

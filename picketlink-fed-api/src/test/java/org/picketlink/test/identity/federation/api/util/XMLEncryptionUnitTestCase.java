@@ -22,6 +22,7 @@
 package org.picketlink.test.identity.federation.api.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -79,22 +80,26 @@ public class XMLEncryptionUnitTestCase extends TestCase
       
       Element docElement = XMLEncryptionUtil.encryptElementInDocument(responseDoc,kp.getPublic(), sk, 
             128, assertionQName, true); 
-       
-      EncryptedAssertionType eet = sr.getEncryptedAssertion(DocumentUtil.getNodeAsStream(docElement)); 
+      
+     // System.out.println( DocumentUtil.getNodeAsString(docElement));
+
+      InputStream is = DocumentUtil.getNodeAsStream( docElement );
+      EncryptedAssertionType eet = sr.getEncryptedAssertion( is ); 
       rt.addAssertion( new RTChoiceType( eet ) ); 
       
-      RTChoiceType choiceType = rt.getAssertions().get(0);
+      RTChoiceType choiceType = rt.getAssertions().get(1);
       EncryptedAssertionType encryptedAssertionType = choiceType.getEncryptedAssertion();
       
       Document eetDoc = sr.convert( encryptedAssertionType );
       
       Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,kp.getPrivate());
-      
+
       //Let us use the encrypted doc element to decrypt it
+      
       ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
 
       AssertionType assertion = (AssertionType) newRT.getAssertions().get(0).getAssertion();
-      assertEquals("http://identityurl", assertion.getIssuer().getValue());
+      assertEquals("testPrincipal", assertion.getIssuer().getValue());
     
    }
    
@@ -118,6 +123,9 @@ public class XMLEncryptionUnitTestCase extends TestCase
       
       StringWriter sw = new StringWriter();
       sr.marshall(rt, sw);
+      
+
+      System.out.println( sw.toString() );
       
       //Create a brand new ResponseType
       ResponseType received = sr.getResponseType(new ByteArrayInputStream(sw.toString().getBytes("UTF-8")));

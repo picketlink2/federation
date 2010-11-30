@@ -28,10 +28,9 @@ import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
-import javax.xml.bind.Binder;
-import javax.xml.bind.JAXBElement;
 import javax.xml.crypto.dsig.SignatureMethod;
 
+import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
@@ -41,12 +40,11 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil; 
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -126,7 +124,6 @@ public class SignatureValidationUnitTestCase
       assertTrue(isValid);
    }
 
-   @SuppressWarnings("unchecked")
    @Test
    public void testSigningAnAssertionWithinResponse() throws Exception
    {

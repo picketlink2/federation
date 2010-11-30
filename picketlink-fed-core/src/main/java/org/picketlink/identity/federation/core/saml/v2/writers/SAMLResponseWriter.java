@@ -30,11 +30,14 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
@@ -42,6 +45,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeTy
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 /**
  * Write a SAML Response to stream
@@ -85,10 +89,24 @@ public class SAMLResponseWriter extends BaseWriter
          for( RTChoiceType choiceType: choiceTypes )
          {
             AssertionType assertion = choiceType.getAssertion();
-            if( assertion instanceof AssertionType )
+            if( assertion != null )
             {
                assertionWriter.write( (AssertionType) assertion );
             }
+            
+            EncryptedAssertionType encryptedAssertion = choiceType.getEncryptedAssertion();
+            if( encryptedAssertion != null )
+            {
+               Element encryptedElement = encryptedAssertion.getEncryptedElement();
+               try
+               {
+                  StaxUtil.writeCharacters(writer,  DocumentUtil.getNodeAsString(encryptedElement));
+               }
+               catch (ConfigurationException e)
+               {
+                  throw new ProcessingException( e );
+               }
+            } 
          }
       }
       StaxUtil.writeEndElement( writer); 

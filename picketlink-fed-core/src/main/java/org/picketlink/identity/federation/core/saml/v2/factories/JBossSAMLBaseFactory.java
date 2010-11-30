@@ -55,9 +55,8 @@ public class JBossSAMLBaseFactory
     */
    public static AttributeType createAttributeForRole(String roleName)
    {
-      AttributeType att = new AttributeType();
-      att.setFriendlyName("role");
-      att.setName("role");
+      AttributeType att = new AttributeType( "role" );
+      att.setFriendlyName("role"); 
       att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_BASIC.get());
       
       //rolename 
@@ -74,7 +73,7 @@ public class JBossSAMLBaseFactory
    public static AttributeStatementType createAttributeStatement(String attributeValue)
    {
       AttributeStatementType attribStatement = new AttributeStatementType();
-      AttributeType att = new AttributeType();
+      AttributeType att = new AttributeType( attributeValue );
       att.addAttributeValue(attributeValue);
       
       attribStatement.addAttribute( new ASTChoiceType( att ));

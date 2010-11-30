@@ -85,8 +85,12 @@ public class SAMLParser extends AbstractParser
                SAMLResponseParser responseParser = new SAMLResponseParser();
                return responseParser.parse( xmlEventReader ); 
             }
-            else
-               throw new RuntimeException( "Unknown Tag:" + elementName );
+            else if( JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI) )
+            {
+               SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
+               return assertionParser.parse( xmlEventReader );
+            }
+            else throw new RuntimeException( "Unknown Tag:" + elementName );
          }
          else
          {

@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -67,7 +68,7 @@ public class AuthnContextType
 
    private AuthnContextTypeSequence sequence;
 
-   private Set<URIType> URITypes;
+   private Set<URIType> URITypes = new HashSet<URIType>();
 
 
    public void addAuthenticatingAuthority( URI aa )

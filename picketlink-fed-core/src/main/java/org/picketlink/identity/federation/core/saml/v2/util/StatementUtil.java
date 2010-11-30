@@ -74,7 +74,7 @@ public class StatementUtil
                Collection<?> roles = (Collection<?>) value;
                for (Object role : roles)
                {
-                  AttributeType roleAttr = new AttributeType();
+                  AttributeType roleAttr = new AttributeType( "Role" );
                   roleAttr.addAttributeValue(role);
                   attrStatement.addAttribute( new ASTChoiceType( roleAttr ));
                }
@@ -83,29 +83,33 @@ public class StatementUtil
 
          else
          {
-            AttributeType att = getX500Attribute();
+            AttributeType att;
             Object value = attributes.get(key);
 
             if (AttributeConstants.EMAIL_ADDRESS.equals(key))
             {
-               att.setFriendlyName(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName());
-               att.setName(X500SAMLProfileConstants.EMAIL_ADDRESS.get());
+               att = getX500Attribute( X500SAMLProfileConstants.EMAIL_ADDRESS.get() );
+               att.setFriendlyName(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName()); 
             }
             else if (AttributeConstants.EMPLOYEE_NUMBER.equals(key))
             {
-               att.setFriendlyName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.getFriendlyName());
-               att.setName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.get());
+               att = getX500Attribute( X500SAMLProfileConstants.EMPLOYEE_NUMBER.get() );
+               att.setFriendlyName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.getFriendlyName()); 
             }
             else if (AttributeConstants.GIVEN_NAME.equals(key))
             {
-               att.setFriendlyName(X500SAMLProfileConstants.GIVENNAME.getFriendlyName());
-               att.setName(X500SAMLProfileConstants.GIVENNAME.get());
+               att = getX500Attribute( X500SAMLProfileConstants.GIVENNAME.get() );
+               att.setFriendlyName(X500SAMLProfileConstants.GIVENNAME.getFriendlyName()); 
             }
             else if (AttributeConstants.TELEPHONE.equals(key))
             {
+               att = getX500Attribute( X500SAMLProfileConstants.TELEPHONE.get() );
                att.setFriendlyName(X500SAMLProfileConstants.TELEPHONE.getFriendlyName());
                att.setName(X500SAMLProfileConstants.TELEPHONE.get());
             }
+            else
+               throw new RuntimeException( "Unknown:" + key );
+            
             att.addAttributeValue( value );
             attrStatement.addAttribute( new ASTChoiceType( att ));
          }
@@ -123,16 +127,16 @@ public class StatementUtil
       AttributeStatementType attrStatement = new AttributeStatementType();
       for (String role : roles)
       {
-         AttributeType attr = new AttributeType();
+         AttributeType attr = new AttributeType( "Role" );
          attr.addAttributeValue( role );
          attrStatement.addAttribute( new ASTChoiceType(  attr ));
       }
       return attrStatement;
    }
 
-   private static AttributeType getX500Attribute()
+   private static AttributeType getX500Attribute( String name )
    {
-      AttributeType att = new AttributeType();
+      AttributeType att = new AttributeType( name );
       att.getOtherAttributes().put(X500_QNAME, "LDAP");
 
       att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get());

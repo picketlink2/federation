@@ -305,6 +305,8 @@ public class SAML2Response
       /*JAXBContext jaxb = JAXBUtil.getJAXBContext(EncryptedElementType.class);
       Binder<Node> binder = jaxb.createBinder();
       */
+      if( encryptedElementType == null )
+         throw new IllegalArgumentException( "encryptedElementType is null ");
       Document doc = DocumentUtil.createDocument();
       Node importedNode = doc.importNode( encryptedElementType.getEncryptedElement(), true );
       doc.appendChild(importedNode);

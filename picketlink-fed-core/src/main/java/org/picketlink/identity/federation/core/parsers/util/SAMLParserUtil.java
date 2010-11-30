@@ -85,27 +85,27 @@ public class SAMLParserUtil
     * @throws ParsingException
     */
    public static AttributeType parseAttribute( XMLEventReader xmlEventReader ) throws ParsingException
-   {
-      AttributeType attributeType = new AttributeType();
-
+   {   
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader); 
       StaxParserUtil.validate( startElement, JBossSAMLConstants.ATTRIBUTE.get() );
-      
+      AttributeType attributeType = null;
+       
+      Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
+      if( name == null )
+         throw new RuntimeException( "Required attribute Name in Attribute" );
+      attributeType = new AttributeType( StaxParserUtil.getAttributeValue( name ));
+
       //Look for X500 Encoding
       QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
             JBossSAMLConstants.ENCODING.get() );
       Attribute x500EncodingAttr = startElement.getAttributeByName( x500EncodingName );
       
       if( x500EncodingAttr != null )
-      {
+      {   
          attributeType.getOtherAttributes().put( x500EncodingAttr.getName(), StaxParserUtil.getAttributeValue( x500EncodingAttr ));
       }
-
-      Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
-      if( name == null )
-         throw new RuntimeException( "Required attribute Name in Attribute" );
-      attributeType.setName( StaxParserUtil.getAttributeValue( name ));
-
+      
+      
       Attribute friendlyName = startElement.getAttributeByName( new QName( JBossSAMLConstants.FRIENDLY_NAME.get() ));
       if( friendlyName != null ) 
          attributeType.setFriendlyName( StaxParserUtil.getAttributeValue( friendlyName ));
@@ -127,7 +127,7 @@ public class SAMLParserUtil
          if( JBossSAMLConstants.ATTRIBUTE_VALUE.get().equals( tag ) )
          {
             Object attributeValue = parseAttributeValue(xmlEventReader);
-            attributeType.getAttributeValue().add( attributeValue ); 
+            attributeType.addAttributeValue( attributeValue ); 
          }
          else throw new RuntimeException( "Unknown tag:" + tag );
       }

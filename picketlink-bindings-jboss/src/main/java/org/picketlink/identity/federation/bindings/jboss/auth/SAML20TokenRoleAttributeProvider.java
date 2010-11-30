@@ -84,8 +84,7 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
       else
       {
           AttributeStatementType attributeStatement = new AttributeStatementType();
-          AttributeType rolesAttribute = new AttributeType();
-          rolesAttribute.setName(tokenRoleAttributeName);
+          AttributeType rolesAttribute = new AttributeType( tokenRoleAttributeName ); 
           attributeStatement.addAttribute( new ASTChoiceType(rolesAttribute) );
           
           List<Object> roles = rolesAttribute.getAttributeValue();

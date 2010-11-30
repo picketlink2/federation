@@ -34,8 +34,8 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType; 
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType; 
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 
 /**
  * Parse the SLO Response

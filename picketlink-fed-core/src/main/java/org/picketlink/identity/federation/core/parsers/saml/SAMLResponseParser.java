@@ -31,8 +31,10 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 
 /**
  * Parse the SAML Response
@@ -76,7 +78,7 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
          else if( JBossSAMLConstants.ASSERTION.get().equals( elementName ))
          {
             SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
-            response.getAssertionOrEncryptedAssertion().add( assertionParser.parse(xmlEventReader));
+            response.addAssertion( new RTChoiceType( (AssertionType) assertionParser.parse(xmlEventReader ) ));
          }
          else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
          {
