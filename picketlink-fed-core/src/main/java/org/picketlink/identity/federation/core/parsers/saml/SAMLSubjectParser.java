@@ -121,14 +121,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             //Get the end tag
             EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
             StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get() );
-         }  
-         else if( JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equals( tag ))
-         {
-            throw new RuntimeException( "NYI" );
-            /*AttributeStatementType attributeStatement = SAMLParserUtil.parseAttributeStatement(xmlEventReader);
-            JAXBElement<?> jaxbEl = SAMLAssertionFactory.getObjectFactory().createAttributeStatement(attributeStatement);
-            subject.getContent().add( jaxbEl );*/
-         }
+         } 
          else throw new RuntimeException( "Unknown tag:" + tag );    
       } 
       return subject;
@@ -241,5 +234,5 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          }
       } 
       return keyInfo;
-   }
+   } 
 }

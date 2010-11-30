@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.junit.Test;
@@ -41,9 +40,19 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil; 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.*;
+import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 
 /**
@@ -74,11 +83,11 @@ public class SAMLAssertionParserTestCase
       STSubType subType = subject.getSubType();
       NameIDType subjectNameID = (NameIDType) subType.getBaseID();
       assertEquals( "jduke", subjectNameID.getValue() );
-      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() );
-      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0 );
-      SubjectConfirmationDataType subjectConfirmationDataType = subjectConfirmation.getSubjectConfirmationData();
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ) , subjectConfirmationDataType.getNotBefore() );
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , subjectConfirmationDataType.getNotOnOrAfter() );
+      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
+      
+      ConditionsType conditions = assertion.getConditions(); 
+      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ) , conditions.getNotBefore() );
+      assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() ); 
       
       /*List<JAXBElement<?>> content = subject.getContent(); 
 
@@ -144,7 +153,7 @@ public class SAMLAssertionParserTestCase
       
       AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) conditions.getConditions().get(0);
       assertEquals( 1, audienceRestrictionType.getAudience().size() );
-      assertEquals( "http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get( 0 ));
+      assertEquals( "http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get( 0 ).toASCIIString());
       
       /*List<JAXBElement<?>> content = subject.getContent(); 
 
@@ -230,7 +239,7 @@ public class SAMLAssertionParserTestCase
       STSubType subType = subject.getSubType();
       NameIDType subjectNameID = (NameIDType) subType.getBaseID();
       assertEquals( "3f7b3dcf-1674-4ecd-92c8-1544f346baf8", subjectNameID.getValue() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat() ); 
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat().toString() ); 
       
       SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0 );
       assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() ); 
@@ -246,7 +255,7 @@ public class SAMLAssertionParserTestCase
       
       AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) conditions.getConditions().get(0);
       assertEquals( 1, audienceRestrictionType.getAudience().size() );
-      assertEquals( "https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get( 0 ));
+      assertEquals( "https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get( 0 ).toString());
       
       
       /*List<JAXBElement<?>> content = subject.getContent(); 

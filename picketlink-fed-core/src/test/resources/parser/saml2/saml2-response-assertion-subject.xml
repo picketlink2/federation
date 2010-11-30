@@ -17,6 +17,8 @@
 					InResponseTo="ID_04ded476-d73c-48af-b3a9-232a52905ffb" NotBefore="2010-11-04T00:19:16.842-05:00"
 					NotOnOrAfter="2010-11-04T00:19:16.842-05:00" Recipient="http://localhost:8080/employee/"></saml:SubjectConfirmationData>
 			</saml:SubjectConfirmation>
+		
+		</saml:Subject>
 			<saml:AttributeStatement>
 				<saml:Attribute Name="role" FriendlyName="role"
 					NameFormat="role">
@@ -31,6 +33,5 @@
 					</saml:AttributeValue>
 				</saml:Attribute>
 			</saml:AttributeStatement>
-		</saml:Subject>
 	</saml:Assertion>
 </samlp:Response>

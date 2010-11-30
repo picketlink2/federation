@@ -89,7 +89,8 @@ public class SAMLAssertionWriter extends BaseWriter
       StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), assertion.getIssueInstant().toString() );     
 
       NameIDType issuer = assertion.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
+      if( issuer != null )
+         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
       
       SubjectType subject = assertion.getSubject();
       if( subject != null )

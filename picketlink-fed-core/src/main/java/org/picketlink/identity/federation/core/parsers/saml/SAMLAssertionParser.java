@@ -83,10 +83,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          encryptedAssertion.setEncryptedElement( resultDocument.getDocumentElement() );
          return encryptedAssertion; 
       }
-      
-         
-         
-         
+          
          
       startElement =  StaxParserUtil.getNextStartElement(xmlEventReader);
       

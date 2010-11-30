@@ -54,11 +54,11 @@ public class SAMLAuthnRequestParserTestCase
       AuthnRequestType authnRequest = ( AuthnRequestType ) parser.parse(configStream);
       assertNotNull( "AuthnRequestType is not null", authnRequest );
       
-      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest.getAssertionConsumerServiceURL() );
-      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination() );
+      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest.getAssertionConsumerServiceURL().toString() );
+      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination().toString() );
       assertEquals( "a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID() );
       assertEquals( XMLTimeUtil.parse( "2007-12-17T18:40:52.203Z" ), authnRequest.getIssueInstant() );
-      assertEquals( "urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding() );
+      assertEquals( "urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString() );
       assertEquals( "Test SAML2 SP", authnRequest.getProviderName() ); 
       assertEquals( "2.0", authnRequest.getVersion() );
       
@@ -67,7 +67,7 @@ public class SAMLAuthnRequestParserTestCase
       
       //NameID Policy
       NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
-      assertEquals( "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat() );
+      assertEquals( "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString() );
       assertEquals( Boolean.TRUE , nameIDPolicy.isAllowCreate() );
       
       //Try out writing

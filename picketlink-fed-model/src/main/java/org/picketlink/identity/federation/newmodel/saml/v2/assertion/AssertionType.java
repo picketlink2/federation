@@ -23,8 +23,8 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -70,7 +70,7 @@ public class AssertionType
 
    private ConditionsType conditions;
 
-   private Set<StatementAbstractType> statements = new TreeSet<StatementAbstractType>();
+   private Set<StatementAbstractType> statements = new LinkedHashSet<StatementAbstractType>();
 
    public AssertionType(String iD, XMLGregorianCalendar issueInstant, String version)
    { 

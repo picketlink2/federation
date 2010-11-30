@@ -37,7 +37,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeSt
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclRefType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -220,7 +220,7 @@ public class SAMLParserUtil
       {
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
-         AuthnContextDeclType aAuthnContextDeclType = new AuthnContextDeclType( NetworkUtil.createURI(text));
+         AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType( NetworkUtil.createURI(text));
          authnContextType.addURIType(aAuthnContextDeclType); 
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );

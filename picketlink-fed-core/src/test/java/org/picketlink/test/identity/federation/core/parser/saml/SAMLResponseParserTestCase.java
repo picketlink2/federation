@@ -30,14 +30,12 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
- 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil; 
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
@@ -49,8 +47,9 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAb
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.*;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
 
 /**
  * Validate the parsing of SAML2 Response
@@ -78,7 +77,7 @@ public class SAMLResponseParserTestCase
       
       //Status
       StatusType status = response.getStatus();
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString() );
       
       List<RTChoiceType> assertionList = response.getAssertions();
       assertEquals( 2, assertionList.size() );
@@ -149,7 +148,7 @@ public class SAMLResponseParserTestCase
       
       //Status
       StatusType status = response.getStatus();
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString() );
       
       //Get the assertion
       AssertionType assertion = (AssertionType) response.getAssertions().get(0).getAssertion();
@@ -164,7 +163,7 @@ public class SAMLResponseParserTestCase
       
       NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals( "anil", subjectNameID.getValue() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent", subjectNameID.getFormat() ); 
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent", subjectNameID.getFormat().toString() ); 
       
       SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0);
 

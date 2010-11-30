@@ -66,8 +66,8 @@ public class SAMLSloResponseParserTestCase
       
       //Status
       StatusType status = response.getStatus();
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue().toString() );
+      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue().toString() );
       
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
       ByteArrayOutputStream baos = new ByteArrayOutputStream();

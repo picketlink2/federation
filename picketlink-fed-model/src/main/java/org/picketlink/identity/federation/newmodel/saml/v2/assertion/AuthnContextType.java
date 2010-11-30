@@ -25,8 +25,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 
@@ -64,7 +64,7 @@ import java.util.TreeSet;
  */ 
 public class AuthnContextType 
 {  
-   private Set<URI> authenticatingAuthority = new TreeSet<URI>();
+   private Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
 
    private AuthnContextTypeSequence sequence;
 
