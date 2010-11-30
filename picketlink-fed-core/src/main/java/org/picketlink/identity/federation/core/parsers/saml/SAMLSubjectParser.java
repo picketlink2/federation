@@ -70,6 +70,8 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             EndElement endElement = (EndElement) xmlEvent; 
             if( StaxParserUtil.matches(endElement , JBossSAMLConstants.SUBJECT.get() )) 
                break;  
+            else
+               throw new RuntimeException( "Unknown End Element:" + StaxParserUtil.getEndElementName( endElement ) );
          }
 
          StartElement peekedElement  = StaxParserUtil.peekNextStartElement( xmlEventReader  );

@@ -85,6 +85,8 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             String endElementTag = StaxParserUtil.getEndElementName( endElement );
             if( endElementTag.equals( WSTrustConstants.RST ) )
                break;
+            else
+               throw new RuntimeException( "Unknown End Element:" + StaxParserUtil.getEndElementName( endElement ) );
          }
 
          try

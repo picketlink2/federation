@@ -70,6 +70,8 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             String endElementTag = StaxParserUtil.getEndElementName( endElement );
             if( endElementTag.equals( JBossSAMLConstants.ASSERTION.get() ) )
                break;
+            else
+               throw new RuntimeException( "Unknown End Element:" + endElementTag );
          }
          
          StartElement peekedElement = null;

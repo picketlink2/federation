@@ -68,6 +68,8 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             authnRequest.setNameIDPolicy( getNameIDPolicy( startElement ));
          }
+         else
+            throw new RuntimeException( "Unknown Element:" + elementName );
       }
       return authnRequest;
    }
