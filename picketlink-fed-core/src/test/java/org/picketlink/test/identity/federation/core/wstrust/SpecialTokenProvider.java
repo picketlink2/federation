@@ -95,10 +95,14 @@ public class SpecialTokenProvider implements SecurityTokenProvider
 
          String namespaceURI = "http://www.tokens.org";
          Element root = doc.createElementNS(namespaceURI, "token:SpecialToken");
-         root.appendChild(doc.createTextNode("Principal:" + caller));
+         Element child = doc.createElementNS(namespaceURI, "token:SpecialTokenValue");
+         child.appendChild(doc.createTextNode("Principal:" + caller));
+         root.appendChild(child);
          String id = IDGenerator.create("ID_");
          root.setAttributeNS(namespaceURI, "ID", id);
          root.setAttributeNS(namespaceURI, "TokenType", tokenType.toString());
+         root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:token", namespaceURI);
+         
          doc.appendChild(root);
 
          SecurityToken token = new StandardSecurityToken(tokenType.toString(), root, id);

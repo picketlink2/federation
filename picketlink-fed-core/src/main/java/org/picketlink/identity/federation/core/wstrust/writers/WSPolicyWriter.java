@@ -66,10 +66,9 @@ public class WSPolicyWriter
       {
          for( Object content: contentList )
          {
-            JAXBElement<?> jaxb = (JAXBElement<?>) content;
-            if( EndpointReferenceType.class.equals( jaxb.getDeclaredType() ) )
+            if( content instanceof EndpointReferenceType )
             {
-               EndpointReferenceType endpointReference = (EndpointReferenceType) jaxb.getValue();
+               EndpointReferenceType endpointReference = (EndpointReferenceType) content;
                WSAddressingWriter wsAddressingWriter = new WSAddressingWriter(this.writer);
                wsAddressingWriter.write(endpointReference);
             }

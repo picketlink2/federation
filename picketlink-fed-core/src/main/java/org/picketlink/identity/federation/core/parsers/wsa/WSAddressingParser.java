@@ -34,7 +34,6 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
-import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
 
 /**
  * <p>
@@ -87,7 +86,7 @@ public class WSAddressingParser extends AbstractParser
                EndElement endElement = (EndElement)xmlEvent;
                StaxParserUtil.validate( endElement, ENDPOINT_REFERENCE );
                
-               return new ObjectFactory().createEndpointReference( reference );                  
+               return reference;                  
             }  
          }
          else

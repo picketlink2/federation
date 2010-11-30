@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2009, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2009, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
@@ -167,8 +163,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
                this.attributeProvider.setProperties(this.properties);
             }
             else
-               logger.warn("Attribute provider not installed: " + attributeProviderClassName +  
-                     "is not an instance of SAML20TokenAttributeProvider");
+               logger.warn("Attribute provider not installed: " + attributeProviderClassName
+                     + "is not an instance of SAML20TokenAttributeProvider");
          }
          catch (PrivilegedActionException pae)
          {
@@ -182,7 +178,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    *   cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void cancelToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -203,7 +199,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    *   issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void issueToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -288,7 +284,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       // set the SAML assertion attached reference.
       KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, "#" + assertionID);
       Map<QName, String> attributes = new HashMap<QName, String>();
-      attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType"), SAMLUtil.SAML2_TOKEN_TYPE);
+      attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType", WSTrustConstants.WSSE.PREFIX_11),
+            SAMLUtil.SAML2_TOKEN_TYPE);
       RequestedReferenceType attachedReference = WSTrustUtil.createRequestedReference(keyIdentifier, attributes);
       context.setAttachedReference(attachedReference);
    }
@@ -297,7 +294,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    *   renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void renewToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -364,7 +361,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
-    *   validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
+    * validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
    public void validateToken(WSTrustRequestContext context) throws WSTrustException
    {
@@ -431,8 +428,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * <p>
     * Checks whether the specified element is a SAMLV2.0 assertion or not.
     * </p>
-    *  
-    * @param element the {@code Element} being verified.
+    * 
+    * @param element
+    *           the {@code Element} being verified.
     * @return {@code true} if the element is a SAMLV2.0 assertion; {@code false} otherwise.
     */
    private boolean isAssertion(Element element)

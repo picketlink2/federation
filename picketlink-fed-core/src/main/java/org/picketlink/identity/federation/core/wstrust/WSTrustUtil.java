@@ -53,7 +53,6 @@ import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
-import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
@@ -116,8 +115,7 @@ public class WSTrustUtil
          Map<QName, String> attributes)
    {
       SecurityTokenReferenceType securityTokenReference = new SecurityTokenReferenceType();
-      securityTokenReference.getAny().add(
-            new org.picketlink.identity.federation.ws.wss.secext.ObjectFactory().createKeyIdentifier(keyIdentifier));
+      securityTokenReference.getAny().add(keyIdentifier);
       securityTokenReference.getOtherAttributes().putAll(attributes);
       RequestedReferenceType reference = new RequestedReferenceType();
       reference.setSecurityTokenReference(securityTokenReference);
@@ -140,7 +138,7 @@ public class WSTrustUtil
       EndpointReferenceType reference = new EndpointReferenceType();
       reference.setAddress(attributedURI);
       AppliesTo appliesTo = new AppliesTo();
-      appliesTo.getAny().add(new ObjectFactory().createEndpointReference(reference));
+      appliesTo.getAny().add(reference);
 
       return appliesTo;
    }

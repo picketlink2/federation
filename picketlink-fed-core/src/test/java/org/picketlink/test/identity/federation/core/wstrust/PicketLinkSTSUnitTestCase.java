@@ -48,6 +48,7 @@ import junit.framework.TestCase;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
@@ -58,7 +59,6 @@ import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.StandardRequestHandler;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
@@ -68,7 +68,7 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
@@ -82,6 +82,7 @@ import org.picketlink.identity.federation.ws.addressing.ObjectFactory;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
+import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
@@ -163,7 +164,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testSTSConfiguration() throws Exception
    {
@@ -241,7 +243,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeCustom() throws Exception
    {
@@ -252,9 +255,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
-
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
       // validate the security token response.
       this.validateCustomTokenResponse(baseResponse);
    }
@@ -294,7 +296,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20() throws Exception
    {
@@ -305,9 +308,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
-
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
       // validate the security token response.
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
    }
@@ -319,7 +321,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * case, the request should be handled by the custom {@code SpecialTokenProvider}.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeCustomAppliesTo() throws Exception
    {
@@ -330,8 +333,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response.
       this.validateCustomTokenResponse(baseResponse);
@@ -344,7 +347,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * case, the request should be handled by the standard {@code SAML20TokenProvider}.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20AppliesTo() throws Exception
    {
@@ -354,8 +358,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response.
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
@@ -380,7 +384,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the request).
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20OnBehalfOf() throws Exception
    {
@@ -394,8 +399,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response (assertion principal should be anotherduke as specified by OnBehalfOf).
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "anotherduke", SAMLUtil.SAML2_SENDER_VOUCHES_URI);
@@ -408,7 +413,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * this key as the proof token. The WS-Trust response should contain the STS-generated key.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithSTSGeneratedSymmetricKey() throws Exception
@@ -423,8 +429,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response.
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
@@ -439,10 +445,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       RequestedProofTokenType proofToken = response.getRequestedProofToken();
       assertNotNull("Unexpected null proof token", proofToken);
-      assertTrue(proofToken.getAny() instanceof JAXBElement);
-      JAXBElement proofElement = (JAXBElement) proofToken.getAny();
-      assertEquals("Unexpected proof token content", BinarySecretType.class, proofElement.getDeclaredType());
-      BinarySecretType serverBinarySecret = (BinarySecretType) proofElement.getValue();
+      assertTrue(proofToken.getAny() instanceof BinarySecretType);
+      BinarySecretType serverBinarySecret = (BinarySecretType) proofToken.getAny();
       assertNotNull("Unexpected null secret", serverBinarySecret.getValue());
       // default key size is 128 bits (16 bytes).
       byte[] encodedSecret = serverBinarySecret.getValue();
@@ -457,7 +461,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * should include the STS key to allow reconstruction of the combined key and the algorithm used to combine the keys.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    @SuppressWarnings("rawtypes")
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
@@ -482,8 +487,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // invoke the token service.
       Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response.
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
@@ -497,20 +502,15 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       RequestedProofTokenType proofToken = response.getRequestedProofToken();
       assertNotNull("Unexpected null proof token", proofToken);
-      assertTrue(proofToken.getAny() instanceof JAXBElement);
-      JAXBElement<?> proofElement = (JAXBElement<?>) proofToken.getAny();
-
-      // proof token should contain only the computed key algorithm.
-      assertEquals("Unexpected proof token content", "ComputedKey", proofElement.getName().getLocalPart());
-      assertEquals("Unexpected computed key algorithm", WSTrustConstants.CK_PSHA1, proofElement.getValue());
+      assertTrue(proofToken.getAny() instanceof ComputedKeyType);
+      ComputedKeyType computedKey = (ComputedKeyType) proofToken.getAny();
+      assertEquals("Unexpected computed key algorithm", WSTrustConstants.CK_PSHA1, computedKey.getAlgorithm());
 
       // server entropy must have been included in the response to allow reconstruction of the computed key.
       EntropyType serverEntropy = response.getEntropy();
       assertNotNull("Unexpected null server entropy");
       assertEquals("Invalid number of elements in server entropy", 1, serverEntropy.getAny().size());
-      JAXBElement serverEntropyContent = (JAXBElement) serverEntropy.getAny().get(0);
-      assertEquals("Unexpected proof token content", BinarySecretType.class, serverEntropyContent.getDeclaredType());
-      BinarySecretType serverBinarySecret = (BinarySecretType) serverEntropyContent.getValue();
+      BinarySecretType serverBinarySecret = (BinarySecretType) serverEntropy.getAny().get(0);
       assertEquals("Unexpected binary secret type", WSTrustConstants.BS_TYPE_NONCE, serverBinarySecret.getType());
       assertNotNull("Unexpected null secret value", serverBinarySecret.getValue());
       // get the base64 decoded
@@ -524,7 +524,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * The STS must include the specified certificate in the SAML subject confirmation.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20WithCertificate() throws Exception
    {
@@ -542,9 +543,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // invoke the token service.
       Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
-
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
       // validate the security token response.
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
@@ -560,7 +560,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * STS must include the specified public key in the SAML subject confirmation.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20WithPublicKey() throws Exception
    {
@@ -579,8 +580,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // invoke the token service.
       Source requestMessage = this.createSourceFromRequest(request);
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+            .parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the security token response.
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
@@ -597,7 +598,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the assertion validated, checking the validation results.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20Validate() throws Exception
    {
@@ -605,20 +607,19 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
 
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
       Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      WSTrustParser parser = new WSTrustParser();
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil
+            .getSourceAsStream(responseMessage));
 
       // validate the response and get the SAML assertion from the request.
-      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
-            SAMLUtil.SAML2_BEARER_URI);
+      this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
-          .getAny();
+            .getAny();
 
       // now construct a WS-Trust validate request with the generated assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, WSTrustConstants.STATUS_TYPE,
@@ -629,7 +630,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the response contents.
       assertNotNull("Unexpected null response", baseResponse);
@@ -648,8 +649,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertion.getFirstChild().getFirstChild().setNodeValue("Tempered Issuer");
       request.getValidateTarget().setAny(assertion);
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      collection = (RequestSecurityTokenResponseCollection) WSTrustJAXBFactory.getInstance()
-            .parseRequestSecurityTokenResponse(responseMessage);
+      collection = (RequestSecurityTokenResponseCollection) parser.parse(DocumentUtil
+            .getSourceAsStream(responseMessage));
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       response = collection.getRequestSecurityTokenResponses().get(0);
       assertEquals("Unexpected response context", "validatecontext", response.getContext());
@@ -666,7 +667,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * assertion renewed (i.e. get a new assertion with an updated lifetime).
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20Renew() throws Exception
    {
@@ -674,13 +676,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
             "http://services.testcorp.org/provider2");
 
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
       Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      WSTrustParser parser = new WSTrustParser();
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil
+            .getSourceAsStream(responseMessage));
 
       // validate the response and get the SAML assertion from the request.
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
@@ -696,7 +698,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the renew response contents and get the renewed token.
       this.validateSAMLAssertionResponse(baseResponse, "renewcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
@@ -723,7 +725,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * the assertion. A canceled assertion cannot be renewed or considered valid anymore.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeSAML20Cancel() throws Exception
    {
@@ -731,13 +734,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
             SAMLUtil.SAML2_TOKEN_TYPE, null);
 
-      // use the factory to marshall the request.
-      WSTrustJAXBFactory factory = WSTrustJAXBFactory.getInstance();
       Source requestMessage = this.createSourceFromRequest(request);
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
-      BaseRequestSecurityTokenResponse baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      WSTrustParser parser = new WSTrustParser();
+      BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil
+            .getSourceAsStream(responseMessage));
 
       // validate the response and get the SAML assertion from the request.
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
@@ -753,7 +756,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      baseResponse = factory.parseRequestSecurityTokenResponse(responseMessage);
+      baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the response contents.
       assertNotNull("Unexpected null response", baseResponse);
@@ -773,7 +776,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // the response should contain a status indicating that the token is not valid.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      collection = (RequestSecurityTokenResponseCollection) factory.parseRequestSecurityTokenResponse(responseMessage);
+      collection = (RequestSecurityTokenResponseCollection) parser.parse(DocumentUtil
+            .getSourceAsStream(responseMessage));
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       response = collection.getRequestSecurityTokenResponses().get(0);
       assertEquals("Unexpected response context", "validatecontext", response.getContext());
@@ -810,7 +814,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * security token service.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvokeUnknownTokenType() throws Exception
    {
@@ -840,7 +845,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * This test verifies if the token service is correctly identifying invalid issue requests.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvalidIssueRequests() throws Exception
    {
@@ -885,7 +891,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * This test verifies if the token service is correctly identifying invalid renew requests.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvalidRenewRequests() throws Exception
    {
@@ -944,7 +951,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * This test verifies if the token service is correctly identifying invalid validate requests.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvalidValidateRequests() throws Exception
    {
@@ -1003,7 +1011,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * This test verifies if the token service is correctly identifying invalid cancel requests.
     * </p>
     * 
-    * @throws Exception if an error occurs while running the test.
+    * @throws Exception
+    *            if an error occurs while running the test.
     */
    public void testInvalidCancelRequests() throws Exception
    {
@@ -1063,8 +1072,10 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * SpecialTokenProvider}.
     * </p>
     * 
-    * @param baseResponse a reference to the WS-Trust response that was sent by the STS.
-    * @throws Exception if one of the validation performed fail.
+    * @param baseResponse
+    *           a reference to the WS-Trust response that was sent by the STS.
+    * @throws Exception
+    *            if one of the validation performed fail.
     */
    private void validateCustomTokenResponse(BaseRequestSecurityTokenResponse baseResponse) throws Exception
    {
@@ -1089,10 +1100,11 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNotNull("Unexpected null token", token);
       assertTrue("Unexpected token class", token instanceof Element);
       Element element = (Element) requestedToken.getAny();
+      assertEquals("Unexpected root element name", "SpecialToken", element.getLocalName());
       assertEquals("Unexpected namespace value", "http://www.tokens.org", element.getNamespaceURI());
-
-      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken", element.getAttributeNS(
-            "http://www.tokens.org", "TokenType"));
+      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken", element.getAttribute("TokenType"));
+      element = (Element) element.getFirstChild();
+      assertEquals("Unexpected child element name", "SpecialTokenValue", element.getLocalName());
       assertEquals("Unexpected token value", "Principal:jduke", element.getFirstChild().getNodeValue());
    }
 
@@ -1102,13 +1114,18 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * SAML20TokenProvider}.
     * </p>
     * 
-    * @param baseResponse a reference to the WS-Trust response that was sent by the STS.
-    * @param context the expected name of the response context.
-    * @param principal the principal that is expected to be seen in the assertion subject.
-    * @param confirmationMethod the confirmation method that is expected to be seen in the assertion subject.
+    * @param baseResponse
+    *           a reference to the WS-Trust response that was sent by the STS.
+    * @param context
+    *           the expected name of the response context.
+    * @param principal
+    *           the principal that is expected to be seen in the assertion subject.
+    * @param confirmationMethod
+    *           the confirmation method that is expected to be seen in the assertion subject.
     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test
     *         methods to perform extra validations depending on the scenario being tested.
-    * @throws Exception if an error occurs while performing the validation.
+    * @throws Exception
+    *            if an error occurs while performing the validation.
     */
    private AssertionType validateSAMLAssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
          String principal, String confirmationMethod) throws Exception
@@ -1134,8 +1151,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       String tokenTypeAttr = securityRef.getOtherAttributes().get(new QName(WSTrustConstants.WSSE11_NS, "TokenType"));
       assertNotNull("Required attribute TokenType is missing", tokenTypeAttr);
       assertEquals("TokenType attribute has an unexpected value", SAMLUtil.SAML2_TOKEN_TYPE, tokenTypeAttr);
-      JAXBElement<?> keyIdElement = (JAXBElement<?>) securityRef.getAny().get(0);
-      KeyIdentifierType keyId = (KeyIdentifierType) keyIdElement.getValue();
+      KeyIdentifierType keyId = (KeyIdentifierType) securityRef.getAny().get(0);
       assertEquals("Unexpected key value type", SAMLUtil.SAML2_VALUE_TYPE, keyId.getValueType());
       assertNotNull("Unexpected null key identifier value", keyId.getValue());
 
@@ -1145,7 +1161,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNotNull("Unexpected null requested security token", requestedToken);
 
       // unmarshall the SAMLV2.0 assertion.
-      AssertionType assertion = SAMLUtil.fromElement((Element) requestedToken.getAny());
+      Element assertionElement = (Element) requestedToken.getAny();
+      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
       // verify the contents of the unmarshalled assertion.
       assertNotNull("Invalid null assertion ID", assertion.getID());
@@ -1174,7 +1191,6 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals(lifetime.getCreated(), assertion.getConditions().getNotBefore());
       assertEquals(lifetime.getExpires(), assertion.getConditions().getNotOnOrAfter());
 
-      // verify if the assertion has been signed.
       assertNotNull("Assertion should have been signed", assertion.getSignature());
 
       return assertion;
@@ -1186,12 +1202,17 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * confirmation method has been used.
     * </p>
     * 
-    * @param subjectConfirmation the {@code SubjectConfirmationType} to be validated.
-    * @param keyType the type of the proof-of-possession key (Symmetric or Public).
-    * @param certificate the certificate used in the Public Key scenarios.
-    * @param usePublicKey {@code true} if the certificate's Public Key was used as the proof-of-possession token;
-    *           {@code false} otherwise.
-    * @throws Exception if an error occurs while performing the validation.
+    * @param subjectConfirmation
+    *           the {@code SubjectConfirmationType} to be validated.
+    * @param keyType
+    *           the type of the proof-of-possession key (Symmetric or Public).
+    * @param certificate
+    *           the certificate used in the Public Key scenarios.
+    * @param usePublicKey
+    *           {@code true} if the certificate's Public Key was used as the proof-of-possession token; {@code false}
+    *           otherwise.
+    * @throws Exception
+    *            if an error occurs while performing the validation.
     */
    private void validateHolderOfKeyContents(SubjectConfirmationType subjectConfirmation, String keyType,
          Certificate certificate, boolean usePublicKey) throws Exception
@@ -1261,10 +1282,14 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * Utility method that creates a simple WS-Trust request using the specified information.
     * </p>
     * 
-    * @param context a {@code String} that represents the request context.
-    * @param requestType a {@code String} that represents the WS-Trust request type.
-    * @param tokenType a {@code String} that represents the requested token type.
-    * @param appliesToString a {@code String} that represents the URL of a service provider.
+    * @param context
+    *           a {@code String} that represents the request context.
+    * @param requestType
+    *           a {@code String} that represents the WS-Trust request type.
+    * @param tokenType
+    *           a {@code String} that represents the requested token type.
+    * @param appliesToString
+    *           a {@code String} that represents the URL of a service provider.
     * @return the constructed {@code RequestSecurityToken} object.
     */
    private RequestSecurityToken createRequest(String context, String requestType, String tokenType,
@@ -1276,15 +1301,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       if (tokenType != null)
          request.setTokenType(URI.create(tokenType));
       if (appliesToString != null)
-      {
-         AttributedURIType attributedURI = new AttributedURIType();
-         attributedURI.setValue(appliesToString);
-         EndpointReferenceType reference = new EndpointReferenceType();
-         reference.setAddress(attributedURI);
-         AppliesTo appliesTo = new AppliesTo();
-         appliesTo.getAny().add(new ObjectFactory().createEndpointReference(reference));
-         request.setAppliesTo(appliesTo);
-      }
+         request.setAppliesTo(WSTrustUtil.createAppliesTo(appliesToString));
       return request;
    }
 
@@ -1294,7 +1311,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * </p>
     * 
     * @return an {@code Element} representing the unknown token.
-    * @throws Exception if an error occurs while creating the token.
+    * @throws Exception
+    *            if an error occurs while creating the token.
     */
    private Element createUnknownToken() throws Exception
    {
@@ -1315,11 +1333,15 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * Obtains the {@code Certificate} stored under the specified alias in the specified keystore.
     * </p>
     * 
-    * @param keyStoreFile the name of the file that contains a JKS keystore.
-    * @param passwd the keystore password.
-    * @param certificateAlias the alias of a certificate in the keystore.
+    * @param keyStoreFile
+    *           the name of the file that contains a JKS keystore.
+    * @param passwd
+    *           the keystore password.
+    * @param certificateAlias
+    *           the alias of a certificate in the keystore.
     * @return a reference to the {@code Certificate} stored under the given alias.
-    * @throws Exception if an error occurs while handling the keystore.
+    * @throws Exception
+    *            if an error occurs while handling the keystore.
     */
    private Certificate getCertificate(String keyStoreFile, String passwd, String certificateAlias) throws Exception
    {
@@ -1333,9 +1355,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
    private Source createSourceFromRequest(RequestSecurityToken request) throws Exception
    {
-      // write the request XML to a byte[]
+      // write the request XML to a DOMResult
       DOMResult result = new DOMResult(DocumentUtil.createDocument());
-      WSTrustRSTWriter writer = new WSTrustRSTWriter(result);
+      WSTrustRequestWriter writer = new WSTrustRequestWriter(result);
       writer.write(request);
       return new DOMSource(result.getNode());
    }
@@ -1441,7 +1463,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
        * Sets the principal to be used in the test case.
        * </p>
        * 
-       * @param principal the {@code Principal} to be set.
+       * @param principal
+       *           the {@code Principal} to be set.
        */
       public void setUserPrincipal(Principal principal)
       {

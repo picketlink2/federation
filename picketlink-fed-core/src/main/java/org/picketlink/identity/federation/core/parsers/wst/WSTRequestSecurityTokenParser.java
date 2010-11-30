@@ -142,7 +142,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.RENEW_TARGET ) ;
             } 
-            else if( tag.equals( WSTrustConstants.On_BEHALF_OF ))
+            else if( tag.equals( WSTrustConstants.ON_BEHALF_OF ))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
@@ -150,7 +150,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                OnBehalfOfType onBehalfOf = (OnBehalfOfType) wstOnBehalfOfParser.parse(xmlEventReader); 
                requestToken.setOnBehalfOf(onBehalfOf);
                EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate( onBehalfOfEndElement, WSTrustConstants.On_BEHALF_OF ) ;
+               StaxParserUtil.validate( onBehalfOfEndElement, WSTrustConstants.ON_BEHALF_OF ) ;
             }  
             else if( tag.equals( WSTrustConstants.KEY_TYPE ))
             {

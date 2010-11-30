@@ -35,19 +35,22 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.core.wstrust.WSTrustJAXBFactory;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
@@ -157,8 +160,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       String tokenTypeAttr = securityRef.getOtherAttributes().get(new QName(WSTrustConstants.WSSE11_NS, "TokenType"));
       assertNotNull("Required attribute TokenType is missing", tokenTypeAttr);
       assertEquals("TokenType attribute has an unexpected value", SAMLUtil.SAML2_TOKEN_TYPE, tokenTypeAttr);
-      JAXBElement<?> keyIdElement = (JAXBElement<?>) securityRef.getAny().get(0);
-      KeyIdentifierType keyId = (KeyIdentifierType) keyIdElement.getValue();
+      KeyIdentifierType keyId = (KeyIdentifierType) securityRef.getAny().get(0);
       assertEquals("Unexpected key value type", SAMLUtil.SAML2_VALUE_TYPE, keyId.getValueType());
       assertNotNull("Unexpected null key identifier value", keyId.getValue());
       assertEquals(assertion.getID(), keyId.getValue().substring(1));
@@ -346,7 +348,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       validateTarget.setAny(assertion);
       request.setValidateTarget(validateTarget);
       // we need to set the request document in the request object for the test.
-      DOMSource requestSource = (DOMSource) WSTrustJAXBFactory.getInstance().marshallRequestSecurityToken(request);
+      DOMSource requestSource = (DOMSource) this.createSourceFromRequest(request);
       request.setRSTDocument((Document) requestSource.getNode());
 
       WSTrustRequestContext context = new WSTrustRequestContext(request, new TestPrincipal("sguilhen"));
@@ -372,5 +374,13 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
 
       Certificate certificate = keyStore.getCertificate(certificateAlias);
       return certificate;
+   }
+   
+   private Source createSourceFromRequest(RequestSecurityToken request) throws Exception
+   {
+      DOMResult result = new DOMResult(DocumentUtil.createDocument());
+      WSTrustRequestWriter writer = new WSTrustRequestWriter(result);
+      writer.write(request);
+      return new DOMSource(result.getNode());
    }
 }

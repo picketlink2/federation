@@ -301,7 +301,12 @@ public class TransformerUtil
          {
             Namespace namespace = namespaces.next();
             QName name = namespace.getName();
-            el.setAttributeNS(name.getNamespaceURI(), "xmlns:" + name.getLocalPart(), namespace.getNamespaceURI());
+            localPart = name.getLocalPart();
+            prefix = name.getPrefix();
+            if (prefix != null && prefix != "")
+               qual = (localPart != null && localPart != "") ? prefix + ":" + localPart : prefix;
+            
+            el.setAttributeNS(name.getNamespaceURI(), qual, namespace.getNamespaceURI());
          }
 
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);

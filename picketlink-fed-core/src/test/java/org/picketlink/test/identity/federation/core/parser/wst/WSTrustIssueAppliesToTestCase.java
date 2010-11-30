@@ -55,8 +55,7 @@ public class WSTrustIssueAppliesToTestCase
       assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() ); 
       
       AppliesTo appliesTo = requestToken.getAppliesTo();
-      JAXBElement<EndpointReferenceType> jaxb = (JAXBElement<EndpointReferenceType>) appliesTo.getAny().get(0);
-      EndpointReferenceType endpoint = jaxb.getValue();
+      EndpointReferenceType endpoint = (EndpointReferenceType) appliesTo.getAny().get(0);
       assertEquals( "http://services.testcorp.org/provider2", endpoint.getAddress().getValue() );
    } 
 }

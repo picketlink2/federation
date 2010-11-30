@@ -34,11 +34,12 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -92,8 +93,9 @@ public class STSClient
    /**
     * Issues a Security Token for the ultimate recipient of the token.
     * 
-    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
-    *           RequestSecurityToken which is an optional element so it may be null.
+    * @param endpointURI
+    *           - The ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
+    *           which is an optional element so it may be null.
     * @return Element - The Security Token Element which will be of the TokenType configured for the endpointURI passed
     *         in.
     * @throws WSTrustException
@@ -109,11 +111,14 @@ public class STSClient
     * Issues a Security Token from the STS. This methods has the option of specifying one or both of
     * endpointURI/tokenType but at least one must specified.
     * 
-    * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
-    *           RequestSecurityToken which is an optional element so it may be null.
-    * @param tokenType - The type of security token to be issued.
+    * @param endpointURI
+    *           - The ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
+    *           which is an optional element so it may be null.
+    * @param tokenType
+    *           - The type of security token to be issued.
     * @return Element - The Security Token Element issued.
-    * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
+    * @throws IllegalArgumentException
+    *            If neither endpointURI nor tokenType was specified.
     * @throws WSTrustException
     */
    public Element issueToken(String endpointURI, String tokenType) throws WSTrustException
@@ -132,13 +137,18 @@ public class STSClient
     * Issues a security token on behalf of the specified principal.
     * </p>
     * 
-    * @param endpointURI the ultimate recipient of the token. This will be set at the AppliesTo for the
-    *           RequestSecurityToken which is an optional element so it may be null.
-    * @param tokenType the type of the token to be issued.
-    * @param principal the {@code Principal} to whom the token will be issued.
+    * @param endpointURI
+    *           the ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
+    *           which is an optional element so it may be null.
+    * @param tokenType
+    *           the type of the token to be issued.
+    * @param principal
+    *           the {@code Principal} to whom the token will be issued.
     * @return an {@code Element} representing the issued security token.
-    * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
-    * @throws WSTrustException if an error occurs while issuing the security token.
+    * @throws IllegalArgumentException
+    *            If neither endpointURI nor tokenType was specified.
+    * @throws WSTrustException
+    *            if an error occurs while issuing the security token.
     */
    public Element issueTokenOnBehalfOf(String endpointURI, String tokenType, Principal principal)
          throws WSTrustException
@@ -289,17 +299,24 @@ public class STSClient
       DOMSource requestSource = this.createSourceFromRequest(request);
 
       Source response = dispatchLocal.get().invoke(requestSource);
-      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) WSTrustJAXBFactory
-            .getInstance().parseRequestSecurityTokenResponse(response);
-      RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
-
-      StatusType status = tokenResponse.getStatus();
-      if (status != null)
+      try
       {
-         String code = status.getCode();
-         return WSTrustConstants.STATUS_CODE_VALID.equals(code);
+         RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
+               .parse(DocumentUtil.getSourceAsStream(response));
+         RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
+
+         StatusType status = tokenResponse.getStatus();
+         if (status != null)
+         {
+            String code = status.getCode();
+            return WSTrustConstants.STATUS_CODE_VALID.equals(code);
+         }
+         return false;
       }
-      return false;
+      catch (Exception e)
+      {
+         throw new WSTrustException("Error parsing WS-Trust response: " + e.getMessage(), e);
+      }
    }
 
    /**
@@ -307,9 +324,11 @@ public class STSClient
     * Cancels the specified security token by sending a WS-Trust cancel message to the STS.
     * </p>
     * 
-    * @param securityToken the security token to be canceled.
+    * @param securityToken
+    *           the security token to be canceled.
     * @return {@code true} if the token has been canceled by the STS; {@code false} otherwise.
-    * @throws WSTrustException if an error occurs while processing the cancel request.
+    * @throws WSTrustException
+    *            if an error occurs while processing the cancel request.
     */
    public boolean cancelToken(Element securityToken) throws WSTrustException
    {
@@ -321,18 +340,23 @@ public class STSClient
       request.setCancelTarget(cancelTarget);
       request.setContext("context");
 
-      // marshal the request and send it to the STS.
-      WSTrustJAXBFactory jaxbFactory = WSTrustJAXBFactory.getInstance();
       DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
       // get the WS-Trust response and check for presence of the RequestTokenCanceled element.
-      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) jaxbFactory
-            .parseRequestSecurityTokenResponse(response);
-      RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
-      if (tokenResponse.getRequestedTokenCancelled() != null)
-         return true;
-      return false;
+      try
+      {
+         RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
+               .parse(DocumentUtil.getSourceAsStream(response));
+         RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
+         if (tokenResponse.getRequestedTokenCancelled() != null)
+            return true;
+         return false;
+      }
+      catch (Exception e)
+      {
+         throw new WSTrustException("Error parsing WS-Trust response: " + e.getMessage(), e);
+      }
    }
 
    public Dispatch<Source> getDispatch()
@@ -345,7 +369,7 @@ public class STSClient
       try
       {
          DOMResult result = new DOMResult(DocumentUtil.createDocument());
-         WSTrustRSTWriter writer = new WSTrustRSTWriter(result);
+         WSTrustRequestWriter writer = new WSTrustRequestWriter(result);
          writer.write(request);
          return new DOMSource(result.getNode());
       }

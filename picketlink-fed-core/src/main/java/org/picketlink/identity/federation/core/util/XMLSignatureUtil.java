@@ -92,7 +92,8 @@ public class XMLSignatureUtil
    
    private static XMLSignatureFactory fac =  getXMLSignatureFactory(); 
    
-   private static XMLSignatureFactory getXMLSignatureFactory()
+   @SuppressWarnings("restriction")
+private static XMLSignatureFactory getXMLSignatureFactory()
    {
       XMLSignatureFactory xsf =   null;
       

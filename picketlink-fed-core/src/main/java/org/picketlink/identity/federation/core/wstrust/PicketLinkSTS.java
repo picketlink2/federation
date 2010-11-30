@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2009, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2009, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.wstrust;
 
@@ -27,6 +23,7 @@ import java.net.URL;
 
 import javax.annotation.Resource;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
@@ -45,6 +42,7 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustResponseWriter;
 import org.w3c.dom.Document;
 
 /**
@@ -56,7 +54,7 @@ import org.w3c.dom.Document;
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
-public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
+public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
 
@@ -107,9 +105,11 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
     * Process a security token request.
     * </p>
     * 
-    * @param request a {@code RequestSecurityToken} instance that contains the request information.
+    * @param request
+    *           a {@code RequestSecurityToken} instance that contains the request information.
     * @return a {@code Source} instance representing the marshalled response.
-    * @throws WebServiceException Any exception encountered in handling token
+    * @throws WebServiceException
+    *            Any exception encountered in handling token
     */
    protected Source handleTokenRequest(RequestSecurityToken request)
    {
@@ -163,7 +163,8 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
     * Process a collection of security token requests.
     * </p>
     * 
-    * @param requestCollection a {@code RequestSecurityTokenCollection} containing the various requests information.
+    * @param requestCollection
+    *           a {@code RequestSecurityTokenCollection} containing the various requests information.
     * @return a {@code Source} instance representing the marshalled response.
     */
    protected Source handleTokenRequestCollection(RequestSecurityTokenCollection requestCollection)
@@ -176,7 +177,8 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
     * Marshalls the specified {@code RequestSecurityTokenResponse} into a {@code Source} instance.
     * </p>
     * 
-    * @param response the {@code RequestSecurityTokenResponse} to be marshalled.
+    * @param response
+    *           the {@code RequestSecurityTokenResponse} to be marshalled.
     * @return the resulting {@code Source} instance.
     */
    protected Source marshallResponse(RequestSecurityTokenResponse response)
@@ -184,7 +186,18 @@ public class PicketLinkSTS implements Provider<Source>//SecurityTokenService
       // add the single response to a RequestSecurityTokenResponse collection, as per the specification.
       RequestSecurityTokenResponseCollection responseCollection = new RequestSecurityTokenResponseCollection();
       responseCollection.addRequestSecurityTokenResponse(response);
-      return WSTrustJAXBFactory.getInstance().marshallRequestSecurityTokenResponse(responseCollection);
+
+      try
+      {
+         DOMResult result = new DOMResult(DocumentUtil.createDocument());
+         WSTrustResponseWriter writer = new WSTrustResponseWriter(result);
+         writer.write(responseCollection);
+         return new DOMSource(result.getNode());
+      }
+      catch (Exception e)
+      {
+         throw new WebServiceException("Error writting response: " + e.getMessage(), e);
+      }
    }
 
    /**

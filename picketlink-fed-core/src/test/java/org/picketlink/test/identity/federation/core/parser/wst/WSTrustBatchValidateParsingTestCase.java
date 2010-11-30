@@ -35,7 +35,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 
 /**
  * Validate the parsing of wst-batch-validate.xml
@@ -69,7 +69,7 @@ public class WSTrustBatchValidateParsingTestCase
       
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter(baos);
+      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
       rstWriter.write( requestCollection ); 
 

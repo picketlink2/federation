@@ -87,7 +87,8 @@ public interface WSTrustConstants
     String CREATED = "Created";
     String ENTROPY = "Entropy";
     String EXPIRES = "Expires";
-    String On_BEHALF_OF = "OnBehalfOf";
+    String ON_BEHALF_OF = "OnBehalfOf";
+    String COMPUTED_KEY = "ComputedKey";
     String KEY_SIZE = "KeySize";
     String KEY_TYPE = "KeyType";
     String LIFETIME = "Lifetime";
@@ -96,6 +97,8 @@ public interface WSTrustConstants
     String RST_COLLECTION = "RequestSecurityTokenCollection";
     String RSTR_COLLECTION = "RequestSecurityTokenResponseCollection";
     String REQUESTED_TOKEN = "RequestedSecurityToken";
+    String REQUESTED_TOKEN_CANCELLED = "RequestedTokenCancelled";
+    String REQUESTED_PROOF_TOKEN = "RequestedProofToken";
     String REQUESTED_ATTACHED_REFERENCE = "RequestedAttachedReference";
     String REQUEST_TYPE = "RequestType";
     String TOKEN_TYPE = "TokenType";
@@ -103,6 +106,9 @@ public interface WSTrustConstants
     String RENEW_TARGET = "RenewTarget";
     String VALIDATE_TARGET = "ValidateTarget";
     String USE_KEY = "UseKey";
+    String STATUS = "Status";
+    String CODE = "Code";
+    String REASON = "Reason";
    
    //Attribute Names
     String RST_CONTEXT = "Context";
@@ -129,5 +135,6 @@ public interface WSTrustConstants
        String PREFIX_11 = "wsse11";
        String SECURITY_TOKEN_REFERENCE = "SecurityTokenReference";
        String USERNAME_TOKEN = "UsernameToken";
+       String VALUE_TYPE = "ValueType";
     }
 }

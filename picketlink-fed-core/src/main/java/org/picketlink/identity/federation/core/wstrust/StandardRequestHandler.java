@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.ClaimsType;
+import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.ObjectFactory;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
@@ -195,13 +196,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             {
                clientSecret = Base64.decode(new String(WSTrustUtil.getBinarySecret(clientEntropy)));
                serverEntropy = new EntropyType();
-               serverEntropy.getAny().add(objFactory.createBinarySecret(serverBinarySecret));
+               serverEntropy.getAny().add(serverBinarySecret);
             }
 
             if (clientSecret != null && clientSecret.length != 0)
             {
                // client secret has been specified - combine it with the sts secret.
-               requestedProofToken.setAny(objFactory.createComputedKey(WSTrustConstants.CK_PSHA1));
+               requestedProofToken.setAny(new ComputedKeyType(WSTrustConstants.CK_PSHA1));
                byte[] combinedSecret = null;
                try
                {
@@ -218,7 +219,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             else
             {
                // client secret has not been specified - use the sts secret only.
-               requestedProofToken.setAny(objFactory.createBinarySecret(serverBinarySecret));
+               requestedProofToken.setAny(serverBinarySecret);
                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(),
                      providerPublicKey, keyWrapAlgo));
             }

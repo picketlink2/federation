@@ -38,7 +38,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRSTWriter;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -71,7 +71,7 @@ public class WSTrustCancelTargetSamlTestCase
       
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRSTWriter rstWriter = new WSTrustRSTWriter(baos);
+      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
       rstWriter.write(requestToken ); 
 

@@ -70,6 +70,6 @@ public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
       String localPart = qname.getLocalPart();
       
       return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-             && WSTrustConstants.On_BEHALF_OF.equals( localPart );
+             && WSTrustConstants.ON_BEHALF_OF.equals( localPart );
    } 
 }

@@ -27,13 +27,13 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -41,6 +41,7 @@ import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.w3c.dom.Element;
 
 /**
  * @author Anil.Saldhana@redhat.com
@@ -68,13 +69,14 @@ public class WSTResponseAssertionHOKCertificateTestCase
       assertEquals( XMLTimeUtil.parse( "2010-11-11T16:34:19.602Z" ), rstr.getLifetime().getCreated() );
       assertEquals( XMLTimeUtil.parse( "2010-11-11T18:34:19.602Z" ), rstr.getLifetime().getExpires() );
       
-      EndpointReferenceType endpoint = (EndpointReferenceType)((JAXBElement) rstr.getAppliesTo().getAny().get(0)).getValue();
+      EndpointReferenceType endpoint = (EndpointReferenceType) rstr.getAppliesTo().getAny().get(0);
       assertEquals( "http://services.testcorp.org/provider2", endpoint.getAddress().getValue()  );
       
       assertEquals( 128, rstr.getKeySize() );
       assertEquals( WSTrustConstants.KEY_TYPE_PUBLIC, rstr.getKeyType().toASCIIString() );
       
-      AssertionType assertion = (AssertionType) rstr.getRequestedSecurityToken().getAny();
+      Element assertionElement = (Element) rstr.getRequestedSecurityToken().getAny();
+      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
       assertEquals( "ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", assertion.getID() );
       
       RequestedReferenceType ref = rstr.getRequestedAttachedReference();
