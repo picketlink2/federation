@@ -25,14 +25,20 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil; 
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.w3c.dom.Document;
 
 /**
  * Base Class for SAML Request Parsing
@@ -86,9 +92,26 @@ public abstract class SAMLRequestAbstractParser
          request.setIssuer( issuer );
       }
       else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
-      {
-         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-         StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
+      { 
+         Document resultDocument;
+         try
+         {
+            resultDocument = DocumentUtil.createDocument();
+            DOMResult domResult = new DOMResult( resultDocument );
+            
+            //Let us parse <b><c><d> using transformer
+            StAXSource source = new StAXSource(xmlEventReader);
+            
+            Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+            transformer.transform( source, domResult );
+         }
+         catch ( Exception e)
+         {
+            throw new RuntimeException( e );
+         } 
+         
+         request.setSignature( resultDocument.getDocumentElement() );
+         //StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
       }  
    }
 }

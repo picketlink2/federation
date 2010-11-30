@@ -30,10 +30,13 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants; 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestedAuthnContextType;
 
 /**
  * Parse the SAML2 AuthnRequest
@@ -68,8 +71,27 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
             startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
             authnRequest.setNameIDPolicy( getNameIDPolicy( startElement ));
          }
-         else
-            throw new RuntimeException( "Unknown Element:" + elementName );
+         else if( JBossSAMLConstants.SUBJECT.get().equals( elementName ))
+         { 
+            authnRequest.setSubject( getSubject(xmlEventReader) );
+         }
+         else if( JBossSAMLConstants.CONDITIONS.get().equals( elementName ))
+         { 
+            authnRequest.setConditions( (ConditionsType) ( new SAMLConditionsParser()).parse(xmlEventReader));
+         }
+         else if( JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get().equals( elementName ))
+         { 
+            authnRequest.setRequestedAuthnContext( getRequestedAuthnContextType(xmlEventReader));
+         }
+         else if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+         { 
+            continue;
+         }
+         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
+         { 
+            continue;
+         }
+         else throw new RuntimeException( "Unknown Element:" + elementName );
       }
       return authnRequest;
    }
@@ -151,4 +173,29 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       
       return nameIDPolicy;
    } 
+   
+   private SubjectType getSubject( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      SAMLSubjectParser subjectParser = new SAMLSubjectParser();
+      return (SubjectType) subjectParser.parse(xmlEventReader);
+   }
+   
+   private RequestedAuthnContextType getRequestedAuthnContextType( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      RequestedAuthnContextType ract = new RequestedAuthnContextType();
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get() );
+      
+      startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      String elName = StaxParserUtil.getStartElementName(startElement);
+      
+      if( elName.equals( JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ))
+      {
+         String value = StaxParserUtil.getElementText(xmlEventReader);
+         ract.addAuthnContextClassRef(value);
+      }
+      else throw new RuntimeException( "unknown :" + elName );
+      
+      return ract;
+   }
 }

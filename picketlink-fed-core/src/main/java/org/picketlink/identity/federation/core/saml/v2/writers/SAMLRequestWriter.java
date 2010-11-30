@@ -80,8 +80,10 @@ public class SAMLRequestWriter extends BaseWriter
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL.toASCIIString() );
       
       NameIDType issuer = request.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
-      
+      if( issuer != null )
+      {
+         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      } 
       NameIDPolicyType nameIDPolicy = request.getNameIDPolicy();
       if( nameIDPolicy != null )
          write( nameIDPolicy );

@@ -34,8 +34,9 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 
 /**
  * Parse the <conditions> in the saml assertion
@@ -113,7 +114,7 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
          if( JBossSAMLConstants.AUDIENCE_RESTRICTION.get().equals( tag ) )
          {
             AudienceRestrictionType audienceRestriction = getAudienceRestriction(xmlEventReader);
-            conditions.getConditionOrAudienceRestrictionOrOneTimeUse().add( audienceRestriction ); 
+            conditions.addCondition( audienceRestriction ); 
          }
          else throw new RuntimeException( "Unknown tag:" + tag );
       }       
@@ -155,7 +156,7 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
             throw new ParsingException( "audienceValue is expected ahead" );
          
          String audienceValue = StaxParserUtil.getElementText( xmlEventReader );
-         audience.getAudience().add( audienceValue ); 
+         audience.addAudience( NetworkUtil.createURI( audienceValue )); 
          
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if( xmlEvent instanceof EndElement )

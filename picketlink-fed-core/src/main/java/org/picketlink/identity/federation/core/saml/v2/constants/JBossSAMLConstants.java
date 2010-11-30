@@ -67,6 +67,7 @@ public enum JBossSAMLConstants
    NAME_QUALIFIER( "NameQualifier" ),
    NOT_BEFORE( "NotBefore" ),
    NOT_ON_OR_AFTER( "NotOnOrAfter" ),
+   REQUESTED_AUTHN_CONTEXT( "RequestedAuthnContext" ),
    RECIPIENT( "Recipient" ),
    RESPONSE( "Response" ),
    SESSION_INDEX( "SessionIndex" ),

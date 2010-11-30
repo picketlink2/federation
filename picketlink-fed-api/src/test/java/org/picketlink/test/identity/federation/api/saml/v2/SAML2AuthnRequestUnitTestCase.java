@@ -60,9 +60,9 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
       
       AuthnRequestType authnRequestType = request.getAuthnRequestType(resourceName);
       
-      assertEquals("http://www.example.com/", authnRequestType.getDestination()); 
+      assertEquals("http://www.example.com/", authnRequestType.getDestination().toString()); 
       assertEquals("urn:oasis:names:tc:SAML:2.0:consent:obtained", authnRequestType.getConsent());
-      assertEquals("http://www.example.com/",authnRequestType.getAssertionConsumerServiceURL());
+      assertEquals("http://www.example.com/",authnRequestType.getAssertionConsumerServiceURL().toString());
       assertEquals(Integer.valueOf("0"), authnRequestType.getAttributeConsumingServiceIndex());
       
       SubjectType subjectType = authnRequestType.getSubject();
@@ -71,7 +71,7 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
       STSubType subType = subjectType.getSubType();
       NameIDType nameIDType = (NameIDType) subType.getBaseID(); 
       
-      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",nameIDType.getFormat());
+      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",nameIDType.getFormat().toString());
       assertEquals("j.doe@company.com",nameIDType.getValue()); 
       
       ConditionsType conditionsType = authnRequestType.getConditions();
