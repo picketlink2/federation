@@ -149,7 +149,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup>
             }
          }
       }
-      catch (JAXBException e)
+      catch ( Exception e )
       {
          log.error("Failed to parse token", e);
       }

@@ -3,8 +3,6 @@ package org.picketlink.identity.federation.bindings.jboss.auth.mapping;
 import java.security.Principal;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.log4j.Logger;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.mapping.MappingResult;
@@ -103,7 +101,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
             }*/
          }
       }
-      catch (JAXBException e)
+      catch ( Exception e )
       {
          log.error("Failed to parse token", e);
       }
