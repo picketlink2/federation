@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
@@ -43,7 +42,7 @@ import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocation
 import org.picketlink.identity.federation.core.wstrust.plugins.FileBasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.JPABasedRevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime; 
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
@@ -312,7 +311,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       {
          oldAssertion = SAMLUtil.fromElement(oldAssertionElement);
       }
-      catch (JAXBException je)
+      catch ( Exception je )
       {
          throw new WSTrustException("Error unmarshalling assertion", je);
       }
@@ -392,7 +391,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
          {
             assertion = SAMLUtil.fromElement(assertionElement);
          }
-         catch (JAXBException e)
+         catch ( Exception e )
          {
             throw new WSTrustException("Unmarshalling error:", e);
          }

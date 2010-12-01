@@ -215,6 +215,8 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                   entropy.getAny().add(binarySecret);
                }
                responseToken.setEntropy(entropy);
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY );
             }
             else if (tag.equals(WSTrustConstants.USE_KEY))
             {
@@ -272,6 +274,8 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                   requestedProofToken.setAny(computedKey);
                }
                responseToken.setRequestedProofToken(requestedProofToken);
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement,  WSTrustConstants.REQUESTED_PROOF_TOKEN );
             }
             else if (tag.equals(WSTrustConstants.REQUESTED_TOKEN))
             {

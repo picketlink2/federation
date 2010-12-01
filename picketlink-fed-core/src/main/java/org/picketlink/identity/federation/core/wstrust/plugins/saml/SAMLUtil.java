@@ -24,13 +24,15 @@ package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
@@ -99,10 +101,19 @@ public class SAMLUtil
     *           the {@code Element} that contains the marshaled SAMLV2.0 assertion.
     * @return a reference to the unmarshaled {@code AssertionType} instance.
     * @throws JAXBException if an error occurs while unmarshalling the document.
+    * @throws ConfigurationException 
+    * @throws ProcessingException 
+    * @throws ParsingException 
     */ 
-   public static AssertionType fromElement(Element assertionElement) throws JAXBException
+   public static AssertionType fromElement(Element assertionElement) throws JAXBException, ProcessingException, ConfigurationException, ParsingException
    {
-      Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.saml.v2.assertion");
+      String assertionAsString = DocumentUtil.getDOMElementAsString(assertionElement);
+      
+      SAMLAssertionParser assertionParser = new SAMLAssertionParser();
+      return (AssertionType) assertionParser.parse( StaxParserUtil.getXMLEventReader( new ByteArrayInputStream( assertionAsString.getBytes() )));
+      
+      
+      /*Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.saml.v2.assertion");
       Object object = unmarshaller.unmarshal(assertionElement);
       if (object instanceof AssertionType)
          return (AssertionType) object;
@@ -112,6 +123,6 @@ public class SAMLUtil
          if (element.getDeclaredType().equals(AssertionType.class))
             return (AssertionType) element.getValue();
       }
-      throw new IllegalArgumentException("Supplied document does not contain a SAMLV2.0 Assertion");
+      throw new IllegalArgumentException("Supplied document does not contain a SAMLV2.0 Assertion");*/
    }
 }

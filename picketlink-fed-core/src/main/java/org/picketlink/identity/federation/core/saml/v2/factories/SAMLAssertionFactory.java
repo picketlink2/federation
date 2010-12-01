@@ -80,7 +80,8 @@ public class SAMLAssertionFactory
    public static NameIDType createNameID(String format, String qualifier, String value)
    {
       NameIDType nameID = new NameIDType();
-      nameID.setFormat( NetworkUtil.createURI( format ));
+      if( format != null )
+         nameID.setFormat( NetworkUtil.createURI( format ));
       nameID.setNameQualifier(qualifier);
       nameID.setValue(value);
       return nameID;

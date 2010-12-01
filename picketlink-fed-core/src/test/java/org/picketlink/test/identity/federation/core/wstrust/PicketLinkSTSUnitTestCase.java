@@ -305,8 +305,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // invoke the token service.
       Source responseMessage = this.tokenService.invoke(requestMessage);
+      InputStream is = DocumentUtil.getSourceAsStream(responseMessage); 
       BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
-            .parse(DocumentUtil.getSourceAsStream(responseMessage));
+            .parse( is );
       // validate the security token response.
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
    }
@@ -1152,6 +1153,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // unmarshall the SAMLV2.0 assertion.
       Element assertionElement = (Element) requestedToken.getAny();
+      System.out.println( DocumentUtil.getNodeAsString(assertionElement));
       AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
       // verify the contents of the unmarshalled assertion.
