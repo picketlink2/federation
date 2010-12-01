@@ -542,7 +542,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1);
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, false);
    }
 
@@ -579,7 +579,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1) ;
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(0) ;
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, true);
    }
 

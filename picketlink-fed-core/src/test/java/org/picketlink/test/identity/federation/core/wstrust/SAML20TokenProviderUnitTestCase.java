@@ -29,11 +29,8 @@ import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
@@ -41,8 +38,9 @@ import javax.xml.transform.dom.DOMSource;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
@@ -50,9 +48,14 @@ import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenP
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter; 
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
@@ -60,7 +63,6 @@ import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
-import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -92,10 +94,10 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     * @throws Exception if an error occurs while running the test.
     */
    public void testIssueSAMLV20Token() throws Exception
-   {
-      fail( "Work on this");
+   {   
+      SAMLAssertionParser assertionParser = new SAMLAssertionParser();
       
-      /*// create a WSTrustRequestContext with a simple WS-Trust request.
+      // create a WSTrustRequestContext with a simple WS-Trust request.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setLifetime(WSTrustUtil.createDefaultLifetime(3600000));
       request.setAppliesTo(WSTrustUtil.createAppliesTo("http://services.testcorp.org/provider2"));
@@ -108,7 +110,10 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       this.provider.issueToken(context);
       assertNotNull("Unexpected null security token", context.getSecurityToken());
 
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.federation.saml.v2.assertion");
+      SecurityToken securityToken = context.getSecurityToken();
+      
+      AssertionType assertion = assertionParser.fromElement( (Element) securityToken.getTokenValue() );
+      /*JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.federation.saml.v2.assertion");
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       JAXBElement<?> parsedElement = (JAXBElement<?>) unmarshaller.unmarshal((Element) context.getSecurityToken()
             .getTokenValue());
@@ -116,7 +121,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertEquals("Unexpected element type", AssertionType.class, parsedElement.getDeclaredType());
 
       AssertionType assertion = (AssertionType) parsedElement.getValue();
-      StandardSecurityToken securityToken = (StandardSecurityToken) context.getSecurityToken();
+      StandardSecurityToken securityToken = (StandardSecurityToken) context.getSecurityToken();*/
       assertEquals("Unexpected token id", securityToken.getTokenID(), assertion.getID());
       assertEquals("Unexpected token issuer", "PicketLinkSTS", assertion.getIssuer().getValue());
 
@@ -125,29 +130,23 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertNotNull("Unexpected null conditions", conditions);
       assertNotNull("Unexpected null value for NotBefore attribute", conditions.getNotBefore());
       assertNotNull("Unexpected null value for NotOnOrAfter attribute", conditions.getNotOnOrAfter());
-      assertEquals("Unexpected number of conditions", 1, conditions.getConditionOrAudienceRestrictionOrOneTimeUse()
-            .size());
-      assertTrue("Unexpected condition type",
-            conditions.getConditionOrAudienceRestrictionOrOneTimeUse().get(0) instanceof AudienceRestrictionType);
-      AudienceRestrictionType restrictionType = (AudienceRestrictionType) conditions
-            .getConditionOrAudienceRestrictionOrOneTimeUse().get(0);
+      assertEquals("Unexpected number of conditions", 1, conditions.getConditions().size());
+      
+      AudienceRestrictionType restrictionType = (AudienceRestrictionType) conditions.getConditions().get(0);
       assertNotNull("Unexpected null audience list", restrictionType.getAudience());
       assertEquals("Unexpected number of audience elements", 1, restrictionType.getAudience().size());
       assertEquals("Unexpected audience value", "http://services.testcorp.org/provider2", restrictionType.getAudience()
-            .get(0));
+            .get(0).toString());
 
       // check the contents of the assertion subject.
       SubjectType subject = assertion.getSubject();
-      assertNotNull("Unexpected null subject", subject);
-      assertEquals("Unexpected subject content size", 2, subject.getContent().size());
-      JAXBElement<?> content = subject.getContent().get(0);
-      assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
-      NameIDType nameID = (NameIDType) content.getValue();
+      assertNotNull("Unexpected null subject", subject); 
+      
+      NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
-      content = subject.getContent().get(1);
-      assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
-      SubjectConfirmationType confirmation = (SubjectConfirmationType) content.getValue();
+      
+      SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_BEARER_URI, confirmation.getMethod());
 
       // validate the attached token reference created by the SAML provider.
@@ -161,7 +160,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       KeyIdentifierType keyId = (KeyIdentifierType) securityRef.getAny().get(0);
       assertEquals("Unexpected key value type", SAMLUtil.SAML2_VALUE_TYPE, keyId.getValueType());
       assertNotNull("Unexpected null key identifier value", keyId.getValue());
-      assertEquals(assertion.getID(), keyId.getValue().substring(1));*/
+      assertEquals(assertion.getID(), keyId.getValue().substring(1));
    }
 
    /**
@@ -174,8 +173,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     */
    public void testIssueSAMLV20HolderOfKeyToken() throws Exception
    {
-      fail( "work" );
-      /*// create a WSTrustRequestContext with a simple WS-Trust request.
+      // create a WSTrustRequestContext with a simple WS-Trust request.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setLifetime(WSTrustUtil.createDefaultLifetime(3600000));
       request.setAppliesTo(WSTrustUtil.createAppliesTo("http://services.testcorp.org/provider2"));
@@ -197,24 +195,31 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       AssertionType assertion = SAMLUtil.fromElement((Element) context.getSecurityToken().getTokenValue());
       SubjectType subject = assertion.getSubject();
       assertNotNull("Unexpected null subject", subject);
-      assertEquals("Unexpected subject content size", 2, subject.getContent().size());
+      
+      /*assertEquals("Unexpected subject content size", 2, subject.getContent().size());
       JAXBElement<?> content = subject.getContent().get(0);
       assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
-      NameIDType nameID = (NameIDType) content.getValue();
+      */
+      
+      NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
-      content = subject.getContent().get(1);
-      assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
-      SubjectConfirmationType confirmation = (SubjectConfirmationType) content.getValue();
+      
+      SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_HOLDER_OF_KEY_URI, confirmation.getMethod());
-      List<Object> confirmationContent = confirmation.getSubjectConfirmationData().getContent();
+      
+      /*List<Object> confirmationContent = confirmation.getSubjectConfirmationData().getContent();
       assertEquals("Unexpected subject confirmation content size", 1, confirmationContent.size());
       JAXBElement<?> keyInfoElement = (JAXBElement<?>) confirmationContent.get(0);
       assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement.getDeclaredType());
       KeyInfoType keyInfo = (KeyInfoType) keyInfoElement.getValue();
       assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
       JAXBElement<?> encKeyElement = (JAXBElement<?>) keyInfo.getContent().get(0);
-      assertEquals("Unexpected key info content type", EncryptedKeyType.class, encKeyElement.getDeclaredType());
+      assertEquals("Unexpected key info content type", EncryptedKeyType.class, encKeyElement.getDeclaredType());*/
+      
+      SubjectConfirmationDataType confirmData = confirmation.getSubjectConfirmationData();
+      
+      KeyInfoType keyInfo = (KeyInfoType) confirmData.getAnyType();
 
       // Now let's set an asymmetric proof of possession token in the context.
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
@@ -226,21 +231,19 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
 
       // check if the assertion has a subject confirmation that contains the encoded certificate.
       assertion = SAMLUtil.fromElement((Element) context.getSecurityToken().getTokenValue());
-      subject = assertion.getSubject();
-      content = subject.getContent().get(0);
-      assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
-      nameID = (NameIDType) content.getValue();
+      subject = assertion.getSubject(); 
+      nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
-      assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
-      content = subject.getContent().get(1);
-      assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
-      confirmation = (SubjectConfirmationType) content.getValue();
+      assertEquals("Unexpected name id", "sguilhen", nameID.getValue()); 
+      confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_HOLDER_OF_KEY_URI, confirmation.getMethod());
-      confirmationContent = confirmation.getSubjectConfirmationData().getContent();
+      
+      
+      /*confirmationContent = confirmation.getSubjectConfirmationData().getContent();
       assertEquals("Unexpected subject confirmation content size", 1, confirmationContent.size());
       keyInfoElement = (JAXBElement<?>) confirmationContent.get(0);
-      assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement.getDeclaredType());
-      keyInfo = (KeyInfoType) keyInfoElement.getValue();
+      assertEquals("Unexpected subject confirmation context type", KeyInfoType.class, keyInfoElement.getDeclaredType());*/
+      keyInfo = (KeyInfoType)confirmation.getSubjectConfirmationData().getAnyType();
       assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
 
       // key info should contain a X509Data section with the encoded certificate.
@@ -253,7 +256,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertEquals("Unexpected X509 data content type", byte[].class, x509CertElement.getDeclaredType());
       // certificate should have been encoded to Base64, so we need to decode it first.
       byte[] encodedCert = (byte[]) x509CertElement.getValue();
-      assertTrue("Invalid encoded certificate found", Arrays.equals(certificate.getEncoded(), encodedCert));*/
+      assertTrue("Invalid encoded certificate found", Arrays.equals(certificate.getEncoded(), encodedCert));
    }
 
    /**
