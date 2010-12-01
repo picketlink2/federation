@@ -167,6 +167,7 @@ public class SAMLAssertionFactory
          SubjectType.STSubType subType = new  SubjectType.STSubType();
          subType.addConfirmation(confirmation);
          subType.addBaseID(nameID);
+         subject.setSubType(subType);
       } 
       return subject;
    } 

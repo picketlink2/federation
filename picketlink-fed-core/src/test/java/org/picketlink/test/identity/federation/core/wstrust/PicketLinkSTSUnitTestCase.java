@@ -371,7 +371,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AudienceRestrictionType audienceRestriction = (AudienceRestrictionType) abstractType;
       assertEquals("Unexpected audience restriction list size", 1, audienceRestriction.getAudience().size());
       assertEquals("Unexpected audience restriction item", "http://services.testcorp.org/provider2",
-            audienceRestriction.getAudience().get(0));
+            audienceRestriction.getAudience().get(0).toString());
    }
 
    /**
@@ -432,7 +432,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(1);
+      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       // check if the response contains the STS-generated key.
@@ -1173,7 +1173,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id value", principal, nameID.getValue());
        
-      SubjectConfirmationType subjType = (SubjectConfirmationType) subject.getConfirmation().get(1);
+      SubjectConfirmationType subjType = (SubjectConfirmationType) subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", confirmationMethod, subjType.getMethod());
 
       // validate the assertion conditions.

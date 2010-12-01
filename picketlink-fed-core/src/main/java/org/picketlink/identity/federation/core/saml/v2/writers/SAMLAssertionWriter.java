@@ -39,10 +39,12 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AdviceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclRefType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclType;
@@ -50,6 +52,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContex
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
@@ -98,7 +102,45 @@ public class SAMLAssertionWriter extends BaseWriter
          write(subject);
       }
       
-      //TODO: conditions and advice
+      ConditionsType conditions = assertion.getConditions();
+      if( conditions != null )
+      {
+         StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.CONDITIONS.get() , ASSERTION_NSURI.get() ); 
+         
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NOT_BEFORE.get(), conditions.getNotBefore().toString() );
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), conditions.getNotOnOrAfter().toString() );
+         
+         List<ConditionAbstractType> typeOfConditions = conditions.getConditions();
+         if( typeOfConditions != null )
+         {
+            for( ConditionAbstractType typeCondition: typeOfConditions )
+            {
+               if( typeCondition instanceof AudienceRestrictionType )
+               {
+                  AudienceRestrictionType art = (AudienceRestrictionType) typeCondition;
+                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE_RESTRICTION.get() , ASSERTION_NSURI.get() ); 
+                  List<URI> audiences = art.getAudience();
+                  if( audiences != null )
+                  {
+                     for( URI audience: audiences )
+                     {
+                        StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE.get() , ASSERTION_NSURI.get() );
+                        StaxUtil.writeCharacters(writer, audience.toString() );
+                        StaxUtil.writeEndElement( writer);
+                     }
+                  }
+
+                  StaxUtil.writeEndElement( writer);  
+               }
+            }
+         }
+
+         StaxUtil.writeEndElement( writer); 
+      }
+      
+      AdviceType advice = assertion.getAdvice();
+      if( advice != null )
+         throw new RuntimeException( "Advice needs to be handled" );
       
       Set<StatementAbstractType> statements = assertion.getStatements();
       if( statements != null )

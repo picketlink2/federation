@@ -126,7 +126,24 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
 
          if( tag.equals( JBossSAMLConstants.SIGNATURE.get() ) )
          {
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
+            Document resultDocument;
+            try
+            {
+               resultDocument = DocumentUtil.createDocument();
+               DOMResult domResult = new DOMResult( resultDocument );
+               
+               //Let us parse <b><c><d> using transformer
+               StAXSource source = new StAXSource(xmlEventReader);
+               
+               Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+               transformer.transform( source, domResult );
+            }
+            catch ( Exception e)
+            {
+               throw new RuntimeException( e );
+            } 
+            
+            assertion.setSignature( resultDocument.getDocumentElement() ); 
             continue; 
          }
 
