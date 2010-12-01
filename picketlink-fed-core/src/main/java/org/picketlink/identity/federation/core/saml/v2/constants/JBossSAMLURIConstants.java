@@ -100,7 +100,8 @@ public enum JBossSAMLURIConstants
    TRANSFORM_ENVELOPED_SIGNATURE("http://www.w3.org/2000/09/xmldsig#enveloped-signature"),
    TRANSFORM_C14N_EXCL_OMIT_COMMENTS("http://www.w3.org/2001/10/xml-exc-c14n#WithComments"),
    
-   
+
+   X500_PREFIX("x500"),
    X500_NSURI("urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"),
    XMLSCHEMA_NSURI("http://www.w3.org/2001/XMLSchema"),
    XMLDSIG_NSURI("http://www.w3.org/2000/09/xmldsig#"),

@@ -60,8 +60,8 @@ public class SAMLParserUtil
       AttributeStatementType attributeStatementType = new AttributeStatementType();
       
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      String AUTHNSTATEMENT = JBossSAMLConstants.ATTRIBUTE_STATEMENT.get();
-      StaxParserUtil.validate( startElement, AUTHNSTATEMENT );
+      String ATTRIBSTATEMT = JBossSAMLConstants.ATTRIBUTE_STATEMENT.get();
+      StaxParserUtil.validate( startElement, ATTRIBSTATEMT );
       
       while( xmlEventReader.hasNext() )
       {
@@ -97,7 +97,7 @@ public class SAMLParserUtil
 
       //Look for X500 Encoding
       QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
-            JBossSAMLConstants.ENCODING.get() );
+            JBossSAMLConstants.ENCODING.get(), JBossSAMLURIConstants.X500_PREFIX.get() );
       Attribute x500EncodingAttr = startElement.getAttributeByName( x500EncodingName );
       
       if( x500EncodingAttr != null )
@@ -156,7 +156,7 @@ public class SAMLParserUtil
       {
          return StaxParserUtil.getElementText(xmlEventReader);
       }
-      
+       
       throw new RuntimeException( "Unsupported xsi:type=" + typeValue );
    }
    

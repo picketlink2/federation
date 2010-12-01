@@ -85,7 +85,9 @@ public class X500AttributeUnitTestCase extends TestCase
       *///marshaller.marshal(jaxb, System.out);
       
       Document samlDom = DocumentUtil.getDocument(new String(baos.toByteArray()));
-      NodeList nl = samlDom.getElementsByTagName("Attribute");     
+      System.out.println( DocumentUtil.getDocumentAsString(samlDom));
+      
+      NodeList nl = samlDom.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get() ,"Attribute");     
       assertEquals("nodes = 2", 2, nl.getLength());
       
       String x500NS = JBossSAMLURIConstants.X500_NSURI.get();

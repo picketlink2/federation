@@ -42,7 +42,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeTy
  */
 public class StatementUtil
 {
-   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding"); 
+   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding", JBossSAMLURIConstants.X500_PREFIX.get()); 
 
    /**
     * Create an attribute statement with all the attributes

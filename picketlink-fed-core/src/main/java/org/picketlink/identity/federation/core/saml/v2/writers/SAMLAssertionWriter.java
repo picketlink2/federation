@@ -173,6 +173,7 @@ public class SAMLAssertionWriter extends BaseWriter
    public void write( StatementAbstractType statement ) throws ProcessingException
    {
       //TODO: handle this section
+      throw new RuntimeException( "NYI" );
    }
    
    public void write( AttributeStatementType statement ) throws ProcessingException
@@ -310,7 +311,7 @@ public class SAMLAssertionWriter extends BaseWriter
       String nameFormat = attributeType.getNameFormat();
       if( StringUtil.isNotNull( nameFormat ))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_FORMAT.get(), friendlyName );
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_FORMAT.get(), nameFormat );
       }
       
       //Take care of other attributes such as x500:encoding
