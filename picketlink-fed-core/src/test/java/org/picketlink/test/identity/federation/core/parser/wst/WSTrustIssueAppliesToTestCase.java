@@ -25,8 +25,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBElement;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -40,8 +38,7 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
  * @since Oct 14, 2010
  */
 public class WSTrustIssueAppliesToTestCase
-{
-   @SuppressWarnings("unchecked")
+{ 
    @Test
    public void testAppliesTo() throws Exception
    {

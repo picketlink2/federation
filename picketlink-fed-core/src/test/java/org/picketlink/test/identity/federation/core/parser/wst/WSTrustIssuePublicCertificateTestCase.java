@@ -46,8 +46,6 @@ import org.w3c.dom.Element;
  */
 public class WSTrustIssuePublicCertificateTestCase
 {
-
-   @SuppressWarnings("unchecked")
    @Test
    public void testPublicCert() throws Exception
    {

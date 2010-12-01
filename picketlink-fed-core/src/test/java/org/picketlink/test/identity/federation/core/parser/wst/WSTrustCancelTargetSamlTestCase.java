@@ -27,9 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.List;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.junit.Test;
@@ -39,11 +37,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 
 /**
@@ -92,7 +90,16 @@ public class WSTrustCancelTargetSamlTestCase
       
       //Subject
       SubjectType subject = assertion.getSubject();
-      List<JAXBElement<?>> content = subject.getContent(); 
+      
+      NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
+      
+      assertEquals( "jduke", subjectNameID.getValue() );
+      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
+      
+      SubjectConfirmationType subjectConfirmationType = subject.getConfirmation().get(0);
+      assertEquals( JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod() );
+      
+      /*List<JAXBElement<?>> content = subject.getContent(); 
       
       int size = content.size();
       
@@ -114,7 +121,7 @@ public class WSTrustCancelTargetSamlTestCase
             SubjectConfirmationType subjectConfirmationType = (SubjectConfirmationType) node.getValue();
             assertEquals( JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod() );
          }
-      } 
+      } */
       
       //Conditions
       ConditionsType conditions =  assertion.getConditions();

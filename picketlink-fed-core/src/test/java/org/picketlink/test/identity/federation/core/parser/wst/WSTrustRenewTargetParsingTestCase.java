@@ -25,15 +25,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBElement;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 
 /**
@@ -60,10 +58,6 @@ public class WSTrustRenewTargetParsingTestCase
       assertEquals( "ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID() );
       assertEquals( "Test STS", assertion.getIssuer().getValue() );
       SubjectType subject = assertion.getSubject();
-      
-      @SuppressWarnings("unchecked")
-      JAXBElement<NameIDType> nameID = (JAXBElement<NameIDType>) subject.getContent().get(0);
-      assertEquals( "jduke", nameID.getValue().getValue());
-      
+      assertEquals( "jduke", ((NameIDType)subject.getSubType().getBaseID()).getValue());
    } 
 }

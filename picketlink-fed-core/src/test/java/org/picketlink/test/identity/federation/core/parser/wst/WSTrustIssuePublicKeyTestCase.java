@@ -43,8 +43,6 @@ import org.w3c.dom.Element;
  */
 public class WSTrustIssuePublicKeyTestCase
 {
-
-   @SuppressWarnings("unchecked")
    @Test
    public void testPublicKey() throws Exception
    {

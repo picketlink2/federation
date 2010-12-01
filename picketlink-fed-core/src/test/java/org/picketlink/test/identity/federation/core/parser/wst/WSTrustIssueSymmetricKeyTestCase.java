@@ -44,8 +44,7 @@ import org.picketlink.identity.federation.ws.trust.EntropyType;
  * @since Oct 18, 2010
  */
 public class WSTrustIssueSymmetricKeyTestCase
-{ 
-   @SuppressWarnings("unchecked")
+{  
    @Test
    public void testSymKey() throws Exception
    {

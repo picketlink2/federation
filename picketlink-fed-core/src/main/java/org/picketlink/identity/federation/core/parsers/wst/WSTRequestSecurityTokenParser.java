@@ -206,6 +206,8 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   entropy.getAny().add( binarySecret );
                }
                requestToken.setEntropy(entropy);
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY );
             }
             else if( tag.equals( WSTrustConstants.USE_KEY ))
             {
@@ -229,8 +231,11 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);//
                   useKeyType.setAny( domElement );
                   requestToken.setUseKey( useKeyType );   
+
+                  EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                  StaxParserUtil.validate(endElement, WSTrustConstants.USE_KEY );
                }
-               else throw new RuntimeException( "unsupported " + StaxParserUtil.getStartElementName( subEvent )); 
+               else throw new RuntimeException( "unsupported " + StaxParserUtil.getStartElementName( subEvent ));  
             }  
             else
             {

@@ -33,10 +33,8 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection; 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
@@ -49,8 +47,6 @@ import org.w3c.dom.Element;
  */
 public class WSTResponseAssertionHOKCertificateTestCase
 {
-
-   @SuppressWarnings("rawtypes")
    @Test
    public void testWST_RSTR_Assertion() throws Exception
    {
@@ -76,8 +72,9 @@ public class WSTResponseAssertionHOKCertificateTestCase
       assertEquals( WSTrustConstants.KEY_TYPE_PUBLIC, rstr.getKeyType().toASCIIString() );
       
       Element assertionElement = (Element) rstr.getRequestedSecurityToken().getAny();
-      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
-      assertEquals( "ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", assertion.getID() );
+      String id = assertionElement.getAttribute("ID" );
+
+      assertEquals( "ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", id ); 
       
       RequestedReferenceType ref = rstr.getRequestedAttachedReference();
       SecurityTokenReferenceType secRef =  ref.getSecurityTokenReference();
