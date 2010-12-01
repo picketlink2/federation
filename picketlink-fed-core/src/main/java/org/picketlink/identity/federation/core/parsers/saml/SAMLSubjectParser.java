@@ -186,6 +186,12 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             KeyInfoType keyInfo = parseKeyInfo(xmlEventReader); 
             subjectConfirmationData.setAnyType(keyInfo);
          } 
+         else if( tag.equals( WSTrustConstants.XMLEnc.ENCRYPTED_KEY ))
+         {
+            subjectConfirmationData.setAnyType( StaxParserUtil.getDOMElement(xmlEventReader));
+         }
+         else
+            throw new RuntimeException( "Handle:" + tag );
       }
 
       //Get the end tag

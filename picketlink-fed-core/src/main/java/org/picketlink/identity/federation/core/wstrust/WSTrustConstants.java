@@ -128,6 +128,12 @@ public interface WSTrustConstants
        String X509CERT = "X509Certificate";
     }
     
+    public interface XMLEnc
+    {
+       String XMLENC_NS = "http://www.w3.org/2001/04/xmlenc#";
+       String ENCRYPTED_KEY = "EncryptedKey";
+    }
+    
     public interface WSSE
     {
        String KEY_IDENTIFIER = "KeyIdentifier";

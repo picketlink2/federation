@@ -28,9 +28,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -41,10 +38,14 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
-import org.picketlink.identity.federation.core.util.TransformerUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.*;
-import org.w3c.dom.Document;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.w3c.dom.Element;
 
 /**
@@ -71,25 +72,10 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
       String startElementName = StaxParserUtil.getStartElementName(startElement);
       if( startElementName.equals( JBossSAMLConstants.ENCRYPTED_ASSERTION.get() ))
       {
-         Document resultDocument;
-         try
-         {
-            resultDocument = DocumentUtil.createDocument();
-            DOMResult domResult = new DOMResult( resultDocument );
-            
-            //Let us parse <b><c><d> using transformer
-            StAXSource source = new StAXSource(xmlEventReader);
-            
-            Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
-            transformer.transform( source, domResult );
-         }
-         catch ( Exception e)
-         {
-            throw new RuntimeException( e );
-         } 
+         Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
          
          EncryptedAssertionType encryptedAssertion = new EncryptedAssertionType();
-         encryptedAssertion.setEncryptedElement( resultDocument.getDocumentElement() );
+         encryptedAssertion.setEncryptedElement( domElement );
          return encryptedAssertion; 
       }
           
@@ -134,25 +120,8 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
          String tag = StaxParserUtil.getStartElementName( peekedElement );
 
          if( tag.equals( JBossSAMLConstants.SIGNATURE.get() ) )
-         {
-            Document resultDocument;
-            try
-            {
-               resultDocument = DocumentUtil.createDocument();
-               DOMResult domResult = new DOMResult( resultDocument );
-               
-               //Let us parse <b><c><d> using transformer
-               StAXSource source = new StAXSource(xmlEventReader);
-               
-               Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
-               transformer.transform( source, domResult );
-            }
-            catch ( Exception e)
-            {
-               throw new RuntimeException( e );
-            } 
-            
-            assertion.setSignature( resultDocument.getDocumentElement() ); 
+         { 
+            assertion.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) ); 
             continue; 
          }
 

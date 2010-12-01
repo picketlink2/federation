@@ -24,20 +24,15 @@ package org.picketlink.identity.federation.core.parsers.wst;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
-import org.w3c.dom.Document;
 
 /**
  * Stax parser for the wst:CancelTarget element
@@ -70,13 +65,8 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
       {
          // this is an unknown type - parse using the transformer.
          try
-         {
-            Document resultDocument = DocumentUtil.createDocument();
-            DOMResult domResult = new DOMResult(resultDocument);
-            StAXSource source = new StAXSource(xmlEventReader);
-            TransformerUtil.transform(TransformerUtil.getStaxSourceToDomResultTransformer(), source, domResult);
-            Document doc = (Document) domResult.getNode();
-            cancelTarget.setAny(doc.getDocumentElement());
+         { 
+            cancelTarget.setAny( StaxParserUtil.getDOMElement(xmlEventReader) );
          }
          catch(Exception e)
          {

@@ -21,6 +21,10 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.security.KeyStore;
@@ -36,8 +40,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
@@ -73,18 +76,10 @@ import org.w3c.dom.Element;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class SAML20TokenProviderUnitTestCase extends TestCase
+public class SAML20TokenProviderUnitTestCase
 {
 
    private SAML20TokenProvider provider;
-   
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      this.provider = new SAML20TokenProvider();
-      provider.initialize(new HashMap<String, String>());
-   }
    
    /**
     * <p>
@@ -93,8 +88,12 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     * 
     * @throws Exception if an error occurs while running the test.
     */
+   @Test
    public void testIssueSAMLV20Token() throws Exception
-   {   
+   {  
+      this.provider = new SAML20TokenProvider();
+      provider.initialize(new HashMap<String, String>());
+      
       SAMLAssertionParser assertionParser = new SAMLAssertionParser();
       
       // create a WSTrustRequestContext with a simple WS-Trust request.
@@ -171,8 +170,12 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     * 
     * @throws Exception if an error occurs while running the test.
     */
+   @Test
    public void testIssueSAMLV20HolderOfKeyToken() throws Exception
    {
+
+      this.provider = new SAML20TokenProvider();
+      provider.initialize(new HashMap<String, String>());
       // create a WSTrustRequestContext with a simple WS-Trust request.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setLifetime(WSTrustUtil.createDefaultLifetime(3600000));
@@ -266,9 +269,12 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
     * 
     * @throws Exception if an error occurs while running the test.
     */
+   @Test
    public void testValidateSAMLV20Token() throws Exception
    {
-
+      this.provider = new SAML20TokenProvider();
+      provider.initialize(new HashMap<String, String>());
+    
       // issue a SAMLV2.0 assertion.
       WSTrustRequestContext context = this.createIssuingContext(WSTrustUtil.createDefaultLifetime(3600000));
       this.provider.issueToken(context);

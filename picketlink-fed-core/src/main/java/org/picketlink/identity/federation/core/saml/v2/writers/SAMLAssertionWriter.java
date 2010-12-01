@@ -55,6 +55,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstr
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.KeyInfoConfirmationDataType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
@@ -62,6 +63,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConf
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.URIType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.w3c.dom.Element;
 
 /**
  * Write the SAML Assertion to stream
@@ -467,6 +470,21 @@ public class SAMLAssertionWriter extends BaseWriter
       {
          StaxUtil.writeAttribute(writer, JBossSAMLConstants.ADDRESS.get(), address );
       }
+      
+      Object anyType = subjectConfirmationData.getAnyType();
+      if( anyType instanceof KeyInfoConfirmationDataType )
+      {
+         KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) anyType;
+         Element keyInfoElement = kicd.getKeyInfo();
+         StaxUtil.writeDOMNode(writer, keyInfoElement);
+      }
+      else if( anyType instanceof KeyInfoType )
+      {
+         KeyInfoType keyInfo = (KeyInfoType) anyType;  
+         Element el = (Element) keyInfo.getContent().get(0);
+         StaxUtil.writeDOMNode(writer, el);
+      }
+      else throw new RuntimeException( "Need to handle:" + anyType );
 
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer );  
