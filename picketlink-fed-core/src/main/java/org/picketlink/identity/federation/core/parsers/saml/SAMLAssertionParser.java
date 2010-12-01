@@ -32,7 +32,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -43,6 +45,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Parse the saml assertion
@@ -52,6 +55,12 @@ import org.w3c.dom.Document;
 public class SAMLAssertionParser implements ParserNamespaceSupport
 { 
    private String ASSERTION = JBossSAMLConstants.ASSERTION.get();
+   
+   public AssertionType fromElement( Element element ) throws ConfigurationException, ProcessingException, ParsingException
+   {
+      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( DocumentUtil.getNodeAsStream(element));
+      return (AssertionType) parse(xmlEventReader);
+   }
    
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}

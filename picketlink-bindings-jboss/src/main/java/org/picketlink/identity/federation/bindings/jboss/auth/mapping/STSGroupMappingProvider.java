@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.log4j.Logger;
 import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.identity.plugins.SimpleRole;
