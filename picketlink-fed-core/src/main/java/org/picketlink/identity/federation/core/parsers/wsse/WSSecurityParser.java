@@ -151,6 +151,8 @@ public class WSSecurityParser extends AbstractParser
                endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
             }
+            else
+               throw new RuntimeException( "unknown end element:" + tag );
          }
 
          startElement = (StartElement) xmlEvent;

@@ -220,6 +220,8 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
             }
+            else
+               throw new RuntimeException( "unknown end element:" + tag );
          }
          startElement = (StartElement) xmlEvent;
          tag = StaxParserUtil.getStartElementName(startElement);

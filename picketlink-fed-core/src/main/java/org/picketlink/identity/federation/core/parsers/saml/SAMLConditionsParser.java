@@ -101,6 +101,8 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
                nextEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                break; 
             }
+            else
+               throw new RuntimeException( "unknown end element:" + StaxParserUtil.getEndElementName(nextEndElement));
          } 
          
          String tag = null; 

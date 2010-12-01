@@ -92,7 +92,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
             if (endElementTag.equals(WSTrustConstants.RSTR))
                break;
             else
-               throw new RuntimeException( "Unknown End Element:" + StaxParserUtil.getEndElementName( endElement ) );
+               throw new RuntimeException( "Unknown End Element:" + endElementTag );
          }
 
          try
@@ -335,11 +335,14 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
          xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if (xmlEvent instanceof EndElement)
          {
-            if (StaxParserUtil.getEndElementName((EndElement) xmlEvent).equals(WSTrustConstants.STATUS))
+            String endElementTag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
+            if ( endElementTag.equals(WSTrustConstants.STATUS))
             {
                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
-            }
+            } 
+            else
+               throw new RuntimeException( "unknown end element:" + endElementTag );
          }
          startElement = (StartElement) xmlEvent;
          String tag = StaxParserUtil.getStartElementName(startElement);
@@ -380,11 +383,14 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
          xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if (xmlEvent instanceof EndElement)
          {
-            if (StaxParserUtil.getEndElementName((EndElement) xmlEvent).equals(WSTrustConstants.REQUESTED_TOKEN))
+            String endElementTag = StaxParserUtil.getEndElementName( (EndElement) xmlEvent );
+            if ( endElementTag.equals(WSTrustConstants.REQUESTED_TOKEN))
             {
                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
             }
+            else
+               throw new RuntimeException( "unknown end element:" + endElementTag );
          }
          Element tokenElement = StaxParserUtil.getDOMElement(xmlEventReader);
          requestedSecurityTokenType.setAny(tokenElement);

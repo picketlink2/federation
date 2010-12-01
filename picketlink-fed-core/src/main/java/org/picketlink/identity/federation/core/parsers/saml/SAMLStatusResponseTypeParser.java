@@ -143,6 +143,8 @@ public abstract class SAMLStatusResponseTypeParser
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             if( StaxParserUtil.matches(endElement, STATUS ))
                break;
+            else
+               throw new RuntimeException( "unknown end element:" + StaxParserUtil.getEndElementName( endElement ));
          }
       } 
       return status;
