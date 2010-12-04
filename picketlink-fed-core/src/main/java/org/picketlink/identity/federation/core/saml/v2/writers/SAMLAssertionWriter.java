@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2008, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
@@ -39,6 +35,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AdviceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
@@ -64,10 +61,13 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.URIType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Element;
 
 /**
  * Write the SAML Assertion to stream
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
@@ -77,416 +77,457 @@ public class SAMLAssertionWriter extends BaseWriter
    {
       super(writer);
    }
-   
+
    /**
     * Write an {@code AssertionType} to stream
+    * 
     * @param assertion
     * @param out
     * @throws ProcessingException
     */
-   public void write( AssertionType assertion ) throws ProcessingException
+   public void write(AssertionType assertion) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ASSERTION.get() , ASSERTION_NSURI.get() ); 
-      StaxUtil.writeNameSpace( writer, ASSERTION_PREFIX, ASSERTION_NSURI.get() );
-      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ASSERTION.get(), ASSERTION_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
 
-      //Attributes 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), assertion.getID() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), assertion.getVersion() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), assertion.getIssueInstant().toString() );     
+      // Attributes
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), assertion.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), assertion.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), assertion.getIssueInstant().toString());
 
       NameIDType issuer = assertion.getIssuer();
-      if( issuer != null )
-         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
-      
+      if (issuer != null)
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+
       SubjectType subject = assertion.getSubject();
-      if( subject != null )
+      if (subject != null)
       {
          write(subject);
       }
-      
+
       ConditionsType conditions = assertion.getConditions();
-      if( conditions != null )
+      if (conditions != null)
       {
-         StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.CONDITIONS.get() , ASSERTION_NSURI.get() ); 
-         
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NOT_BEFORE.get(), conditions.getNotBefore().toString() );
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), conditions.getNotOnOrAfter().toString() );
-         
+         StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.CONDITIONS.get(), ASSERTION_NSURI
+               .get());
+
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(), conditions.getNotBefore().toString());
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), conditions.getNotOnOrAfter()
+               .toString());
+
          List<ConditionAbstractType> typeOfConditions = conditions.getConditions();
-         if( typeOfConditions != null )
+         if (typeOfConditions != null)
          {
-            for( ConditionAbstractType typeCondition: typeOfConditions )
+            for (ConditionAbstractType typeCondition : typeOfConditions)
             {
-               if( typeCondition instanceof AudienceRestrictionType )
+               if (typeCondition instanceof AudienceRestrictionType)
                {
                   AudienceRestrictionType art = (AudienceRestrictionType) typeCondition;
-                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE_RESTRICTION.get() , ASSERTION_NSURI.get() ); 
+                  StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE_RESTRICTION.get(),
+                        ASSERTION_NSURI.get());
                   List<URI> audiences = art.getAudience();
-                  if( audiences != null )
+                  if (audiences != null)
                   {
-                     for( URI audience: audiences )
+                     for (URI audience : audiences)
                      {
-                        StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE.get() , ASSERTION_NSURI.get() );
-                        StaxUtil.writeCharacters(writer, audience.toString() );
-                        StaxUtil.writeEndElement( writer);
+                        StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUDIENCE.get(),
+                              ASSERTION_NSURI.get());
+                        StaxUtil.writeCharacters(writer, audience.toString());
+                        StaxUtil.writeEndElement(writer);
                      }
                   }
 
-                  StaxUtil.writeEndElement( writer);  
+                  StaxUtil.writeEndElement(writer);
                }
             }
          }
 
-         StaxUtil.writeEndElement( writer); 
+         StaxUtil.writeEndElement(writer);
       }
-      
+
       AdviceType advice = assertion.getAdvice();
-      if( advice != null )
-         throw new RuntimeException( "Advice needs to be handled" );
-      
+      if (advice != null)
+         throw new RuntimeException("Advice needs to be handled");
+
       Set<StatementAbstractType> statements = assertion.getStatements();
-      if( statements != null )
+      if (statements != null)
       {
-         for( StatementAbstractType statement: statements )
+         for (StatementAbstractType statement : statements)
          {
-            if( statement instanceof AuthnStatementType )
+            if (statement instanceof AuthnStatementType)
             {
-               write( ( AuthnStatementType )statement );
+               write((AuthnStatementType) statement);
             }
-            else if( statement instanceof AttributeStatementType )
+            else if (statement instanceof AttributeStatementType)
             {
-               write( ( AttributeStatementType )statement );
+               write((AttributeStatementType) statement);
             }
-            else 
-                throw new RuntimeException( "unknown statement type=" + statement.getClass().getName() ); 
+            else
+               throw new RuntimeException("unknown statement type=" + statement.getClass().getName());
          }
       }
-      
-      StaxUtil.writeEndElement( writer);  
-      StaxUtil.flush( writer );  
-   } 
-   
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+
    /**
     * Write an {@code StatementAbstractType} to stream
+    * 
     * @param statement
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatementAbstractType statement ) throws ProcessingException
+   public void write(StatementAbstractType statement) throws ProcessingException
    {
-      //TODO: handle this section
-      throw new RuntimeException( "NYI" );
+      // TODO: handle this section
+      throw new RuntimeException("NYI");
    }
-   
-   public void write( AttributeStatementType statement ) throws ProcessingException
+
+   public void write(AttributeStatementType statement) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get() , ASSERTION_NSURI.get() );  
-      
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get(),
+            ASSERTION_NSURI.get());
+
       List<ASTChoiceType> attributes = statement.getAttributes();
-      if( attributes != null )
+      if (attributes != null)
       {
-         for( ASTChoiceType attr : attributes )
+         for (ASTChoiceType attr : attributes)
          {
             AttributeType attributeType = attr.getAttribute();
-            if( attributeType != null ) 
+            if (attributeType != null)
             {
-               write( attributeType );
+               write(attributeType);
             }
             EncryptedElementType encType = attr.getEncryptedAssertion();
-            if( encType != null )
-               throw new RuntimeException( "unable to write as it is NYI" );
+            if (encType != null)
+               throw new RuntimeException("unable to write as it is NYI");
          }
-      } 
+      }
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
-   
+
    /**
     * Write an {@code AuthnStatementType} to stream
+    * 
     * @param authnStatement
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnStatementType authnStatement ) throws ProcessingException
+   public void write(AuthnStatementType authnStatement) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get() , ASSERTION_NSURI.get() );  
-      
-      XMLGregorianCalendar authnInstant = authnStatement.getAuthnInstant();
-      if( authnInstant != null )
-      { 
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.AUTHN_INSTANT.get(), authnInstant.toString() );
-      }
-      
-      AuthnContextType authnContext = authnStatement.getAuthnContext();
-      if( authnContext != null )
-        write( authnContext );
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get(), ASSERTION_NSURI
+            .get());
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      XMLGregorianCalendar authnInstant = authnStatement.getAuthnInstant();
+      if (authnInstant != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.AUTHN_INSTANT.get(), authnInstant.toString());
+      }
+
+      AuthnContextType authnContext = authnStatement.getAuthnContext();
+      if (authnContext != null)
+         write(authnContext);
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write an {@code AuthnContextType} to stream
+    * 
     * @param authContext
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnContextType authContext ) throws ProcessingException
+   public void write(AuthnContextType authContext) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get() , ASSERTION_NSURI.get() );  
-      
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get(), ASSERTION_NSURI
+            .get());
+
       AuthnContextTypeSequence sequence = authContext.getSequence();
-      if( sequence != null )
+      if (sequence != null)
       {
          AuthnContextClassRefType authnContextClassRefType = sequence.getClassRef();
-         if( authnContextClassRefType != null )
+         if (authnContextClassRefType != null)
          {
-            StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ,
-                  ASSERTION_NSURI.get() ); 
-            StaxUtil.writeCharacters( writer,  authnContextClassRefType.getValue().toASCIIString() ); 
-            StaxUtil.writeEndElement( writer);  
-         } 
-         
+            StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get(),
+                  ASSERTION_NSURI.get());
+            StaxUtil.writeCharacters(writer, authnContextClassRefType.getValue().toASCIIString());
+            StaxUtil.writeEndElement(writer);
+         }
+
          Set<URIType> uriTypes = sequence.getURIType();
-         if( uriTypes != null )
+         if (uriTypes != null)
          {
-            for( URIType uriType: uriTypes )
+            for (URIType uriType : uriTypes)
             {
-               if( uriType instanceof AuthnContextDeclType )
+               if (uriType instanceof AuthnContextDeclType)
                {
-                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get() ,
-                        ASSERTION_NSURI.get() );  
-                  StaxUtil.writeCharacters( writer, uriType.getValue().toASCIIString() );
-                  StaxUtil.writeEndElement( writer);  
+                  StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION
+                        .get(), ASSERTION_NSURI.get());
+                  StaxUtil.writeCharacters(writer, uriType.getValue().toASCIIString());
+                  StaxUtil.writeEndElement(writer);
                }
-               if( uriType instanceof AuthnContextDeclRefType )
+               if (uriType instanceof AuthnContextDeclRefType)
                {
-                  StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get() ,
-                        ASSERTION_NSURI.get() );  
-                  StaxUtil.writeCharacters( writer, uriType.getValue().toASCIIString() );
-                  StaxUtil.writeEndElement( writer);  
+                  StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF
+                        .get(), ASSERTION_NSURI.get());
+                  StaxUtil.writeCharacters(writer, uriType.getValue().toASCIIString());
+                  StaxUtil.writeEndElement(writer);
                }
             }
-         } 
-      }
-      
-      Set<URI> authAuthorities = authContext.getAuthenticatingAuthority();
-      if( authAuthorities != null )
-      {
-         for( URI aa: authAuthorities )
-         {
-            StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHENTICATING_AUTHORITY.get() ,
-                  ASSERTION_NSURI.get() );  
-            StaxUtil.writeCharacters( writer, aa.toASCIIString() );
-            StaxUtil.writeEndElement( writer);   
          }
-      } 
+      }
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      Set<URI> authAuthorities = authContext.getAuthenticatingAuthority();
+      if (authAuthorities != null)
+      {
+         for (URI aa : authAuthorities)
+         {
+            StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHENTICATING_AUTHORITY.get(),
+                  ASSERTION_NSURI.get());
+            StaxUtil.writeCharacters(writer, aa.toASCIIString());
+            StaxUtil.writeEndElement(writer);
+         }
+      }
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write an {@code AttributeType} to stream
+    * 
     * @param attributeType
     * @param out
     * @throws ProcessingException
     */
-   public void write( AttributeType attributeType ) throws ProcessingException
+   public void write(AttributeType attributeType) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get() , ASSERTION_NSURI.get() );  
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get(), ASSERTION_NSURI.get());
 
       String attributeName = attributeType.getName();
-      if( attributeName != null )
+      if (attributeName != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME.get(), attributeName );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME.get(), attributeName);
       }
-      
+
       String friendlyName = attributeType.getFriendlyName();
-      if( StringUtil.isNotNull( friendlyName ))
+      if (StringUtil.isNotNull(friendlyName))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FRIENDLY_NAME.get(), friendlyName );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.FRIENDLY_NAME.get(), friendlyName);
       }
-      
+
       String nameFormat = attributeType.getNameFormat();
-      if( StringUtil.isNotNull( nameFormat ))
+      if (StringUtil.isNotNull(nameFormat))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_FORMAT.get(), nameFormat );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME_FORMAT.get(), nameFormat);
       }
-      
-      //Take care of other attributes such as x500:encoding
+
+      // Take care of other attributes such as x500:encoding
       Map<QName, String> otherAttribs = attributeType.getOtherAttributes();
-      if( otherAttribs != null )
+      if (otherAttribs != null)
       {
          List<String> nameSpacesDealt = new ArrayList<String>();
-         
+
          Iterator<QName> keySet = otherAttribs.keySet().iterator();
-         while( keySet != null && keySet.hasNext() )
+         while (keySet != null && keySet.hasNext())
          {
             QName qname = keySet.next();
             String ns = qname.getNamespaceURI();
-            if( !nameSpacesDealt.contains( ns ))
+            if (!nameSpacesDealt.contains(ns))
             {
-               StaxUtil.writeNameSpace(writer, qname.getPrefix(), ns );
-               nameSpacesDealt.add( ns );
-            } 
-            String attribValue = otherAttribs.get( qname );
-            StaxUtil.writeAttribute(writer, qname, attribValue );
-         }
-      }
-      
-      List<Object> attributeValues = attributeType.getAttributeValue();
-      if( attributeValues != null )
-      {
-         for( Object attributeValue : attributeValues )
-         {
-            if( attributeValue instanceof String )
-            {  
-               StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get() , ASSERTION_NSURI.get() );
-
-               StaxUtil.writeNameSpace( writer, "xsi", JBossSAMLURIConstants.XSI_NSURI.get() ); 
-               StaxUtil.writeNameSpace( writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get() ); 
-               StaxUtil.writeAttribute( writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
-               StaxUtil.writeCharacters(writer, (String) attributeValue );
-
-               StaxUtil.writeEndElement( writer);
+               StaxUtil.writeNameSpace(writer, qname.getPrefix(), ns);
+               nameSpacesDealt.add(ns);
             }
-            else 
-               throw new RuntimeException( "Unsupported attribute value:" + attributeValue.getClass().getName() );
+            String attribValue = otherAttribs.get(qname);
+            StaxUtil.writeAttribute(writer, qname, attribValue);
          }
       }
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+
+      List<Object> attributeValues = attributeType.getAttributeValue();
+      if (attributeValues != null)
+      {
+         for (Object attributeValue : attributeValues)
+         {
+            if (attributeValue instanceof String)
+            {
+               StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(),
+                     ASSERTION_NSURI.get());
+
+               StaxUtil.writeNameSpace(writer, "xsi", JBossSAMLURIConstants.XSI_NSURI.get());
+               StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
+               StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
+               StaxUtil.writeCharacters(writer, (String) attributeValue);
+
+               StaxUtil.writeEndElement(writer);
+            }
+            else
+               throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
+         }
+      }
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * write an {@code SubjectType} to stream
+    * 
     * @param subject
     * @param out
     * @throws ProcessingException
     */
-   public void write( SubjectType subject ) throws ProcessingException
+   public void write(SubjectType subject) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get() , ASSERTION_NSURI.get() ); 
-      
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get(), ASSERTION_NSURI.get());
+
       STSubType subType = subject.getSubType();
-      if( subType != null )
+      if (subType != null)
       {
          BaseIDAbstractType baseID = subType.getBaseID();
-         if( baseID instanceof NameIDType )
+         if (baseID instanceof NameIDType)
          {
             NameIDType nameIDType = (NameIDType) baseID;
-            write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) ); 
+            write(nameIDType, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
          }
          EncryptedElementType enc = subType.getEncryptedID();
-         if( enc != null )
-            throw new RuntimeException( "NYI" );
+         if (enc != null)
+            throw new RuntimeException("NYI");
          List<SubjectConfirmationType> confirmations = subType.getConfirmation();
-         if( confirmations != null )
+         if (confirmations != null)
          {
-            for( SubjectConfirmationType confirmation: confirmations )
+            for (SubjectConfirmationType confirmation : confirmations)
             {
-               write( confirmation );
+               write(confirmation);
             }
          }
       }
       List<SubjectConfirmationType> subjectConfirmations = subject.getConfirmation();
-      if( subjectConfirmations != null )
+      if (subjectConfirmations != null)
       {
-         for( SubjectConfirmationType subjectConfirmationType : subjectConfirmations )
+         for (SubjectConfirmationType subjectConfirmationType : subjectConfirmations)
          {
-            write( subjectConfirmationType );  
+            write(subjectConfirmationType);
          }
       }
-       
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
-   private void write( BaseIDAbstractType baseId ) throws ProcessingException
+
+   private void write(BaseIDAbstractType baseId) throws ProcessingException
    {
-      throw new RuntimeException( "NYI");
+      throw new RuntimeException("NYI");
    }
-   
-   private void write( SubjectConfirmationType subjectConfirmationType ) throws ProcessingException
+
+   private void write(SubjectConfirmationType subjectConfirmationType) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION.get(), ASSERTION_NSURI.get() );
-      
-      StaxUtil.writeAttribute(writer, JBossSAMLConstants.METHOD.get(), subjectConfirmationType.getMethod() );
-      
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION.get(),
+            ASSERTION_NSURI.get());
+
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.METHOD.get(), subjectConfirmationType.getMethod());
+
       BaseIDAbstractType baseID = subjectConfirmationType.getBaseID();
-      if( baseID != null )
+      if (baseID != null)
       {
-         write( baseID );
+         write(baseID);
       }
       NameIDType nameIDType = subjectConfirmationType.getNameID();
-      if( nameIDType != null )
+      if (nameIDType != null)
       {
-         write( nameIDType, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX) );
+         write(nameIDType, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
       }
       SubjectConfirmationDataType subjectConfirmationData = subjectConfirmationType.getSubjectConfirmationData();
-      if( subjectConfirmationData != null )
+      if (subjectConfirmationData != null)
       {
-         write( subjectConfirmationData ); 
-      }  
-      StaxUtil.writeEndElement( writer);
+         write(subjectConfirmationData);
+      }
+      StaxUtil.writeEndElement(writer);
    }
-   
-   private void write( SubjectConfirmationDataType subjectConfirmationData ) throws ProcessingException
-   {
-      StaxUtil.writeStartElement( writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get(), ASSERTION_NSURI.get() );  
-      
-      //Let us look at attributes
-      String inResponseTo = subjectConfirmationData.getInResponseTo();
-      if( StringUtil.isNotNull( inResponseTo ))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.IN_RESPONSE_TO.get(), inResponseTo );
-      }
-      
-      XMLGregorianCalendar notBefore = subjectConfirmationData.getNotBefore();
-      if( notBefore != null )
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(),notBefore.toString() );
-      }
-      
-      XMLGregorianCalendar notOnOrAfter = subjectConfirmationData.getNotOnOrAfter();
-      if( notOnOrAfter != null )
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(),notOnOrAfter.toString() );
-      }
-      
-      String recipient = subjectConfirmationData.getRecipient();
-      if( StringUtil.isNotNull( recipient ))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.RECIPIENT.get(), recipient );
-      }
-      
-      String address = subjectConfirmationData.getAddress();
-      if( StringUtil.isNotNull( address ))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ADDRESS.get(), address );
-      }
-      
-      Object anyType = subjectConfirmationData.getAnyType();
-      if( anyType instanceof KeyInfoConfirmationDataType )
-      {
-         KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) anyType;
-         Element keyInfoElement = kicd.getKeyInfo();
-         StaxUtil.writeDOMNode(writer, keyInfoElement);
-      }
-      else if( anyType instanceof KeyInfoType )
-      {
-         KeyInfoType keyInfo = (KeyInfoType) anyType;  
-         Element el = (Element) keyInfo.getContent().get(0);
-         StaxUtil.writeDOMNode(writer, el);
-      }
-      else throw new RuntimeException( "Need to handle:" + anyType );
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+   private void write(SubjectConfirmationDataType subjectConfirmationData) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get(),
+            ASSERTION_NSURI.get());
+
+      // Let us look at attributes
+      String inResponseTo = subjectConfirmationData.getInResponseTo();
+      if (StringUtil.isNotNull(inResponseTo))
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.IN_RESPONSE_TO.get(), inResponseTo);
+      }
+
+      XMLGregorianCalendar notBefore = subjectConfirmationData.getNotBefore();
+      if (notBefore != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(), notBefore.toString());
+      }
+
+      XMLGregorianCalendar notOnOrAfter = subjectConfirmationData.getNotOnOrAfter();
+      if (notOnOrAfter != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), notOnOrAfter.toString());
+      }
+
+      String recipient = subjectConfirmationData.getRecipient();
+      if (StringUtil.isNotNull(recipient))
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.RECIPIENT.get(), recipient);
+      }
+
+      String address = subjectConfirmationData.getAddress();
+      if (StringUtil.isNotNull(address))
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ADDRESS.get(), address);
+      }
+
+      if (subjectConfirmationData instanceof KeyInfoConfirmationDataType)
+      {
+         KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) subjectConfirmationData;
+         KeyInfoType keyInfo = (KeyInfoType) kicd.getAnyType();
+         if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
+            throw new ProcessingException("Invalid KeyInfo object: content cannot be empty");
+         StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+               WSTrustConstants.XMLDSig.KEYINFO, WSTrustConstants.XMLDSig.DSIG_NS);
+         StaxUtil.writeNameSpace(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.DSIG_NS);
+         // write the keyInfo content.
+         Object content = keyInfo.getContent().get(0);
+         if (content instanceof Element)
+         {
+            Element element = (Element) keyInfo.getContent().get(0);
+            StaxUtil.writeDOMNode(this.writer, element);
+         }
+         else if (content instanceof X509DataType)
+         {
+            X509DataType type = (X509DataType) content;
+            if (type.getX509IssuerSerialOrX509SKIOrX509SubjectName().size() == 0)
+               throw new ProcessingException("X509Data cannot be empy");
+            StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+                  WSTrustConstants.XMLDSig.X509DATA, WSTrustConstants.XMLDSig.DSIG_NS);
+            Object obj = type.getX509IssuerSerialOrX509SKIOrX509SubjectName().get(0);
+            if (obj instanceof Element)
+            {
+               Element element = (Element) obj;
+               StaxUtil.writeDOMElement(this.writer, element);
+            }
+            else if (obj instanceof X509CertificateType)
+            {
+               X509CertificateType cert = (X509CertificateType) obj;
+               StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+                     WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.DSIG_NS);
+               StaxUtil.writeCharacters(this.writer, new String(cert.getEncodedCertificate()));
+               StaxUtil.writeEndElement(this.writer);
+            }
+            StaxUtil.writeEndElement(this.writer);
+         }
+         StaxUtil.writeEndElement(this.writer);
+      }
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
 }

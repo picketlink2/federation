@@ -124,6 +124,7 @@ public interface WSTrustConstants
        String MODULUS = "Modulus";
        String DSIG_PREFIX = "ds";
        String RSA_KEYVALUE = "RSAKeyValue";
+       String DSA_KEYVALUE = "DSAKeyValue";
        String X509DATA = "X509Data";
        String X509CERT = "X509Certificate";
     }

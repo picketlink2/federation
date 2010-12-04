@@ -131,6 +131,11 @@ public abstract class SAMLStatusResponseTypeParser
                   subStatusCodeType.setValue( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( subValueAttr ))); 
                } 
                statusCode.setStatusCode( subStatusCodeType );
+               
+               // Go to Status code end element.
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
+               continue;
             }
             else
                break;

@@ -233,17 +233,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             {
                UseKeyType useKeyType = request.getUseKey();
                Object value = useKeyType.getAny();
-               if (value instanceof JAXBElement<?> || value instanceof Element)
+               if (value instanceof Element)
                {
-                  String elementName = (value instanceof Element)
-                        ? ((Element) value).getLocalName()
-                        : ((JAXBElement<?>) value).getName().getLocalPart();
+                  String elementName = ((Element) value).getLocalName();
                   // if the specified key is a X509 certificate we must insert it into a X509Data element.
                   if (elementName.equals("X509Certificate"))
                   {
                      X509DataType data = new X509DataType();
                      data.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(value);
-                     value = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory().createX509Data(data);
+                     value = data;
                   }
                   KeyInfoType keyInfo = new KeyInfoType();
                   keyInfo.getContent().add(value);

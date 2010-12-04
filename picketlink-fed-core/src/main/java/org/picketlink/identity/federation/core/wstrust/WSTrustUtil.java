@@ -66,6 +66,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -445,14 +446,14 @@ public class WSTrustUtil
          byte[] encodedCert = certificate.getEncoded();
 
          // first create a X509DataType that contains the encoded certificate.
-         org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory factory = new org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory();
-         X509DataType dataType = factory.createX509DataType();
-         dataType.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(
-               factory.createX509DataTypeX509Certificate(encodedCert));
-
+         X509DataType x509 = new X509DataType();
+         X509CertificateType cert = new X509CertificateType();
+         cert.setEncodedCertificate(Base64.encodeBytes(encodedCert).getBytes());
+         x509.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(cert);
+         
          // set the X509DataType in the KeyInfoType.
          keyInfo = new KeyInfoType();
-         keyInfo.getContent().add(factory.createX509Data(dataType));
+         keyInfo.getContent().add(x509);
       }
       catch (Exception e)
       {
