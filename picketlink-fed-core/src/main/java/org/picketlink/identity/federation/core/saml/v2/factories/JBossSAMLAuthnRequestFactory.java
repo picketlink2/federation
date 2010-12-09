@@ -55,7 +55,7 @@ public class JBossSAMLAuthnRequestFactory
     */
    public static AuthnRequestType createAuthnRequestType(String id, 
          String assertionConsumerURL, String destination, String issuerValue) throws ConfigurationException  
-   {
+   {      
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
       AuthnRequestType authnRequest = new AuthnRequestType();
@@ -63,7 +63,10 @@ public class JBossSAMLAuthnRequestFactory
       authnRequest.setVersion(JBossSAMLConstants.VERSION_2_0.get());
       authnRequest.setAssertionConsumerServiceURL( NetworkUtil.createURI( assertionConsumerURL ));
       authnRequest.setProtocolBinding( NetworkUtil.createURI( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
-      authnRequest.setDestination(  NetworkUtil.createURI( destination ));
+      if( destination != null )
+      {
+         authnRequest.setDestination(  NetworkUtil.createURI( destination )); 
+      }
       authnRequest.setIssueInstant(issueInstant);
       
       //Create an issuer 
