@@ -55,7 +55,10 @@ public class MockContextClassLoader extends URLClassLoader
    public InputStream getResourceAsStream(String name)
    {
       if(profile == null)
-         throw new RuntimeException("null profile");
-      return delegate.getResourceAsStream(profile + "/" + name);
+         throw new RuntimeException("null profile"); 
+      InputStream is = super.getResourceAsStream(name);
+      if( is == null )
+         is = delegate.getResourceAsStream(profile + "/" + name);
+      return is;
    }
 }
