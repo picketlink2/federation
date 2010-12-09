@@ -111,6 +111,7 @@ public class JBossSAMLAuthnResponseFactory
       
       SubjectType.STSubType subType = new SubjectType.STSubType();
       subType.addBaseID(nameIDType); 
+      subjectType.setSubType(subType);
       
       SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
       subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
