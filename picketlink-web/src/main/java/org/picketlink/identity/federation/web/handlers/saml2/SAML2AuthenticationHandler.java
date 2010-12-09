@@ -50,6 +50,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -358,7 +359,13 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          /*JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0);
          NameIDType nameID = jnameID.getValue();
          */
-         NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
+         STSubType subType = subject.getSubType();
+         if( subType == null )
+            throw new RuntimeException( "Unable to find subtype via subject" );
+         NameIDType nameID = (NameIDType) subType.getBaseID();
+
+         if( nameID == null )
+            throw new RuntimeException( "Unable to find username via subject" );
          
          final String userName = nameID.getValue();
          List<String> roles = new ArrayList<String>();
