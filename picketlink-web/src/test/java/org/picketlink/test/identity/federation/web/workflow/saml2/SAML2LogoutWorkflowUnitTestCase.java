@@ -21,6 +21,10 @@
  */
 package org.picketlink.test.identity.federation.web.workflow.saml2;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -34,13 +38,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.SAML2Object; 
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.filters.SPFilter;
@@ -63,10 +66,10 @@ import org.w3c.dom.NodeList;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-public class SAML2LogoutWorkflowUnitTestCase extends TestCase
+public class SAML2LogoutWorkflowUnitTestCase
 {
    private String profile = "saml2/logout";
-   private ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+   private ClassLoader tcl;
    private String employee = "http://localhost:8080/employee/"; 
    private String sales = "http://localhost:8080/sales/";
    
@@ -76,8 +79,11 @@ public class SAML2LogoutWorkflowUnitTestCase extends TestCase
     * @see {@code GeneralConstants#GLOBAL_LOGOUT}
     * @throws Exception
     */
+   @Test
    public void testSPFilterLogOutRequestGeneration() throws Exception
    { 
+      tcl = Thread.currentThread().getContextClassLoader();
+      
       MockHttpSession session = new MockHttpSession();
       session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
       {
@@ -141,8 +147,10 @@ public class SAML2LogoutWorkflowUnitTestCase extends TestCase
     * f) employee app invalidates its session
     * @throws Exception
     */
+   @Test
    public void testSAML2LogOutFromIDPServlet() throws Exception
    { 
+      tcl = Thread.currentThread().getContextClassLoader();
       MockHttpSession session = new MockHttpSession();
       
       MockContextClassLoader mclIDP = setupTCL(profile + "/idp");
