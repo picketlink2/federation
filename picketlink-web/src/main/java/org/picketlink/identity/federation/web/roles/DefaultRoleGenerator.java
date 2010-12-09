@@ -72,5 +72,4 @@ public class DefaultRoleGenerator implements RoleGenerator
       }
       return roles;
    }
-
 }

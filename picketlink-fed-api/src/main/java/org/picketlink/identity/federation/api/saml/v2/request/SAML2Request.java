@@ -34,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -179,7 +178,7 @@ public class SAML2Request
    {
       if(is == null)
          throw new IllegalStateException("InputStream is null");
-      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
+      //String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
       //boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
       
       Document samlDocument = DocumentUtil.getDocument( is );
