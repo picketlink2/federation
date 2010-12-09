@@ -38,6 +38,9 @@ public class NetworkUtil
     */
    public static URI createURI( String value )
    {
+      if( value == null )
+         throw new IllegalArgumentException( "value is null" );
+      
       try
       {
          return new URI( value );
