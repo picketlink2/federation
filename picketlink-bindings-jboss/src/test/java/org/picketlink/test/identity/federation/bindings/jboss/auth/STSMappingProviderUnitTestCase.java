@@ -80,8 +80,8 @@ public class STSMappingProviderUnitTestCase extends TestCase
       assertion.addStatement( attributeStatementType );
       AttributeType attributeType = new AttributeType( roleAttributeName );
       attributeStatementType.addAttribute( new ASTChoiceType(attributeType)); 
-      attributeType.getAttributeValue().add(role1);
-      attributeType.getAttributeValue().add(role2);
+      attributeType.addAttributeValue( role1 );
+      attributeType.addAttributeValue( role2 );
       
       MappingResult<RoleGroup> mappingResult = new MappingResult<RoleGroup>();
       Map<String, Object> contextMap = new HashMap<String, Object>();

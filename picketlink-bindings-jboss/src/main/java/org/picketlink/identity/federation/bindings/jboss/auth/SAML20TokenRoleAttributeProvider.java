@@ -87,7 +87,7 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
           AttributeType rolesAttribute = new AttributeType( tokenRoleAttributeName ); 
           attributeStatement.addAttribute( new ASTChoiceType(rolesAttribute) );
           
-          List<Object> roles = rolesAttribute.getAttributeValue();
+          //List<Object> roles = rolesAttribute.getAttributeValue();
           for( Principal rolePrincipal : subject.getPrincipals() )
           {
               if( JBOSS_ROLE_PRINCIPAL_NAME.equalsIgnoreCase( rolePrincipal.getName() ) )
@@ -97,7 +97,8 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
                   while( members.hasMoreElements() )
                   {
                       Principal role = (Principal)members.nextElement();
-                      roles.add( role.getName() );
+                      rolesAttribute.addAttributeValue( role.getName() );
+                      //roles.add( role.getName() );
                   }
               }
           }
