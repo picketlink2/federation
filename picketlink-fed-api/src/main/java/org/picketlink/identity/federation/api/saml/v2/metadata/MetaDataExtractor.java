@@ -23,13 +23,14 @@ package org.picketlink.identity.federation.api.saml.v2.metadata;
 
 import java.util.List;
 
-import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RoleDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
+ 
 
 /**
  * Extract useful information out of metadata
@@ -49,7 +50,8 @@ public class MetaDataExtractor
    public static String toString(EntityDescriptorType edt)
    {
       StringBuilder builder = new StringBuilder();
-      List<RoleDescriptorType> rolesD = edt.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
+      throw new RuntimeException();
+     /* List<RoleDescriptorType> rolesD = edt.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
       
       for(RoleDescriptorType rdt: rolesD)
       {
@@ -68,7 +70,7 @@ public class MetaDataExtractor
          } 
       }
       
-      return builder.toString();
+      return builder.toString();*/
    }
    
    /**

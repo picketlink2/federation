@@ -28,15 +28,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilderDelegate;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.*;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType; 
+
 
 /**
  * SAML2 Metadata Builder API
@@ -121,34 +116,5 @@ public class MetaDataBuilder
    {
       return MetaDataBuilderDelegate.createSPSSODescriptor(requestsSigned, keyDescriptorType, 
             sloEndPoint, attributes, org);     
-   }
-   
-   /**
-    * Get the marshaller
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Marshaller getMarshaller() throws JAXBException
-   {
-      return MetaDataBuilderDelegate.getMarshaller();
-   }
-   
-   /**
-    * Get the Unmarshaller
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Unmarshaller getUnmarshaller() throws JAXBException  
-   {
-      return MetaDataBuilderDelegate.getUnmarshaller();
-   }
-   
-   /**
-    * Get the ObjectFactory for method chaining
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return MetaDataBuilderDelegate.getObjectFactory();
-   }
+   } 
 }

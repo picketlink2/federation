@@ -45,16 +45,17 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.w3c.dom.Element;
 
 /**
@@ -132,12 +133,12 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertNotNull("Unexpected null conditions", conditions);
       assertNotNull("Unexpected null value for NotBefore attribute", conditions.getNotBefore());
       assertNotNull("Unexpected null value for NotOnOrAfter attribute", conditions.getNotOnOrAfter());
-      assertEquals("Unexpected number of conditions", 1, conditions.getConditionOrAudienceRestrictionOrOneTimeUse()
+      assertEquals("Unexpected number of conditions", 1, conditions.getConditions()
             .size());
       assertTrue("Unexpected condition type",
-            conditions.getConditionOrAudienceRestrictionOrOneTimeUse().get(0) instanceof AudienceRestrictionType);
+            conditions.getConditions().get(0) instanceof AudienceRestrictionType);
       AudienceRestrictionType restrictionType = (AudienceRestrictionType) conditions
-            .getConditionOrAudienceRestrictionOrOneTimeUse().get(0);
+            .getConditions().get(0);
       assertNotNull("Unexpected null audience list", restrictionType.getAudience());
       assertEquals("Unexpected number of audience elements", 1, restrictionType.getAudience().size());
       assertEquals("Unexpected audience value", "http://services.testcorp.org/provider2", restrictionType.getAudience()
@@ -146,22 +147,18 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       // check the contents of the assertion subject.
       SubjectType subject = assertion.getSubject();
       assertNotNull("Unexpected null subject", subject);
-      assertEquals("Unexpected subject content size", 2, subject.getContent().size());
-      JAXBElement<?> content = subject.getContent().get(0);
-      assertEquals("Unexpected content type", NameIDType.class, content.getDeclaredType());
-      NameIDType nameID = (NameIDType) content.getValue();
+
+      NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "bmozaffa", nameID.getValue());
-      content = subject.getContent().get(1);
-      assertEquals("Unexpected content type", SubjectConfirmationType.class, content.getDeclaredType());
-      SubjectConfirmationType confirmation = (SubjectConfirmationType) content.getValue();
+      SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_BEARER_URI, confirmation.getMethod());
       
-      StatementAbstractType statementAbstractType = assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().get(0);
+      StatementAbstractType statementAbstractType = assertion.getStatements().iterator().next() ;
       assertNotNull("Unexpected null StatementAbstractType", statementAbstractType);
       assertTrue("Unexpected type instead of AttributeStatement: " + statementAbstractType.getClass().getSimpleName(), statementAbstractType instanceof AttributeStatementType);
       AttributeStatementType attributeStatement = (AttributeStatementType)statementAbstractType;
-      List<Object> attributes = attributeStatement.getAttributeOrEncryptedAttribute();
+      List<ASTChoiceType> attributes = attributeStatement.getAttributes();
       assertFalse("Unexpected empty list of attributes", attributes.isEmpty());
       assertEquals("Unexpected number of attributes", 1, attributes.size());
       Object attributeObject = attributes.iterator().next();

@@ -25,8 +25,8 @@ import java.security.Principal;
 import java.util.List;
 
 import org.jboss.seam.annotations.Name;
-import org.jboss.seam.security.Identity;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.jboss.seam.security.Identity; 
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 
 /**
 * @author Marcel Kolsteren
@@ -46,6 +46,7 @@ public class Authenticator
          }
          else
          {
+            throw new RuntimeException();/*
             for (AttributeType attribute : samlPrincipal.getAttributes())
             {
                if (attribute.getName().equals("role"))
@@ -56,9 +57,9 @@ public class Authenticator
                      roles.add((String) value.get(0));
                   }
                }
-            }
+            }*/
 
-            return true;
+            //return true;
          }
       }
       else

@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.web.servlets.saml;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,12 +37,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBElement;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
-import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
-import org.picketlink.identity.federation.api.util.KeyUtil; 
+import org.picketlink.identity.federation.api.util.KeyUtil;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
@@ -51,15 +51,13 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
-
-
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Metadata servlet for the IDP/SP
@@ -181,6 +179,7 @@ public class MetadataServlet extends HttpServlet
    {
       resp.setContentType(JBossSAMLConstants.METADATA_MIME.get());
       OutputStream os = resp.getOutputStream();
+      throw new RuntimeException();/*
       JAXBElement<?> jaxbEl = MetaDataBuilder.getObjectFactory().createEntityDescriptor(metadata);
       try
       {
@@ -189,17 +188,18 @@ public class MetadataServlet extends HttpServlet
       catch (Exception e)
       {
          throw new RuntimeException(e);
-      } 
+      }*/ 
    }
    
    private void updateKeyDescriptor(EntityDescriptorType entityD, KeyDescriptorType keyD)
    {
-     List<RoleDescriptorType> objs = entityD.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
+     List<EDTDescriptorChoiceType> objs = entityD.getChoiceType().getDescriptors();
      if(objs != null)
      {
-        for(RoleDescriptorType roleD: objs)
+        for(EDTDescriptorChoiceType roleD: objs)
         {
-           roleD.getKeyDescriptor().add(keyD);
+           RoleDescriptorType roleDescriptor = roleD.getRoleDescriptor();
+           roleDescriptor.addKeyDescriptor( keyD );
         }
      }
    }

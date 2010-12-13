@@ -21,25 +21,23 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
-import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
-import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNameType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedURIType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
 
 /**
  * SAML2 Metadata Builder API
@@ -47,10 +45,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
  * @since Apr 19, 2009
  */
 public class MetaDataBuilderDelegate
-{
-   private static ObjectFactory oFact = new ObjectFactory();
-   
-   private static String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
+{    
    /**
     * Create an Endpoint (SingleSignOnEndpoint or SingleLogoutEndpoint)
     * @param binding
@@ -61,10 +56,9 @@ public class MetaDataBuilderDelegate
    public static EndpointType createEndpoint(String binding, String location,
          String responseLocation)
    {
-      EndpointType endpoint = oFact.createEndpointType();
-      endpoint.setBinding(binding);
-      endpoint.setLocation(location);
-      endpoint.setResponseLocation(responseLocation);
+      EndpointType endpoint = new EndpointType( NetworkUtil.createURI(binding),
+            NetworkUtil.createURI(location));
+      endpoint.setResponseLocation( NetworkUtil.createURI( responseLocation ));
       return endpoint;
    }
    
@@ -89,24 +83,21 @@ public class MetaDataBuilderDelegate
          lang = JBossSAMLConstants.LANG_EN.get();
       
       //orgName
-      LocalizedNameType orgName = oFact.createLocalizedNameType();
-      orgName.setValue(organizationName);
-      orgName.setLang(lang);
+      LocalizedNameType orgName = new LocalizedNameType( lang );
+      orgName.setValue(organizationName); 
       
       //orgDisplayName
-      LocalizedNameType orgDisplayName = oFact.createLocalizedNameType();
-      orgDisplayName.setValue(organizationDisplayName);
-      orgDisplayName.setLang(lang);
+      LocalizedNameType orgDisplayName = new LocalizedNameType( lang );
+      orgDisplayName.setValue(organizationDisplayName); 
       
       //orgURL
-      LocalizedURIType orgURL = oFact.createLocalizedURIType();
-      orgURL.setValue(organizationURL);
-      orgURL.setLang(lang);
+      LocalizedURIType orgURL = new LocalizedURIType( lang );
+      orgURL.setValue( NetworkUtil.createURI( organizationURL )); 
       
-      OrganizationType orgType = oFact.createOrganizationType();
-      orgType.getOrganizationName().add(orgName);
-      orgType.getOrganizationDisplayName().add(orgDisplayName);
-      orgType.getOrganizationURL().add(orgURL);
+      OrganizationType orgType = new OrganizationType();
+      orgType.addOrganizationName( orgName );
+      orgType.addOrganizationDisplayName( orgDisplayName );
+      orgType.addOrganizationURL( orgURL );
       return orgType;
    }
    
@@ -115,10 +106,17 @@ public class MetaDataBuilderDelegate
     * @param idpOrSPDescriptor a descriptor for either the IDP or SSO
     * @return
     */
-   public static EntityDescriptorType createEntityDescriptor(SSODescriptorType idpOrSPDescriptor)
+   public static EntityDescriptorType createEntityDescriptor( SSODescriptorType idpOrSPDescriptor)
    {
-      EntityDescriptorType entity = oFact.createEntityDescriptorType();
-      entity.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor().add(idpOrSPDescriptor); 
+      EDTDescriptorChoiceType edtDescriptorChoiceType = new EDTDescriptorChoiceType( idpOrSPDescriptor );
+      
+      List<EDTDescriptorChoiceType> edtList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
+      edtList.add(edtDescriptorChoiceType);
+      
+      EDTChoiceType choiceType = new EDTChoiceType(edtList);
+      
+      EntityDescriptorType entity = new EntityDescriptorType();
+      entity.setChoiceType(choiceType);
       return entity; 
    }
    
@@ -139,11 +137,15 @@ public class MetaDataBuilderDelegate
          List<AttributeType> attributes,
          OrganizationType org)
    {
-      IDPSSODescriptorType idp = oFact.createIDPSSODescriptorType();
-      idp.getSingleSignOnService().add(ssoEndPoint);
-      idp.getSingleLogoutService().add(sloEndPoint);
-      idp.getAttribute().addAll(attributes);
-      idp.getKeyDescriptor().add(keyDescriptorType);
+      IDPSSODescriptorType idp = new IDPSSODescriptorType();
+      idp.addSingleSignOnService( ssoEndPoint );
+      idp.addSingleLogoutService( sloEndPoint ); 
+      
+      for( AttributeType attr: attributes )
+      {
+         idp.addAttribute(attr);
+      }
+      idp.addKeyDescriptor( keyDescriptorType);
       idp.setWantAuthnRequestsSigned(requestsSigned);
       idp.setOrganization(org);
       return idp;
@@ -165,40 +167,11 @@ public class MetaDataBuilderDelegate
          List<AttributeType> attributes,
          OrganizationType org)
    {
-      SPSSODescriptorType sp = oFact.createSPSSODescriptorType();
-      sp.getSingleLogoutService().add(sloEndPoint);
-      sp.getKeyDescriptor().add(keyDescriptorType);
+      SPSSODescriptorType sp = new SPSSODescriptorType();
+      sp.addSingleLogoutService( sloEndPoint );
+      sp.addKeyDescriptor( keyDescriptorType );
       sp.setAuthnRequestsSigned(requestsSigned); 
       sp.setOrganization(org);
       return sp;
-   }
-   
-   /**
-    * Get the marshaller
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Marshaller getMarshaller() throws JAXBException
-   {
-      return JAXBUtil.getMarshaller(pkgName);
-   }
-   
-   /**
-    * Get the Unmarshaller
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Unmarshaller getUnmarshaller() throws JAXBException  
-   {
-      return JAXBUtil.getUnmarshaller(pkgName);
-   }
-   
-   /**
-    * Get the ObjectFactory for method chaining
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return oFact;
    }
 }

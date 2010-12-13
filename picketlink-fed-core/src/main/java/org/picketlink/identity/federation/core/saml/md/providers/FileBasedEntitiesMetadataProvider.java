@@ -24,8 +24,8 @@ package org.picketlink.identity.federation.core.saml.md.providers;
 import java.io.InputStream;
 import java.security.PublicKey;
 
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
 
 /**
  * File based provider that handles multiple entities

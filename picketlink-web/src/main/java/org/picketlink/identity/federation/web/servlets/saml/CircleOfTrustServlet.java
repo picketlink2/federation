@@ -40,8 +40,8 @@ import javax.xml.bind.Unmarshaller;
 
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
@@ -218,7 +218,9 @@ public class CircleOfTrustServlet extends HttpServlet
 
    private EntityDescriptorType getMetaData(String metadataURL) throws JAXBException, IOException
    {
-      InputStream is;
+      throw new RuntimeException();
+      
+      /*InputStream is;
       URL md = new URL(metadataURL);
       HttpURLConnection http = (HttpURLConnection) md.openConnection();
       http.setInstanceFollowRedirects(true);
@@ -230,7 +232,7 @@ public class CircleOfTrustServlet extends HttpServlet
       if(obj instanceof EntityDescriptorType == false)
          throw new RuntimeException("Unsupported type:"+ obj.getClass());
       EntityDescriptorType edt = (EntityDescriptorType) obj;
-      return edt;
+      return edt;*/
    }
    
    private void displayTrustedProvidersForIDP(HttpServletRequest request, HttpServletResponse response) 

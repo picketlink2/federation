@@ -42,12 +42,8 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
-import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * File based metadata store that uses
@@ -196,7 +192,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     */
    public void persist(EntityDescriptorType entity, String id) throws IOException
    {
-      boolean isIDP = false;
+      /*boolean isIDP = false;
       boolean isSP = false;
       
       File persistedFile = validateIdAndReturnMDFile(id);
@@ -242,8 +238,9 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       else if( isIDP )
       {
          addIdentityProvider( id);
-      }
-         
+      }*/
+      
+      throw new RuntimeException(); 
    }
 
    /**

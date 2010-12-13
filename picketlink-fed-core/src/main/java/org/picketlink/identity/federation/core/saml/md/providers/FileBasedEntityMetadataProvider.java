@@ -27,8 +27,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
  
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * A file based metadata provider that
@@ -70,11 +70,12 @@ implements IMetadataProvider<EntityDescriptorType>
       
       try
       { 
+         new RuntimeException();/*
          JAXBElement<EntityDescriptorType> j =
             (JAXBElement<EntityDescriptorType>) MetaDataBuilderDelegate.getUnmarshaller().unmarshal(metadataFileStream); 
          edt = j.getValue();
          //TODO: use the signing and enc key data
-      }
+*/      }
       catch(Exception e)
       {
          throw new RuntimeException(e);

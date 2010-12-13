@@ -21,15 +21,14 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.math.BigInteger;
 
-import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
-import org.picketlink.identity.federation.saml.v2.metadata.ObjectFactory;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
-
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * MetaDataBuilder for the KeyDescriptor
@@ -53,7 +52,7 @@ public class KeyDescriptorMetaDataBuilder
          throw new IllegalArgumentException("Only one of isSigningKey " +
          		"and isEncryptionKey should be true");
       
-      KeyDescriptorType keyDescriptor = getObjectFactory().createKeyDescriptorType();
+      KeyDescriptorType keyDescriptor = new KeyDescriptorType();
       
       if(isNotNull(algorithm))
       {
@@ -73,14 +72,5 @@ public class KeyDescriptorMetaDataBuilder
       keyDescriptor.setKeyInfo(keyInfo);
       
       return keyDescriptor;
-   }
-
-   /**
-    * Return the metadata object factory
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return MetaDataBuilder.getObjectFactory();
    }
 }

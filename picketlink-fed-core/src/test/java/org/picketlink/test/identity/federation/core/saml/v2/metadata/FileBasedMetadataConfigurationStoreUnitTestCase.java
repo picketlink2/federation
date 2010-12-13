@@ -31,8 +31,7 @@ import javax.xml.bind.Unmarshaller;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
 
 
 /**
@@ -48,7 +47,8 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase extends TestCase
    @SuppressWarnings("unchecked")
    public void testStore() throws Exception
    {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      throw new RuntimeException();
+     /* ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = 
          tcl.getResourceAsStream("saml2/metadata/idp-entitydescriptor.xml");
       assertNotNull("Inputstream not null", is);
@@ -73,7 +73,7 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase extends TestCase
       catch(Exception t)
       {
          //pass
-      }
+      }*/
    }
    
    public void testTrustedProviders() throws Exception

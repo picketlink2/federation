@@ -29,8 +29,7 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType; 
 import org.jboss.security.xacml.core.model.context.RequestType;
 
 /**
@@ -46,7 +45,8 @@ public class SAMLXACMLUnitTestCase extends TestCase
     */
    public void testSAML_XACML_Read() throws Exception
    {
-      String resourceName = "saml-xacml/saml-xacml-request.xml";
+      throw new RuntimeException();
+      /*String resourceName = "saml-xacml/saml-xacml-request.xml";
       String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
       String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
       String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
@@ -68,7 +68,7 @@ public class SAMLXACMLUnitTestCase extends TestCase
       
       XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
       RequestType requestType = xadqt.getRequest();
-      assertNotNull(requestType);
+      assertNotNull(requestType);*/
    }
    
    @SuppressWarnings("unchecked")
@@ -77,7 +77,9 @@ public class SAMLXACMLUnitTestCase extends TestCase
     */
    public void testSAML_XACML_Read_2() throws Exception
    {
-      String resourceName = "saml-xacml/saml-xacml-request-2.xml";
+      throw new RuntimeException();
+      
+      /*String resourceName = "saml-xacml/saml-xacml-request-2.xml";
       String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
       String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
       String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
@@ -99,6 +101,6 @@ public class SAMLXACMLUnitTestCase extends TestCase
       
       XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
       RequestType requestType = xadqt.getRequest();
-      assertNotNull(requestType);
+      assertNotNull(requestType);*/
    }
 }
