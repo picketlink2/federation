@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+//import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 
 
@@ -44,7 +44,7 @@ import org.jboss.security.xacml.core.model.context.RequestType;
     "request"
 })
 public class XACMLAuthzDecisionQueryType
-    extends RequestAbstractType
+    //extends RequestAbstractType
 {
 
     @XmlElement(name = "Request", namespace = "urn:oasis:names:tc:xacml:2.0:context:schema:os", required = true)

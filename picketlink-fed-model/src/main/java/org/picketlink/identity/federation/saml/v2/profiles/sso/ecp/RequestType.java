@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+//import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.generated.runtime.ZeroOneBooleanAdapter;
-import org.picketlink.identity.federation.saml.v2.protocol.IDPListType;
+//import org.picketlink.identity.federation.saml.v2.protocol.IDPListType;
  
 
 
@@ -53,10 +53,10 @@ import org.picketlink.identity.federation.saml.v2.protocol.IDPListType;
 })
 public class RequestType {
 
-    @XmlElement(name = "Issuer", namespace = "urn:oasis:names:tc:SAML:2.0:assertion", required = true)
+   /*   @XmlElement(name = "Issuer", namespace = "urn:oasis:names:tc:SAML:2.0:assertion", required = true)
     protected NameIDType issuer;
-    @XmlElement(name = "IDPList", namespace = "urn:oasis:names:tc:SAML:2.0:protocol")
-    protected IDPListType idpList;
+   @XmlElement(name = "IDPList", namespace = "urn:oasis:names:tc:SAML:2.0:protocol")
+    protected IDPListType idpList;*/
     @XmlAttribute(namespace = "http://schemas.xmlsoap.org/soap/envelope/", required = true)
     @XmlJavaTypeAdapter(ZeroOneBooleanAdapter.class)
     protected Boolean mustUnderstand;
@@ -76,9 +76,9 @@ public class RequestType {
      *     {@link NameIDType }
      *     
      */
-    public NameIDType getIssuer() {
+    /*public NameIDType getIssuer() {
         return issuer;
-    }
+    }*/
 
     /**
      * Sets the value of the issuer property.
@@ -88,9 +88,9 @@ public class RequestType {
      *     {@link NameIDType }
      *     
      */
-    public void setIssuer(NameIDType value) {
+    /*public void setIssuer(NameIDType value) {
         this.issuer = value;
-    }
+    }*/
 
     /**
      * Gets the value of the idpList property.
@@ -100,9 +100,9 @@ public class RequestType {
      *     {@link IDPListType }
      *     
      */
-    public IDPListType getIDPList() {
+    /*public IDPListType getIDPList() {
         return idpList;
-    }
+    }*/
 
     /**
      * Sets the value of the idpList property.
@@ -112,9 +112,9 @@ public class RequestType {
      *     {@link IDPListType }
      *     
      */
-    public void setIDPList(IDPListType value) {
+    /*public void setIDPList(IDPListType value) {
         this.idpList = value;
-    }
+    }*/
 
     /**
      * Gets the value of the mustUnderstand property.

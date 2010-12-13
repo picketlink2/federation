@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlType;
 
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+//import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.jboss.security.xacml.core.model.policy.IdReferenceType;
 import org.jboss.security.xacml.core.model.policy.TargetType;
 
@@ -50,7 +50,7 @@ import org.jboss.security.xacml.core.model.policy.TargetType;
     "requestOrTargetOrPolicySetIdReference"
 })
 public class XACMLPolicyQueryType
-    extends RequestAbstractType
+    //extends RequestAbstractType
 {
 
     @XmlElementRefs({

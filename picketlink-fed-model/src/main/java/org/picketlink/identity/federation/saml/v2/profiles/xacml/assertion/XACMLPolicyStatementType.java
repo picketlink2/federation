@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+//import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.jboss.security.xacml.core.model.policy.PolicySetType;
 import org.jboss.security.xacml.core.model.policy.PolicyType;
 
@@ -46,7 +46,7 @@ import org.jboss.security.xacml.core.model.policy.PolicyType;
     "policyOrPolicySet"
 })
 public class XACMLPolicyStatementType
-    extends StatementAbstractType
+   // extends StatementAbstractType
 {
 
     @XmlElements({

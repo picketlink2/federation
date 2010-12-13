@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+//import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
 
@@ -44,7 +44,7 @@ import org.jboss.security.xacml.core.model.context.ResponseType;
     "request"
 })
 public class XACMLAuthzDecisionStatementType
-    extends StatementAbstractType
+   // extends StatementAbstractType
 {
 
     @XmlElement(name = "Response", namespace = "urn:oasis:names:tc:xacml:2.0:context:schema:os", required = true)
