@@ -18,10 +18,10 @@
 		</NameIDFormat>
 		<NameIDFormat>
 			urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
-        </NameIDFormat>
+		</NameIDFormat>
 		<NameIDFormat>
 			urn:oasis:names:tc:SAML:2.0:nameid-format:transient
-        </NameIDFormat>
+		</NameIDFormat>
 		<SingleSignOnService
 			Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
 			Location="https://IdentityProvider.com/SAML/SSO/Browser" />
@@ -39,4 +39,38 @@
 			<saml:AttributeValue>staff</saml:AttributeValue>
 		</saml:Attribute>
 	</IDPSSODescriptor>
+	<AttributeAuthorityDescriptor
+		protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+
+		<KeyDescriptor>
+			<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+				<ds:X509Data>
+					<ds:X509Certificate>
+						abcdefghijk
+          </ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+		</KeyDescriptor>
+
+		<AttributeService
+			Location="https://idp.example.org:8443/idp/profile/SAML1/SOAP/AttributeQuery"
+			Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" />
+		<AttributeService
+			Location="https://idp.example.org:8443/idp/profile/SAML2/SOAP/AttributeQuery"
+			Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" />
+
+		<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+
+	</AttributeAuthorityDescriptor>
+
+	<Organization><OrganizationName xml:lang="en">Example
+			Organization, Ltd.
+		</OrganizationName>
+		<OrganizationDisplayName xml:lang="en">Example
+			Organization</OrganizationDisplayName>
+		<OrganizationURL xml:lang="en">http://www.example.org/
+		</OrganizationURL>
+	</Organization>
+
 </EntityDescriptor>

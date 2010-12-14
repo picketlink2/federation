@@ -29,6 +29,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -54,6 +55,8 @@ public class SAMLParser extends AbstractParser
             StartElement startElement = (StartElement) xmlEvent;
             QName startElementName = startElement.getName();
             String nsURI = startElementName.getNamespaceURI();
+            
+            String localPart = startElementName.getLocalPart();
 
             String elementName = StaxParserUtil.getStartElementName( startElement );
             if( elementName.equalsIgnoreCase( JBossSAMLConstants.ASSERTION.get() ))
@@ -85,11 +88,17 @@ public class SAMLParser extends AbstractParser
                SAMLResponseParser responseParser = new SAMLResponseParser();
                return responseParser.parse( xmlEventReader ); 
             }
+            else if( JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals( localPart ))
+            {
+               SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
+               return entityDescriptorParser.parse( xmlEventReader );
+            }
             else if( JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI) )
             {
                SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
                return assertionParser.parse( xmlEventReader );
-            }
+            } 
+               
             else throw new RuntimeException( "Unknown Tag:" + elementName );
          }
          else

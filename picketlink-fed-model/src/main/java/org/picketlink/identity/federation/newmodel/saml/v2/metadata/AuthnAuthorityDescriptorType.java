@@ -30,6 +30,11 @@ extends RoleDescriptorType
    protected List<EndpointType> authnQueryService = new ArrayList<EndpointType>(); 
    protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
    protected List<String> nameIDFormat = new ArrayList<String>();
+   
+   public AuthnAuthorityDescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport); 
+   }
 
    public void addAuthnQueryService( EndpointType endpoint )
    {

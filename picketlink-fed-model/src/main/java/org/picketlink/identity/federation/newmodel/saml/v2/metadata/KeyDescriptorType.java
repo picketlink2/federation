@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
+import org.w3c.dom.Element;
 
 
 /**
@@ -32,7 +33,7 @@ import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
  */  
 public class KeyDescriptorType 
 {
-   protected KeyInfoType keyInfo;
+   protected Element keyInfo;
    protected List<EncryptionMethodType> encryptionMethod = new ArrayList<EncryptionMethodType>();
 
    protected KeyTypes use;
@@ -45,7 +46,7 @@ public class KeyDescriptorType
     *     {@link KeyInfoType }
     *     
     */
-   public KeyInfoType getKeyInfo() {
+   public Element getKeyInfo() {
       return keyInfo;
    }
 
@@ -57,7 +58,7 @@ public class KeyDescriptorType
     *     {@link KeyInfoType }
     *     
     */
-   public void setKeyInfo(KeyInfoType value) {
+   public void setKeyInfo( Element value) {
       this.keyInfo = value;
    }
 

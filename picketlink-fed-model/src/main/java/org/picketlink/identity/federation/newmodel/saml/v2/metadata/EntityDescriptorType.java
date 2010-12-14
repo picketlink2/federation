@@ -71,6 +71,13 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       {
          return affiliationDescriptor;
       } 
+      
+      public static EDTChoiceType oneValue( EDTDescriptorChoiceType edt )
+      {
+         List<EDTDescriptorChoiceType> aList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
+         aList.add(edt);
+         return new EDTChoiceType( aList );
+      }
    }
 
    public static class EDTDescriptorChoiceType
@@ -139,7 +146,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
    protected SignatureType signature;
    protected ExtensionsType extensions;
 
-   protected EDTChoiceType choiceType;
+   protected List<EDTChoiceType> choiceType = new ArrayList<EntityDescriptorType.EDTChoiceType>();
 
    protected OrganizationType organization;
 
@@ -204,14 +211,14 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       this.extensions = value;
    }
 
-   public EDTChoiceType getChoiceType()
+   public List<EDTChoiceType> getChoiceType()
    {
-      return choiceType;
+      return Collections.unmodifiableList( choiceType );
    }
 
-   public void setChoiceType(EDTChoiceType choiceType)
+   public void addChoiceType(EDTChoiceType choiceType)
    {
-      this.choiceType = choiceType;
+      this.choiceType.add( choiceType );
    }
 
    /**

@@ -29,74 +29,80 @@ import java.util.List;
  */
 public abstract class SSODescriptorType extends RoleDescriptorType
 {
-    protected List<IndexedEndpointType> artifactResolutionService = new ArrayList<IndexedEndpointType>(); 
-    protected List<EndpointType> singleLogoutService = new ArrayList<EndpointType>(); 
-    protected List<EndpointType> manageNameIDService = new ArrayList<EndpointType>(); 
-    protected List<String> nameIDFormat = new ArrayList<String>();
+   protected List<IndexedEndpointType> artifactResolutionService = new ArrayList<IndexedEndpointType>(); 
+   protected List<EndpointType> singleLogoutService = new ArrayList<EndpointType>(); 
+   protected List<EndpointType> manageNameIDService = new ArrayList<EndpointType>(); 
+   protected List<String> nameIDFormat = new ArrayList<String>();
 
-    public void addSingleLogoutService( EndpointType endpt )
-    {
-       this.singleLogoutService.add(endpt);
-    }
-    
-    public void addArtifactResolutionService( IndexedEndpointType i )
-    {
-       this.artifactResolutionService.add(i);
-    }
-    
-    public void addManageNameIDService( EndpointType end )
-    {
-       this.manageNameIDService.add(end);
-    }
-    
-    public void addNameIDFormat( String s )
-    {
-       this.nameIDFormat.add(s);
-    }
-    
-    /**
-     * Gets the value of the artifactResolutionService property. 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link IndexedEndpointType }
-     */
-    public List<IndexedEndpointType> getArtifactResolutionService() 
-    { 
-        return Collections.unmodifiableList( this.artifactResolutionService );
-    }
 
-    /**
-     * Gets the value of the singleLogoutService property.
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EndpointType }
-     */
-    public List<EndpointType> getSingleLogoutService() 
-    {
-        return Collections.unmodifiableList( this.singleLogoutService );
-    }
+   public SSODescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport); 
+   }
 
-    /**
-     * Gets the value of the manageNameIDService property.
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link EndpointType }
-     */
-    public List<EndpointType> getManageNameIDService() 
-    {
-        return Collections.unmodifiableList( this.manageNameIDService );
-    }
+   public void addSingleLogoutService( EndpointType endpt )
+   {
+      this.singleLogoutService.add(endpt);
+   }
 
-    /**
-     * Gets the value of the nameIDFormat property. 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link String }
-     * 
-     * 
-     */
-    public List<String> getNameIDFormat() 
-    {
-        return Collections.unmodifiableList( this.nameIDFormat );
-    } 
+   public void addArtifactResolutionService( IndexedEndpointType i )
+   {
+      this.artifactResolutionService.add(i);
+   }
+
+   public void addManageNameIDService( EndpointType end )
+   {
+      this.manageNameIDService.add(end);
+   }
+
+   public void addNameIDFormat( String s )
+   {
+      this.nameIDFormat.add(s);
+   }
+
+   /**
+    * Gets the value of the artifactResolutionService property. 
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link IndexedEndpointType }
+    */
+   public List<IndexedEndpointType> getArtifactResolutionService() 
+   { 
+      return Collections.unmodifiableList( this.artifactResolutionService );
+   }
+
+   /**
+    * Gets the value of the singleLogoutService property.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link EndpointType }
+    */
+   public List<EndpointType> getSingleLogoutService() 
+   {
+      return Collections.unmodifiableList( this.singleLogoutService );
+   }
+
+   /**
+    * Gets the value of the manageNameIDService property.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link EndpointType }
+    */
+   public List<EndpointType> getManageNameIDService() 
+   {
+      return Collections.unmodifiableList( this.manageNameIDService );
+   }
+
+   /**
+    * Gets the value of the nameIDFormat property. 
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link String }
+    * 
+    * 
+    */
+   public List<String> getNameIDFormat() 
+   {
+      return Collections.unmodifiableList( this.nameIDFormat );
+   } 
 }

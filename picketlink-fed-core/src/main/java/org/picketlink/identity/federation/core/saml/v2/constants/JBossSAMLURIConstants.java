@@ -103,6 +103,7 @@ public enum JBossSAMLURIConstants
 
    X500_PREFIX("x500"),
    X500_NSURI("urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"),
+   XML( "http://www.w3.org/XML/1998/namespace" ),
    XMLSCHEMA_NSURI("http://www.w3.org/2001/XMLSchema"),
    XMLDSIG_NSURI("http://www.w3.org/2000/09/xmldsig#"),
    XMLENC_NSURI("http://www.w3.org/2001/04/xmlenc#"),

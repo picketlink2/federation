@@ -51,6 +51,11 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
    protected List<String> protocolSupportEnumeration = new ArrayList<String>();
    protected String errorURL; 
    
+   public RoleDescriptorType( List<String> protocolSupport )
+   {
+      protocolSupportEnumeration.addAll( protocolSupport );
+   }
+   
    public void addKeyDescriptor( KeyDescriptorType keyD )
    {
       this.keyDescriptor.add(keyD);
@@ -60,12 +65,7 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
    {
       this.contactPerson.add(contact);
    }
-   
-   public void addProtocolSupportEnum( String str )
-   {
-      this.protocolSupportEnumeration.add(str);
-   }
-
+     
    /**
     * Gets the value of the signature property.
     * 

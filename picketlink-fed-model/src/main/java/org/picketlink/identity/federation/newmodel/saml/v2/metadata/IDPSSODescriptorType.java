@@ -44,8 +44,12 @@ extends SSODescriptorType
 
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
 
-   protected Boolean wantAuthnRequestsSigned;
+   protected Boolean wantAuthnRequestsSigned; 
 
+   public IDPSSODescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport); 
+   }
 
    public void addSingleSignOnService( EndpointType endpt)
    {

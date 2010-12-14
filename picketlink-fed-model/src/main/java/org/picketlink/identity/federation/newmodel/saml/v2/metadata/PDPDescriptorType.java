@@ -34,6 +34,12 @@ public class PDPDescriptorType extends RoleDescriptorType
 
    protected List<String> nameIDFormat = new ArrayList<String>();
 
+   
+   public PDPDescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport); 
+   }
+
    public void addAuthZService( EndpointType endpt )
    {
       this.authzService.add(endpt);

@@ -21,17 +21,18 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.identity.federation.core.util.JAXBUtil; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 
 /**
@@ -39,25 +40,29 @@ import org.picketlink.identity.federation.core.util.JAXBUtil;
  * @author Anil.Saldhana@redhat.com
  * @since Apr 28, 2009
  */
-public class FileBasedMetadataConfigurationStoreUnitTestCase extends TestCase
+public class FileBasedMetadataConfigurationStoreUnitTestCase 
 {
    String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
    String id = "test";
    
-   @SuppressWarnings("unchecked")
+   @Test
    public void testStore() throws Exception
    {
-      throw new RuntimeException();
-     /* ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      SAMLParser parser = new SAMLParser();
+      
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = 
          tcl.getResourceAsStream("saml2/metadata/idp-entitydescriptor.xml");
-      assertNotNull("Inputstream not null", is);
-   
+      assertNotNull("Inputstream not null", is); 
+      
+      EntityDescriptorType edt = (EntityDescriptorType) parser.parse(is);
+      assertNotNull( edt );
+      /*
       Unmarshaller un = JAXBUtil.getUnmarshaller(pkgName);
       JAXBElement<EntityDescriptorType> je = (JAXBElement<EntityDescriptorType>) un.unmarshal(is);
       EntityDescriptorType edt = je.getValue();
       assertNotNull("EntityDescriptorType not null", edt);  
-      
+      */
       FileBasedMetadataConfigurationStore fbd = new FileBasedMetadataConfigurationStore();
       fbd.persist(edt, id);
       
@@ -73,9 +78,10 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase extends TestCase
       catch(Exception t)
       {
          //pass
-      }*/
+      }
    }
    
+   @Test
    public void testTrustedProviders() throws Exception
    {
       FileBasedMetadataConfigurationStore fbd = new FileBasedMetadataConfigurationStore();

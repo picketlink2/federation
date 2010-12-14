@@ -39,6 +39,11 @@ extends RoleDescriptorType
    protected List<String> nameIDFormat = new ArrayList<String>();
    protected List<String> attributeProfile = new ArrayList<String>();
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
+   
+   public AttributeAuthorityDescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport);
+   }
 
    public void addAttributeService( EndpointType endpoint )
    {

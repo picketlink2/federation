@@ -21,18 +21,24 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
@@ -116,6 +122,13 @@ public class SAMLParserUtil
       
       while( xmlEventReader.hasNext() )
       {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if( StaxParserUtil.matches( end, JBossSAMLConstants.ATTRIBUTE.get() ))
+               break;
+         }
          startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
          if( startElement == null )
             break;
@@ -149,7 +162,9 @@ public class SAMLParserUtil
       Attribute type = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XSI_NSURI.get(),
             "type", "xsi"));
       if( type == null )
-         throw new RuntimeException( "attribute value has no xsi type" );
+      {
+         return StaxParserUtil.getElementText(xmlEventReader);
+      } 
       
       String typeValue  = StaxParserUtil.getAttributeValue(type);
       if( typeValue.contains( ":string" ))
@@ -279,5 +294,27 @@ public class SAMLParserUtil
       nameID.setValue( nameIDValue ); 
       
       return nameID;
+   }
+   
+   /**
+    * Parse a space delimited list of strings
+    * @param startElement
+    * @return
+    */
+   public static List<String> parseProtocolEnumeration( StartElement startElement )
+   {
+      List<String> protocolEnum = new ArrayList<String>();
+      Attribute proto = startElement.getAttributeByName( new QName( JBossSAMLConstants.PROTOCOL_SUPPORT_ENUMERATION.get() ) );
+      String val = StaxParserUtil.getAttributeValue(proto);
+      if( StringUtil.isNotNull( val ))
+      {
+         StringTokenizer st = new StringTokenizer( val );
+         while( st.hasMoreTokens() )
+         {
+            protocolEnum.add( st.nextToken() );
+         }
+         
+      }
+      return protocolEnum; 
    }
 }

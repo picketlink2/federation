@@ -116,7 +116,7 @@ public class MetaDataBuilderDelegate
       EDTChoiceType choiceType = new EDTChoiceType(edtList);
       
       EntityDescriptorType entity = new EntityDescriptorType();
-      entity.setChoiceType(choiceType);
+      entity.addChoiceType(choiceType);
       return entity; 
    }
    
@@ -137,7 +137,8 @@ public class MetaDataBuilderDelegate
          List<AttributeType> attributes,
          OrganizationType org)
    {
-      IDPSSODescriptorType idp = new IDPSSODescriptorType();
+      List<String> emptyList = new ArrayList<String>();
+      IDPSSODescriptorType idp = new IDPSSODescriptorType( emptyList );
       idp.addSingleSignOnService( ssoEndPoint );
       idp.addSingleLogoutService( sloEndPoint ); 
       
@@ -167,7 +168,8 @@ public class MetaDataBuilderDelegate
          List<AttributeType> attributes,
          OrganizationType org)
    {
-      SPSSODescriptorType sp = new SPSSODescriptorType();
+      List<String> emptyList = new ArrayList<String>(); 
+      SPSSODescriptorType sp = new SPSSODescriptorType( emptyList );
       sp.addSingleLogoutService( sloEndPoint );
       sp.addKeyDescriptor( keyDescriptorType );
       sp.setAuthnRequestsSigned(requestsSigned); 

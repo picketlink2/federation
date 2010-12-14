@@ -36,7 +36,7 @@ public class OrganizationType extends TypeWithOtherAttributes
 
    protected List<LocalizedNameType> organizationDisplayName = new ArrayList<LocalizedNameType>();
 
-   protected List<LocalizedURIType> organizationURL;
+   protected List<LocalizedURIType> organizationURL = new ArrayList<LocalizedURIType>();
 
    public void addOrganizationName( LocalizedNameType name )
    {

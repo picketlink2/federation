@@ -29,78 +29,84 @@ import java.util.List;
  */
 public class SPSSODescriptorType  extends SSODescriptorType
 {
-    protected List<IndexedEndpointType> assertionConsumerService = new ArrayList<IndexedEndpointType>();
-    protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
-    protected Boolean authnRequestsSigned;
-    protected Boolean wantAssertionsSigned;
+   protected List<IndexedEndpointType> assertionConsumerService = new ArrayList<IndexedEndpointType>();
+   protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
+   protected Boolean authnRequestsSigned;
+   protected Boolean wantAssertionsSigned;
 
-    /**
-     * Gets the value of the assertionConsumerService property.
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link IndexedEndpointType }
-     */
-    public List<IndexedEndpointType> getAssertionConsumerService() 
-    {
-        return Collections.unmodifiableList( this.assertionConsumerService );
-    }
 
-    /**
-     * Gets the value of the attributeConsumingService property.
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link AttributeConsumingServiceType }
-     */
-    public List<AttributeConsumingServiceType> getAttributeConsumingService() 
-    {
-        return Collections.unmodifiableList( this.attributeConsumingService );
-    }
+   public SPSSODescriptorType(List<String> protocolSupport)
+   {
+      super(protocolSupport); 
+   }
 
-    /**
-     * Gets the value of the authnRequestsSigned property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isAuthnRequestsSigned() {
-        return authnRequestsSigned;
-    }
+   /**
+    * Gets the value of the assertionConsumerService property.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link IndexedEndpointType }
+    */
+   public List<IndexedEndpointType> getAssertionConsumerService() 
+   {
+      return Collections.unmodifiableList( this.assertionConsumerService );
+   }
 
-    /**
-     * Sets the value of the authnRequestsSigned property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setAuthnRequestsSigned(Boolean value) {
-        this.authnRequestsSigned = value;
-    }
+   /**
+    * Gets the value of the attributeConsumingService property.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link AttributeConsumingServiceType }
+    */
+   public List<AttributeConsumingServiceType> getAttributeConsumingService() 
+   {
+      return Collections.unmodifiableList( this.attributeConsumingService );
+   }
 
-    /**
-     * Gets the value of the wantAssertionsSigned property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isWantAssertionsSigned() {
-        return wantAssertionsSigned;
-    }
+   /**
+    * Gets the value of the authnRequestsSigned property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Boolean }
+    *     
+    */
+   public Boolean isAuthnRequestsSigned() {
+      return authnRequestsSigned;
+   }
 
-    /**
-     * Sets the value of the wantAssertionsSigned property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setWantAssertionsSigned(Boolean value) {
-        this.wantAssertionsSigned = value;
-    }
+   /**
+    * Sets the value of the authnRequestsSigned property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Boolean }
+    *     
+    */
+   public void setAuthnRequestsSigned(Boolean value) {
+      this.authnRequestsSigned = value;
+   }
+
+   /**
+    * Gets the value of the wantAssertionsSigned property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Boolean }
+    *     
+    */
+   public Boolean isWantAssertionsSigned() {
+      return wantAssertionsSigned;
+   }
+
+   /**
+    * Sets the value of the wantAssertionsSigned property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Boolean }
+    *     
+    */
+   public void setWantAssertionsSigned(Boolean value) {
+      this.wantAssertionsSigned = value;
+   }
 }
