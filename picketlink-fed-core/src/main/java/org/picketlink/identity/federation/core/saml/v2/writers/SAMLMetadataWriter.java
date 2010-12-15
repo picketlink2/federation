@@ -34,15 +34,21 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AffiliationDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeAuthorityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AuthnAuthorityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
 import org.w3c.dom.Element;
 
 /**
@@ -63,15 +69,54 @@ public class SAMLMetadataWriter extends BaseWriter
    {
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ENTITY_DESCRIPTOR.get(), METADATA_NSURI.get());
       StaxUtil.writeDefaultNameSpace(writer, JBossSAMLURIConstants.METADATA_NSURI.get() );
-      StaxUtil.writeNameSpace(writer, "saml", JBossSAMLURIConstants.ASSERTION_NSURI.get() );
-
+      StaxUtil.writeNameSpace(writer, "md", JBossSAMLURIConstants.METADATA_NSURI.get() ); 
+      StaxUtil.writeNameSpace(writer, "saml", JBossSAMLURIConstants.ASSERTION_NSURI.get() ); 
       StaxUtil.writeNameSpace(writer, "ds", JBossSAMLURIConstants.XMLDSIG_NSURI.get() ); 
+      
       StaxUtil.writeAttribute(writer, JBossSAMLConstants.ENTITY_ID.get(), entityDescriptor.getEntityID() );
+      
+      List<EDTChoiceType> choiceTypes = entityDescriptor.getChoiceType();
+      for( EDTChoiceType edtChoice : choiceTypes )
+      {
+         AffiliationDescriptorType affliationDesc = edtChoice.getAffiliationDescriptor();
+         if( affliationDesc != null )
+            throw new RuntimeException( "handle affliation" ); //TODO: affiliation
+         
+         List<EDTDescriptorChoiceType> edtDescChoices = edtChoice.getDescriptors();
+         for( EDTDescriptorChoiceType edtDescChoice : edtDescChoices )
+         {
+            IDPSSODescriptorType idpSSO = edtDescChoice.getIdpDescriptor();
+            if( idpSSO != null )
+               write( edtDescChoice.getIdpDescriptor() ); 
+            
+            SPSSODescriptorType spSSO = edtDescChoice.getSpDescriptor();
+            if( spSSO != null )
+               throw new RuntimeException( "NYI" );
+            
+            AttributeAuthorityDescriptorType attribAuth = edtDescChoice.getAttribDescriptor();
+            if( attribAuth != null )
+               writeAttributeAuthorityDescriptor(attribAuth);
+            
+            AuthnAuthorityDescriptorType authNDesc = edtDescChoice.getAuthnDescriptor();
+            if( authNDesc != null )
+               throw new RuntimeException( "NYI" );
+         }
+      }
+      
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer); 
    }
    
-   public void writeIDPSSODescriptor( IDPSSODescriptorType idpSSODescriptor ) throws ProcessingException
+   public void write( SSODescriptorType ssoDescriptor ) throws ProcessingException
+   {
+      throw new RuntimeException( "should not called" );
+   }
+   public void write( SPSSODescriptorType spSSODescriptor ) throws ProcessingException
+   {
+      throw new RuntimeException( "NYI" );
+   }
+   
+   public void write( IDPSSODescriptorType idpSSODescriptor ) throws ProcessingException
    {
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get(), METADATA_NSURI.get());
       
@@ -102,6 +147,12 @@ public class SAMLMetadataWriter extends BaseWriter
       for( String nameIDFormat: nameIDFormats )
       {
          writeNameIDFormat( nameIDFormat );
+      }
+      
+      List<AttributeType> attributes = idpSSODescriptor.getAttribute();
+      for( AttributeType attribType : attributes )
+      {
+         write( attribType );
       }
       
       StaxUtil.writeEndElement(writer);
