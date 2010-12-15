@@ -54,6 +54,7 @@ public enum JBossSAMLConstants
    DESTINATION( "Destination" ),
    ENCODING( "Encoding" ),
    ENCRYPTED_ASSERTION( "EncryptedAssertion" ),
+   ENTITY_ID( "entityID" ),
    ENTITY_DESCRIPTOR( "EntityDescriptor" ),
    FORMAT( "Format" ),
    FRIENDLY_NAME( "FriendlyName" ),
@@ -65,6 +66,7 @@ public enum JBossSAMLConstants
    ISSUE_INSTANT( "IssueInstant" ),
    ISSUER( "Issuer" ),
    KEY_DESCRIPTOR( "KeyDescriptor" ),
+   LANG( "lang" ),
    LANG_EN("en"),
    LOCATION( "Location" ),
    LOGOUT_REQUEST( "LogoutRequest" ),
@@ -107,6 +109,7 @@ public enum JBossSAMLConstants
    VALUE( "Value" ),
    VERSION( "Version" ),
    VERSION_2_0("2.0"),
+   WANT_AUTHN_REQUESTS_SIGNED( "WantAuthnRequestsSigned" ),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
    private String val;

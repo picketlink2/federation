@@ -162,6 +162,10 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
 
    protected String id;
 
+   public EntityDescriptorType( String entityID )
+   {
+      this.entityID = entityID;
+   }
 
    /**
     * Gets the value of the signature property.
@@ -295,18 +299,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     */
    public String getEntityID() {
       return entityID;
-   }
-
-   /**
-    * Sets the value of the entityID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setEntityID(String value) {
-      this.entityID = value;
    }
 
    /**

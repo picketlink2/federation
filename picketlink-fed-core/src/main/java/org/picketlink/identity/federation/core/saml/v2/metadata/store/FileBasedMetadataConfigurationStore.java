@@ -39,10 +39,14 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.JAXBUtil; 
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 /**
@@ -192,12 +196,25 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     */
    public void persist(EntityDescriptorType entity, String id) throws IOException
    {
-      /*boolean isIDP = false;
+      boolean isIDP = false;
       boolean isSP = false;
       
       File persistedFile = validateIdAndReturnMDFile(id);
       
-      ObjectFactory of = new ObjectFactory();
+      try
+      {
+         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter( new FileOutputStream( persistedFile ));
+         SAMLMetadataWriter writer = new SAMLMetadataWriter( streamWriter );
+         
+         writer.writeEntityDescriptor(entity);
+      }
+      catch (ProcessingException e)
+      {
+         throw new RuntimeException( e );
+      }
+      
+      
+      /*ObjectFactory of = new ObjectFactory();
       
       JAXBElement<?> jentity = of.createEntityDescriptor(entity);
       
@@ -212,11 +229,14 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
          IOException ioe =new IOException(e.getLocalizedMessage());
          ioe.initCause(e);
          throw ioe;
-      } 
+      }*/ 
       if(trace) log.trace("Persisted into " + persistedFile.getPath());
+       
+
+      throw new RuntimeException(); 
       
-      //We need to figure out whether this is sp or idp from the entity data
-      List<RoleDescriptorType> roleDescriptorTypes = entity.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
+      /*//We need to figure out whether this is sp or idp from the entity data
+      List<RoleDescriptorType> roleDescriptorTypes = entity..getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
       for( RoleDescriptorType rdt: roleDescriptorTypes )
       {
          if( rdt instanceof IDPSSODescriptorType )
@@ -238,9 +258,8 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       else if( isIDP )
       {
          addIdentityProvider( id);
-      }*/
-      
-      throw new RuntimeException(); 
+      }
+      */ 
    }
 
    /**

@@ -69,8 +69,9 @@ public class KeyDescriptorMetaDataBuilder
       if(isEncryptionKey)
          keyDescriptor.setUse(KeyTypes.ENCRYPTION); 
       
-      keyDescriptor.setKeyInfo(keyInfo);
+      throw new RuntimeException( "We need a dom element as key info" );
+      /*keyDescriptor.setKeyInfo(keyInfo);
       
-      return keyDescriptor;
+      return keyDescriptor;*/
    }
 }

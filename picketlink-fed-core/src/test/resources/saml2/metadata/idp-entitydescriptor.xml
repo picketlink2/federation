@@ -64,7 +64,8 @@
 
 	</AttributeAuthorityDescriptor>
 
-	<Organization><OrganizationName xml:lang="en">Example
+	<Organization>
+	    <OrganizationName xml:lang="en">Example
 			Organization, Ltd.
 		</OrganizationName>
 		<OrganizationDisplayName xml:lang="en">Example

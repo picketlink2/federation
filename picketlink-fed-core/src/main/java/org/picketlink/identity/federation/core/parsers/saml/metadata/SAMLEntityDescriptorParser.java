@@ -64,14 +64,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
    { 
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       StaxParserUtil.validate(startElement, EDT );
-      EntityDescriptorType entityDescriptorType = new EntityDescriptorType();
       
       Attribute entityID = startElement.getAttributeByName( new QName( "entityID" ));
       String entityIDValue = StaxParserUtil.getAttributeValue(entityID);
-      if( entityIDValue != null )
-      {
-         entityDescriptorType.setEntityID(entityIDValue);
-      }
+      EntityDescriptorType entityDescriptorType = new EntityDescriptorType( entityIDValue ); 
       
       //Get the Child Elements
       while( xmlEventReader.hasNext() )
@@ -127,8 +123,15 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
    {
       StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
       StaxParserUtil.validate(startElement, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get() );
+      
       List<String> protocolEnum = SAMLParserUtil.parseProtocolEnumeration(startElement);
       IDPSSODescriptorType idpSSODescriptor = new IDPSSODescriptorType( protocolEnum );
+      
+      Attribute wantAuthnSigned = startElement.getAttributeByName( new QName( JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get() ) );
+      if( wantAuthnSigned != null )
+      {
+         idpSSODescriptor.setWantAuthnRequestsSigned( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( wantAuthnSigned ))); 
+      } 
       
       while( xmlEventReader.hasNext() )
       {
@@ -173,19 +176,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          else if( JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals( localPart ))
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
-            String binding = StaxParserUtil.getAttributeValue(bindingAttr);
-            
-            Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
-            String location = StaxParserUtil.getAttributeValue( locationAttr );
-            
-            EndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
-                  NetworkUtil.createURI( location ));
-            Attribute responseLocation = startElement.getAttributeByName( new QName( JBossSAMLConstants.RESPONSE_LOCATION.get() ));
-            if( responseLocation != null )
-            {
-               endpoint.setResponseLocation( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( responseLocation )));
-            } 
+            EndpointType endpoint = getEndpointType(startElement); 
             
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate( endElement, JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get() );
@@ -195,19 +186,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          else if( JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get().equals( localPart ))
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
-            String binding = StaxParserUtil.getAttributeValue(bindingAttr);
-            
-            Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
-            String location = StaxParserUtil.getAttributeValue( locationAttr );
-            
-            EndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
-                  NetworkUtil.createURI( location ));
-            Attribute responseLocation = startElement.getAttributeByName( new QName( JBossSAMLConstants.RESPONSE_LOCATION.get() ));
-            if( responseLocation != null )
-            {
-               endpoint.setResponseLocation( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( responseLocation )));
-            } 
+            EndpointType endpoint = getEndpointType(startElement); 
             
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate( endElement, JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get() );
@@ -225,10 +204,27 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             idpSSODescriptor.addAttribute(attribute);  
          }
          else 
-            throw new RuntimeException( "Unknown " + localPart );
-         
+            throw new RuntimeException( "Unknown " + localPart ); 
       }
       return idpSSODescriptor;
+   }
+
+   private EndpointType getEndpointType(StartElement startElement)
+   {
+      Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
+      String binding = StaxParserUtil.getAttributeValue(bindingAttr);
+      
+      Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
+      String location = StaxParserUtil.getAttributeValue( locationAttr );
+      
+      EndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
+            NetworkUtil.createURI( location ));
+      Attribute responseLocation = startElement.getAttributeByName( new QName( JBossSAMLConstants.RESPONSE_LOCATION.get() ));
+      if( responseLocation != null )
+      {
+         endpoint.setResponseLocation( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( responseLocation )));
+      }
+      return endpoint;
    }
    
    private AttributeAuthorityDescriptorType parseAttributeAuthorityDescriptor( XMLEventReader xmlEventReader ) throws ParsingException
@@ -316,19 +312,13 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          if( JBossSAMLConstants.ORGANIZATION_NAME.get().equals( localPart ))
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
-            String langVal = StaxParserUtil.getAttributeValue(lang);
-            LocalizedNameType localName = new LocalizedNameType(langVal);
-            localName.setValue( StaxParserUtil.getElementText(xmlEventReader));
+            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
             org.addOrganizationName(localName);  
          }  
          else if( JBossSAMLConstants.ORGANIZATION_DISPLAY_NAME.get().equals( localPart ))
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
-            String langVal = StaxParserUtil.getAttributeValue(lang);
-            LocalizedNameType localName = new LocalizedNameType(langVal);
-            localName.setValue( StaxParserUtil.getElementText(xmlEventReader));
+            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
             org.addOrganizationDisplayName( localName ) ;  
          }
          else if( JBossSAMLConstants.ORGANIZATION_URL.get().equals( localPart ))
@@ -341,9 +331,18 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             org.addOrganizationURL( localName ) ;  
          } 
          else 
-            throw new RuntimeException( "Unknown " + localPart );
-         
+            throw new RuntimeException( "Unknown " + localPart ); 
       }
       return org;
+   }
+
+   private LocalizedNameType getLocalizedName(XMLEventReader xmlEventReader, StartElement startElement)
+         throws ParsingException
+   {
+      Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
+      String langVal = StaxParserUtil.getAttributeValue(lang);
+      LocalizedNameType localName = new LocalizedNameType(langVal);
+      localName.setValue( StaxParserUtil.getElementText(xmlEventReader));
+      return localName;
    }
 }

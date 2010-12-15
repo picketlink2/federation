@@ -193,7 +193,7 @@ public class MetadataServlet extends HttpServlet
    
    private void updateKeyDescriptor(EntityDescriptorType entityD, KeyDescriptorType keyD)
    {
-     List<EDTDescriptorChoiceType> objs = entityD.getChoiceType().getDescriptors();
+     List<EDTDescriptorChoiceType> objs = entityD.getChoiceType().get(0).getDescriptors();
      if(objs != null)
      {
         for(EDTDescriptorChoiceType roleD: objs)

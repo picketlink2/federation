@@ -20,10 +20,7 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -32,7 +29,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -299,80 +295,7 @@ public class SAMLAssertionWriter extends BaseWriter
       StaxUtil.flush(writer);
    }
 
-   /**
-    * Write an {@code AttributeType} to stream
-    * 
-    * @param attributeType
-    * @param out
-    * @throws ProcessingException
-    */
-   public void write(AttributeType attributeType) throws ProcessingException
-   {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get(), ASSERTION_NSURI.get());
-
-      String attributeName = attributeType.getName();
-      if (attributeName != null)
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME.get(), attributeName);
-      }
-
-      String friendlyName = attributeType.getFriendlyName();
-      if (StringUtil.isNotNull(friendlyName))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.FRIENDLY_NAME.get(), friendlyName);
-      }
-
-      String nameFormat = attributeType.getNameFormat();
-      if (StringUtil.isNotNull(nameFormat))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME_FORMAT.get(), nameFormat);
-      }
-
-      // Take care of other attributes such as x500:encoding
-      Map<QName, String> otherAttribs = attributeType.getOtherAttributes();
-      if (otherAttribs != null)
-      {
-         List<String> nameSpacesDealt = new ArrayList<String>();
-
-         Iterator<QName> keySet = otherAttribs.keySet().iterator();
-         while (keySet != null && keySet.hasNext())
-         {
-            QName qname = keySet.next();
-            String ns = qname.getNamespaceURI();
-            if (!nameSpacesDealt.contains(ns))
-            {
-               StaxUtil.writeNameSpace(writer, qname.getPrefix(), ns);
-               nameSpacesDealt.add(ns);
-            }
-            String attribValue = otherAttribs.get(qname);
-            StaxUtil.writeAttribute(writer, qname, attribValue);
-         }
-      }
-
-      List<Object> attributeValues = attributeType.getAttributeValue();
-      if (attributeValues != null)
-      {
-         for (Object attributeValue : attributeValues)
-         {
-            if (attributeValue instanceof String)
-            {
-               StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(),
-                     ASSERTION_NSURI.get());
-
-               StaxUtil.writeNameSpace(writer, "xsi", JBossSAMLURIConstants.XSI_NSURI.get());
-               StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
-               StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
-               StaxUtil.writeCharacters(writer, (String) attributeValue);
-
-               StaxUtil.writeEndElement(writer);
-            }
-            else
-               throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
-         }
-      }
-      StaxUtil.writeEndElement(writer);
-      StaxUtil.flush(writer);
-   }
+   
 
    /**
     * write an {@code SubjectType} to stream

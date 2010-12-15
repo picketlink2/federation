@@ -45,6 +45,7 @@ public enum JBossSAMLURIConstants
    
    HOLDER_OF_KEY( "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" ),
    
+   METADATA_NSURI( "urn:oasis:names:tc:SAML:2.0:metadata" ),
    METADATA_HTTP_REDIRECT_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
    
    NAMEID_FORMAT_TRANSIENT("urn:oasis:names:tc:SAML:2.0:nameid-format:transient"),

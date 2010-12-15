@@ -115,9 +115,10 @@ public class MetaDataBuilderDelegate
       
       EDTChoiceType choiceType = new EDTChoiceType(edtList);
       
-      EntityDescriptorType entity = new EntityDescriptorType();
+      throw new RuntimeException( "Unknown entity id" );
+      /*EntityDescriptorType entity = new EntityDescriptorType( " ");
       entity.addChoiceType(choiceType);
-      return entity; 
+      return entity; */
    }
    
    /**
