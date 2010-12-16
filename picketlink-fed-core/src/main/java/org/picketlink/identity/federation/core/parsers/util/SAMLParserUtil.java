@@ -71,6 +71,13 @@ public class SAMLParserUtil
       
       while( xmlEventReader.hasNext() )
       {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get() );
+            break;
+         }
          //Get the next start element
          startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
          String tag = startElement.getName().getLocalPart();
