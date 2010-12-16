@@ -210,11 +210,9 @@ public class SAML2Request
     * @throws ConfigurationException 
     */
    public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException 
-   {   
-      LogoutRequestType lrt = new LogoutRequestType();
-      lrt.setID(IDGenerator.create("ID_"));
-      lrt.setIssueInstant(XMLTimeUtil.getIssueInstant());
-      lrt.setVersion( JBossSAMLConstants.VERSION_2_0.get() ); 
+   {  
+      LogoutRequestType lrt = new LogoutRequestType( IDGenerator.create("ID_"), JBossSAMLConstants.VERSION_2_0.get(),
+             XMLTimeUtil.getIssueInstant() ); 
       
       //Create an issuer 
       NameIDType issuerNameID = new NameIDType(); 
