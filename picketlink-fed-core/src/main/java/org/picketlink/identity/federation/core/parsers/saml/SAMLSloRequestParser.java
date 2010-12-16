@@ -90,7 +90,8 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
     */
    private LogoutRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
-      LogoutRequestType logoutRequest = new LogoutRequestType();
+      super.parseRequiredAttributes(startElement);
+      LogoutRequestType logoutRequest = new LogoutRequestType( id, version, issueInstant );
       //Let us get the attributes
       super.parseBaseAttributes(startElement, logoutRequest );
       

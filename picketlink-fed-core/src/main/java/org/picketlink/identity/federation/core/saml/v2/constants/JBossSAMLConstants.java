@@ -61,6 +61,7 @@ public enum JBossSAMLConstants
    ID( "ID" ),
    IDP_SSO_DESCRIPTOR( "IDPSSODescriptor" ),
    INDEX( "index" ),
+   INPUT_CONTEXT_ONLY( "InputContextOnly" ),
    IN_RESPONSE_TO( "InResponseTo" ),
    ISDEFAULT( "isDefault" ),
    ISSUE_INSTANT( "IssueInstant" ),
@@ -88,8 +89,11 @@ public enum JBossSAMLConstants
    PROTOCOL_SUPPORT_ENUMERATION( "protocolSupportEnumeration" ),
    REQUESTED_AUTHN_CONTEXT( "RequestedAuthnContext" ),
    RECIPIENT( "Recipient" ),
+   REQUEST( "Request" ),
+   REQUEST_ABSTRACT( "RequestAbstract" ),
    RESPONSE( "Response" ),
    RESPONSE_LOCATION( "ResponseLocation" ),
+   RETURN_CONTEXT( "ReturnContext" ),
    SESSION_INDEX( "SessionIndex" ),
    SP_PROVIDED_ID( "SPProvidedID" ),
    SP_NAME_QUALIFIER( "SPNameQualifier" ),
@@ -106,10 +110,13 @@ public enum JBossSAMLConstants
    SUBJECT( "Subject" ),
    SUBJECT_CONFIRMATION( "SubjectConfirmation" ),
    SUBJECT_CONFIRMATION_DATA( "SubjectConfirmationData" ),
+   TYPE( "type" ),
    VALUE( "Value" ),
    VERSION( "Version" ),
    VERSION_2_0("2.0"),
    WANT_AUTHN_REQUESTS_SIGNED( "WantAuthnRequestsSigned" ),
+   XACML_AUTHZ_DECISION_QUERY( "XACMLAuthzDecisionQuery" ),
+   XACML_AUTHZ_DECISION_QUERY_TYPE( "XACMLAuthzDecisionQueryType" ),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
    private String val;

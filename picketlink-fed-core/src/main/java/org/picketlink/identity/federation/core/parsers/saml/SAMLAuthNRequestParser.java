@@ -112,7 +112,8 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
     */
    private AuthnRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
    { 
-      AuthnRequestType authnRequest = new AuthnRequestType();
+      super.parseRequiredAttributes(startElement);
+      AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant );
       //Let us get the attributes
       super.parseBaseAttributes(startElement, authnRequest );
       

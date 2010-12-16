@@ -30,6 +30,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -88,6 +89,23 @@ public class SAMLParser extends AbstractParser
                SAMLResponseParser responseParser = new SAMLResponseParser();
                return responseParser.parse( xmlEventReader ); 
             }
+
+            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
+                  JBossSAMLConstants.REQUEST_ABSTRACT.get().equals( startElementName.getLocalPart() ))
+            { 
+               String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement); 
+               if( xsiTypeValue.contains( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get() ))
+               {
+                  SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
+                  return samlXacmlParser.parse(xmlEventReader); 
+               }
+               throw new RuntimeException( "Unknown xsi:type=" + xsiTypeValue );
+            }
+            else if( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals( localPart ) )
+            {
+               SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
+               return samlXacmlParser.parse(xmlEventReader);
+            }
             else if( JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals( localPart ))
             {
                SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
@@ -97,8 +115,7 @@ public class SAMLParser extends AbstractParser
             {
                SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
                return assertionParser.parse( xmlEventReader );
-            } 
-               
+            }  
             else throw new RuntimeException( "Unknown Tag:" + elementName );
          }
          else

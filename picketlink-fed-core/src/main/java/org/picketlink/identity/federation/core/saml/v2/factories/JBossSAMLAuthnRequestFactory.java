@@ -58,16 +58,14 @@ public class JBossSAMLAuthnRequestFactory
    {      
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
-      AuthnRequestType authnRequest = new AuthnRequestType();
-      authnRequest.setID(id);
-      authnRequest.setVersion(JBossSAMLConstants.VERSION_2_0.get());
+      String version = JBossSAMLConstants.VERSION_2_0.get();
+      AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant ); 
       authnRequest.setAssertionConsumerServiceURL( NetworkUtil.createURI( assertionConsumerURL ));
       authnRequest.setProtocolBinding( NetworkUtil.createURI( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
       if( destination != null )
       {
          authnRequest.setDestination(  NetworkUtil.createURI( destination )); 
-      }
-      authnRequest.setIssueInstant(issueInstant);
+      } 
       
       //Create an issuer 
       NameIDType issuer = new NameIDType();

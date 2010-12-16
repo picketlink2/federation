@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.parsers.util;
 
 import java.io.InputStream;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -37,6 +38,8 @@ import javax.xml.transform.stax.StAXSource;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException; 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.Document;
@@ -77,6 +80,21 @@ public class StaxParserUtil
    public static String getAttributeValue(Attribute attribute)
    {
       return trim(attribute.getValue());
+   }
+   
+   /**
+    * Get the Attribute value
+    * @param startElement
+    * @param tag localpart of the qname of the attribute
+    * @return
+    */
+   public static String getAttributeValue( StartElement startElement, String tag )
+   {
+      String result = null;
+      Attribute attr = startElement.getAttributeByName( new QName( tag ));
+      if( attr != null )
+         result = getAttributeValue(attr);
+      return result;
    }
    
    /**
@@ -268,6 +286,21 @@ public class StaxParserUtil
    public static String getEndElementName( EndElement endElement )
    {
       return trim( endElement.getName().getLocalPart() );
+   }
+   
+   /**
+    * Given a start element, obtain the xsi:type defined
+    * @param startElement
+    * @return
+    * @throws RuntimeException if xsi:type is missing
+    */
+   public static String getXSITypeValue( StartElement startElement )
+   {
+      Attribute xsiType = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XSI_NSURI.get(), 
+            JBossSAMLConstants.TYPE.get() ));
+      if( xsiType == null )
+         throw new RuntimeException( "xsi:type expected" );
+      return StaxParserUtil.getAttributeValue( xsiType );
    }
    
    /**
