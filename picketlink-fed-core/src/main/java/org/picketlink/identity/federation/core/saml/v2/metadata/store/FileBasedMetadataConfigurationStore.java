@@ -35,19 +35,21 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
-import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 
 /**
  * File based metadata store that uses
@@ -64,8 +66,6 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    private String userHome = null;
    
    private String baseDirectory = null;
-   
-   private String pkgName = "org.picketlink.identity.federation.saml.v2.metadata"; 
    
    public FileBasedMetadataConfigurationStore()
    {
@@ -168,15 +168,25 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    
    /** 
     * @see IMetadataConfigurationStore#load(String)
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public EntityDescriptorType load(String id) throws IOException
    {
       File persistedFile = validateIdAndReturnMDFile(id);
       
+      
+      SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
+      try
+      {
+         return (EntityDescriptorType) parser.parse( StaxParserUtil.getXMLEventReader( new FileInputStream( persistedFile )) );
+      }
+      catch (ParsingException e)
+      {
+         throw new RuntimeException( e );
+      }/*
       Unmarshaller un;
       try
       {
+         
          un = JAXBUtil.getUnmarshaller(pkgName);
          JAXBElement<EntityDescriptorType> je = 
             (JAXBElement<EntityDescriptorType>) un.unmarshal(persistedFile);
@@ -187,7 +197,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
          IOException ioe =new IOException(e.getLocalizedMessage());
          ioe.initCause(e);
          throw ioe;
-      }
+      }*/
       
    }
 
@@ -195,10 +205,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     * @see IMetadataConfigurationStore#persist(EntityDescriptorType, String)
     */
    public void persist(EntityDescriptorType entity, String id) throws IOException
-   {
-      boolean isIDP = false;
-      boolean isSP = false;
-      
+   {  
       File persistedFile = validateIdAndReturnMDFile(id);
       
       try
@@ -211,55 +218,28 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       catch (ProcessingException e)
       {
          throw new RuntimeException( e );
-      }
-      
-      
-      /*ObjectFactory of = new ObjectFactory();
-      
-      JAXBElement<?> jentity = of.createEntityDescriptor(entity);
-      
-      Marshaller m;
-      try
-      {
-         m = JAXBUtil.getMarshaller(pkgName);
-         m.marshal(jentity, persistedFile);
-      }
-      catch (JAXBException e)
-      {
-         IOException ioe =new IOException(e.getLocalizedMessage());
-         ioe.initCause(e);
-         throw ioe;
-      }*/ 
+      } 
       if(trace) log.trace("Persisted into " + persistedFile.getPath());
-       
-
-      throw new RuntimeException(); 
       
-      /*//We need to figure out whether this is sp or idp from the entity data
-      List<RoleDescriptorType> roleDescriptorTypes = entity..getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
-      for( RoleDescriptorType rdt: roleDescriptorTypes )
+      //Process the EDT
+      List<EDTChoiceType> edtChoiceTypeList = entity.getChoiceType();
+      for( EDTChoiceType edtChoiceType : edtChoiceTypeList )
       {
-         if( rdt instanceof IDPSSODescriptorType )
+         List<EDTDescriptorChoiceType> edtDescriptorChoiceTypeList = edtChoiceType.getDescriptors();
+         for( EDTDescriptorChoiceType edtDesc : edtDescriptorChoiceTypeList )
          {
-            isIDP = true;
-            break;
-         }
-         if( rdt instanceof SPSSODescriptorType )
-         {
-            isSP = true;
-            break;
-         }
-      }
-      
-      if( isSP )
-      {
-         addServiceProvider(id); 
-      }
-      else if( isIDP )
-      {
-         addIdentityProvider( id);
-      }
-      */ 
+            IDPSSODescriptorType idpSSO = edtDesc.getIdpDescriptor();
+            if( idpSSO != null )
+            {
+               addIdentityProvider(id);
+            }
+            SPSSODescriptorType spSSO = edtDesc.getSpDescriptor();
+            if( spSSO != null )
+            {
+               addServiceProvider(id);
+            }
+         } 
+      } 
    }
 
    /**
