@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
  
 
@@ -52,6 +54,11 @@ public class AttributeQueryType
 extends SubjectQueryAbstractType
 {
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
+  
+   public AttributeQueryType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
    public void add( AttributeType att )
    {

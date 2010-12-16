@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 
 
@@ -47,6 +49,11 @@ public abstract class SubjectQueryAbstractType
 extends RequestAbstractType
 { 
    protected SubjectType subject; 
+    
+   public SubjectQueryAbstractType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
    public void setSubject(SubjectType subject)
    {

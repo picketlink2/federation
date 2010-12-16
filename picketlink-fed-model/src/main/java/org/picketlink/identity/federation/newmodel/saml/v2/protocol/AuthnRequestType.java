@@ -23,6 +23,8 @@ package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 
 import java.net.URI;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 
@@ -61,7 +63,6 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType
 public class AuthnRequestType
 extends RequestAbstractType
 {
-
    protected SubjectType subject; 
    protected NameIDPolicyType nameIDPolicy; 
    protected ConditionsType conditions; 
@@ -74,6 +75,11 @@ extends RequestAbstractType
    protected URI assertionConsumerServiceURL; 
    protected Integer attributeConsumingServiceIndex; 
    protected String providerName;
+
+   public AuthnRequestType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant);
+   }
 
    /**
     * Gets the value of the subject property.

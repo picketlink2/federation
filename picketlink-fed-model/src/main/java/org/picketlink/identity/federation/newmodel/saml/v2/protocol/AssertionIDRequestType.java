@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 
 /**
  * <p>Java class for AssertionIDRequestType complex type.
@@ -49,6 +51,11 @@ public class AssertionIDRequestType
 extends RequestAbstractType
 { 
    protected List<String> assertionIDRef = new ArrayList<String>();
+    
+   public AssertionIDRequestType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant);
+   }
 
    public void addAssertionIDRef( String id )
    {

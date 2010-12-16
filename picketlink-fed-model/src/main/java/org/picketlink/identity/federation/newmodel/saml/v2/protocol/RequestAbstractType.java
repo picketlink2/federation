@@ -69,6 +69,13 @@ public abstract class RequestAbstractType implements SAML2Object
    protected URI destination; 
    protected String consent;
 
+   public RequestAbstractType( String id, String version, XMLGregorianCalendar instant )
+   {
+      this.id = id;
+      this.version = version;
+      this.issueInstant = instant;
+   }
+   
    /**
     * Gets the value of the issuer property.
     * 
@@ -154,18 +161,6 @@ public abstract class RequestAbstractType implements SAML2Object
    }
 
    /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setID(String value) {
-      this.id = value;
-   }
-
-   /**
     * Gets the value of the version property.
     * 
     * @return
@@ -175,19 +170,7 @@ public abstract class RequestAbstractType implements SAML2Object
     */
    public String getVersion() {
       return version;
-   }
-
-   /**
-    * Sets the value of the version property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setVersion(String value) {
-      this.version = value;
-   }
+   } 
 
    /**
     * Gets the value of the issueInstant property.
@@ -199,19 +182,7 @@ public abstract class RequestAbstractType implements SAML2Object
     */
    public XMLGregorianCalendar getIssueInstant() {
       return issueInstant;
-   }
-
-   /**
-    * Sets the value of the issueInstant property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setIssueInstant(XMLGregorianCalendar value) {
-      this.issueInstant = value;
-   }
+   } 
 
    /**
     * Gets the value of the destination property.

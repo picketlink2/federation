@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.policy.IdReferenceType;
 import org.jboss.security.xacml.core.model.policy.TargetType;
@@ -50,7 +52,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstr
  * 
  */ 
 public class XACMLPolicyQueryType
-    extends RequestAbstractType
+extends RequestAbstractType
 {
    public static class ChoiceType
    {
@@ -91,12 +93,17 @@ public class XACMLPolicyQueryType
          this.policyIdReference = policyIdReference;
       } 
    }
-   
-   protected ChoiceType choiceType;
-   
-   
 
-    public ChoiceType getChoiceType()
+   protected ChoiceType choiceType;
+
+
+
+   public XACMLPolicyQueryType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
+
+   public ChoiceType getChoiceType()
    {
       return choiceType;
    }

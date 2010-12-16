@@ -68,7 +68,13 @@ public class LogoutRequestType
     protected String reason; 
     protected XMLGregorianCalendar notOnOrAfter;
 
-    /**
+    
+    public LogoutRequestType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
+
+   /**
      * Gets the value of the baseID property.
      * 
      * @return

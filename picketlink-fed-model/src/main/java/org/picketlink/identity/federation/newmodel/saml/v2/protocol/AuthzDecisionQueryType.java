@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List; 
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EvidenceType;
 
@@ -55,7 +57,12 @@ extends SubjectQueryAbstractType
    protected List<ActionType> action = new ArrayList<ActionType> (); 
    protected EvidenceType evidence; 
    protected URI resource;
-   
+    
+   public AuthzDecisionQueryType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
+
    public void addAction( ActionType act )
    {
       this.action.add(act);

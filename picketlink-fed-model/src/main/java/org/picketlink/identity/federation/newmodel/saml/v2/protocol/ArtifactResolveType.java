@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 
 
 /**
@@ -45,7 +47,12 @@ package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 public class ArtifactResolveType
 extends RequestAbstractType
 {
-   protected String artifact;
+   protected String artifact; 
+
+   public ArtifactResolveType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
    /**
     * Gets the value of the artifact property.

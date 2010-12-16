@@ -20,7 +20,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol;
-  
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 
@@ -47,90 +49,96 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstr
  * 
  */ 
 public class XACMLAuthzDecisionQueryType
-    extends RequestAbstractType
+extends RequestAbstractType
 {
-    protected RequestType request;
-    protected Boolean inputContextOnly;
-    protected Boolean returnContext;
+   protected RequestType request;
+   protected Boolean inputContextOnly;
+   protected Boolean returnContext;
 
-    /**
-     * Gets the value of the request property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link RequestType }
-     *     
-     */
-    public RequestType getRequest() {
-        return request;
-    }
 
-    /**
-     * Sets the value of the request property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link RequestType }
-     *     
-     */
-    public void setRequest(RequestType value) {
-        this.request = value;
-    }
+   public XACMLAuthzDecisionQueryType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
-    /**
-     * Gets the value of the inputContextOnly property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public boolean isInputContextOnly() {
-        if (inputContextOnly == null) {
-            return false;
-        } else {
-            return inputContextOnly;
-        }
-    }
+   /**
+    * Gets the value of the request property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link RequestType }
+    *     
+    */
+   public RequestType getRequest() {
+      return request;
+   }
 
-    /**
-     * Sets the value of the inputContextOnly property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setInputContextOnly(Boolean value) {
-        this.inputContextOnly = value;
-    }
+   /**
+    * Sets the value of the request property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link RequestType }
+    *     
+    */
+   public void setRequest(RequestType value) {
+      this.request = value;
+   }
 
-    /**
-     * Gets the value of the returnContext property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public boolean isReturnContext() {
-        if (returnContext == null) {
-            return false;
-        } else {
-            return returnContext;
-        }
-    }
+   /**
+    * Gets the value of the inputContextOnly property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Boolean }
+    *     
+    */
+   public boolean isInputContextOnly() {
+      if (inputContextOnly == null) {
+         return false;
+      } else {
+         return inputContextOnly;
+      }
+   }
 
-    /**
-     * Sets the value of the returnContext property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setReturnContext(Boolean value) {
-        this.returnContext = value;
-    }
+   /**
+    * Sets the value of the inputContextOnly property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Boolean }
+    *     
+    */
+   public void setInputContextOnly(Boolean value) {
+      this.inputContextOnly = value;
+   }
+
+   /**
+    * Gets the value of the returnContext property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Boolean }
+    *     
+    */
+   public boolean isReturnContext() {
+      if (returnContext == null) {
+         return false;
+      } else {
+         return returnContext;
+      }
+   }
+
+   /**
+    * Sets the value of the returnContext property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Boolean }
+    *     
+    */
+   public void setReturnContext(Boolean value) {
+      this.returnContext = value;
+   }
 
 }

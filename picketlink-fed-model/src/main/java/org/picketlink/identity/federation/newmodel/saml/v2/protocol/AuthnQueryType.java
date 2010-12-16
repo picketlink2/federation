@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 
 /**
  * <p>Java class for AuthnQueryType complex type.
@@ -44,10 +46,15 @@ package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
  */ 
 public class AuthnQueryType
 extends SubjectQueryAbstractType
-{
-
+{ 
    protected RequestedAuthnContextType requestedAuthnContext; 
    protected String sessionIndex;
+
+   
+   public AuthnQueryType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
    /**
     * Gets the value of the requestedAuthnContext property.

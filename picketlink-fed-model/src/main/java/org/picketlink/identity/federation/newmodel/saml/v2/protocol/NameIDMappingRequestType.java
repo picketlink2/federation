@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -58,6 +60,12 @@ extends RequestAbstractType
    protected NameIDType nameID; 
    protected EncryptedElementType encryptedID; 
    protected NameIDPolicyType nameIDPolicy;
+
+   
+   public NameIDMappingRequestType(String id, String version, XMLGregorianCalendar instant)
+   {
+      super(id, version, instant); 
+   }
 
    /**
     * Gets the value of the baseID property.
