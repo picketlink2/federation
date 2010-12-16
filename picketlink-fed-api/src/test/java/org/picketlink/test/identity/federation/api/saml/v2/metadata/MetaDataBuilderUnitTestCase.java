@@ -57,7 +57,7 @@ public class MetaDataBuilderUnitTestCase
       assertNotNull("Org is not null", org);
       assertEquals(organizationName,org.getOrganizationName().get(0).getValue());
       assertEquals(organizationDisplayName, org.getOrganizationDisplayName().get(0).getValue());
-      assertEquals(organizationURL, org.getOrganizationURL().get(0).getValue());
+      assertEquals(organizationURL, org.getOrganizationURL().get(0).getValue().toString() );
       
       //Check the lang
       assertEquals(lang, org.getOrganizationName().get(0).getLang());
