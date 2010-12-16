@@ -61,7 +61,7 @@ public class KeyDescriptorMetaDataBuilder
          
          encryptionMethod.getContent().add(BigInteger.valueOf(keySize));
          
-         keyDescriptor.getEncryptionMethod().add(encryptionMethod);  
+         keyDescriptor.addEncryptionMethod( encryptionMethod );  
       } 
       
       if(isSigningKey)
