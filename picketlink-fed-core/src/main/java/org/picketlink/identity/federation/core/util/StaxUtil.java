@@ -460,7 +460,7 @@ public class StaxUtil
       }
       catch (XMLStreamException e)
       {
-         //throw new ProcessingException(e);
+         throw new ProcessingException(e);
       }
    }
 }
