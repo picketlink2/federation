@@ -21,13 +21,18 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
+import java.io.StringWriter;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamWriter;
+
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
  
@@ -49,9 +54,23 @@ public class MetaDataExtractor
     */
    public static String toString(EntityDescriptorType edt)
    {
-      StringBuilder builder = new StringBuilder();
-      throw new RuntimeException();
-     /* List<RoleDescriptorType> rolesD = edt.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
+      StringWriter sw = new StringWriter();
+      try
+      {
+         XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(sw );
+         
+         SAMLMetadataWriter metaWriter = new SAMLMetadataWriter(writer);
+         metaWriter.writeEntityDescriptor(edt);
+      }
+      catch (ProcessingException e)
+      { 
+         throw new RuntimeException( e );
+      }
+      
+      return sw.toString();
+      
+      /*StringBuilder builder = new StringBuilder();
+       List<RoleDescriptorType> rolesD = edt.getRoleDescriptorOrIDPSSODescriptorOrSPSSODescriptor();
       
       for(RoleDescriptorType rdt: rolesD)
       {

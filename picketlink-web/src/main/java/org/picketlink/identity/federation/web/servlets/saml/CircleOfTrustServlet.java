@@ -21,10 +21,9 @@
  */
 package org.picketlink.identity.federation.web.servlets.saml;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,17 +33,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
-import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore; 
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-
-
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Circle of trust establishing servlet that accesses

@@ -50,7 +50,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -83,12 +82,12 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerC
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
@@ -106,7 +105,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstr
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
-import org.picketlink.identity.federation.saml.v2.SAML2Object; 
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
@@ -714,8 +713,7 @@ public class SPFilter implements Filter
     * @param serverEnvironment tomcat,jboss etc
     * @return   
     * @throws AssertionExpiredException 
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public Principal handleSAMLResponse(HttpServletRequest request, ResponseType responseType) 
    throws ConfigurationException, AssertionExpiredException
    {

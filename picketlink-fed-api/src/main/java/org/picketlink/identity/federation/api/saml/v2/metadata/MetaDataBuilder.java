@@ -23,14 +23,15 @@ package org.picketlink.identity.federation.api.saml.v2.metadata;
 
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilderDelegate;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.*;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType; 
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
 
 
 /**

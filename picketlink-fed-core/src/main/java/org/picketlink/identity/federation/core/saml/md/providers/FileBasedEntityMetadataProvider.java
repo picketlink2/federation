@@ -25,9 +25,9 @@ import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
- 
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider; 
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 
 /**
@@ -59,18 +59,17 @@ implements IMetadataProvider<EntityDescriptorType>
    
    /**
     * @see IMetadataProvider#getMetaData()
-    */
-   @SuppressWarnings("unchecked")
+    */ 
    public EntityDescriptorType getMetaData()
-   {
-      EntityDescriptorType edt = null; 
-      
+   {  
       if(this.metadataFileStream == null)
          throw new RuntimeException("Metadata file is not injected");
       
       try
       { 
-         new RuntimeException();/*
+         SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
+         return (EntityDescriptorType) parser.parse( StaxParserUtil.getXMLEventReader(metadataFileStream));
+         /*
          JAXBElement<EntityDescriptorType> j =
             (JAXBElement<EntityDescriptorType>) MetaDataBuilderDelegate.getUnmarshaller().unmarshal(metadataFileStream); 
          edt = j.getValue();
@@ -79,8 +78,7 @@ implements IMetadataProvider<EntityDescriptorType>
       catch(Exception e)
       {
          throw new RuntimeException(e);
-      }
-      return edt;
+      } 
    }
 
    /**

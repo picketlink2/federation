@@ -3,14 +3,13 @@ package org.picketlink.identity.federation.bindings.jboss.auth;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.Subject;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.SecurityContextAssociation;
-import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenAttributeProvider; 
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenAttributeProvider;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
@@ -107,5 +106,4 @@ public class SAML20TokenRoleAttributeProvider implements SAML20TokenAttributePro
           return attributeStatement;
       }
    }
-
 }

@@ -37,6 +37,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
@@ -46,10 +47,13 @@ import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
 import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
@@ -179,7 +183,18 @@ public class MetadataServlet extends HttpServlet
    {
       resp.setContentType(JBossSAMLConstants.METADATA_MIME.get());
       OutputStream os = resp.getOutputStream();
-      throw new RuntimeException();/*
+      
+      try
+      {
+         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter( os );
+         SAMLMetadataWriter writer = new SAMLMetadataWriter( streamWriter );
+         writer.writeEntityDescriptor(metadata);
+      }
+      catch (ProcessingException e)
+      {
+         throw new ServletException( e );
+      } 
+      /*
       JAXBElement<?> jaxbEl = MetaDataBuilder.getObjectFactory().createEntityDescriptor(metadata);
       try
       {

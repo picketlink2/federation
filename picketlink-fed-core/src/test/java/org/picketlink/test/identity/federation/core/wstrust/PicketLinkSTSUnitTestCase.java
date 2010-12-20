@@ -32,7 +32,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -96,7 +95,6 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
-import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptedKeyType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
