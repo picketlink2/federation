@@ -34,6 +34,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstr
 
 /**
  * Read a SAML-XACML request
+ * 
+ * @see {@code SAMLResponseParserTestCase#testXACMLDecisionStatements()}
  * @author Anil.Saldhana@redhat.com
  * @since Jan 8, 2009
  */

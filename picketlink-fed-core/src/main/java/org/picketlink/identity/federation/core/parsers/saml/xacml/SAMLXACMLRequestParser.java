@@ -65,7 +65,7 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
          return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
       }
       
-      return null;
+      throw new RuntimeException( "Parsing Failed: Unknown Tag=" + tag );
    }
 
    public boolean supports(QName qname)
@@ -106,6 +106,8 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
             break;
          }
          startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
+         if( startElement == null )
+            break;
          super.parseCommonElements(startElement, xmlEventReader, xacmlQuery); 
          String tag = StaxParserUtil.getStartElementName(startElement);
          

@@ -49,6 +49,9 @@ public class BaseWriter
 {
    protected static String PROTOCOL_PREFIX = "samlp";
    protected static String ASSERTION_PREFIX = "saml";
+   protected static String XACML_SAML_PREFIX = "xacml-saml";
+   protected static String XACML_SAML_PROTO_PREFIX = "xacml-samlp";
+   protected static String XSI_PREFIX = "xsi";
    
    protected XMLStreamWriter writer = null;  
    

@@ -27,8 +27,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.jboss.security.xacml.core.model.context.RequestType;
+import org.jboss.security.xacml.core.model.context.ResponseType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -56,9 +60,11 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConf
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.URIType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -159,7 +165,11 @@ public class SAMLAssertionWriter extends BaseWriter
             {
                write((AttributeStatementType) statement);
             }
-            else
+            else if (statement instanceof XACMLAuthzDecisionStatementType )
+            {
+               write((XACMLAuthzDecisionStatementType) statement);
+            }
+            else 
                throw new RuntimeException("unknown statement type=" + statement.getClass().getName());
          }
       }
@@ -215,8 +225,7 @@ public class SAMLAssertionWriter extends BaseWriter
     */
    public void write(AuthnStatementType authnStatement) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get(), ASSERTION_NSURI
-            .get());
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get(), ASSERTION_NSURI.get());
 
       XMLGregorianCalendar authnInstant = authnStatement.getAuthnInstant();
       if (authnInstant != null)
@@ -231,6 +240,72 @@ public class SAMLAssertionWriter extends BaseWriter
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }
+   
+   public void write( XACMLAuthzDecisionStatementType xacmlStat ) throws ProcessingException
+   { 
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.STATEMENT.get(), ASSERTION_NSURI.get());
+      
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+      StaxUtil.writeNameSpace(writer, XACML_SAML_PREFIX, JBossSAMLURIConstants.XACML_SAML_NSURI.get());
+      StaxUtil.writeNameSpace(writer, XACML_SAML_PROTO_PREFIX, JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get());
+      StaxUtil.writeNameSpace(writer, XSI_PREFIX, JBossSAMLURIConstants.XSI_NSURI.get());
+      
+
+      StaxUtil.writeAttribute( writer, 
+            new QName( JBossSAMLURIConstants.XSI_NSURI.get(),JBossSAMLConstants.TYPE.get(), XSI_PREFIX), 
+            XACMLAuthzDecisionStatementType.XSI_TYPE );
+      
+      ResponseType responseType = xacmlStat.getResponse();
+      if( responseType == null )
+         throw new RuntimeException( " XACML response is null" );
+      
+      Document doc = SAMLXACMLUtil.getXACMLResponse(responseType);
+      StaxUtil.writeDOMElement(writer, doc.getDocumentElement() );
+      
+      /*try
+      {
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         //Marshaller marshaller = getMarshaller();
+         JAXBElement<?> jaxb = (new ObjectFactory()).createResponse(responseType);
+         
+         StreamResult result = new StreamResult( baos );
+         
+         TransformerUtil.transform( SAMLXACMLUtil.getJAXBContext(), jaxb, result);
+         Document doc = DocumentUtil.getDocument( new String( baos.toByteArray() ));
+         StaxUtil.writeDOMNode(writer, doc.getDocumentElement() );
+         //marshaller.marshal(jaxb, writer);
+      }
+      catch ( Exception e)
+      { 
+         throw new ProcessingException( e );
+      }*/
+      
+      RequestType requestType = xacmlStat.getRequest();
+      if( requestType != null )
+      { 
+         StaxUtil.writeDOMNode(writer, SAMLXACMLUtil.getXACMLRequest(requestType).getDocumentElement() );
+      
+         /*try
+         {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            //Marshaller marshaller = getMarshaller();
+            JAXBElement<?> jaxb = (new ObjectFactory()).createRequest( requestType );
+            
+            StreamResult result = new StreamResult( baos );
+            
+            TransformerUtil.transform( getJAXBContext(), jaxb, result);
+            Document doc = DocumentUtil.getDocument( new String( baos.toByteArray() ));
+            StaxUtil.writeDOMNode(writer, doc.getDocumentElement() );
+            //marshaller.marshal( jaxb, writer );
+         }
+         catch ( Exception e )
+         {
+            throw new ProcessingException( e );
+         }*/
+      }
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer); 
+   }
 
    /**
     * Write an {@code AuthnContextType} to stream
@@ -241,8 +316,7 @@ public class SAMLAssertionWriter extends BaseWriter
     */
    public void write(AuthnContextType authContext) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get(), ASSERTION_NSURI
-            .get());
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT.get(), ASSERTION_NSURI.get());
 
       AuthnContextTypeSequence sequence = authContext.getSequence();
       if (sequence != null)

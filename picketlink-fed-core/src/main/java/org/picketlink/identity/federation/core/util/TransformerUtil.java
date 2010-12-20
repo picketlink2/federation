@@ -25,9 +25,14 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Stack;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.util.JAXBSource;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
@@ -115,6 +120,21 @@ public class TransformerUtil
          throw new ParsingException( e );
       } 
    }
+   
+   public static void transform( JAXBContext context, JAXBElement<?> jaxb, Result result ) throws ParsingException
+   {
+      try
+      {
+         Transformer transformer = getTransformer();
+         JAXBSource jaxbSource = new JAXBSource(context, jaxb );
+
+         transformer.transform( jaxbSource , result );
+      }
+      catch ( Exception e ) 
+      {
+         throw new ParsingException( e );
+      }      
+   }
 
    /**
     * Custom Project {@code Transformer} that can take in a {@link StAXSource}
@@ -169,7 +189,12 @@ public class TransformerUtil
                      Element docStartElement = handleStartElement(xmlEventReader, startElement, holder  );
                      Node el = doc.importNode(docStartElement, true);
 
-                     Node top = stack.peek();
+                     Node top = null;
+                     
+                     if( !stack.isEmpty())
+                     {
+                        top = stack.peek(); 
+                     }
 
                      if( !holder.encounteredTextNode )
                      {
@@ -310,13 +335,25 @@ public class TransformerUtil
          }
 
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);
-         if( nextEvent.getEventType() == XMLEvent.CHARACTERS )
-         { 
-            holder.encounteredTextNode = true;
-            String text = StaxParserUtil.getElementText(xmlEventReader);
-            Node textNode = doc.createTextNode( text );
-            textNode = doc.importNode(textNode, true);
-            el.appendChild( textNode ); 
+         if( nextEvent instanceof Comment )
+         {
+            Comment commentEvent = (Comment) nextEvent;
+            Node commentNode = doc.createComment( commentEvent.getText() );
+            commentNode = doc.importNode(commentNode, true);
+            el.appendChild(commentNode); 
+         }
+         else if( nextEvent.getEventType() == XMLEvent.CHARACTERS )
+         {  
+            Characters characterEvent = (Characters) nextEvent; 
+            String trimmedData = characterEvent.getData().trim();
+            if( trimmedData != null && trimmedData.length() > 0 )
+            {
+               holder.encounteredTextNode = true;
+               String text = StaxParserUtil.getElementText(xmlEventReader);
+               Node textNode = doc.createTextNode( text );
+               textNode = doc.importNode(textNode, true);
+               el.appendChild( textNode ); 
+            } 
          }   
          return el;
       }

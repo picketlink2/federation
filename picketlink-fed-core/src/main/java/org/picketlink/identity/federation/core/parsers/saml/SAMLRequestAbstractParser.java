@@ -85,6 +85,8 @@ public abstract class SAMLRequestAbstractParser
    protected void parseCommonElements( StartElement startElement, XMLEventReader xmlEventReader,
          RequestAbstractType request ) throws ParsingException
    {
+      if( startElement == null )
+         throw new IllegalArgumentException( " startElement is null" );
       String elementName = StaxParserUtil.getStartElementName( startElement );
 
       if( JBossSAMLConstants.ISSUER.get().equals( elementName ))

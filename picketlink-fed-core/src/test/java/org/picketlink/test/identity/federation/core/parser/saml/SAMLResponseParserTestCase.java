@@ -47,6 +47,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAb
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
@@ -177,10 +178,10 @@ public class SAMLResponseParserTestCase
       
       AttributeStatementType attributeStatement = (AttributeStatementType)  assertion.getStatements().iterator().next();
       
-      List<org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType> attributes = attributeStatement.getAttributes();
+      List<AttributeStatementType.ASTChoiceType> attributes = attributeStatement.getAttributes();
       assertEquals( 2, attributes.size() ); 
       
-      for( org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType attr: attributes )
+      for( AttributeStatementType.ASTChoiceType attr: attributes )
       {
          AttributeType attribute = attr.getAttribute();
          assertEquals( "role", attribute.getFriendlyName() );
@@ -192,59 +193,27 @@ public class SAMLResponseParserTestCase
          String str = (String ) attributeValues.get( 0 ); 
          if( ! ( str.equals( "employee") || str.equals( "manager" )))
             throw new RuntimeException( "attrib value not found" );
-      } 
+      }  
+   }
+   
+   @Test
+   public void testXACMLDecisionStatements() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream( "saml-xacml/saml-xacml-response-1.xml" );
       
-      /*List<JAXBElement<?>> content = subject.getContent(); 
+      SAMLParser parser = new SAMLParser();
+      ResponseType response = ( ResponseType ) parser.parse(configStream);
+      assertNotNull( "ResponseType is not null", response ); 
       
-      int size = content.size();
+      //Get the assertion
+      AssertionType assertion = (AssertionType) response.getAssertions().get(0).getAssertion();
+      assertEquals( "ID_response-id:1", assertion.getID() );
+      assertEquals( XMLTimeUtil.parse( "2008-03-19T22:17:13Z" ), assertion.getIssueInstant() );
+      assertEquals( "2.0", assertion.getVersion() ); 
       
-      for( int i = 0 ; i < size; i++ )
-      {
-         JAXBElement<?> node = content.get(i);
-         Class<?> clazz = node.getDeclaredType();
-         
-         if( clazz.equals( NameIDType.class ))
-         {
-            NameIDType subjectNameID = (NameIDType) node.getValue();
-            
-            assertEquals( "anil", subjectNameID.getValue() );
-            assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent", subjectNameID.getFormat() ); 
-         }
-         
-         else if( clazz.equals( SubjectConfirmationType.class ))
-         { 
-            SubjectConfirmationType subjectConfirmation = (SubjectConfirmationType) node.getValue();
-            assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() );
-            
-            SubjectConfirmationDataType subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
-            assertEquals( "ID_04ded476-d73c-48af-b3a9-232a52905ffb", subjectConfirmationData.getInResponseTo() );
-            assertEquals( XMLTimeUtil.parse( "2010-11-04T00:19:16.842-05:00" ), subjectConfirmationData.getNotBefore() );
-            assertEquals(  XMLTimeUtil.parse( "2010-11-04T00:19:16.842-05:00" ), subjectConfirmationData.getNotOnOrAfter() );
-            assertEquals( "http://localhost:8080/employee/", subjectConfirmationData.getRecipient());
-         }
-         
-         else if( clazz.equals( AttributeStatementType.class ))
-         {
-            AttributeStatementType attributeStatement = (AttributeStatementType) node.getValue();
-            List<Object> attributes = attributeStatement.getAttributeOrEncryptedAttribute();
-            assertEquals( 2, attributes.size() ); 
-            
-            for( Object attr: attributes )
-            {
-               AttributeType attribute = (AttributeType) attr;
-               assertEquals( "role", attribute.getFriendlyName() );
-               assertEquals( "role", attribute.getName() );
-               assertEquals( "role", attribute.getNameFormat() );
-               List<Object> attributeValues = attribute.getAttributeValue();
-               assertEquals( 1, attributeValues.size() );
-               
-               String str = (String ) attributeValues.get( 0 ); 
-               if( ! ( str.equals( "employee") || str.equals( "manager" )))
-                  throw new RuntimeException( "attrib value not found" );
-            } 
-         }
-         else 
-            throw new RuntimeException( "unknown" );
-      } */
+      XACMLAuthzDecisionStatementType xacmlStat = (XACMLAuthzDecisionStatementType) assertion.getStatements().iterator().next();
+      assertNotNull( xacmlStat.getRequest() );
+      assertNotNull( xacmlStat.getResponse() ); 
    }
 }

@@ -21,21 +21,32 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.io.StringReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLEventReader;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.ObjectFactory; 
-import org.w3c.dom.Element;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.w3c.dom.Node;
 
 /**
  * Utility associated with SOAP 1.1 Envelope,
@@ -44,60 +55,75 @@ import org.w3c.dom.Element;
  * @since Jan 28, 2009
  */
 public class SOAPSAMLXACMLUtil
-{   
-   private static String SOAP_PKG = "org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope";
-   private static String SAML_PROTO_PKG = "org.picketlink.identity.federation.saml.v2.protocol";
-   private static String XACML_CTX_PKG = "org.jboss.security.xacml.core.model.context";
-   private static String XACML_SAMLPROTO_PKG = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
-   private static String XACML_SAMLASSERT_PKG = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
-   
-   private static String COLON = ":";
-   
-   private static String collectivePackage = getPackage();
-   
-   private static org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory
-       queryTypeObjectFactory = new org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.ObjectFactory();
-   
-   private static ObjectFactory statementObjectFactory = new ObjectFactory();
-   
+{     
    /**
     * Parse the XACML Authorization Decision Query from the Dom Element
     * @param samlRequest
     * @return 
-    * @throws TransformerException 
-    * @throws TransformerFactoryConfigurationError 
-    * @throws JAXBException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException  
+    * @throws ParsingException
     */
-   public static XACMLAuthzDecisionQueryType getXACMLQueryType(Element samlRequest) 
-   throws ConfigurationException, ProcessingException, JAXBException 
+   public static XACMLAuthzDecisionQueryType getXACMLQueryType( Node samlRequest ) 
+   throws ParsingException, ConfigurationException, ProcessingException 
    {
       //We reparse it because the document may have issues with namespaces
-      String elementString = DocumentUtil.getDOMElementAsString(samlRequest);
-      Unmarshaller um = JAXBUtil.getUnmarshaller(collectivePackage);
+      //String elementString = DocumentUtil.getDOMElementAsString(samlRequest);
+      
+      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( DocumentUtil.getNodeAsStream( samlRequest ));
+      SAMLXACMLRequestParser samlXACMLRequestParser = new SAMLXACMLRequestParser();
+      return (XACMLAuthzDecisionQueryType) samlXACMLRequestParser.parse(xmlEventReader);
+      
+      /*Unmarshaller um = JAXBUtil.getUnmarshaller(collectivePackage);
       um.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
 
       JAXBElement<?> obj = (JAXBElement<?>) um.unmarshal(new StringReader(elementString));
       Object xacmlObject = obj.getValue();
       if(xacmlObject instanceof XACMLAuthzDecisionQueryType == false)
          throw new RuntimeException("Unsupported type:" + xacmlObject);
-      return (XACMLAuthzDecisionQueryType)xacmlObject;  
+      return (XACMLAuthzDecisionQueryType)xacmlObject;  */
    }
    
-   public static Marshaller getMarshaller() throws JAXBException
+   public static XACMLAuthzDecisionStatementType getDecisionStatement( Node samlResponse ) throws ConfigurationException, ProcessingException, ParsingException
    {
-      return JAXBUtil.getMarshaller(getPackage());
+      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( DocumentUtil.getNodeAsStream( samlResponse ));
+      SAMLParser samlParser = new SAMLParser();
+      ResponseType response = (ResponseType) samlParser.parse( xmlEventReader );
+      List<RTChoiceType> choices = response.getAssertions();
+      for( RTChoiceType rst: choices )
+      {
+         AssertionType assertion = rst.getAssertion();
+         if( assertion == null )
+            continue;
+         Set<StatementAbstractType> stats = assertion.getStatements();
+         for( StatementAbstractType stat: stats )
+         {
+            if( stat instanceof XACMLAuthzDecisionStatementType )
+            {
+               return (XACMLAuthzDecisionStatementType) stat;
+            }
+         }
+      }
+      
+      throw new RuntimeException( "Not found XACMLAuthzDecisionStatementType" ); 
    }
    
-   public static Unmarshaller getUnmarshaller() throws JAXBException
+   public static SOAPMessage getSOAPMessage( InputStream is ) throws IOException, SOAPException
    {
-      return JAXBUtil.getUnmarshaller(getPackage());
+      MessageFactory messageFactory = MessageFactory.newInstance();
+      return messageFactory.createMessage(null, is ); 
    }
    
-   public static String getPackage()
+   public static SOAPMessage createFault( String message ) throws SOAPException 
    {
-      StringBuffer buf = new StringBuffer();
-      buf.append(SOAP_PKG).append(COLON).append(SAML_PROTO_PKG).append(COLON);
-      buf.append(XACML_CTX_PKG).append(COLON).append(XACML_SAMLPROTO_PKG).append(COLON).append(XACML_SAMLASSERT_PKG); 
-      return buf.toString();
+      MessageFactory messageFactory = MessageFactory.newInstance();
+      SOAPMessage msg =  messageFactory.createMessage() ;
+      SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
+      SOAPBody body = envelope.getBody();
+      SOAPFault fault = body.addFault();
+      fault.setFaultCode("Server");
+      fault.setFaultActor( "urn:picketlink" );
+      fault.setFaultString( message );
+      return msg; 
    }
 }

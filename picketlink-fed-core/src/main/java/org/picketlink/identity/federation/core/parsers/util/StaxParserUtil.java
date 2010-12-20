@@ -142,7 +142,7 @@ public class StaxParserUtil
          throw new ParsingException( e );
       }
    } 
-   
+
    /**
     * Get the element text.  
     * @param xmlEventReader

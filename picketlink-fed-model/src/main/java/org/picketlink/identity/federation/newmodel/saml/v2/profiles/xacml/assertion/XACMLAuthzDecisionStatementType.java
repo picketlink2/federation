@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAb
 public class XACMLAuthzDecisionStatementType
     extends StatementAbstractType
 { 
+    public static final String XSI_TYPE = "xacml-samlp:XACMLAuthzDecisionStatementType";
     protected ResponseType response;
     protected RequestType request;
 

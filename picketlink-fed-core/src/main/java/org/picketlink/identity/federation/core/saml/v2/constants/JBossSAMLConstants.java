@@ -102,6 +102,7 @@ public enum JBossSAMLConstants
    SIGNATURE_SHA1_WITH_RSA("http://www.w3.org/2000/09/xmldsig#rsa-sha1"),
    SINGLE_SIGNON_SERVICE( "SingleSignOnService" ),
    SINGLE_LOGOUT_SERVICE( "SingleLogoutService" ),
+   STATEMENT( "Statement" ),
    STATUS( "Status" ),
    STATUS_CODE( "StatusCode" ),
    STATUS_DETAIL( "StatusDetail" ),
@@ -117,6 +118,7 @@ public enum JBossSAMLConstants
    WANT_AUTHN_REQUESTS_SIGNED( "WantAuthnRequestsSigned" ),
    XACML_AUTHZ_DECISION_QUERY( "XACMLAuthzDecisionQuery" ),
    XACML_AUTHZ_DECISION_QUERY_TYPE( "XACMLAuthzDecisionQueryType" ),
+   XACML_AUTHZ_DECISION_STATEMENT_TYPE( "XACMLAuthzDecisionStatementType" ),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
    private String val;
