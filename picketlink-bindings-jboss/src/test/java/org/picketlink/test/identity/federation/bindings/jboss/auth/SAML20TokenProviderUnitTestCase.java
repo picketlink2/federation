@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.Subject;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
@@ -40,12 +37,14 @@ import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.plugins.JBossSecurityContext;
 import org.picketlink.identity.federation.bindings.jboss.auth.SAML20TokenRoleAttributeProvider;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken; 
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -116,14 +115,19 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       
       SecurityContextAssociation.clearSecurityContext();
 
-      JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.federation.saml.v2.assertion");
+      Element assertionElement = (Element) context.getSecurityToken().getTokenValue();
+      
+      SAMLParser samlParser = new SAMLParser();
+      AssertionType assertion = (AssertionType) samlParser.parse( DocumentUtil.getNodeAsStream(assertionElement));
+      
+      /*JAXBContext jaxbContext = JAXBContext.newInstance("org.picketlink.identity.federation.saml.v2.assertion");
       Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
       JAXBElement<?> parsedElement = (JAXBElement<?>) unmarshaller.unmarshal((Element) context.getSecurityToken()
             .getTokenValue());
       assertNotNull("Unexpected null element", parsedElement);
       assertEquals("Unexpected element type", AssertionType.class, parsedElement.getDeclaredType());
 
-      AssertionType assertion = (AssertionType) parsedElement.getValue();
+      AssertionType assertion = (AssertionType) parsedElement.getValue();*/
       StandardSecurityToken securityToken = (StandardSecurityToken) context.getSecurityToken();
       assertEquals("Unexpected token id", securityToken.getTokenID(), assertion.getID());
       assertEquals("Unexpected token issuer", "PicketLinkSTS", assertion.getIssuer().getValue());
@@ -142,7 +146,7 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertNotNull("Unexpected null audience list", restrictionType.getAudience());
       assertEquals("Unexpected number of audience elements", 1, restrictionType.getAudience().size());
       assertEquals("Unexpected audience value", "http://services.testcorp.org/provider2", restrictionType.getAudience()
-            .get(0));
+            .get(0).toString() );
 
       // check the contents of the assertion subject.
       SubjectType subject = assertion.getSubject();
@@ -162,8 +166,10 @@ public class SAML20TokenProviderUnitTestCase extends TestCase
       assertFalse("Unexpected empty list of attributes", attributes.isEmpty());
       assertEquals("Unexpected number of attributes", 1, attributes.size());
       Object attributeObject = attributes.iterator().next();
-      assertTrue("Unexpected type instead of AttributeStatement: " + attributeObject.getClass().getSimpleName(), attributeObject instanceof AttributeType);
-      AttributeType attribute = (AttributeType)attributeObject;
+      ASTChoiceType astChoice = (ASTChoiceType) attributeObject;
+      AttributeType attribute = astChoice.getAttribute();
+      /*assertTrue("Unexpected type instead of AttributeStatement: " + attributeObject.getClass().getSimpleName(), attributeObject instanceof AttributeType);
+      AttributeType attribute = (AttributeType)attributeObject;*/
       assertEquals("Unexpected name for the role attribute", "roleAttributeName", attribute.getName() );
       assertEquals("Unexpected number of roles", 1, attribute.getAttributeValue().size());
       assertEquals("Unexpected user role", "myTestRole", attribute.getAttributeValue().get(0));

@@ -23,11 +23,11 @@ package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
-import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder; 
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.junit.Test;
+import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
+import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.w3c.dom.Element;
 
 
 /**
@@ -40,7 +40,7 @@ public class KeyDescriptorMetaDataBuilderUnitTestCase
    @Test
    public void testCreateKeyDescriptor()
    {
-      KeyInfoType keyInfo = KeyInfoBuilder.createKeyInfo("testKey");
+      Element keyInfo = KeyInfoBuilder.createKeyInfo("testKey");
       
       String algorithm = "http://www.w3.org/2001/04/xmlenc#rsa-1_5";
       

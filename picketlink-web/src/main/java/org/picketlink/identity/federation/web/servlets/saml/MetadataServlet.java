@@ -57,7 +57,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescripto
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.w3c.dom.Element;
 
 /**
  * Metadata servlet for the IDP/SP
@@ -145,7 +145,7 @@ public class MetadataServlet extends HttpServlet
          keyManager.setAuthProperties( authProperties ); 
 
          Certificate cert = keyManager.getCertificate(signingAlias);
-         KeyInfoType keyInfo = KeyUtil.getKeyInfo(cert);
+         Element keyInfo = KeyUtil.getKeyInfo(cert);
 
          //TODO: Assume just signing key for now
          KeyDescriptorType keyDescriptor = KeyDescriptorMetaDataBuilder.createKeyDescriptor(keyInfo, 

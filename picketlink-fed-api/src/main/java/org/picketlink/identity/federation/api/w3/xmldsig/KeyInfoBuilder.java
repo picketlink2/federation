@@ -21,8 +21,13 @@
  */
 package org.picketlink.identity.federation.api.w3.xmldsig;
 
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
  
 
 /**
@@ -38,12 +43,20 @@ public class KeyInfoBuilder
     * Create a KeyInfoType
     * @return
     */
-   public static KeyInfoType createKeyInfo(String id)
+   public static Element createKeyInfo( String id )
    {
-      KeyInfoType keyInfo = oFact.createKeyInfoType();
-    
-      keyInfo.setId(id);
-      return keyInfo;
+      Document doc = null;
+      try
+      {
+         doc = DocumentUtil.createDocument();
+      }
+      catch (ConfigurationException e)
+      {
+         throw new RuntimeException( e );
+      }
+      Element keyInfoEl = doc.createElementNS( JBossSAMLURIConstants.XMLDSIG_NSURI.get(), JBossSAMLConstants.KEY_INFO.get() );
+      keyInfoEl.setAttribute( "Id", id );
+      return keyInfoEl;
    }
    
    /**

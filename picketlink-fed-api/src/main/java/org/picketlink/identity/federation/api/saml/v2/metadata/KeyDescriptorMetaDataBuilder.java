@@ -27,8 +27,8 @@ import java.math.BigInteger;
 
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
+import org.w3c.dom.Element;
 
 /**
  * MetaDataBuilder for the KeyDescriptor
@@ -41,7 +41,7 @@ public class KeyDescriptorMetaDataBuilder
     * Create a Key Descriptor Type
     * @return
     */
-   public static KeyDescriptorType createKeyDescriptor(KeyInfoType keyInfo,
+   public static KeyDescriptorType createKeyDescriptor( Element keyInfo,
          String algorithm, int keySize,
          boolean isSigningKey, boolean isEncryptionKey)
    {
@@ -69,9 +69,8 @@ public class KeyDescriptorMetaDataBuilder
       if(isEncryptionKey)
          keyDescriptor.setUse(KeyTypes.ENCRYPTION); 
       
-      throw new RuntimeException( "We need a dom element as key info" );
-      /*keyDescriptor.setKeyInfo(keyInfo);
-      
-      return keyDescriptor;*/
+      keyDescriptor.setKeyInfo( keyInfo );
+       
+      return keyDescriptor;
    }
 }

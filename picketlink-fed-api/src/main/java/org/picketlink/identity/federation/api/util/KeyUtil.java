@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.api.util;
 
-import java.io.StringReader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.cert.Certificate;
@@ -29,15 +28,18 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.w3c.dom.Element;
 
 /**
  * Utility dealing with PublicKey/Certificates and xml-dsig KeyInfoType
@@ -67,8 +69,12 @@ public class KeyUtil
     * @return   
     * @throws JAXBException 
     * @throws CertificateException 
+    * @throws ProcessingException 
+    * @throws ParsingException 
+    * @throws ConfigurationException 
     */
-   public static KeyInfoType getKeyInfo(Certificate certificate) throws JAXBException, CertificateException 
+   public static Element getKeyInfo(Certificate certificate) 
+   throws CertificateException, ConfigurationException, ParsingException, ProcessingException 
    { 
       if(certificate == null)
          throw new IllegalArgumentException("certificate is null");
@@ -93,8 +99,7 @@ public class KeyUtil
       else
          throw new RuntimeException("NYI");
       
-      JAXBElement<?> keyInfoJ = (JAXBElement<?>) getUnmarshaller().unmarshal(new StringReader(builder.toString()));
-      return (KeyInfoType) keyInfoJ.getValue();
+      return DocumentUtil.getDocument(builder.toString()).getDocumentElement(); 
    }
    
    /**

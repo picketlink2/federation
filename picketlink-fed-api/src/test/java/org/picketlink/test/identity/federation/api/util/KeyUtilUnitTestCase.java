@@ -28,7 +28,7 @@ import java.security.cert.Certificate;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.util.KeyUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.w3c.dom.Element;
 
 /**
  * Unit test the Key Util
@@ -66,7 +66,7 @@ public class KeyUtilUnitTestCase extends TestCase
       Certificate cert = ks.getCertificate(alias);
       assertNotNull("Cert not null", cert);
       
-      KeyInfoType keyInfo = KeyUtil.getKeyInfo(cert);
+      Element keyInfo = KeyUtil.getKeyInfo(cert);
       assertNotNull(keyInfo);  
    }
 }

@@ -67,6 +67,7 @@ public enum JBossSAMLConstants
    ISSUE_INSTANT( "IssueInstant" ),
    ISSUER( "Issuer" ),
    KEY_DESCRIPTOR( "KeyDescriptor" ),
+   KEY_INFO( "KeyInfo" ),
    LANG( "lang" ),
    LANG_EN("en"),
    LOCATION( "Location" ),
