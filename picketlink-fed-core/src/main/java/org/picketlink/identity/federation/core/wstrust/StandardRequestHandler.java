@@ -30,6 +30,7 @@ import javax.xml.crypto.dsig.SignatureMethod;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;

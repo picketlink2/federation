@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -39,7 +40,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class WSTrustRequestContext
+public class WSTrustRequestContext implements ProtocolContext
 {
 
    // information supplied by the request handler.

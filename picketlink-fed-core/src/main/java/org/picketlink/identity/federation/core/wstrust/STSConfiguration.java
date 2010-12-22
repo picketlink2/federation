@@ -25,6 +25,8 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+
 /**
  * <p>
  * The {@code STSConfiguration} interface allows access to the security token service (STS) configuration attributes.

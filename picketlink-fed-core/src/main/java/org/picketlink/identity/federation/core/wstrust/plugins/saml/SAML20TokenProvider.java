@@ -27,12 +27,13 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
-import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -179,8 +180,10 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void cancelToken(WSTrustRequestContext context) throws WSTrustException
+   public void cancelToken( ProtocolContext protoContext) throws WSTrustException
    {
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
+      
       // get the assertion that must be canceled.
       Element token = (Element) context.getRequestSecurityToken().getCancelTargetElement();
       if (token == null)
@@ -200,8 +203,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void issueToken(WSTrustRequestContext context) throws WSTrustException
+   public void issueToken( ProtocolContext protoContext) throws WSTrustException
    {
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext; 
       // generate an id for the new assertion.
       String assertionID = IDGenerator.create("ID_");
 
@@ -295,8 +299,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void renewToken(WSTrustRequestContext context) throws WSTrustException
+   public void renewToken( ProtocolContext protoContext ) throws WSTrustException
    {
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       // get the specified assertion that must be renewed.
       Element token = (Element) context.getRequestSecurityToken().getRenewTargetElement();
       if (token == null)
@@ -365,8 +370,9 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void validateToken(WSTrustRequestContext context) throws WSTrustException
+   public void validateToken( ProtocolContext protoContext ) throws WSTrustException
    {
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       if (logger.isTraceEnabled())
          logger.trace("SAML V2.0 token validation started");
 
@@ -441,4 +447,11 @@ public class SAML20TokenProvider implements SecurityTokenProvider
             && WSTrustConstants.SAML2_ASSERTION_NS.equals(element.getNamespaceURI());
    }
 
+   /**
+    * @see {@code SecurityTokenProvider#supports(String)}
+    */
+   public boolean supports(String namespace)
+   {
+      return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
+   } 
 }

@@ -26,11 +26,13 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
-import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.w3c.dom.Document;
@@ -63,7 +65,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void cancelToken(WSTrustRequestContext context) throws WSTrustException
+   public void cancelToken( ProtocolContext protoContext ) throws WSTrustException
    {
    }
 
@@ -72,8 +74,10 @@ public class SpecialTokenProvider implements SecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void issueToken(WSTrustRequestContext context) throws WSTrustException
+   public void issueToken( ProtocolContext protoContext) throws WSTrustException
    {
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
+      
       // create a simple sample token using the info from the request.
       String caller = context.getCallerPrincipal() == null ? "anonymous" : context.getCallerPrincipal().getName();
       URI tokenType = context.getRequestSecurityToken().getTokenType();
@@ -119,7 +123,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void renewToken(WSTrustRequestContext context) throws WSTrustException
+   public void renewToken( ProtocolContext protoContext ) throws WSTrustException
    {
    }
 
@@ -128,7 +132,7 @@ public class SpecialTokenProvider implements SecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void validateToken(WSTrustRequestContext context) throws WSTrustException
+   public void validateToken( ProtocolContext protoContext ) throws WSTrustException
    {
    }
    
@@ -142,5 +146,10 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    public Map<String, String> getProperties()
    {
       return this.properties;
+   }
+
+   public boolean supports(String namespace)
+   { 
+      return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
    }
 }

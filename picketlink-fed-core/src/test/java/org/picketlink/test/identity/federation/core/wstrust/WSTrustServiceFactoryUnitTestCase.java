@@ -27,9 +27,9 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
-import org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.StandardRequestHandler;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler;
 import org.picketlink.identity.federation.core.wstrust.WSTrustServiceFactory;

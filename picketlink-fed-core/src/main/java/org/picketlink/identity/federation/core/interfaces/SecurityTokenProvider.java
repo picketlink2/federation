@@ -19,9 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.wstrust;
+package org.picketlink.identity.federation.core.interfaces;
 
 import java.util.Map;
+
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
  * <p>
@@ -41,6 +43,13 @@ public interface SecurityTokenProvider
     * this {@code SecurityTokenProvider}.
     */
    public void initialize(Map<String, String> properties);
+   
+   /**
+    * Specify whether this token provider supports a particular namespace
+    * @param namespace a string value representing a namespace
+    * @return
+    */
+   public boolean supports( String namespace );
 
    /**
     * <p>
@@ -48,10 +57,10 @@ public interface SecurityTokenProvider
     * newly-created token in the context itself.
     * </p>
     * 
-    * @param context the {@code WSTrustRequestContext} to be used when generating the token.
+    * @param context the {@code ProtocolContext} to be used when generating the token.
     * @throws WSTrustException if an error occurs while creating the security token.
     */
-   public void issueToken(WSTrustRequestContext context) throws WSTrustException;
+   public void issueToken( ProtocolContext context) throws WSTrustException;
 
    /**
     * <p>
@@ -59,10 +68,10 @@ public interface SecurityTokenProvider
     * generated token has expired, generating a new version of the same token with different expiration semantics.
     * </p>
     * 
-    * @param context the {@code WSTrustRequestContext} that contains the token to be renewed.
+    * @param context the {@code ProtocolContext} that contains the token to be renewed.
     * @throws WSTrustException if an error occurs while renewing the security token.
     */
-   public void renewToken(WSTrustRequestContext context) throws WSTrustException;
+   public void renewToken( ProtocolContext context) throws WSTrustException;
 
    /**
     * <p>
@@ -70,10 +79,10 @@ public interface SecurityTokenProvider
     * to make sure that the token will not be used anymore. A security token can't be renewed once it has been canceled.
     * </p>
     * 
-    * @param context the {@code WSTrustRequestContext} that contains the token to be canceled.
+    * @param context the {@code ProtocolContext} that contains the token to be canceled.
     * @throws WSTrustException if an error occurs while canceling the security token.
     */
-   public void cancelToken(WSTrustRequestContext context) throws WSTrustException;
+   public void cancelToken( ProtocolContext context) throws WSTrustException;
 
    /**
     * <p>
@@ -81,8 +90,8 @@ public interface SecurityTokenProvider
     * itself. The result can be a status, a new token, or both.
     * </p>
     * 
-    * @param context the {@code WSTrustRequestContext} that contains the token to be validated.
+    * @param context the {@code ProtocolContext} that contains the token to be validated.
     * @throws WSTrustException if an error occurs while validating the security token.
     */
-   public void validateToken(WSTrustRequestContext context) throws WSTrustException;
+   public void validateToken( ProtocolContext context) throws WSTrustException;
 }

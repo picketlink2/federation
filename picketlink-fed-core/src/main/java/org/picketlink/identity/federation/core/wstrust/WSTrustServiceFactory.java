@@ -24,6 +24,8 @@ package org.picketlink.identity.federation.core.wstrust;
 import java.security.PrivilegedActionException;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+
 /**
  * <p>
  * Factory class used for instantiating pluggable services, such as the {@code WSTrustRequestHandler} and

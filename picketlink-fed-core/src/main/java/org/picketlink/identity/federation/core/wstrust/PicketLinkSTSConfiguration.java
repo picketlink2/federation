@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.config.ServiceProviderType;
 import org.picketlink.identity.federation.core.config.ServiceProvidersType;
 import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.config.TokenProvidersType;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 
