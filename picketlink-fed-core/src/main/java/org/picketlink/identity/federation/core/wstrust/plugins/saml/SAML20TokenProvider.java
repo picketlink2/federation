@@ -17,6 +17,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
+import java.net.URI;
 import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
@@ -36,7 +38,6 @@ import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocationRegistry;
@@ -180,17 +181,20 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void cancelToken( ProtocolContext protoContext) throws WSTrustException
+   public void cancelToken( ProtocolContext protoContext) throws ProcessingException
    {
+      if(! (protoContext instanceof WSTrustRequestContext) )
+         return;
+      
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       
       // get the assertion that must be canceled.
       Element token = (Element) context.getRequestSecurityToken().getCancelTargetElement();
       if (token == null)
-         throw new WSTrustException("Invalid cancel request: missing required CancelTarget");
+         throw new ProcessingException("Invalid cancel request: missing required CancelTarget");
       Element assertionElement = (Element) token.getFirstChild();
       if (!this.isAssertion(assertionElement))
-         throw new WSTrustException("CancelTarget doesn't not contain a SAMLV2.0 assertion");
+         throw new ProcessingException("CancelTarget doesn't not contain a SAMLV2.0 assertion");
 
       // get the assertion ID and add it to the canceled assertions set.
       String assertionId = assertionElement.getAttribute("ID");
@@ -203,8 +207,11 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void issueToken( ProtocolContext protoContext) throws WSTrustException
+   public void issueToken( ProtocolContext protoContext) throws ProcessingException
    {
+      if(! (protoContext instanceof WSTrustRequestContext) )
+         return;
+      
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext; 
       // generate an id for the new assertion.
       String assertionID = IDGenerator.create("ID_");
@@ -277,7 +284,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Failed to marshall SAMLV2 assertion", e);
+         throw new ProcessingException("Failed to marshall SAMLV2 assertion", e);
       }
 
       SecurityToken token = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType().toString(),
@@ -299,16 +306,19 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void renewToken( ProtocolContext protoContext ) throws WSTrustException
+   public void renewToken( ProtocolContext protoContext ) throws ProcessingException
    {
+      if(! (protoContext instanceof WSTrustRequestContext) )
+         return;
+      
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       // get the specified assertion that must be renewed.
       Element token = (Element) context.getRequestSecurityToken().getRenewTargetElement();
       if (token == null)
-         throw new WSTrustException("Invalid renew request: missing required RenewTarget");
+         throw new ProcessingException("Invalid renew request: missing required RenewTarget");
       Element oldAssertionElement = (Element) token.getFirstChild();
       if (!this.isAssertion(oldAssertionElement))
-         throw new WSTrustException("RenewTarget doesn't not contain a SAMLV2.0 assertion");
+         throw new ProcessingException("RenewTarget doesn't not contain a SAMLV2.0 assertion");
 
       // get the JAXB representation of the old assertion.
       AssertionType oldAssertion = null;
@@ -318,12 +328,12 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       }
       catch ( Exception je )
       {
-         throw new WSTrustException("Error unmarshalling assertion", je);
+         throw new ProcessingException("Error unmarshalling assertion", je);
       }
 
       // canceled assertions cannot be renewed.
       if (this.revocationRegistry.isRevoked(SAMLUtil.SAML2_TOKEN_TYPE, oldAssertion.getID()))
-         throw new WSTrustException("Assertion with id " + oldAssertion.getID()
+         throw new ProcessingException("Assertion with id " + oldAssertion.getID()
                + " has been canceled and cannot be renewed");
 
       // adjust the lifetime for the renewed assertion.
@@ -350,7 +360,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Failed to marshall SAMLV2 assertion", e);
+         throw new ProcessingException("Failed to marshall SAMLV2 assertion", e);
       }
       SecurityToken securityToken = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType()
             .toString(), assertionElement, assertionID);
@@ -370,8 +380,11 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void validateToken( ProtocolContext protoContext ) throws WSTrustException
+   public void validateToken( ProtocolContext protoContext ) throws ProcessingException
    {
+      if(! (protoContext instanceof WSTrustRequestContext) )
+         return;
+      
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       if (logger.isTraceEnabled())
          logger.trace("SAML V2.0 token validation started");
@@ -379,7 +392,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
       // get the SAML assertion that must be validated.
       Element token = context.getRequestSecurityToken().getValidateTargetElement();
       if (token == null)
-         throw new WSTrustException("Bad validate request: missing required ValidateTarget");
+         throw new ProcessingException("Bad validate request: missing required ValidateTarget");
 
       String code = WSTrustConstants.STATUS_CODE_VALID;
       String reason = "SAMLV2.0 Assertion successfuly validated";
@@ -399,7 +412,7 @@ public class SAML20TokenProvider implements SecurityTokenProvider
          }
          catch ( Exception e )
          {
-            throw new WSTrustException("Unmarshalling error:", e);
+            throw new ProcessingException("Unmarshalling error:", e);
          }
       }
 

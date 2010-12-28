@@ -27,11 +27,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
@@ -93,7 +94,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (trace)
          log.trace("Issuing token for principal " + callerPrincipal);
 
-      SecurityTokenProvider provider = null;
+      //SecurityTokenProvider provider = null;
 
       // first try to obtain the security token provider using the applies-to contents.
       AppliesTo appliesTo = request.getAppliesTo();
@@ -101,26 +102,34 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (appliesTo != null)
       {
          String serviceName = WSTrustUtil.parseAppliesTo(appliesTo);
+         
          if (serviceName != null)
          {
-            provider = this.configuration.getProviderForService(serviceName);
-            if (provider != null)
+           String tokenTypeFromServiceName = configuration.getTokenTypeForService(serviceName);
+           
+           if( request.getTokenType() == null && tokenTypeFromServiceName != null )
+              request.setTokenType(URI.create( tokenTypeFromServiceName ));
+
+           providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
+           
+           // provider = this.configuration.getProviderForService(serviceName);
+            /*if (provider != null)
             {
                request.setTokenType(URI.create(this.configuration.getTokenTypeForService(serviceName)));
                providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
-            }
+            }*/
          }
       }
       // if applies-to is not available or if no provider was found for the service, use the token type.
-      if (provider == null && request.getTokenType() != null)
-      {
+      /*if (provider == null && request.getTokenType() != null)
+      { 
          provider = this.configuration.getProviderForTokenType(request.getTokenType().toString());
       }
       else if (appliesTo == null && request.getTokenType() == null)
          throw new WSTrustException("Either AppliesTo or TokenType must be present in a security token request");
 
       if (provider != null)
-      {
+      {*/
          // create the request context and delegate token generation to the provider.
          WSTrustRequestContext requestContext = new WSTrustRequestContext(request, callerPrincipal);
          requestContext.setTokenIssuer(this.configuration.getSTSName());
@@ -253,10 +262,23 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          }
 
          // issue the security token using the constructed context.
-         provider.issueToken(requestContext);
+         try
+         {
+            if( request.getTokenType() != null )
+               requestContext.setTokenType( request.getTokenType().toString() );
+            PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+            sts.initialize(configuration);
+            sts.issueToken(requestContext);
+            //provider.issueToken(requestContext);
+         }
+         catch (ProcessingException e)
+         {
+            throw new WSTrustException( "Exception during token issue::", e );
+         }
 
          if (requestContext.getSecurityToken() == null)
-            throw new WSTrustException("Token issued by provider " + provider.getClass().getName() + " is null");
+            //throw new WSTrustException("Token issued by provider " + provider.getClass().getName() + " is null");
+            throw new WSTrustException("Token issued by STS is null");
 
          // construct the ws-trust security token response.
          RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
@@ -285,9 +307,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             response.setRequestedUnattachedReference(requestContext.getUnattachedReference());
 
          return response;
-      }
+      /*}
       else
-         throw new WSTrustException("Unable to find a token provider for the token request");
+         throw new WSTrustException("Unable to find a token provider for the token request");*/
    }
 
    /*
@@ -309,11 +331,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (securityToken == null)
          throw new WSTrustException("Unable to renew token: security token is null");
 
-      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
+      /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
          throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
-               + securityToken.getLocalName());
+               + securityToken.getLocalName());*/
 
       if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null)
       {
@@ -356,7 +378,19 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
-      provider.renewToken(context);
+      try
+      {
+         if( securityToken != null )
+            context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+         PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+         sts.initialize(configuration);
+         sts.renewToken(context);
+         //provider.renewToken(context);
+      }
+      catch (ProcessingException e)
+      {
+         throw new WSTrustException( "Exception during token renewal:", e );
+      }
 
       // create the WS-Trust response with the renewed token.
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
@@ -396,11 +430,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (securityToken == null)
          throw new WSTrustException("Unable to validate token: security token is null");
 
-      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
+      /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
          throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
-               + securityToken.getLocalName());
+               + securityToken.getLocalName());*/
 
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
       // if the validate request was made on behalf of another identity, get the principal of that identity.
@@ -456,7 +490,19 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       {
          if (trace)
             log.trace("Delegating token validation to token provider");
-         provider.validateToken(context);
+         try
+         {
+            if( securityToken != null )
+               context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+            PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+            sts.initialize(configuration);
+            sts.validateToken( context );
+            //provider.validateToken(context);
+         }
+         catch (ProcessingException e)
+         {
+            throw new WSTrustException( "Exception during token validation:", e );
+         }
          status = context.getStatus();
       }
 
@@ -487,11 +533,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (securityToken == null)
          throw new WSTrustException("Unable to cancel token: security token is null");
 
-      SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
+      /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
       if (provider == null)
          throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
-               + securityToken.getLocalName());
+               + securityToken.getLocalName());*/
 
       // create a request context and dispatch to the provider.
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
@@ -501,7 +547,19 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
-      provider.cancelToken(context);
+      try
+      {
+         if( securityToken != null )
+            context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+         PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+         sts.initialize(configuration);
+         sts.cancelToken( context );
+         //provider.cancelToken(context);
+      }
+      catch (ProcessingException e)
+      {
+         throw new WSTrustException( "Exception during token cancellation:", e );
+      }
 
       // if no exception has been raised, the token has been successfully canceled.
       RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();

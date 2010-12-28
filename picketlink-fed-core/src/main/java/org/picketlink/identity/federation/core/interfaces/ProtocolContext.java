@@ -21,11 +21,30 @@
  */
 package org.picketlink.identity.federation.core.interfaces;
 
+import javax.xml.namespace.QName;
+
 /**
- * Marker Interface
+ * Interface to indicate a protocol specific request context
  * @author Anil.Saldhana@redhat.com
  * @since Sep 17, 2009
  */
 public interface ProtocolContext
-{
+{ 
+   /**
+    * An optional service name
+    * @return
+    */
+   String serviceName();
+   
+   /**
+    * A String that represents the token type
+    * @return
+    */
+   String tokenType();
+   
+   /**
+    * Return the QName of the token
+    * @return 
+    */
+   QName getQName();
 }

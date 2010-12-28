@@ -51,6 +51,7 @@ import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
@@ -508,5 +509,18 @@ public class WSTrustUtil
       else
          return null;
    }
-
+   
+   public static String getServiceNameFromAppliesTo( RequestSecurityToken requestSecurityToken )
+   {
+      String serviceName = null;
+      if( requestSecurityToken != null )
+      {
+         AppliesTo appliesTo = requestSecurityToken.getAppliesTo(); 
+         if (appliesTo != null)
+         {
+            serviceName = WSTrustUtil.parseAppliesTo(appliesTo);
+         }  
+      }
+      return serviceName; 
+   }
 }

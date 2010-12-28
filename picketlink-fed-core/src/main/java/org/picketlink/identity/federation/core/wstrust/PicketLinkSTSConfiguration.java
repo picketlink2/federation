@@ -244,6 +244,9 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public SecurityTokenProvider getProviderForService(String serviceName)
    {
+      if( serviceName == null )
+         throw new IllegalArgumentException( "serviceName is null ");
+      
       ServiceProviderType provider = this.spMetadata.get(serviceName);
       if (provider != null)
       {
@@ -259,6 +262,8 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public SecurityTokenProvider getProviderForTokenType(String tokenType)
    {
+      if( tokenType == null )
+         throw new IllegalArgumentException( "tokenType is null ");
       return this.tokenProviders.get(tokenType);
    }
 

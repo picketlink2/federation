@@ -25,6 +25,8 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
@@ -66,6 +68,10 @@ public class WSTrustRequestContext implements ProtocolContext
    private RequestedReferenceType attachedReference;
 
    private RequestedReferenceType unattachedReference;
+
+   private String tokenType;
+
+   private QName qname;
 
    /**
     * <p>
@@ -329,5 +335,30 @@ public class WSTrustRequestContext implements ProtocolContext
    public void setUnattachedReference(RequestedReferenceType unattachedReference)
    {
       this.unattachedReference = unattachedReference;
+   }
+
+   public String serviceName()
+   {
+      return WSTrustUtil.getServiceNameFromAppliesTo( request );
+   }
+
+   public String tokenType()
+   { 
+      return tokenType; 
+   }
+   
+   public void setTokenType( String tokenType )
+   {
+      this.tokenType = tokenType;
+   }
+
+   public QName getQName()
+   {   
+      return qname;
+   }
+   
+   public void setQName( QName qname )
+   {
+      this.qname = qname;
    }
 }

@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.interfaces;
 
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
@@ -60,7 +61,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} to be used when generating the token.
     * @throws WSTrustException if an error occurs while creating the security token.
     */
-   public void issueToken( ProtocolContext context) throws WSTrustException;
+   public void issueToken( ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -71,7 +72,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be renewed.
     * @throws WSTrustException if an error occurs while renewing the security token.
     */
-   public void renewToken( ProtocolContext context) throws WSTrustException;
+   public void renewToken( ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -82,7 +83,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be canceled.
     * @throws WSTrustException if an error occurs while canceling the security token.
     */
-   public void cancelToken( ProtocolContext context) throws WSTrustException;
+   public void cancelToken( ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -93,5 +94,5 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be validated.
     * @throws WSTrustException if an error occurs while validating the security token.
     */
-   public void validateToken( ProtocolContext context) throws WSTrustException;
+   public void validateToken( ProtocolContext context) throws ProcessingException;
 }

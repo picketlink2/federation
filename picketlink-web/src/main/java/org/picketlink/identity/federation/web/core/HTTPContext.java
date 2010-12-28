@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.web.core;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 
@@ -81,4 +82,19 @@ public class HTTPContext implements ProtocolContext
       this.servletContext = sctx;
       return this;
    }
+
+   public String serviceName()
+   { 
+      return null;
+   }
+
+   public String tokenType()
+   { 
+      return null;
+   }
+
+   public QName getQName()
+   { 
+      return null;
+   } 
 }
