@@ -41,6 +41,8 @@ import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
  */
 public class PicketLinkCoreSTS
 {
+   private RuntimePermission rte = new RuntimePermission( "org.picketlink.sts" );
+   
    protected STSCoreConfig configuration;
    
    private static PicketLinkCoreSTS _instance = null;
@@ -66,9 +68,14 @@ public class PicketLinkCoreSTS
     * Issue a security token
     * @param protocolContext
     * @throws ProcessingException
+    * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
    public void issueToken( ProtocolContext protocolContext) throws ProcessingException
    { 
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( rte );
+      
       SecurityTokenProvider provider = getProvider(protocolContext);  
       
       if( provider == null )
@@ -85,9 +92,14 @@ public class PicketLinkCoreSTS
     * 
     * @param protocolContext the {@code ProtocolContext} that contains the token to be renewed.
     * @throws ProcessingException if an error occurs while renewing the security token.
+    * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
    public void renewToken( ProtocolContext protocolContext) throws ProcessingException
    { 
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( rte );
+      
       SecurityTokenProvider provider = null;
       
       if( provider == null )
@@ -104,9 +116,14 @@ public class PicketLinkCoreSTS
     * 
     * @param protocolContext the {@code ProtocolContext} that contains the token to be canceled.
     * @throws ProcessingException if an error occurs while canceling the security token.
+    * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
    public void cancelToken( ProtocolContext protocolContext) throws ProcessingException
    {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( rte );
+      
       SecurityTokenProvider provider = null;
       
       if( provider == null )
@@ -123,9 +140,14 @@ public class PicketLinkCoreSTS
     * 
     * @param protocolContext the {@code ProtocolContext} that contains the token to be validated.
     * @throws ProcessingException if an error occurs while validating the security token.
+    * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
    public void validateToken( ProtocolContext protocolContext) throws ProcessingException
    {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( rte );
+      
       SecurityTokenProvider provider = null;
       
       if( provider == null )
