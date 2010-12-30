@@ -21,11 +21,11 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
@@ -56,9 +56,9 @@ public class MetaDataBuilderDelegate
    public static EndpointType createEndpoint(String binding, String location,
          String responseLocation)
    {
-      EndpointType endpoint = new EndpointType( NetworkUtil.createURI(binding),
-            NetworkUtil.createURI(location));
-      endpoint.setResponseLocation( NetworkUtil.createURI( responseLocation ));
+      EndpointType endpoint = new EndpointType( URI.create(binding),
+            URI.create(location));
+      endpoint.setResponseLocation( URI.create( responseLocation ));
       return endpoint;
    }
    
@@ -92,7 +92,7 @@ public class MetaDataBuilderDelegate
       
       //orgURL
       LocalizedURIType orgURL = new LocalizedURIType( lang );
-      orgURL.setValue( NetworkUtil.createURI( organizationURL )); 
+      orgURL.setValue( URI.create( organizationURL )); 
       
       OrganizationType orgType = new OrganizationType();
       orgType.addOrganizationName( orgName );

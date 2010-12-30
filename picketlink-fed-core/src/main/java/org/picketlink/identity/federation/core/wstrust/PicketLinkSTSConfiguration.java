@@ -380,4 +380,12 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
    { 
       return delegate.getCanonicalizationMethod();
    }
+
+   /**
+    * @see {@code STSCoreConfig#addTokenProvider(String, SecurityTokenProvider)}
+    */
+   public void addTokenProvider(String key, SecurityTokenProvider provider)
+   { 
+      tokenProviders.put(key, provider); 
+   }
 }

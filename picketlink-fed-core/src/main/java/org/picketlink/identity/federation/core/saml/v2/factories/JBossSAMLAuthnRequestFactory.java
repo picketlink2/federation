@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
+import java.net.URI;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -29,8 +31,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.xml.sax.SAXException;
@@ -60,11 +61,11 @@ public class JBossSAMLAuthnRequestFactory
       
       String version = JBossSAMLConstants.VERSION_2_0.get();
       AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant ); 
-      authnRequest.setAssertionConsumerServiceURL( NetworkUtil.createURI( assertionConsumerURL ));
-      authnRequest.setProtocolBinding( NetworkUtil.createURI( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
+      authnRequest.setAssertionConsumerServiceURL( URI.create( assertionConsumerURL ));
+      authnRequest.setProtocolBinding( URI.create( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
       if( destination != null )
       {
-         authnRequest.setDestination(  NetworkUtil.createURI( destination )); 
+         authnRequest.setDestination(  URI.create( destination )); 
       } 
       
       //Create an issuer 

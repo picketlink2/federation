@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.URI;
 import java.util.Arrays;
 
 import javax.xml.bind.JAXBException;
@@ -49,8 +50,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter; 
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
@@ -100,7 +100,7 @@ public class SAML2Response
       AuthnStatementType authnStatement = new AuthnStatementType( issueInstant ); 
       AuthnContextType act = new AuthnContextType();
       String authContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
-      act.addAuthenticatingAuthority( NetworkUtil.createURI( authContextDeclRef )); 
+      act.addAuthenticatingAuthority( URI.create( authContextDeclRef )); 
       authnStatement.setAuthnContext(act);
       return authnStatement;
    }

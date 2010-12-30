@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import java.net.URI;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -31,8 +33,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
@@ -115,7 +116,7 @@ public abstract class SAMLStatusResponseTypeParser
             Attribute valueAttr = startElement.getAttributeByName( new QName( "Value" ));
             if( valueAttr != null )
             {
-               statusCode.setValue( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( valueAttr ) )); 
+               statusCode.setValue( URI.create( StaxParserUtil.getAttributeValue( valueAttr ) )); 
             }
             status.setStatusCode( statusCode );
             
@@ -128,7 +129,7 @@ public abstract class SAMLStatusResponseTypeParser
                Attribute subValueAttr = startElement.getAttributeByName( new QName( "Value" ));
                if( subValueAttr != null )
                {
-                  subStatusCodeType.setValue( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( subValueAttr ))); 
+                  subStatusCodeType.setValue( URI.create( StaxParserUtil.getAttributeValue( subValueAttr ))); 
                } 
                statusCode.setStatusCode( subStatusCodeType );
                

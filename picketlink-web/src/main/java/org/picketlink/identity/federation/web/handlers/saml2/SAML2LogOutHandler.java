@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import java.net.URI;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -39,8 +41,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
@@ -284,7 +285,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
                long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
                
                lort.setNotOnOrAfter(XMLTimeUtil.add(lort.getIssueInstant(), assertionValidity));
-               lort.setDestination( NetworkUtil.createURI( participant ));
+               lort.setDestination( URI.create( participant ));
                
                response.setResultingDocument(saml2Request.convert(lort));
                response.setSendRequest(true);
@@ -330,11 +331,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          //Status
          StatusType statusType = new StatusType();
          StatusCodeType statusCodeType = new StatusCodeType();
-         statusCodeType.setValue( NetworkUtil.createURI( JBossSAMLURIConstants.STATUS_RESPONDER.get() ));
+         statusCodeType.setValue( URI.create( JBossSAMLURIConstants.STATUS_RESPONDER.get() ));
          
          //2nd level status code
          StatusCodeType status2ndLevel = new StatusCodeType();
-         status2ndLevel.setValue( NetworkUtil.createURI( JBossSAMLURIConstants.STATUS_SUCCESS.get() ));
+         status2ndLevel.setValue( URI.create( JBossSAMLURIConstants.STATUS_SUCCESS.get() ));
          statusCodeType.setStatusCode(status2ndLevel);
          
          statusType.setStatusCode(statusCodeType);
@@ -447,11 +448,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          //Status
          StatusType statusType = new StatusType();
          StatusCodeType statusCodeType = new StatusCodeType();
-         statusCodeType.setValue( NetworkUtil.createURI( JBossSAMLURIConstants.STATUS_RESPONDER.get() ));
+         statusCodeType.setValue( URI.create( JBossSAMLURIConstants.STATUS_RESPONDER.get() ));
          
          //2nd level status code
          StatusCodeType status2ndLevel = new StatusCodeType();
-         status2ndLevel.setValue( NetworkUtil.createURI( JBossSAMLURIConstants.STATUS_SUCCESS.get() ));
+         status2ndLevel.setValue( URI.create( JBossSAMLURIConstants.STATUS_SUCCESS.get() ));
          statusCodeType.setStatusCode(status2ndLevel);
          
          statusType.setStatusCode(statusCodeType);

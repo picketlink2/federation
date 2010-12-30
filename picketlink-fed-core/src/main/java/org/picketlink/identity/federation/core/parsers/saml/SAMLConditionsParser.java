@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
  
+import java.net.URI;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -33,8 +35,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 
@@ -158,7 +159,7 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
             throw new ParsingException( "audienceValue is expected ahead" );
          
          String audienceValue = StaxParserUtil.getElementText( xmlEventReader );
-         audience.addAudience( NetworkUtil.createURI( audienceValue )); 
+         audience.addAudience( URI.create( audienceValue )); 
          
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if( xmlEvent instanceof EndElement )

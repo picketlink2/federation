@@ -153,4 +153,11 @@ public interface STSCoreConfig
     * @return the {@code Certificate} obtained from the keystore, or {@code null} if no certificate was found.
     */
    public Certificate getCertificate(String alias);
+   
+   /**
+    * Allows you to add a token provider to handle a particular namespace
+    * @param str
+    * @param provider
+    */
+   public void addTokenProvider( String str, SecurityTokenProvider provider );
 }

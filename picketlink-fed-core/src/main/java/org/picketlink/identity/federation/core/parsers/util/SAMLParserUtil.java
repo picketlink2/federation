@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -36,8 +37,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -242,7 +242,7 @@ public class SAMLParserUtil
       {
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
-         AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType( NetworkUtil.createURI(text));
+         AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType( URI.create(text));
          authnContextType.addURIType(aAuthnContextDeclType); 
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
@@ -251,7 +251,7 @@ public class SAMLParserUtil
       {
          String text = StaxParserUtil.getElementText( xmlEventReader );
          
-         AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType( NetworkUtil.createURI(text));
+         AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType( URI.create(text));
          authnContextType.addURIType( aAuthnContextClassRefType );  
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
@@ -282,7 +282,7 @@ public class SAMLParserUtil
       Attribute format = nameIDElement.getAttributeByName( new QName( JBossSAMLConstants.FORMAT.get() ));
       if( format != null )
       {
-         nameID.setFormat( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( format )) );
+         nameID.setFormat( URI.create( StaxParserUtil.getAttributeValue( format )) );
       }
       
       Attribute spProvidedID = nameIDElement.getAttributeByName( new QName( JBossSAMLConstants.SP_PROVIDED_ID.get() ));

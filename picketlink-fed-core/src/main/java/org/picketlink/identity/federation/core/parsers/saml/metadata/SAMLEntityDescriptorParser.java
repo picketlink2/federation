@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml.metadata;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -35,8 +36,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeAuthorityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
@@ -155,8 +155,8 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
             String location = StaxParserUtil.getAttributeValue( locationAttr );
             
-            IndexedEndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
-                  NetworkUtil.createURI( location ));
+            IndexedEndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
+                  URI.create( location ));
             Attribute isDefault = startElement.getAttributeByName( new QName( JBossSAMLConstants.ISDEFAULT.get() ));
             if( isDefault != null )
             {
@@ -217,12 +217,12 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
       Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
       String location = StaxParserUtil.getAttributeValue( locationAttr );
       
-      EndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
-            NetworkUtil.createURI( location ));
+      EndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
+            URI.create( location ));
       Attribute responseLocation = startElement.getAttributeByName( new QName( JBossSAMLConstants.RESPONSE_LOCATION.get() ));
       if( responseLocation != null )
       {
-         endpoint.setResponseLocation( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( responseLocation )));
+         endpoint.setResponseLocation( URI.create( StaxParserUtil.getAttributeValue( responseLocation )));
       }
       return endpoint;
    }
@@ -256,8 +256,8 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
             String location = StaxParserUtil.getAttributeValue( locationAttr );
             
-            IndexedEndpointType endpoint = new IndexedEndpointType( NetworkUtil.createURI( binding ), 
-                  NetworkUtil.createURI( location )); 
+            IndexedEndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
+                  URI.create( location )); 
             
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate( endElement, JBossSAMLConstants.ATTRIBUTE_SERVICE.get() );
@@ -327,7 +327,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
             String langVal = StaxParserUtil.getAttributeValue(lang);
             LocalizedURIType localName = new LocalizedURIType( langVal );
-            localName.setValue( NetworkUtil.createURI( StaxParserUtil.getElementText( xmlEventReader )));
+            localName.setValue( URI.create( StaxParserUtil.getElementText( xmlEventReader )));
             org.addOrganizationURL( localName ) ;  
          } 
          else 

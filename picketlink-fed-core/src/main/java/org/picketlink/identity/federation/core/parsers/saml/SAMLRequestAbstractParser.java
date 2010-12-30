@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import java.net.URI;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -30,8 +32,7 @@ import javax.xml.stream.events.StartElement;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 
@@ -75,7 +76,7 @@ public abstract class SAMLRequestAbstractParser
    { 
       Attribute destinationAttr = startElement.getAttributeByName( new QName( "Destination" ));
       if( destinationAttr != null )
-         request.setDestination( NetworkUtil.createURI( StaxParserUtil.getAttributeValue( destinationAttr ) ));
+         request.setDestination( URI.create( StaxParserUtil.getAttributeValue( destinationAttr ) ));
       
       Attribute consent = startElement.getAttributeByName( new QName( "Consent" ));
       if( consent != null )

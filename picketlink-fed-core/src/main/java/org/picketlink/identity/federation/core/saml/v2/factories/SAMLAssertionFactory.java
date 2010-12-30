@@ -21,12 +21,12 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
@@ -61,7 +61,7 @@ public class SAMLAssertionFactory
       {
          for( String val: values )
          {
-            audienceRestriction.addAudience( NetworkUtil.createURI( val ) );
+            audienceRestriction.addAudience( URI.create( val ) );
          } 
       }
       return audienceRestriction;
@@ -81,7 +81,7 @@ public class SAMLAssertionFactory
    {
       NameIDType nameID = new NameIDType();
       if( format != null )
-         nameID.setFormat( NetworkUtil.createURI( format ));
+         nameID.setFormat( URI.create( format ));
       nameID.setNameQualifier(qualifier);
       nameID.setValue(value);
       return nameID;

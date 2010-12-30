@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -29,12 +30,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.federation.core.util.NetworkUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -66,7 +67,7 @@ public class JBossSAMLAuthnResponseFactory
    public static StatusType createStatusType(String statusCodeURI)
    {
       StatusCodeType sct = new StatusCodeType(); 
-      sct.setValue( NetworkUtil.createURI( statusCodeURI ));
+      sct.setValue( URI.create( statusCodeURI ));
       
       StatusType statusType = new StatusType(); 
       statusType.setStatusCode(sct);
@@ -99,14 +100,14 @@ public class JBossSAMLAuthnResponseFactory
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
       
       //Create an assertion
-      String id = "ID_" + JBossSAMLBaseFactory.createUUID(); 
+      String id = IDGenerator.create( "ID_" ); 
       
       //Create assertion -> subject
       SubjectType subjectType = new SubjectType();
       
       //subject -> nameid
       NameIDType nameIDType = new NameIDType();
-      nameIDType.setFormat( NetworkUtil.createURI( idp.getNameIDFormat() ));
+      nameIDType.setFormat( URI.create( idp.getNameIDFormat() ));
       nameIDType.setValue(idp.getNameIDFormatValue());
       
       SubjectType.STSubType subType = new SubjectType.STSubType();
