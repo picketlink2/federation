@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.sts;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.util.List;
 
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 
@@ -153,11 +154,23 @@ public interface STSCoreConfig
     * @return the {@code Certificate} obtained from the keystore, or {@code null} if no certificate was found.
     */
    public Certificate getCertificate(String alias);
-   
+ 
    /**
     * Allows you to add a token provider to handle a particular namespace
-    * @param str
+    * @param key
     * @param provider
     */
-   public void addTokenProvider( String str, SecurityTokenProvider provider );
+   public void addTokenProvider( String key, SecurityTokenProvider provider );
+ 
+   /**
+    * Get an unmodifiable list of token providers
+    * @return
+    */
+   public List<SecurityTokenProvider> getTokenProviders();
+   
+   /**
+    * Remove a token provider with the passed key
+    * @param key
+    */
+   public void removeTokenProvider( String key );
 }

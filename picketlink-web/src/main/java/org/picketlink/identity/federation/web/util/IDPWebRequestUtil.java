@@ -192,7 +192,7 @@ public class IDPWebRequestUtil
          String identityURL,
          long assertionValidity,
          boolean supportSignature) 
-   throws ConfigurationException, IssueInstantMissingException
+   throws ConfigurationException, IssueInstantMissingException, ProcessingException
    {
       Document samlResponseDocument = null;
       
@@ -498,11 +498,11 @@ public class IDPWebRequestUtil
     * @param status
     * @param identityURL
     * @param supportSignature
-    * @return
+    * @return 
     * @throws ConfigurationException   
     */
    public Document getErrorResponse(String responseURL, String status,
-         String identityURL, boolean supportSignature)
+         String identityURL, boolean supportSignature) 
    { 
       Document samlResponse = null;
       ResponseType responseType = null; 
@@ -528,6 +528,11 @@ public class IDPWebRequestUtil
       catch (ConfigurationException e1)
       {
          if(trace) log.trace(e1);
+         responseType = saml2Response.createResponseType();
+      }
+      catch (ProcessingException e)
+      {
+         if(trace) log.trace( e );
          responseType = saml2Response.createResponseType();
       } 
 

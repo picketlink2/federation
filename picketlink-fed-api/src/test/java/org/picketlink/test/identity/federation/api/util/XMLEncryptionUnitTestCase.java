@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
@@ -66,6 +67,9 @@ public class XMLEncryptionUnitTestCase extends TestCase
    
    public void testEncryptAssertion() throws Exception
    {
+      PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+      sts.installDefaultConfiguration();
+      
       KeyPair kp = this.getKeyPair("RSA");
       SecretKey sk = this.getSecretKey();
       

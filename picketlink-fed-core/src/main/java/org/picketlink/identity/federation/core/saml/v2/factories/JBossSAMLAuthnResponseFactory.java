@@ -24,9 +24,6 @@ package org.picketlink.identity.federation.core.saml.v2.factories;
 import java.net.URI;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -35,7 +32,6 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -47,7 +43,6 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
-import org.xml.sax.SAXException;
 
 /**
  * Factory for the SAML v2 Authn Response
@@ -55,10 +50,7 @@ import org.xml.sax.SAXException;
  * @since Dec 9, 2008
  */
 public class JBossSAMLAuthnResponseFactory
-{
-   private static String pkgName = "org.picketlink.identity.federation.saml.v2.protocol:org.picketlink.identity.xmlsec.w3.xmldsig:org.picketlink.identity.xmlsec.w3.xmlenc";
-   private static String schemaLocation = "schema/saml/v2/saml-schema-protocol-2.0.xsd";
-   
+{   
    /**
     * Create a StatusType given the status code uri
     * @param statusCodeURI
@@ -175,54 +167,5 @@ public class JBossSAMLAuthnResponseFactory
       
       responseType.addAssertion( new RTChoiceType( assertionType )); 
       return responseType; 
-   }
-   
-   /**
-    * Get the JAXB2 marshaller
-    * @return 
-    * @throws JAXBException 
-    * @throws SAXException 
-    */
-   public static Marshaller getMarshaller() throws SAXException, JAXBException 
-   {
-      return JAXBUtil.getMarshaller(pkgName);
-   }
-
-   /**
-    * Get the JAXB2 Unmarshaller
-    * @return
-    * @throws SAXException 
-    * @throws JAXBException  
-    */
-   public static Unmarshaller getUnmarshaller() throws JAXBException, SAXException 
-   {
-      return JAXBUtil.getUnmarshaller(pkgName);
-   }
-   
-   /**
-    * Get the validating marshaller
-    * 
-    * @param schemaValidation Whether schema validation is needed
-    * @return
-    * @throws JAXBException
-    * @throws SAXException
-    */
-   public static Marshaller getValidatingMarshaller(boolean schemaValidation) throws SAXException, JAXBException
-   {
-      if (schemaValidation)
-         return JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation);
-      else
-         return JAXBUtil.getMarshaller(pkgName);
-   }
-
-   /**
-    * Get the JAXB2 Unmarshaller
-    * @return
-    * @throws SAXException 
-    * @throws JAXBException  
-    */
-   public static Unmarshaller getValidatingUnmarshaller() throws JAXBException, SAXException 
-   {
-      return JAXBUtil.getValidatingUnmarshaller(pkgName, schemaLocation);
-   }
+   }  
 }

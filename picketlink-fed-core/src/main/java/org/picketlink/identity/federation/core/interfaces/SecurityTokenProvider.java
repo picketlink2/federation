@@ -51,6 +51,12 @@ public interface SecurityTokenProvider
     * @return
     */
    public boolean supports( String namespace );
+   
+   /**
+    * Token Type
+    * @return
+    */
+   public String tokenType();
 
    /**
     * <p>

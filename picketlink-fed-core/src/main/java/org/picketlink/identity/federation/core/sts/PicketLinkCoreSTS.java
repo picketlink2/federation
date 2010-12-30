@@ -21,11 +21,15 @@
  */
 package org.picketlink.identity.federation.core.sts;
 
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.saml.v2.providers.SAML20AssertionTokenProvider;
+import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 
 /**
  * <p>
@@ -41,7 +45,7 @@ import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
  */
 public class PicketLinkCoreSTS
 {
-   private RuntimePermission rte = new RuntimePermission( "org.picketlink.sts" );
+   public static final RuntimePermission rte = new RuntimePermission( "org.picketlink.sts" );
    
    protected STSCoreConfig configuration;
    
@@ -61,7 +65,23 @@ public class PicketLinkCoreSTS
    
    public void initialize( STSCoreConfig config )
    {
-      this.configuration = config;
+      if( this.configuration != null )
+      {
+         List<SecurityTokenProvider> providers = config.getTokenProviders();
+         for( SecurityTokenProvider provider: providers )
+         this.configuration.addTokenProvider( provider.tokenType(), provider );
+      } 
+      else
+         this.configuration = config;
+   }
+   
+   public void installDefaultConfiguration()
+   {
+      if( configuration == null )
+         configuration = new PicketLinkSTSConfiguration();
+      
+      //SAML2 Specification Provider
+      configuration.addTokenProvider( SAML20AssertionTokenProvider.NS, new SAML20AssertionTokenProvider() );
    }
    
    /**
@@ -158,6 +178,9 @@ public class PicketLinkCoreSTS
    
    private SecurityTokenProvider getProvider( ProtocolContext protocolContext )
    {
+      if( configuration == null )
+         throw new RuntimeException( "Configuration is not set" );
+      
       SecurityTokenProvider provider = null;
       
       //Special Case: WST Applies To

@@ -189,7 +189,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             String identityURL,
             Map<String, Object> attribs, 
             long assertionValidity, String requestID) 
-      throws ConfigurationException, IssueInstantMissingException
+      throws ConfigurationException, IssueInstantMissingException, ProcessingException
       {
          Document samlResponseDocument = null;
          
@@ -221,8 +221,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
          assertion.addStatement( attrStatement );
          
-         //Add timed conditions
-         saml2Response.createTimedConditions(assertion, assertionValidity);
+         /*//Add timed conditions
+         saml2Response.createTimedConditions(assertion, assertionValidity);*/
 
          //Add in the attributes information
          if(attribs != null && attribs.size() > 0 )
@@ -359,6 +359,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          /*JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0);
          NameIDType nameID = jnameID.getValue();
          */
+         if( subject == null )
+            throw new ProcessingException( "Subject in the assertion is null" );
+         
          STSubType subType = subject.getSubType();
          if( subType == null )
             throw new RuntimeException( "Unable to find subtype via subject" );

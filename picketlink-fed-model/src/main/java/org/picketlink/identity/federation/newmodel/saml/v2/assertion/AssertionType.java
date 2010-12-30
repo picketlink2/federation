@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-
+ 
 import org.w3c.dom.Element;
 
 /**
@@ -157,4 +157,13 @@ public class AssertionType
    {
       this.signature = signature;
    } 
+   
+   public void updateIssueInstant( XMLGregorianCalendar xg )
+   {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( new RuntimePermission( "org.picketlink.sts") );
+      
+      this.issueInstant = xg; 
+   }
 }

@@ -25,6 +25,8 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,7 @@ import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.config.TokenProvidersType;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 
 /**
@@ -181,7 +184,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
             throw new RuntimeException("Unable to construct the key manager:", e);
          }
       }
-   }
+   } 
 
    /*
     * (non-Javadoc)
@@ -386,6 +389,32 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public void addTokenProvider(String key, SecurityTokenProvider provider)
    { 
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( PicketLinkCoreSTS.rte ); 
+      
       tokenProviders.put(key, provider); 
+   }
+
+   /**
+    * @see {@code STSCoreConfig#removeTokenProvider(String)}
+    */
+   public void removeTokenProvider(String key)
+   { 
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( PicketLinkCoreSTS.rte ); 
+      
+      tokenProviders.remove(key); 
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#getTokenProviders()
+    */
+   public List<SecurityTokenProvider> getTokenProviders()
+   {  
+      List<SecurityTokenProvider> list = new ArrayList<SecurityTokenProvider>();
+      list.addAll( tokenProviders .values()); 
+      return Collections.unmodifiableList(list);
    }
 }

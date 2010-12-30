@@ -27,11 +27,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.URI;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -41,7 +43,6 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
@@ -81,8 +82,24 @@ public class SAML2Request
          String destination, 
          String issuerValue) throws ConfigurationException 
    {
-      return JBossSAMLAuthnRequestFactory.createAuthnRequestType( 
-            id, assertionConsumerURL, destination, issuerValue); 
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
+      
+      String version = JBossSAMLConstants.VERSION_2_0.get();
+      AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant ); 
+      authnRequest.setAssertionConsumerServiceURL( URI.create( assertionConsumerURL ));
+      authnRequest.setProtocolBinding( URI.create( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
+      if( destination != null )
+      {
+         authnRequest.setDestination(  URI.create( destination )); 
+      } 
+      
+      //Create an issuer 
+      NameIDType issuer = new NameIDType();
+      issuer.setValue(issuerValue);
+      
+      authnRequest.setIssuer(issuer);
+      
+      return authnRequest;  
    }
    
    /**

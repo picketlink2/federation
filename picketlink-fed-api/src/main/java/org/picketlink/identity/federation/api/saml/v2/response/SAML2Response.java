@@ -42,6 +42,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
@@ -50,7 +51,9 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter; 
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
@@ -62,6 +65,9 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAs
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EvidenceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
@@ -140,11 +146,62 @@ public class SAML2Response
     * @param issuerInfo holder with information on the issuer
     * @return
     * @throws ConfigurationException 
+    * @throws ProcessingException 
     */
    public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo) 
-   throws ConfigurationException
+   throws ConfigurationException, ProcessingException
    { 
-      return JBossSAMLAuthnResponseFactory.createResponseType(ID, sp, idp, issuerInfo);
+     String responseDestinationURI = sp.getResponseDestinationURI();
+      
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
+      
+      //Create an assertion
+      //String id = IDGenerator.create( "ID_" ); 
+      
+      //Create assertion -> subject
+      SubjectType subjectType = new SubjectType();
+      
+      //subject -> nameid
+      NameIDType nameIDType = new NameIDType();
+      nameIDType.setFormat( URI.create( idp.getNameIDFormat() ));
+      nameIDType.setValue(idp.getNameIDFormatValue());
+      
+      SubjectType.STSubType subType = new SubjectType.STSubType();
+      subType.addBaseID(nameIDType); 
+      subjectType.setSubType(subType);
+      
+      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
+      subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
+      
+      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
+      subjectConfirmationData.setInResponseTo(  sp.getRequestID() );
+      subjectConfirmationData.setRecipient( responseDestinationURI );
+      subjectConfirmationData.setNotBefore(issueInstant);
+      subjectConfirmationData.setNotOnOrAfter(issueInstant);
+      
+      subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
+
+      subjectType.addConfirmation(subjectConfirmation);
+      
+      PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+      SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
+      samlProtocolContext.setSubjectType( subjectType );
+      samlProtocolContext.setIssuerID(nameIDType); 
+      sts.issueToken( samlProtocolContext );
+      
+      AssertionType assertionType = samlProtocolContext.getIssuedAssertion();
+      
+      /*AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, 
+            nameIDType , issueInstant, (ConditionsType) null, subjectType, (List<StatementAbstractType>)null );
+      */
+      
+      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
+      //InResponseTo ID
+      responseType.setInResponseTo(sp.getRequestID());
+      //Destination
+      responseType.setDestination(responseDestinationURI);
+       
+      return responseType; 
    } 
    
    /**

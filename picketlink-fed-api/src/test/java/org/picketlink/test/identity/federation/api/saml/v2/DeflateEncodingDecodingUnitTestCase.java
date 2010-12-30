@@ -31,8 +31,7 @@ import junit.framework.TestCase;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.util.DeflateUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
-import org.picketlink.identity.federation.core.util.Base64; 
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 
 /**
@@ -45,7 +44,7 @@ public class DeflateEncodingDecodingUnitTestCase extends TestCase
 {
    public void testDeflateEncoding() throws Exception
    {
-      AuthnRequestType authnRequest = JBossSAMLAuthnRequestFactory.createAuthnRequestType( 
+      AuthnRequestType authnRequest = (new SAML2Request()).createAuthnRequestType( 
             IDGenerator.create("ID_"), "http://sp", 
             "http://localhost:8080/idp","http://sp");
       

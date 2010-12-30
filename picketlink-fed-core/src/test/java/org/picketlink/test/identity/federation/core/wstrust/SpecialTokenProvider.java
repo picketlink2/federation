@@ -148,8 +148,21 @@ public class SpecialTokenProvider implements SecurityTokenProvider
       return this.properties;
    }
 
+   /**
+    * 
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
+    */
    public boolean supports(String namespace)
    { 
       return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
+   }
+
+   /**
+    * 
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
+    */
+   public String tokenType()
+   {
+      return WSTrustConstants.BASE_NAMESPACE;
    }
 }

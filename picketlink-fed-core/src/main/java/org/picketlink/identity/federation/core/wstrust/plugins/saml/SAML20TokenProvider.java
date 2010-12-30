@@ -17,7 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
-import java.net.URI;
 import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
@@ -466,5 +465,13 @@ public class SAML20TokenProvider implements SecurityTokenProvider
    public boolean supports(String namespace)
    {
       return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
+    */
+   public String tokenType()
+   {
+      return WSTrustConstants.BASE_NAMESPACE;
    } 
 }

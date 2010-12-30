@@ -88,7 +88,13 @@ public class AssertionUtil
    }
    
    /**
+    * <p>
     * Add validity conditions to the SAML2 Assertion
+    * </p>
+    * <p>
+    * There is no clock skew added. 
+    * @see {{@link #createTimedConditions(AssertionType, long, long)}
+    * </p>
     * @param assertion
     * @param durationInMilis   
     * @throws ConfigurationException 
@@ -103,6 +109,31 @@ public class AssertionUtil
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis);
       ConditionsType conditionsType = new ConditionsType();
       conditionsType.setNotBefore(issueInstant);
+      conditionsType.setNotOnOrAfter(assertionValidityLength);
+      
+      assertion.setConditions(conditionsType); 
+   }
+   
+   /**
+    * Add validity conditions to the SAML2 Assertion
+    * @param assertion
+    * @param durationInMilis   
+    * @throws ConfigurationException 
+    * @throws IssueInstantMissingException 
+    */
+   public static void createTimedConditions(AssertionType assertion, long durationInMilis, long clockSkew ) 
+   throws ConfigurationException, IssueInstantMissingException  
+   {
+      XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
+      if(issueInstant == null)
+         throw new IssueInstantMissingException("assertion does not have issue instant");
+      XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add( issueInstant, durationInMilis + clockSkew );
+      
+      ConditionsType conditionsType = new ConditionsType();
+      
+      XMLGregorianCalendar beforeInstant = XMLTimeUtil.subtract(issueInstant, clockSkew );
+      
+      conditionsType.setNotBefore( beforeInstant );
       conditionsType.setNotOnOrAfter(assertionValidityLength);
       
       assertion.setConditions(conditionsType); 
