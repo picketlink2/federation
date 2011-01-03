@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
@@ -157,5 +158,10 @@ public class SAMLRequestWriter extends BaseWriter
 
       StaxUtil.writeEndElement( writer); 
       StaxUtil.flush( writer ); 
+   }
+   
+   public void write( XACMLAuthzDecisionQueryType xacmlQuery ) throws ProcessingException
+   {
+      throw new RuntimeException( "NYI" );
    }
 }
