@@ -22,6 +22,8 @@
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
  
 
 /**
@@ -35,6 +37,8 @@ public class IDPInfoHolder
    private String subjectConfirmationMethod = JBossSAMLURIConstants.SUBJECT_CONFIRMATION_BEARER.get();
    private String nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get();
    private String nameIDFormatValue;
+   
+   private AssertionType assertion;
    
    private int assertionValidityDuration = 5; //5 Minutes 
    
@@ -76,5 +80,21 @@ public class IDPInfoHolder
    public void setNameIDFormatValue(String nameIDFormatValue)
    {
       this.nameIDFormatValue = nameIDFormatValue;
-   } 
+   }
+
+   public AssertionType getAssertion()
+   {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( PicketLinkCoreSTS.rte );
+      return assertion;
+   }
+
+   public void setAssertion(AssertionType assertion)
+   {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( PicketLinkCoreSTS.rte );
+      this.assertion = assertion;
+   }  
 }

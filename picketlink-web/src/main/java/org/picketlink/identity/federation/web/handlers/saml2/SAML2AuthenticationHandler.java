@@ -50,11 +50,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
@@ -142,7 +142,6 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       {  
       }
       
-      @SuppressWarnings("unchecked")
       public void handleRequestType( SAML2HandlerRequest request, 
             SAML2HandlerResponse response ) throws ProcessingException
       { 
@@ -150,21 +149,28 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          ServletContext servletContext = httpContext.getServletContext();
          
          AuthnRequestType art = (AuthnRequestType) request.getSAML2Object();
+         if( art == null )
+            throw new ProcessingException( "AuthnRequest is null" );
+         
+         String destination = art.getAssertionConsumerServiceURL().toASCIIString();
+         
          HttpSession session = BaseSAML2Handler.getHttpSession(request);
          Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
          if(userPrincipal == null)
             userPrincipal = httpContext.getRequest().getUserPrincipal();
-         
-         List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
+         /*
+         List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);*/
          try
          {
-            Map<String,Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
+            /*Map<String,Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
             long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
             Document samlResponse = this.getResponse(destination,
                   userPrincipal, roles, request.getIssuer().getValue(),
                   attribs,
-                  assertionValidity, art.getID());
+                  assertionValidity, art.getID());*/
+            
+            Document samlResponse = this.getResponse(request);
             
             //Update the Identity Server
             boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase( "POST" );
@@ -183,6 +189,105 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
       }
       
+      @SuppressWarnings("unchecked")
+      public Document getResponse( SAML2HandlerRequest request ) throws ConfigurationException, ProcessingException
+      {
+         HTTPContext httpContext = (HTTPContext) request.getContext();
+         AuthnRequestType art = (AuthnRequestType) request.getSAML2Object();
+         HttpSession session = BaseSAML2Handler.getHttpSession(request);
+         Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+         if(userPrincipal == null)
+            userPrincipal = httpContext.getRequest().getUserPrincipal(); 
+         
+         String assertionConsumerURL = art.getAssertionConsumerServiceURL().toASCIIString(); 
+         List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID); 
+         String identityURL = request.getIssuer().getValue();
+         Map<String, Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES); 
+         long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
+         String requestID = art.getID();
+          
+         Document samlResponseDocument = null;
+         
+         if(trace) 
+            log.trace("AssertionConsumerURL=" + assertionConsumerURL + 
+               "::assertion validity=" + assertionValidity);
+         ResponseType responseType = null;     
+         
+         SAML2Response saml2Response = new SAML2Response();
+               
+         //Create a response type
+         String id = IDGenerator.create("ID_");
+          
+         IssuerInfoHolder issuerHolder = new IssuerInfoHolder(identityURL); 
+         issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
+
+         IDPInfoHolder idp = new IDPInfoHolder();
+         idp.setNameIDFormatValue(userPrincipal.getName());
+         idp.setNameIDFormat(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+         
+         String assertionID = (String) session.getAttribute( GeneralConstants.ASSERTION_ID );
+          
+         if( assertionID != null )
+         {
+            //Just renew the assertion
+            AssertionType latestAssertion = (AssertionType) session.getAttribute( GeneralConstants.ASSERTION );
+            if( latestAssertion != null )
+               idp.setAssertion( latestAssertion );
+         }
+
+         SPInfoHolder sp = new SPInfoHolder();
+         sp.setResponseDestinationURI(assertionConsumerURL);
+         sp.setRequestID(requestID);
+         responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
+         
+         //Add information on the roles
+         AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
+
+         AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
+         assertion.addStatement( attrStatement );
+         
+         /*//Add timed conditions
+         saml2Response.createTimedConditions(assertion, assertionValidity);*/
+
+         //Add in the attributes information
+         if(attribs != null && attribs.size() > 0 )
+         {
+            AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
+            assertion.addStatement( attStatement );
+         } 
+         
+         //Add assertion to the session
+         session.setAttribute( GeneralConstants.ASSERTION, assertion );
+    
+         //Lets see how the response looks like 
+         if(log.isTraceEnabled())
+         {
+            StringWriter sw = new StringWriter();
+            try
+            {
+               saml2Response.marshall(responseType, sw);
+            }
+            catch ( ProcessingException e)
+            {
+               log.trace(e);
+            } 
+            log.trace("Response="+sw.toString()); 
+         }
+         try
+         {
+            samlResponseDocument = saml2Response.convert(responseType);
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace();
+            if(trace)
+               log.trace(e); 
+         } 
+         return samlResponseDocument; 
+      }
+      
+      @SuppressWarnings("unused")
+      @Deprecated
       public Document getResponse( String assertionConsumerURL,
             Principal userPrincipal,
             List<String> roles, 

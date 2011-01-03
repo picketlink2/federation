@@ -29,6 +29,8 @@ package org.picketlink.identity.federation.web.constants;
 public interface GeneralConstants
 {
    String ASSERTIONS_VALIDITY = "ASSERTIONS_VALIDITY";
+   String ASSERTION_ID = "ASSERTION_ID";
+   String ASSERTION = "ASSERTION";
    
    String ATTRIBUTES = "ATTRIBUTES";
    String ATTRIBUTE_KEYS = "ATTRIBUTE_KEYS";

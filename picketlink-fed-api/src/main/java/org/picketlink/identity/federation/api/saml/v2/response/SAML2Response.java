@@ -187,9 +187,18 @@ public class SAML2Response
       SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
       samlProtocolContext.setSubjectType( subjectType );
       samlProtocolContext.setIssuerID(nameIDType); 
-      sts.issueToken( samlProtocolContext );
       
-      AssertionType assertionType = samlProtocolContext.getIssuedAssertion();
+      AssertionType assertionType = idp.getAssertion();
+      if( assertionType != null )
+      {
+         samlProtocolContext.setIssuedAssertion(assertionType);
+         //renew it
+         sts.renewToken( samlProtocolContext ); 
+      }
+      else
+         sts.issueToken( samlProtocolContext );
+      
+      assertionType = samlProtocolContext.getIssuedAssertion();
       
       /*AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, 
             nameIDType , issueInstant, (ConditionsType) null, subjectType, (List<StatementAbstractType>)null );

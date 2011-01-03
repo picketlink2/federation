@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
@@ -42,6 +43,8 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
@@ -172,7 +175,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          String nextParticipant = this.getParticipant(server, sessionID, relayState);
          if(nextParticipant == null || nextParticipant.equals(relayState))
          {
-            //we are done with logout
+            //we are done with logout - First ask STS to cancel the token
+            AssertionType assertion = (AssertionType) httpSession.getAttribute( GeneralConstants.ASSERTION );
+            if( assertion != null )
+            {
+               PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+               SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext(); 
+               samlProtocolContext.setIssuedAssertion( assertion );
+               sts.cancelToken(samlProtocolContext); 
+               httpSession.removeAttribute( GeneralConstants.ASSERTION );
+            }
             
             //TODO: check the in transit map for partial logouts
 
