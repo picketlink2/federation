@@ -21,28 +21,42 @@
  */
 package org.picketlink.identity.federation.api.soap;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLConnection;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.factories.SOAPFactory; 
-import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Body;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault; 
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLResponseParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Class that deals with sending XACML
@@ -60,17 +74,19 @@ public class SOAPSAMLXACML
     * @param xacmlRequest
     * @return
     * @throws ProcessingException
+    * @throws SOAPException 
+    * @throws ParsingException 
     */
-   public Result send(String endpoint, String issuer, RequestType xacmlRequest) throws ProcessingException
-   {
-      throw new RuntimeException( "NYI" );/*
+   public Result send(String endpoint, String issuer, RequestType xacmlRequest) throws ProcessingException, SOAPException, ParsingException
+   { 
       try
       {
-         XACMLAuthzDecisionQueryType queryType = new XACMLAuthzDecisionQueryType();
-         queryType.setRequest(xacmlRequest);
+         String id = IDGenerator.create( "ID_" );
          
-         //Create Issue Instant
-         queryType.setIssueInstant(XMLTimeUtil.getIssueInstant());
+         XACMLAuthzDecisionQueryType queryType = new XACMLAuthzDecisionQueryType( id, JBossSAMLConstants.VERSION_2_0.get(),
+               XMLTimeUtil.getIssueInstant() );
+         
+         queryType.setRequest(xacmlRequest);
          
          //Create Issuer
          NameIDType nameIDType = new NameIDType();
@@ -78,16 +94,38 @@ public class SOAPSAMLXACML
          queryType.setIssuer(nameIDType);
           
          
-         Envelope envelope = createEnvelope(jaxbQueryType);
+         
+         
+         MessageFactory messageFactory = MessageFactory.newInstance();
+         
+         SOAPMessage soapMessage = messageFactory.createMessage();
+         
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         XMLStreamWriter xmlStreamWriter = StaxUtil.getXMLStreamWriter(baos);
+
+         SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( xmlStreamWriter );
+         samlRequestWriter.write( queryType );
+         
+         Document reqDocument = DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() ));
+         soapMessage.getSOAPBody().addDocument(reqDocument);
+         
+         
+         /*Envelope envelope = createEnvelope(jaxbQueryType);
          
          JAXBElement<?> soapRequest = SOAPFactory.getObjectFactory().createEnvelope(envelope);
          
          Marshaller marshaller = SOAPSAMLXACMLUtil.getMarshaller();
          Unmarshaller unmarshaller = SOAPSAMLXACMLUtil.getUnmarshaller();
+         */
          
+         SOAPConnectionFactory connectFactory = SOAPConnectionFactory.newInstance();
+         SOAPConnection connection = connectFactory.createConnection();
          //Send it across the wire
          URL url = new URL(endpoint);
-         URLConnection conn = url.openConnection();
+         
+         SOAPMessage response = connection.call(soapMessage, url);
+         
+         /*URLConnection conn = url.openConnection();
          conn.setDoOutput(true); 
          marshaller.marshal(soapRequest, conn.getOutputStream());
          
@@ -100,20 +138,38 @@ public class SOAPSAMLXACML
          {
             Fault fault = (Fault) response;
             return new Result(null,fault); 
-         }
+         }*/
          
-         ResponseType responseType = (ResponseType) response;
-         AssertionType at = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
-         XACMLAuthzDecisionStatementType xst = (XACMLAuthzDecisionStatementType) at.getStatementOrAuthnStatementOrAuthzDecisionStatement().get(0);
+         NodeList nl = response.getSOAPBody().getChildNodes();
+         Node node = null;
+         
+         int length = nl != null ? nl.getLength() : 0;
+         for( int i = 0; i < length; i++ )
+         {
+            Node n = nl.item(i); 
+            String localName = n.getLocalName();
+            if( localName.contains( JBossSAMLConstants.RESPONSE.get() ))
+            {
+               node = n;
+               break;
+            }
+         }
+         if( node == null )
+            throw new RuntimeException( "Did not find Response node" );
+         
+
+         XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( DocumentUtil.getNodeAsStream( node ));
+         SAMLResponseParser samlResponseParser = new SAMLResponseParser();
+         ResponseType responseType = (ResponseType) samlResponseParser.parse(xmlEventReader);
+         
+         //ResponseType responseType = (ResponseType) response;
+         AssertionType at = (AssertionType) responseType.getAssertions().get(0).getAssertion();
+         XACMLAuthzDecisionStatementType xst = (XACMLAuthzDecisionStatementType) at.getStatements().iterator().next();
          ResultType rt = xst.getResponse().getResult().get(0);
          DecisionType dt = rt.getDecision(); 
          
          return new Result(dt,null);
-      }
-      catch (JAXBException e)
-      {
-         throw new ProcessingException(e); 
-      }
+      } 
       catch (IOException e)
       {
          throw new ProcessingException(e);
@@ -121,9 +177,9 @@ public class SOAPSAMLXACML
       catch (ConfigurationException e)
       {
          throw new ProcessingException(e);
-      }*/ 
+      }
    }
-   
+   /*
    private Envelope createEnvelope(JAXBElement<?> jaxbElement)
    {
       Envelope envelope = SOAPFactory.getObjectFactory().createEnvelope();
@@ -131,7 +187,7 @@ public class SOAPSAMLXACML
       body.getAny().add(jaxbElement); 
       envelope.setBody(body);
       return envelope;
-   } 
+   } */
    
    public static class Result
    {
