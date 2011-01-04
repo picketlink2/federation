@@ -49,12 +49,14 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAb
  * 
  */ 
 public class XACMLPolicyStatementType
-    extends StatementAbstractType
+extends StatementAbstractType
 {
-    public static class ChoiceType
-    {
-       private PolicyType policy;
-       private PolicySetType policySet;
+   private static final long serialVersionUID = 1L;
+
+   public static class ChoiceType
+   {
+      private PolicyType policy;
+      private PolicySetType policySet;
       public PolicyType getPolicy()
       {
          return policy;
@@ -71,21 +73,21 @@ public class XACMLPolicyStatementType
       {
          this.policySet = policySet;
       } 
-    }
+   }
 
-    protected List<ChoiceType> choiceTypeList = new ArrayList<ChoiceType>();
+   protected List<ChoiceType> choiceTypeList = new ArrayList<ChoiceType>();
 
-    public void add(ChoiceType choice )
-    {
-       choiceTypeList.add(choice);
-    }
-    
-    /**
-     * Gets the value of the choiceTypeList property. 
-     */
-    public List<ChoiceType> getChoiceType() 
-    {
-        return choiceTypeList;
-    }
+   public void add(ChoiceType choice )
+   {
+      choiceTypeList.add(choice);
+   }
+
+   /**
+    * Gets the value of the choiceTypeList property. 
+    */
+   public List<ChoiceType> getChoiceType() 
+   {
+      return choiceTypeList;
+   }
 
 }

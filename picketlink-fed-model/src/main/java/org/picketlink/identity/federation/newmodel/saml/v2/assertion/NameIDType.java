@@ -40,17 +40,18 @@ public class NameIDType extends BaseIDAbstractType
             </extension>
         </simpleContent>
     </complexType>
-    
+
     <attributeGroup name="IDNameQualifiers">
         <attribute name="NameQualifier" type="string" use="optional"/>
         <attribute name="SPNameQualifier" type="string" use="optional"/>
     </attributeGroup>
     */
-   
+
+   private static final long serialVersionUID = 1L;
    private String value;
    private URI format;
    private String sPProvidedID; 
-   
+
    public String getValue()
    {
       return value;
@@ -59,7 +60,7 @@ public class NameIDType extends BaseIDAbstractType
    {
       this.value = value;
    }
-   
+
    public String getsPProvidedID()
    {
       return sPProvidedID;

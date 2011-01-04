@@ -50,7 +50,8 @@ import java.util.List;
  */ 
 public class AttributeStatementType
 extends StatementAbstractType
-{
+{ 
+   private static final long serialVersionUID = 1L;
    protected List<ASTChoiceType> attributes = new ArrayList<ASTChoiceType>();
 
    public void addAttribute( ASTChoiceType attribute )

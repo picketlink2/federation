@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,70 +53,71 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  * 
  */ 
-public class ConditionsType 
-{ 
-    protected List<ConditionAbstractType> conditions = new ArrayList<ConditionAbstractType>(); 
-    protected XMLGregorianCalendar notBefore; 
-    protected XMLGregorianCalendar notOnOrAfter;
+public class ConditionsType implements Serializable
+{  
+   private static final long serialVersionUID = 1L;
+   protected List<ConditionAbstractType> conditions = new ArrayList<ConditionAbstractType>(); 
+   protected XMLGregorianCalendar notBefore; 
+   protected XMLGregorianCalendar notOnOrAfter;
 
-    public void addCondition( ConditionAbstractType condition )
-    {
-       this.conditions.add( condition );
-    }
-    
-    /**
-     * Gets an read only conditions list. 
-     */
-    public List<ConditionAbstractType> getConditions() 
-    { 
-        return Collections.unmodifiableList( this.conditions );
-    }
+   public void addCondition( ConditionAbstractType condition )
+   {
+      this.conditions.add( condition );
+   }
 
-    /**
-     * Gets the value of the notBefore property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getNotBefore() {
-        return notBefore;
-    }
+   /**
+    * Gets an read only conditions list. 
+    */
+   public List<ConditionAbstractType> getConditions() 
+   { 
+      return Collections.unmodifiableList( this.conditions );
+   }
 
-    /**
-     * Sets the value of the notBefore property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setNotBefore(XMLGregorianCalendar value) {
-        this.notBefore = value;
-    }
+   /**
+    * Gets the value of the notBefore property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public XMLGregorianCalendar getNotBefore() {
+      return notBefore;
+   }
 
-    /**
-     * Gets the value of the notOnOrAfter property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getNotOnOrAfter() {
-        return notOnOrAfter;
-    }
+   /**
+    * Sets the value of the notBefore property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public void setNotBefore(XMLGregorianCalendar value) {
+      this.notBefore = value;
+   }
 
-    /**
-     * Sets the value of the notOnOrAfter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setNotOnOrAfter(XMLGregorianCalendar value) {
-        this.notOnOrAfter = value;
-    }
+   /**
+    * Gets the value of the notOnOrAfter property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public XMLGregorianCalendar getNotOnOrAfter() {
+      return notOnOrAfter;
+   }
+
+   /**
+    * Sets the value of the notOnOrAfter property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public void setNotOnOrAfter(XMLGregorianCalendar value) {
+      this.notOnOrAfter = value;
+   }
 }

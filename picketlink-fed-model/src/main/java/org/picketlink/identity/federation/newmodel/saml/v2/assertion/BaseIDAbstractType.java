@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
+
 /**
  * Abstract Type that represents an ID
  <pre>
@@ -36,8 +38,9 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public abstract class BaseIDAbstractType
-{
+public abstract class BaseIDAbstractType implements Serializable
+{ 
+   private static final long serialVersionUID = 1L;
    private String nameQualifier;
    private String sPNameQualifier;
 

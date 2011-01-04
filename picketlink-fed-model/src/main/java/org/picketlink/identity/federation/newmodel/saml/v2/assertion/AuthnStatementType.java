@@ -49,8 +49,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */ 
 public class AuthnStatementType
 extends StatementAbstractType
-{
-
+{ 
+   private static final long serialVersionUID = 1L;
+   
    protected SubjectLocalityType subjectLocality; 
    protected AuthnContextType authnContext; 
    protected XMLGregorianCalendar authnInstant;  

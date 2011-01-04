@@ -19,30 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.picketlink.identity.federation.core.sts.registry;
 
-package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
-
-import java.io.Serializable;
- 
+import java.io.IOException;
 
 
 /**
- * <p>Java class for StatementAbstractType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="StatementAbstractType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */ 
-public abstract class StatementAbstractType implements Serializable
-{ 
-   private static final long serialVersionUID = 1L;
+ * A registry of Security Tokens that may be issued by
+ * instances of {@code SecurityTokenProvider}
+ * @author Anil.Saldhana@redhat.com
+ * @since Jan 4, 2011
+ */
+public interface SecurityTokenRegistry
+{
+   /**
+    * Add a token to the registry with the given id
+    * @param tokenID
+    * @param token
+    * @throws {@code IOException}
+    */
+   void addToken( String tokenID, Object token ) throws IOException;
+   
+   /**
+    * Remove a token given the ID
+    * @param tokenID
+    * @param token
+    * @throws {@code IOException}
+    */
+   void removeToken( String tokenID ) throws IOException;
+   
+   /**
+    * Given the id, return a token
+    * @param tokenID
+    * @return
+    */
+   Object getToken( String tokenID ); 
 }

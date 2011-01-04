@@ -34,15 +34,12 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
-import org.picketlink.identity.federation.core.wstrust.plugins.DefaultRevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.plugins.FileBasedRevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.plugins.JPABasedRevocationRegistry;
-import org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
@@ -66,22 +63,9 @@ import org.w3c.dom.Element;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class SAML20TokenProvider implements SecurityTokenProvider
+public class SAML20TokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider
 {
-
-   private static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
-
-   private static final String REVOCATION_REGISTRY = "RevocationRegistry";
-
-   private static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
-
-   private static final String REVOCATION_REGISTRY_JPA_CONFIG = "RevocationRegistryJPAConfig";
-
-   private static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
-
-   private RevocationRegistry revocationRegistry;
-
-   private Map<String, String> properties;
+   protected static Logger logger = Logger.getLogger(SAML20TokenProvider.class); 
 
    private SAML20TokenAttributeProvider attributeProvider;
 
@@ -92,59 +76,8 @@ public class SAML20TokenProvider implements SecurityTokenProvider
     */
    public void initialize(Map<String, String> properties)
    {
-      this.properties = properties;
-
-      // check if a revocation registry option has been set.
-      String registryOption = this.properties.get(REVOCATION_REGISTRY);
-      if (registryOption == null)
-      {
-         if (logger.isDebugEnabled())
-            logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
-         this.revocationRegistry = new DefaultRevocationRegistry();
-      }
-      else
-      {
-         // if a file is to be used as registry, check if the user has specified the file name.
-         if ("FILE".equalsIgnoreCase(registryOption))
-         {
-            String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
-            if (registryFile != null)
-               this.revocationRegistry = new FileBasedRevocationRegistry(registryFile);
-            else
-               this.revocationRegistry = new FileBasedRevocationRegistry();
-         }
-         // another option is to use the default JPA registry to store the revoked ids.
-         else if ("JPA".equalsIgnoreCase(registryOption))
-         {
-            String configuration = this.properties.get(REVOCATION_REGISTRY_JPA_CONFIG);
-            if (configuration != null)
-               this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
-            else
-               this.revocationRegistry = new JPABasedRevocationRegistry();
-         }
-         // the user has specified its own registry implementation class.
-         else
-         {
-            try
-            {
-               Object object = SecurityActions.instantiateClass(registryOption);
-               if (object instanceof RevocationRegistry)
-                  this.revocationRegistry = (RevocationRegistry) object;
-               else
-               {
-                  logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry");
-                  this.revocationRegistry = new DefaultRevocationRegistry();
-               }
-            }
-            catch (PrivilegedActionException pae)
-            {
-               logger.warn("Error instantiating revocation registry class - using default registry");
-               pae.printStackTrace();
-               this.revocationRegistry = new DefaultRevocationRegistry();
-            }
-         }
-      }
-
+      super.initialize(properties); 
+        
       // Check if an attribute provider has been set.
       String attributeProviderClassName = this.properties.get(ATTRIBUTE_PROVIDER);
       if (attributeProviderClassName == null)

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.wstrust.plugins;
+package org.picketlink.identity.federation.core.sts.registry;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,5 +54,4 @@ public class DefaultRevocationRegistry implements RevocationRegistry
    {
       ids.add(id);
    }
-
 }

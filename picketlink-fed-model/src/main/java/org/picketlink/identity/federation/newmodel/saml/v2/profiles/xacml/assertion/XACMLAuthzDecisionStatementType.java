@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion;
- 
+
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
@@ -47,57 +47,58 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAb
  * 
  */ 
 public class XACMLAuthzDecisionStatementType
-    extends StatementAbstractType
+extends StatementAbstractType
 { 
-    public static final String XSI_TYPE = "xacml-samlp:XACMLAuthzDecisionStatementType";
-    protected ResponseType response;
-    protected RequestType request;
+   private static final long serialVersionUID = 1L;
+   public static final String XSI_TYPE = "xacml-samlp:XACMLAuthzDecisionStatementType";
+   protected ResponseType response;
+   protected RequestType request;
 
-    /**
-     * Gets the value of the response property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ResponseType }
-     *     
-     */
-    public ResponseType getResponse() {
-        return response;
-    }
+   /**
+    * Gets the value of the response property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link ResponseType }
+    *     
+    */
+   public ResponseType getResponse() {
+      return response;
+   }
 
-    /**
-     * Sets the value of the response property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ResponseType }
-     *     
-     */
-    public void setResponse(ResponseType value) {
-        this.response = value;
-    }
+   /**
+    * Sets the value of the response property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link ResponseType }
+    *     
+    */
+   public void setResponse(ResponseType value) {
+      this.response = value;
+   }
 
-    /**
-     * Gets the value of the request property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link RequestType }
-     *     
-     */
-    public RequestType getRequest() {
-        return request;
-    }
+   /**
+    * Gets the value of the request property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link RequestType }
+    *     
+    */
+   public RequestType getRequest() {
+      return request;
+   }
 
-    /**
-     * Sets the value of the request property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link RequestType }
-     *     
-     */
-    public void setRequest(RequestType value) {
-        this.request = value;
-    }
+   /**
+    * Sets the value of the request property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link RequestType }
+    *     
+    */
+   public void setRequest(RequestType value) {
+      this.request = value;
+   }
 }

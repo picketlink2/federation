@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.wstrust.plugins;
+package org.picketlink.identity.federation.core.sts.registry;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
  * <p>
@@ -47,15 +48,17 @@ import org.apache.log4j.Logger;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class FileBasedRevocationRegistry implements RevocationRegistry
+public class FileBasedRevocationRegistry extends FileBasedSTSOperations implements RevocationRegistry
 {
    private static Logger logger = Logger.getLogger(FileBasedRevocationRegistry.class);
 
+   protected static final String FILE_NAME = "revoked.ids";
+   
    // this set contains the ids of the revoked security tokens.
-   private static Set<String> revokedIds = new HashSet<String>();
+   protected static Set<String> revokedIds = new HashSet<String>();
 
    // the file that stores the revoked ids.
-   private File registryFile;
+   protected File registryFile;
 
    /**
     * <p>
@@ -64,36 +67,8 @@ public class FileBasedRevocationRegistry implements RevocationRegistry
     * </p>
     */
    public FileBasedRevocationRegistry()
-   {
-      // use the default location registry file location.
-      StringBuilder builder = new StringBuilder();
-      builder.append(System.getProperty("user.home"));
-      builder.append(System.getProperty("file.separator") + "picketlink-store");
-      builder.append(System.getProperty("file.separator") + "sts");
-
-      // check if the $HOME/picketlink-store/sts directory exists.
-      File directory = new File(builder.toString());
-      if (!directory.exists())
-         directory.mkdirs();
-
-      // check if the default registry file exists.
-      this.registryFile = new File(directory, "revoked.ids");
-      if (!this.registryFile.exists())
-      {
-         try
-         {
-            this.registryFile.createNewFile();
-         }
-         catch (IOException ioe)
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("Error creating default registry file: " + ioe.getMessage());
-            ioe.printStackTrace();
-         }
-      }
-
-      // load the revoked ids cache.
-      this.loadRevokedIds();
+   {      
+      this( FILE_NAME  );  
    }
 
    /**
@@ -103,26 +78,10 @@ public class FileBasedRevocationRegistry implements RevocationRegistry
     * 
     * @param registryFile a {@code String} that indicates the file that must be used to store revoked ids.
     */
-   public FileBasedRevocationRegistry(String registryFile)
+   public FileBasedRevocationRegistry(String registryFileName )
    {
-      if (registryFile == null)
-         throw new IllegalArgumentException("The revoked ids file cannot be null");
-
-      // check if the specified file exists. If not, create it.
-      this.registryFile = new File(registryFile);
-      if (!this.registryFile.exists())
-      {
-         try
-         {
-            this.registryFile.createNewFile();
-         }
-         catch (IOException ioe)
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("Error creating registry file: " + ioe.getMessage());
-            ioe.printStackTrace();
-         }
-      }
+      super();
+      this.registryFile = create( registryFileName );
 
       // load the revoked ids cache.
       this.loadRevokedIds();
@@ -143,6 +102,10 @@ public class FileBasedRevocationRegistry implements RevocationRegistry
     */
    public synchronized void revokeToken(String tokenType, String id)
    {
+      SecurityManager sm = System.getSecurityManager();
+      if( sm != null )
+         sm.checkPermission( PicketLinkCoreSTS.rte );
+      
       try
       {
          // write a new line with the revoked id at the end of the file. 
@@ -158,7 +121,6 @@ public class FileBasedRevocationRegistry implements RevocationRegistry
       }
       // add the revoked id to the local cache.
       revokedIds.add(id);
-
    }
 
    /**

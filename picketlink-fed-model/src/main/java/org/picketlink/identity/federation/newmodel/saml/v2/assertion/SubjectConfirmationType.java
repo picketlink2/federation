@@ -22,6 +22,8 @@
 
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
+
 
 
 /**
@@ -49,9 +51,9 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  * 
  * 
  */ 
-public class SubjectConfirmationType 
-{
-
+public class SubjectConfirmationType implements Serializable
+{ 
+   private static final long serialVersionUID = 1L;
    protected BaseIDAbstractType baseID; 
    protected NameIDType nameID; 
    protected EncryptedElementType encryptedID; 

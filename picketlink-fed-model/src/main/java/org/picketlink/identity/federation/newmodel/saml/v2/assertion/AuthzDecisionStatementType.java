@@ -49,96 +49,96 @@ import java.util.List;
  * 
  */ 
 public class AuthzDecisionStatementType
-    extends StatementAbstractType
-{
+extends StatementAbstractType
+{ 
+   private static final long serialVersionUID = 1L;
+   protected List<ActionType> action = new ArrayList<ActionType>(); 
+   protected EvidenceType evidence; 
+   protected String resource; 
+   protected DecisionType decision;
 
-    protected List<ActionType> action = new ArrayList<ActionType>(); 
-    protected EvidenceType evidence; 
-    protected String resource; 
-    protected DecisionType decision;
+   /**
+    * Gets the value of the action property. 
+    */
+   public List<ActionType> getAction() 
+   { 
+      return Collections.unmodifiableList( this.action );
+   }
 
-    /**
-     * Gets the value of the action property. 
-     */
-    public List<ActionType> getAction() 
-    { 
-        return Collections.unmodifiableList( this.action );
-    }
-    
-    public void addAction( ActionType actionType )
-    {
-       action.add(actionType); 
-    }
+   public void addAction( ActionType actionType )
+   {
+      action.add(actionType); 
+   }
 
-    /**
-     * Gets the value of the evidence property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EvidenceType }
-     *     
-     */
-    public EvidenceType getEvidence() {
-        return evidence;
-    }
+   /**
+    * Gets the value of the evidence property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link EvidenceType }
+    *     
+    */
+   public EvidenceType getEvidence() {
+      return evidence;
+   }
 
-    /**
-     * Sets the value of the evidence property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EvidenceType }
-     *     
-     */
-    public void setEvidence(EvidenceType value) {
-        this.evidence = value;
-    }
+   /**
+    * Sets the value of the evidence property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link EvidenceType }
+    *     
+    */
+   public void setEvidence(EvidenceType value) {
+      this.evidence = value;
+   }
 
-    /**
-     * Gets the value of the resource property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getResource() {
-        return resource;
-    }
+   /**
+    * Gets the value of the resource property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getResource() {
+      return resource;
+   }
 
-    /**
-     * Sets the value of the resource property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setResource(String value) {
-        this.resource = value;
-    }
+   /**
+    * Sets the value of the resource property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setResource(String value) {
+      this.resource = value;
+   }
 
-    /**
-     * Gets the value of the decision property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DecisionType }
-     *     
-     */
-    public DecisionType getDecision() {
-        return decision;
-    }
+   /**
+    * Gets the value of the decision property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link DecisionType }
+    *     
+    */
+   public DecisionType getDecision() {
+      return decision;
+   }
 
-    /**
-     * Sets the value of the decision property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DecisionType }
-     *     
-     */
-    public void setDecision(DecisionType value) {
-        this.decision = value;
-    }
+   /**
+    * Sets the value of the decision property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link DecisionType }
+    *     
+    */
+   public void setDecision(DecisionType value) {
+      this.decision = value;
+   }
 }

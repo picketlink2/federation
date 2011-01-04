@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -52,8 +53,10 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class AssertionType
-{
+public class AssertionType implements Serializable
+{ 
+   private static final long serialVersionUID = 1L;
+
    private String ID;
 
    private Element signature;

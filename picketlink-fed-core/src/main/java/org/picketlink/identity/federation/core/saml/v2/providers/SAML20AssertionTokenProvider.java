@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.providers;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMi
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
@@ -66,21 +67,17 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType
  * @author Anil.Saldhana@redhat.com
  * @since Dec 30, 2010
  */
-public class SAML20AssertionTokenProvider implements SecurityTokenProvider
+public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider
 {
-   public static final String NS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
+   public static final String NS = JBossSAMLURIConstants.ASSERTION_NSURI.get(); 
 
-   private static Map<String, AssertionType> issuedAssertions = new HashMap<String, AssertionType>();
-
-   private Map<String, String> properties;
-   
    private long ASSERTION_VALIDITY = 5000; //5secs in milis
    
    private long CLOCK_SKEW = 2000; //2secs
    
    public void initialize(Map<String, String> props)
    { 
-      this.properties = props; 
+      super.initialize(props);  
       
       String validity = this.properties.get( "ASSERTION_VALIDITY" );
       if( validity != null )
@@ -152,7 +149,14 @@ public class SAML20AssertionTokenProvider implements SecurityTokenProvider
          throw new ProcessingException( e );
       }
       
-      issuedAssertions.put( assertionID, assertionType );
+      try
+      {
+         this.tokenRegistry.addToken(assertionID, assertionType);
+      }
+      catch (IOException e)
+      { 
+         throw new ProcessingException( e );
+      } 
       samlProtocolContext.setIssuedAssertion( assertionType );
    }
   
@@ -195,8 +199,16 @@ public class SAML20AssertionTokenProvider implements SecurityTokenProvider
       {
          throw new ProcessingException( e );
       }
-      issuedAssertions.put( issuedAssertion.getID(), issuedAssertion );
 
+      
+      try
+      {
+         this.tokenRegistry.addToken( issuedAssertion.getID(), issuedAssertion );
+      }
+      catch (IOException e)
+      { 
+         throw new ProcessingException( e );
+      }  
       samlProtocolContext.setIssuedAssertion( issuedAssertion );
    }
 
@@ -214,7 +226,14 @@ public class SAML20AssertionTokenProvider implements SecurityTokenProvider
 
       SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
       AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
-      issuedAssertions.remove( issuedAssertion.getID() );
+      try
+      {
+         this.tokenRegistry.removeToken( issuedAssertion.getID() );
+      }
+      catch (IOException e)
+      {
+         throw new ProcessingException( e );
+      }
    }
 
    /**
@@ -246,7 +265,7 @@ public class SAML20AssertionTokenProvider implements SecurityTokenProvider
       
       if( issuedAssertion == null )
          throw new ProcessingException( "Assertion is null" );
-      if( issuedAssertions.get( issuedAssertion.getID() ) == null )
+      if( this.tokenRegistry.getToken( issuedAssertion.getID() ) == null )
          throw new ProcessingException( "Invalid Assertion" );
    }
 
