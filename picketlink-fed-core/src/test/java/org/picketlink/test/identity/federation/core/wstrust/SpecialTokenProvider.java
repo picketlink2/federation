@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -164,5 +166,10 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    public String tokenType()
    {
       return WSTrustConstants.BASE_NAMESPACE;
+   }
+
+   public QName getSupportedQName()
+   { 
+      return new QName( tokenType(), "SpecialToken" );
    }
 }

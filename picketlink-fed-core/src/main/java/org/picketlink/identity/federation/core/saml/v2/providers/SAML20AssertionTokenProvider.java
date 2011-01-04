@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -33,6 +34,7 @@ import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
@@ -277,5 +279,13 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
    public String tokenType()
    {
       return NS;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#getSupportedQName()
+    */
+   public QName getSupportedQName()
+   {
+      return new QName( NS, JBossSAMLConstants.ASSERTION.get() );
    }  
 }

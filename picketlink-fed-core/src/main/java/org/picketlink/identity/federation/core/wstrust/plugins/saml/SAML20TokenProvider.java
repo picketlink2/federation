@@ -31,6 +31,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
@@ -406,5 +407,13 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
    public String tokenType()
    {
       return WSTrustConstants.BASE_NAMESPACE;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#getSupportedQName()
+    */
+   public QName getSupportedQName()
+   { 
+      return new QName( tokenType(), JBossSAMLConstants.ASSERTION.get() );
    } 
 }

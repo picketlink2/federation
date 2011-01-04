@@ -23,8 +23,10 @@ package org.picketlink.identity.federation.core.interfaces;
 
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException; 
 
 /**
  * <p>
@@ -57,6 +59,12 @@ public interface SecurityTokenProvider
     * @return
     */
    public String tokenType();
+   
+   /**
+    * Provide an optional {@code QName} for configuration
+    * @return
+    */
+   public QName getSupportedQName();
 
    /**
     * <p>

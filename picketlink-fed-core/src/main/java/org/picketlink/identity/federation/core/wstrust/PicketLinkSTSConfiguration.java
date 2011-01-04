@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
@@ -394,6 +396,13 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          sm.checkPermission( PicketLinkCoreSTS.rte ); 
       
       tokenProviders.put(key, provider); 
+
+      QName tokenQName = provider.getSupportedQName();
+      if( tokenQName != null )
+      {
+         String tokenElementAndNS = tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() ;
+         this.tokenProviders.put(tokenElementAndNS, provider ); 
+      }
    }
 
    /**
