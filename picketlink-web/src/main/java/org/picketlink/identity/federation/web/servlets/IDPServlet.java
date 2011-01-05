@@ -255,7 +255,12 @@ public class IDPServlet extends HttpServlet
       
       //Ensure the configuration in the STS
       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-      sts.installDefaultConfiguration();
+    //Let us look for a file
+      String configPath = context.getRealPath( "/WEB-INF/picketlink-sts.xml" );
+      if( configPath == null )
+         sts.installDefaultConfiguration();
+      else
+         sts.installDefaultConfiguration( configPath );
    }   
    
    
