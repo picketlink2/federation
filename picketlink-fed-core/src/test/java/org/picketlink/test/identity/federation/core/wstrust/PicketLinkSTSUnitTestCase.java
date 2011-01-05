@@ -50,6 +50,8 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
@@ -199,14 +201,16 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertTrue("Unexpected token provider type", provider instanceof SAML20TokenProvider);
       assertNull(config.getProviderForService("http://invalid.service/service"));
 
+      String family = SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
+      
       // check the token element and namespace -> token provider mapping.
-      provider = config.getProviderForTokenElementNS("SpecialToken", "http://www.tokens.org");
+      provider = config.getProviderForTokenElementNS(family, new QName( "http://www.tokens.org", "SpecialToken" ) );
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
-      provider = config.getProviderForTokenElementNS("Assertion", "urn:oasis:names:tc:SAML:2.0:assertion");
+      provider = config.getProviderForTokenElementNS(family, new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ASSERTION.get() ));
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SAML20TokenProvider);
-      assertNull(config.getProviderForTokenElementNS("SpecialToken", "InvalidNamespace"));
+      assertNull(config.getProviderForTokenElementNS( family, new QName( "InvalidNamespace", "SpecialToken" )) );
 
       // check the service provider -> token type mapping.
       assertEquals("Invalid token type for service provider 1", "http://www.tokens.org/SpecialToken", config

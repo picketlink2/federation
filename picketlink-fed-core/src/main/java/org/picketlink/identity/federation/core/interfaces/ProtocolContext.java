@@ -47,4 +47,12 @@ public interface ProtocolContext
     * @return 
     */
    QName getQName();
+   
+   /**
+    * What family the context belongs to..
+    * @see {@code SecurityTokenProvider#family()}
+    * @see {@code FAMILY_TYPE}
+    * @return
+    */
+   String family();
 }

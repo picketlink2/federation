@@ -282,7 +282,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
          // construct the ws-trust security token response.
          RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
-         requestedSecurityToken.setAny(requestContext.getSecurityToken().getTokenValue());
+
+         SecurityToken contextSecurityToken = requestContext.getSecurityToken();
+         if( contextSecurityToken == null )
+            throw new WSTrustException( "Security Token from context is null" );
+         
+         requestedSecurityToken.setAny( contextSecurityToken.getTokenValue());
 
          RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
          if (request.getContext() != null)
@@ -379,9 +384,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
       try
-      {
+      { 
          if( securityToken != null )
-            context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+         {
+            String ns = securityToken.getNamespaceURI(); 
+
+            context.setQName( new QName( ns, securityToken.getLocalName() ));  
+         }
          PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
          sts.initialize(configuration);
          sts.renewToken(context);
@@ -394,7 +403,10 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       // create the WS-Trust response with the renewed token.
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
-      requestedSecurityToken.setAny(context.getSecurityToken().getTokenValue());
+      SecurityToken contextSecurityToken = context.getSecurityToken();
+      if( contextSecurityToken == null )
+         throw new WSTrustException( "Security Token from context is null" );
+      requestedSecurityToken.setAny(contextSecurityToken.getTokenValue());
 
       RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
       if (request.getContext() != null)
@@ -491,7 +503,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          if (trace)
             log.trace("Delegating token validation to token provider");
          try
-         {
+         { 
             if( securityToken != null )
                context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
@@ -548,7 +560,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
       try
-      {
+      { 
          if( securityToken != null )
             context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
          PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();

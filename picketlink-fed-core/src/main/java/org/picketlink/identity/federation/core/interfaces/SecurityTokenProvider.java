@@ -38,6 +38,15 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 public interface SecurityTokenProvider
 {
    /**
+    * An enumeration that identifies the family to which
+    * the security token provider belongs 
+    */
+   public enum FAMILY_TYPE
+   {
+      SAML2, WS_TRUST,OPENID,OAUTH, CUSTOM;
+   }
+   
+   /**
     * <p>
     * Initializes the {@code SecurityTokenProvider} using the specified properties map.
     * </p>
@@ -65,6 +74,14 @@ public interface SecurityTokenProvider
     * @return
     */
    public QName getSupportedQName();
+   
+   
+   /**
+    * The family where this security token provider belongs
+    * @see {@code FAMILY_TYPE}}
+    * @return
+    */
+   public String family();
 
    /**
     * <p>

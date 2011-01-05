@@ -1208,4 +1208,21 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       this.rstDocument = rstDocument;
    }
+
+   @Override
+   public String toString()
+   {
+      return "RequestSecurityToken [delegate=" + delegate + ", tokenType=" + tokenType + ", requestType=" + requestType
+            + ", appliesTo=" + appliesTo + ", claims=" + claims + ", entropy=" + entropy + ", lifetime=" + lifetime
+            + ", allowPostDating=" + allowPostDating + ", renewing=" + renewing + ", onBehalfOf=" + onBehalfOf
+            + ", issuer=" + issuer + ", authenticationType=" + authenticationType + ", keyType=" + keyType
+            + ", keySize=" + keySize + ", signatureAlgorithm=" + signatureAlgorithm + ", encryption=" + encryption
+            + ", encryptionAlgorithm=" + encryptionAlgorithm + ", canonicalizationAlgorithm="
+            + canonicalizationAlgorithm + ", keyWrapAlgorithm=" + keyWrapAlgorithm + ", proofEncryption="
+            + proofEncryption + ", useKey=" + useKey + ", signWith=" + signWith + ", encryptWith=" + encryptWith
+            + ", delegateTo=" + delegateTo + ", forwardable=" + forwardable + ", delegatable=" + delegatable
+            + ", policy=" + policy + ", policyReference=" + policyReference + ", validateTarget=" + validateTarget
+            + ", renewTarget=" + renewTarget + ", cancelTarget=" + cancelTarget + ", extensionElements="
+            + extensionElements + ", factory=" + factory + ", rstDocument=" + rstDocument + "]";
+   } 
 }

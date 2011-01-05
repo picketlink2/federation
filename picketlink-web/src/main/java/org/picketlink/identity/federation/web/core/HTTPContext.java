@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 
 /**
  * Protocol Context based on HTTP
@@ -83,11 +84,17 @@ public class HTTPContext implements ProtocolContext
       return this;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#serviceName()
+    */
    public String serviceName()
    { 
       return null;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#tokenType()
+    */
    public String tokenType()
    { 
       return null;
@@ -96,5 +103,13 @@ public class HTTPContext implements ProtocolContext
    public QName getQName()
    { 
       return null;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#family()
+    */
+   public String family()
+   { 
+      return SecurityTokenProvider.FAMILY_TYPE.OPENID.toString();
    } 
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -337,11 +338,17 @@ public class WSTrustRequestContext implements ProtocolContext
       this.unattachedReference = unattachedReference;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#serviceName()
+    */
    public String serviceName()
    {
       return WSTrustUtil.getServiceNameFromAppliesTo( request );
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#tokenType()
+    */
    public String tokenType()
    { 
       return tokenType; 
@@ -352,6 +359,9 @@ public class WSTrustRequestContext implements ProtocolContext
       this.tokenType = tokenType;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#getQName()
+    */
    public QName getQName()
    {   
       return qname;
@@ -360,5 +370,24 @@ public class WSTrustRequestContext implements ProtocolContext
    public void setQName( QName qname )
    {
       this.qname = qname;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#family()
+    */
+   public String family()
+   {
+      return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
+   } 
+   
+   
+   @Override
+   public String toString()
+   {
+      return "WSTrustRequestContext [tokenIssuer=" + tokenIssuer + ", providerPublicKey=" + providerPublicKey
+            + ", onBehalfOfPrincipal=" + onBehalfOfPrincipal + ", callerPrincipal=" + callerPrincipal + ", request="
+            + request + ", proofTokenInfo=" + proofTokenInfo + ", claimedAttributes=" + claimedAttributes
+            + ", securityToken=" + securityToken + ", status=" + status + ", attachedReference=" + attachedReference
+            + ", unattachedReference=" + unattachedReference + ", tokenType=" + tokenType + ", qname=" + qname + "]";
    }
 }

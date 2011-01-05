@@ -26,6 +26,8 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 
 /**
@@ -36,6 +38,8 @@ import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
  */
 public interface STSCoreConfig
 {
+   public void copy( STSCoreConfig thatConfig );
+   
    /**
     * <p>
     * Obtains the unique name of the secure token service.
@@ -93,6 +97,14 @@ public interface STSCoreConfig
    public String getTokenTypeForService(String serviceName);
 
    /**
+    * Get a list of {@code SecurityTokenProvider} that belong to a family
+    * @see {@code SecurityTokenProvider#family()}
+    * @param familyName
+    * @return
+    */
+   public List<SecurityTokenProvider> getProvidersByFamily( String familyName );
+   
+   /**
     * <p>
     * Given the name of a service provider, obtains the provider that must be used when issuing tokens to clients of
     * that service. When requesting a token to the STS, a client can specify the service it needs the token for using
@@ -127,13 +139,13 @@ public interface STSCoreConfig
     * the {@code SecurityTokenProvider} must be determined using the security token itself.
     * </p>
     * 
-    * @param tokenLocalName a {@code String} representing the token element name. (e.g. {@code Assertion}).
-    * @param tokenNamespace a {@code String} representing the token element namespace. (e.g.
+    * @param family a {@code String} representing the family
+    * @param qname a {@code QName} representing the token element namespace. (e.g.
     *   {@code urn:oasis:names:tc:SAML:2.0:assertion}).
     * @return a reference to the {@code SecurityTokenProvider} that must be used to handle the request that contains
     * only the security token.
     */
-   public SecurityTokenProvider getProviderForTokenElementNS(String tokenLocalName, String tokenNamespace);
+   public SecurityTokenProvider getProviderForTokenElementNS(String family, QName qname );
 
    /**
     * <p>

@@ -406,7 +406,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     */
    public String tokenType()
    {
-      return WSTrustConstants.BASE_NAMESPACE;
+      return WSTrustConstants.SAML2_TOKEN_TYPE;
    }
 
    /**
@@ -415,5 +415,13 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
    public QName getSupportedQName()
    { 
       return new QName( tokenType(), JBossSAMLConstants.ASSERTION.get() );
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#family()
+    */
+   public String family()
+   { 
+      return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
    } 
 }

@@ -172,4 +172,9 @@ public class SpecialTokenProvider implements SecurityTokenProvider
    { 
       return new QName( tokenType(), "SpecialToken" );
    }
+
+   public String family()
+   { 
+      return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
+   }
 }

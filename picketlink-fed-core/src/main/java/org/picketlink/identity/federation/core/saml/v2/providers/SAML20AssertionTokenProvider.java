@@ -287,5 +287,13 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
    public QName getSupportedQName()
    {
       return new QName( NS, JBossSAMLConstants.ASSERTION.get() );
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#family()
+    */
+   public String family()
+   { 
+      return SecurityTokenProvider.FAMILY_TYPE.SAML2.toString();
    }  
 }

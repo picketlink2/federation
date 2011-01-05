@@ -46,6 +46,7 @@ import org.picketlink.identity.federation.core.config.TokenProvidersType;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.sts.STSCoreConfig;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 
 /**
@@ -125,7 +126,8 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
                   provider.getProviderClass(), properties);
             // token providers can be keyed by the token type and by token element + namespace.
             this.tokenProviders.put(provider.getTokenType(), tokenProvider);
-            String tokenElementAndNS = provider.getTokenElement() + "$" + provider.getTokenElementNS();
+            String tokenElementAndNS = 
+               tokenProvider.family() + "$" + provider.getTokenElement() + "$" + provider.getTokenElementNS();
             this.tokenProviders.put(tokenElementAndNS, tokenProvider);
          }
       }
@@ -272,14 +274,13 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       return this.tokenProviders.get(tokenType);
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.STSConfiguration#getProviderForTokenElementNS(java.lang.String, java.lang.String)
+   /**
+    * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#getProviderForTokenElementNS(java.lang.String, javax.xml.namespace.QName)
     */
-   public SecurityTokenProvider getProviderForTokenElementNS(String tokenLocalName, String tokenNamespace)
+   public SecurityTokenProvider getProviderForTokenElementNS(String family, QName tokenQName)
    {
-      return this.tokenProviders.get(tokenLocalName + "$" + tokenNamespace);
+      return this.tokenProviders.get( family + "$" + 
+            tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() );
    }
 
    /*
@@ -400,7 +401,9 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       QName tokenQName = provider.getSupportedQName();
       if( tokenQName != null )
       {
-         String tokenElementAndNS = tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() ;
+         String tokenElementAndNS = 
+            provider.family() + "$" + tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() ;
+         
          this.tokenProviders.put(tokenElementAndNS, provider ); 
       }
    }
@@ -425,5 +428,34 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       List<SecurityTokenProvider> list = new ArrayList<SecurityTokenProvider>();
       list.addAll( tokenProviders .values()); 
       return Collections.unmodifiableList(list);
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#getProvidersByFamily(java.lang.String)
+    */
+   public List<SecurityTokenProvider> getProvidersByFamily( String familyName )
+   { 
+      List<SecurityTokenProvider> result = new ArrayList<SecurityTokenProvider>();
+      for( SecurityTokenProvider provider: tokenProviders.values() )
+      {
+         if( provider.family().equals( familyName ))
+            result.add(provider);
+      }
+      return result;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#copy(org.picketlink.identity.federation.core.sts.STSCoreConfig)
+    */
+   public void copy(STSCoreConfig thatConfig)
+   {
+      if( thatConfig instanceof PicketLinkSTSConfiguration )
+      {
+         PicketLinkSTSConfiguration pc = (PicketLinkSTSConfiguration) thatConfig;
+         this.tokenProviders.putAll(  pc.tokenProviders );
+         this.claimsProcessors.putAll( pc.claimsProcessors );
+      }
+      else 
+         throw new RuntimeException( "Unknown config :" + thatConfig  ); //TODO: Handle other configuration
    }
 }

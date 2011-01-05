@@ -28,6 +28,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
@@ -117,20 +118,37 @@ public class SAMLProtocolContext implements ProtocolContext
       this.issuedAssertion = issuedAssertion;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#serviceName()
+    */
    public String serviceName()
    { 
       return null;
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#tokenType()
+    */
    public String tokenType()
    {
       return JBossSAMLURIConstants.ASSERTION_NSURI.get();
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#getQName()
+    */
    public QName getQName()
    {
       String localPart = JBossSAMLConstants.ASSERTION.get();
       String ns = tokenType();
       return new QName( ns, localPart );
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.ProtocolContext#family()
+    */
+   public String family()
+   { 
+      return SecurityTokenProvider.FAMILY_TYPE.SAML2.toString();
    } 
 }
