@@ -20,6 +20,8 @@ package org.picketlink.identity.federation.core.wstrust;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.annotation.Resource;
 import javax.xml.transform.Source;
@@ -58,7 +60,13 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
 
-   private static final String SEPARATOR = System.getProperty("file.separator");
+   private static final String SEPARATOR = AccessController.doPrivileged( new PrivilegedAction<String>()
+   { 
+      public String run()
+      { 
+         return System.getProperty("file.separator");
+      }
+   } ); 
 
    private static final String STS_CONFIG_FILE = "picketlink-sts.xml";
 
