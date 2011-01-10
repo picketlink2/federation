@@ -122,15 +122,15 @@ public enum JBossSAMLConstants
    XACML_AUTHZ_DECISION_STATEMENT_TYPE( "XACMLAuthzDecisionStatementType" ),
    HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
    
-   private String val;
+   private String name;
    
    private JBossSAMLConstants(String val)
    {
-      this.val = val;
+      this.name = val;
    }
    
    public String get()
    {
-      return this.val;
+      return this.name;
    }
 }
