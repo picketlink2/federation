@@ -75,7 +75,8 @@ public class LocalProviderOpenIDUnitTestCase extends EmbeddedWebServerBase
       assertNotNull("List of providers is not null", providers);
 
       OpenIDProviderInformation providerInfo = idm.associate(ad,providers);
-      idm.authenticate(ad, providerInfo);  
+      boolean auth = idm.authenticate(ad, providerInfo);
+      assertTrue( "OpenID Auth was successful", auth );
    }
 
    //A provider servlet that always returns true
@@ -176,7 +177,8 @@ public class LocalProviderOpenIDUnitTestCase extends EmbeddedWebServerBase
          {
             resp.setStatus(HttpServletResponse.SC_OK); 
             return; 
-         }
+         } 
+        
          //Asking for Yadis discovery
          byte[] barr = new byte[1024];
          for (int i = 0; i < barr.length; i++) 

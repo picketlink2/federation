@@ -21,10 +21,7 @@
  */
 package org.picketlink.test.identity.federation.web.openid;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 import org.picketlink.identity.federation.api.openid.OpenIDAttributeMap;
@@ -33,6 +30,12 @@ import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent;
 import org.picketlink.identity.federation.api.openid.OpenIDProtocolAdapter;
 import org.picketlink.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
 import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
+
+import com.meterware.httpunit.GetMethodWebRequest;
+import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebRequest;
+import com.meterware.httpunit.WebResponse;
 
 /**
  * Adapter that is in memory or the same VM
@@ -61,7 +64,7 @@ public class InMemoryProtocolAdapter implements OpenIDProtocolAdapter, OpenIDLif
    
    public String getReturnURL()
    {
-      return "http://localhost:11080";
+      return "http://localhost:11080/consumer";
    }
 
    public void sendToProvider(int version, String destinationURL, Map<String, String> paramMap)
@@ -72,38 +75,26 @@ public class InMemoryProtocolAdapter implements OpenIDProtocolAdapter, OpenIDLif
       System.out.println("paramMap="+ paramMap);
       
       if(version == 1)
-      {
-         URL url;
+      {   
+         WebConversation wc = new WebConversation();
+         wc.setAuthorization( "anil", "anil" );
+         WebRequest req = new GetMethodWebRequest( destinationURL );
          try
          {
-            url = new URL(destinationURL);
-            URLConnection urlConn = url.openConnection();
-            for (int i=0; ; i++) 
+            WebResponse resp = wc.getResponse( req );
+            URL responseURL = resp.getURL(); 
+            if( responseURL.toString().contains( "securepage.jsp" ))
             {
-               String headerName = urlConn.getHeaderFieldKey(i);
-               String headerValue = urlConn.getHeaderField(i);
-       
-               if (headerName == null && headerValue == null) 
-               {
-                   // No more headers
-                   break;
-               }
-               if (headerName == null) 
-               {
-                   // The header value contains the server's HTTP version
-               }
-           }
-
+               resp = wc.getResponse( responseURL.toString() );
+               WebForm form = resp.getForms()[0];
+               resp = form.submit();
+            }
          }
-         catch (MalformedURLException e)
-         {
-            throw new OpenIDProtocolException(e);
-         }
-         catch (IOException e)
-         {
-            throw new OpenIDProtocolException(e);
-         }
-          
+         catch ( Exception e)
+         { 
+            e.printStackTrace();
+            throw new OpenIDProtocolException();
+         }  
       }
       else
       {
