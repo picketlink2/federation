@@ -255,7 +255,7 @@ public class OpenIDManager
             // The only method supported in OpenID 1.x
             // redirect-URL usually limited ~2048 bytes
             adapter.sendToProvider(1, authReq.getDestinationUrl(true), null);
-            return false;
+            return true;
          } 
          else 
          {
