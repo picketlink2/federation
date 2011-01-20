@@ -19,13 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.api.openid.provider;
+package org.picketlink.identity.federation.core.openid.providers.helpers;
 
 import org.openid4java.message.AuthSuccess;
 import org.openid4java.message.DirectError;
 import org.openid4java.message.Message;
 import org.openid4java.message.ParameterList;
 import org.openid4java.server.InMemoryServerAssociationStore;
+import org.openid4java.server.ServerAssociationStore;
 import org.openid4java.server.ServerManager;
 
 /**
@@ -35,6 +36,9 @@ import org.openid4java.server.ServerManager;
  */
 public class OpenIDProviderManager
 {
+   /**
+    * Internal server manager for processing
+    */
    private ServerManager serverManager = new ServerManager();
    
    /**
@@ -44,6 +48,25 @@ public class OpenIDProviderManager
    {
       serverManager.setSharedAssociations(new InMemoryServerAssociationStore());
       serverManager.setPrivateAssociations(new InMemoryServerAssociationStore());
+   }
+   
+   /**
+    * Initialize the Shared Association and Private Association stores
+    * @param sharedAssociationStore a set of 2 association stores {@code ServerAssociationStore}
+    * @throws {@code IllegalArgumentException} if the number of stores is not 2
+    */
+   public void initialize( ServerAssociationStore... sharedAssociationStore )
+   {
+      if( sharedAssociationStore == null || sharedAssociationStore.length == 0 )
+      {
+         initialize();
+         return;
+      }
+      
+      if( sharedAssociationStore.length != 2 )
+         throw new IllegalArgumentException( "Number of association stores not equal to 2" );
+      serverManager.setSharedAssociations( sharedAssociationStore[0] );
+      serverManager.setPrivateAssociations( sharedAssociationStore[1] );
    }
    
    /**
@@ -115,6 +138,9 @@ public class OpenIDProviderManager
      return new OpenIDMessage(DirectError.createDirectError(msg));  
    }
    
+   /**
+    * Class to hold the open id message 
+    */
    public static class OpenIDMessage
    {
       private Message message;

@@ -39,7 +39,7 @@ public class DefaultTokenRegistry implements SecurityTokenRegistry
    /**
     * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#addToken(java.lang.String, java.lang.Object)
     */
-   public void addToken(String tokenID, Object token)
+   public void addToken(String tokenID, Object token) throws IOException
    {
       SecurityManager sm = System.getSecurityManager();
       if( sm != null )

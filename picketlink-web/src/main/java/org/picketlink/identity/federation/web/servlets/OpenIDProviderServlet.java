@@ -32,9 +32,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.openid4java.message.Parameter;
-import org.picketlink.identity.federation.api.openid.provider.OpenIDParameterList;
-import org.picketlink.identity.federation.api.openid.provider.OpenIDProviderManager;
-import org.picketlink.identity.federation.api.openid.provider.OpenIDProviderManager.OpenIDMessage;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.openid.providers.helpers.OpenIDParameterList;
+import org.picketlink.identity.federation.core.openid.providers.helpers.OpenIDProtocolContext;
+import org.picketlink.identity.federation.core.openid.providers.helpers.OpenIDProtocolContext.AUTH_HOLDER;
+import org.picketlink.identity.federation.core.openid.providers.helpers.OpenIDProtocolContext.MODE;
+import org.picketlink.identity.federation.core.openid.providers.helpers.OpenIDProviderManager.OpenIDMessage;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
  * Servlet that provides the Provider functionality
@@ -47,9 +51,8 @@ public class OpenIDProviderServlet extends HttpServlet
    private static final long serialVersionUID = 1L;
    private transient ServletContext servletContext = null;
    private String securePageName = "securepage.jsp";
-
-   private transient OpenIDProviderManager serverManager = new OpenIDProviderManager();
-   //private ServerManager serverManager = new ServerManager();
+   
+   private transient PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
 
    @Override
    public void init(ServletConfig config) throws ServletException
@@ -60,7 +63,7 @@ public class OpenIDProviderServlet extends HttpServlet
       if(secpageStr != null && secpageStr.length() > 0)
          securePageName = secpageStr;
 
-      serverManager.initialize(); 
+      sts.installDefaultConfiguration( ( String[] )null ); 
    }
 
    @Override
@@ -72,16 +75,15 @@ public class OpenIDProviderServlet extends HttpServlet
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
    {
-      HttpSession session = request.getSession();
-
-      if(serverManager.getEndPoint() == null)
-      {
-         serverManager.setEndPoint(request.getScheme() + "://" + 
-               request.getServerName() + ":" + 
-               request.getServerPort() + 
-               request.getContextPath() +
-         "/provider/"); 
-      } 
+      HttpSession session = request.getSession(); 
+      
+      OpenIDProtocolContext protoCtx = new OpenIDProtocolContext();
+      
+      protoCtx.setEndpoint(request.getScheme() + "://" + 
+            request.getServerName() + ":" + 
+            request.getServerPort() + 
+            request.getContextPath() +
+      "/provider/");  
 
       OpenIDParameterList requestp;
 
@@ -103,6 +105,9 @@ public class OpenIDProviderServlet extends HttpServlet
          }
       }
 
+      protoCtx.setRequestParameterList( requestp );
+      
+      
       String mode = requestp.hasParameter("openid.mode") ?
             requestp.getParameterValue("openid.mode") : null;
 
@@ -113,8 +118,20 @@ public class OpenIDProviderServlet extends HttpServlet
 
             if ("associate".equals(mode))
             {
+               protoCtx.setMode( MODE.ASSOCIATE );
+               try
+               {
+                  sts.issueToken( protoCtx );
+               }
+               catch (ProcessingException e)
+               {
+                  throw new ServletException( e );
+               }
+               
+               responsem = protoCtx.getResponseMessage();
+               
                // --- process an association request ---
-               responsem = serverManager.processAssociationRequest(requestp);
+               /*responsem = serverManager.processAssociationRequest(requestp);*/
                responseText = responsem.getResponseText();
             }
             else if ("checkid_setup".equals(mode)
@@ -146,15 +163,33 @@ public class OpenIDProviderServlet extends HttpServlet
 
                   //Fallback
                   if( authenticatedAndApproved == Boolean.TRUE && userSelectedId == null )
-                  {
-                     if( request.getUserPrincipal() != null )
-                        userSelectedId = request.getUserPrincipal().getName();
+                  { 
+                     userSelectedId = userSelectedClaimedId;
                   }
-                  // --- process an authentication request ---
+                  if( "checkid_setup".equals(mode) ) 
+                     protoCtx.setMode( MODE.CHECK_ID_SETUP );
+                  else
+                     protoCtx.setMode( MODE.CHECK_ID_IMMEDIATE );
+                  
+                  protoCtx.setAuthenticationHolder( new AUTH_HOLDER(userSelectedId, 
+                                                           userSelectedClaimedId, authenticatedAndApproved));
+                  
+                  try
+                  {
+                     sts.issueToken(protoCtx);
+                  }
+                  catch (ProcessingException e)
+                  { 
+                     throw new ServletException( e );
+                  }
+                  
+                  /*// --- process an authentication request ---
                   responsem = serverManager.processAuthenticationRequest(requestp,
                         userSelectedId,
                         userSelectedClaimedId,
-                        authenticatedAndApproved.booleanValue());
+                        authenticatedAndApproved.booleanValue());*/
+                  
+                  responsem = protoCtx.getResponseMessage();
 
                   // caller will need to decide which of the following to use:
                   // - GET HTTP-redirect to the return_to URL
@@ -174,18 +209,41 @@ public class OpenIDProviderServlet extends HttpServlet
             }
             else if ("check_authentication".equals(mode))
             {
+               try
+               {
+                  sts.validateToken( protoCtx );
+               }
+               catch (ProcessingException e)
+               { 
+                  throw new ServletException( e );
+               }
+               responsem = protoCtx.getResponseMessage();
+               
+               
                // --- processing a verification request ---
-               responsem = serverManager.verify(requestp);
+               //responsem = serverManager.verify(requestp);
                responseText = responsem.getResponseText();
             }
             else
             {
+               protoCtx.setIssueError( Boolean.TRUE );
+               protoCtx.setErrorText( "Unknown request" );
+               try
+               {
+                  sts.issueToken(protoCtx);
+               }
+               catch (ProcessingException e)
+               { 
+                  throw new ServletException( e );
+               }
+               responsem = protoCtx.getResponseMessage();
+               
                // --- error response ---
-               responsem = serverManager.getDirectError("Unknown request");
+               //responsem = serverManager.getDirectError("Unknown request");
                responseText = responsem.getResponseText();
             }
 
             log( "response="+responseText );
             response.getWriter().write(responseText);
-   }  
+   }   
 }
