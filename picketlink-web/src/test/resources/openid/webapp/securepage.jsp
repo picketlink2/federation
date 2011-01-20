@@ -1,9 +1,5 @@
 <%
- session.setAttribute("authenticatedAndApproved", Boolean.TRUE);
- if( request.getUserPrincipal() != null )
- {
-    session.setAttribute( "openid.claimed_id", request.getUserPrincipal().getName());
- }
+ session.setAttribute("authenticatedAndApproved", Boolean.TRUE); 
 %>
 
 

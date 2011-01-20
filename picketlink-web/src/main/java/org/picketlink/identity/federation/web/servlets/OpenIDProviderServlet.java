@@ -130,8 +130,7 @@ public class OpenIDProviderServlet extends HttpServlet
                
                responsem = protoCtx.getResponseMessage();
                
-               // --- process an association request ---
-               /*responsem = serverManager.processAssociationRequest(requestp);*/
+               // --- process an association request --- 
                responseText = responsem.getResponseText();
             }
             else if ("checkid_setup".equals(mode)
@@ -176,18 +175,13 @@ public class OpenIDProviderServlet extends HttpServlet
                   
                   try
                   {
+                     // --- process an authentication request ---
                      sts.issueToken(protoCtx);
                   }
                   catch (ProcessingException e)
                   { 
                      throw new ServletException( e );
                   }
-                  
-                  /*// --- process an authentication request ---
-                  responsem = serverManager.processAuthenticationRequest(requestp,
-                        userSelectedId,
-                        userSelectedClaimedId,
-                        authenticatedAndApproved.booleanValue());*/
                   
                   responsem = protoCtx.getResponseMessage();
 
@@ -211,6 +205,7 @@ public class OpenIDProviderServlet extends HttpServlet
             {
                try
                {
+                  // --- processing a verification request ---
                   sts.validateToken( protoCtx );
                }
                catch (ProcessingException e)
@@ -219,9 +214,6 @@ public class OpenIDProviderServlet extends HttpServlet
                }
                responsem = protoCtx.getResponseMessage();
                
-               
-               // --- processing a verification request ---
-               //responsem = serverManager.verify(requestp);
                responseText = responsem.getResponseText();
             }
             else
@@ -230,6 +222,7 @@ public class OpenIDProviderServlet extends HttpServlet
                protoCtx.setErrorText( "Unknown request" );
                try
                {
+                  // --- error response ---
                   sts.issueToken(protoCtx);
                }
                catch (ProcessingException e)
@@ -238,8 +231,6 @@ public class OpenIDProviderServlet extends HttpServlet
                }
                responsem = protoCtx.getResponseMessage();
                
-               // --- error response ---
-               //responsem = serverManager.getDirectError("Unknown request");
                responseText = responsem.getResponseText();
             }
 
