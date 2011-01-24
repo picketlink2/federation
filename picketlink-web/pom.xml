@@ -138,10 +138,6 @@
          <artifactId>jbossxacml</artifactId>
       </dependency>
       <dependency>
-         <groupId>sun-jaxb</groupId>
-         <artifactId>jaxb-api</artifactId>
-      </dependency>
-      <dependency>
          <groupId>apache-log4j</groupId>
          <artifactId>log4j</artifactId>
       </dependency>

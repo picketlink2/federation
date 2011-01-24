@@ -49,10 +49,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>sun-jaxb</groupId>
-        <artifactId>jaxb-api</artifactId>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.security</groupId>
         <artifactId>jbossxacml</artifactId>
       </dependency>

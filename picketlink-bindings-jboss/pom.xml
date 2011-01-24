@@ -74,7 +74,14 @@
          <groupId>org.jboss.aop</groupId>
          <artifactId>jboss-aop</artifactId>
          <version>2.1.6.GA</version>
-         <scope>compile</scope>
+  	 <scope>provided</scope>
+         <exclusions>
+           <exclusion>
+            <groupId>trove</groupId>
+            <artifactId>trove</artifactId>
+           </exclusion>
+         </exclusions>
+
       </dependency>
       <dependency>
          <groupId>junit</groupId>
@@ -83,9 +90,9 @@
       </dependency>
       <dependency>
          <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-javaee</artifactId>
-         <version>5.0.0.CR1</version>
-			<scope>provided</scope>
+         <artifactId>jboss-jacc-api</artifactId>
+         <version>1.1.0.GA</version>
+  	 <scope>provided</scope>
       </dependency>
    </dependencies>
    
