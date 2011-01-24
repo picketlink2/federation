@@ -63,8 +63,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -86,9 +85,7 @@ public class XMLSignatureUtil
    private static String pkgName = "org.picketlink.identity.federation.w3.xmldsig";
    private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd";  
 
-   private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
-   
-   private static ObjectFactory objectFactory = new ObjectFactory();
+   private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS; 
    
    private static XMLSignatureFactory fac =  getXMLSignatureFactory(); 
     
@@ -332,9 +329,10 @@ public class XMLSignatureUtil
     */
    public static void marshall(SignatureType signature, OutputStream os) throws JAXBException, SAXException 
    {
-      JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature);
+      throw new RuntimeException( "NYI" );
+      /*JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature);
       Marshaller marshaller = JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation);
-      marshaller.marshal(jsig, os);
+      marshaller.marshal(jsig, os);*/
    }
  
    /**

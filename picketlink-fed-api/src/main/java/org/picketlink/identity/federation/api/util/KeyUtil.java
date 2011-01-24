@@ -37,8 +37,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.w3c.dom.Element;
 
 /**
@@ -48,9 +47,7 @@ import org.w3c.dom.Element;
  */
 public class KeyUtil
 { 
-   private static String EOL = getSystemProperty("line.separator", "\n");
-   
-   private static ObjectFactory of = new ObjectFactory();
+   private static String EOL = getSystemProperty("line.separator", "\n"); 
    
    /**
     * Base64 encode the certificate
@@ -101,16 +98,7 @@ public class KeyUtil
       
       return DocumentUtil.getDocument(builder.toString()).getDocumentElement(); 
    }
-   
-   /**
-    * Get the object factory for the w3 xml-dsig
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return of;
-   }
-   
+    
    /**
     * Get the Unmarshaller for the W3 XMLDSIG
     * @return 

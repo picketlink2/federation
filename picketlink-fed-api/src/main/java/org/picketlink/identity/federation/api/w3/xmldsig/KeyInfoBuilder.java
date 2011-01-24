@@ -24,8 +24,7 @@ package org.picketlink.identity.federation.api.w3.xmldsig;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.xmlsec.w3.xmldsig.ObjectFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil; 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
  
@@ -36,8 +35,7 @@ import org.w3c.dom.Element;
  * @since Apr 20, 2009
  */
 public class KeyInfoBuilder
-{
-   private static ObjectFactory oFact = new ObjectFactory();
+{ 
    
    /**
     * Create a KeyInfoType
@@ -57,14 +55,5 @@ public class KeyInfoBuilder
       Element keyInfoEl = doc.createElementNS( JBossSAMLURIConstants.XMLDSIG_NSURI.get(), JBossSAMLConstants.KEY_INFO.get() );
       keyInfoEl.setAttribute( "Id", id );
       return keyInfoEl;
-   }
-   
-   /**
-    * Return the object factory. Useful in method chaining
-    * @return
-    */
-   public static ObjectFactory getObjectFactory()
-   {
-      return oFact;
-   }
+   } 
 }

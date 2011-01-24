@@ -249,11 +249,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                   if (elementName.equals("X509Certificate"))
                   {
                      X509DataType data = new X509DataType();
-                     data.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(value);
+                     data.add( value );
                      value = data;
                   }
                   KeyInfoType keyInfo = new KeyInfoType();
-                  keyInfo.getContent().add(value);
+                  keyInfo.addContent( value );
                   requestContext.setProofTokenInfo(keyInfo);
                }
             }

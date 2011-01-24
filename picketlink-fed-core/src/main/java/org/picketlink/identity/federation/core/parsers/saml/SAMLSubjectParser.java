@@ -229,7 +229,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          tag = StaxParserUtil.getStartElementName(startElement);
          if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
          {
-            keyInfo.getContent().add(StaxParserUtil.getDOMElement(xmlEventReader));
+            keyInfo.addContent( StaxParserUtil.getDOMElement(xmlEventReader) );
          }
          else if (tag.equals(WSTrustConstants.XMLDSig.X509DATA))
          {
@@ -243,11 +243,11 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             X509CertificateType cert = new X509CertificateType();
             String certValue = StaxParserUtil.getElementText(xmlEventReader);
             cert.setEncodedCertificate(certValue.getBytes());
-            x509.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(cert);
+            x509.add( cert );
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA);
-            keyInfo.getContent().add(x509);
+            keyInfo.addContent( x509 );
          }
          else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE))
          {
@@ -270,7 +270,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
             
-            keyInfo.getContent().add(keyValue);
+            keyInfo.addContent( keyValue ) ;
          }
       }
       return keyInfo;

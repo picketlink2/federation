@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType.EncryptionMethod;
 import org.w3c.dom.Element;
 
 /**
@@ -56,10 +57,9 @@ public class KeyDescriptorMetaDataBuilder
       
       if(isNotNull(algorithm))
       {
-         EncryptionMethodType encryptionMethod = new EncryptionMethodType();
-         encryptionMethod.setAlgorithm(algorithm);
+         EncryptionMethodType encryptionMethod = new EncryptionMethodType( algorithm ); 
          
-         encryptionMethod.getContent().add(BigInteger.valueOf(keySize));
+         encryptionMethod.setEncryptionMethod( new EncryptionMethod( BigInteger.valueOf(keySize), null ));
          
          keyDescriptor.addEncryptionMethod( encryptionMethod );  
       } 

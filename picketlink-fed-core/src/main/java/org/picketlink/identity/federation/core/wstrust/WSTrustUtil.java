@@ -415,7 +415,7 @@ public class WSTrustUtil
                   secret.length * 8);
             Element encryptedKeyElement = XMLCipher.getInstance().martial(key);
             keyInfo = new KeyInfoType();
-            keyInfo.getContent().add(encryptedKeyElement);
+            keyInfo.addContent( encryptedKeyElement );
          }
          catch (Exception e)
          {
@@ -450,11 +450,11 @@ public class WSTrustUtil
          X509DataType x509 = new X509DataType();
          X509CertificateType cert = new X509CertificateType();
          cert.setEncodedCertificate(Base64.encodeBytes(encodedCert).getBytes());
-         x509.getX509IssuerSerialOrX509SKIOrX509SubjectName().add(cert);
+         x509.add( cert );
          
          // set the X509DataType in the KeyInfoType.
          keyInfo = new KeyInfoType();
-         keyInfo.getContent().add(x509);
+         keyInfo.addContent( x509 );
       }
       catch (Exception e)
       {
