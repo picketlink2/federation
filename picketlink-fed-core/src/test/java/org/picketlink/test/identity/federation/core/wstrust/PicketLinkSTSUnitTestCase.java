@@ -1256,8 +1256,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          {
             X509DataType x509Data = (X509DataType) keyInfo.getContent().get(0);
             assertEquals("Unexpected X509 data content size", 1, x509Data
-                  .getX509IssuerSerialOrX509SKIOrX509SubjectName().size());
-            Object content = x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName().get(0);
+                  .getDataObjects().size());
+            Object content = x509Data.getDataObjects().get(0);
             assertTrue("Unexpected X509 data content type", content instanceof X509CertificateType);
             byte[] encodedCertificate = ((X509CertificateType) content).getEncodedCertificate();
 

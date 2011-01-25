@@ -501,11 +501,11 @@ public class SAMLAssertionWriter extends BaseWriter
          else if (content instanceof X509DataType)
          {
             X509DataType type = (X509DataType) content;
-            if (type.getX509IssuerSerialOrX509SKIOrX509SubjectName().size() == 0)
+            if (type.getDataObjects().size() == 0)
                throw new ProcessingException("X509Data cannot be empy");
             StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
                   WSTrustConstants.XMLDSig.X509DATA, WSTrustConstants.XMLDSig.DSIG_NS);
-            Object obj = type.getX509IssuerSerialOrX509SKIOrX509SubjectName().get(0);
+            Object obj = type.getDataObjects().get(0);
             if (obj instanceof Element)
             {
                Element element = (Element) obj;

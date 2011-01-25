@@ -77,7 +77,7 @@ public class X509DataType
      * {@link Element } 
      * {@link Object }  
      */
-    public List<Object> getX509IssuerSerialOrX509SKIOrX509SubjectName() 
+    public List<Object> getDataObjects() 
     { 
         return Collections.unmodifiableList( this.x509IssuerSerialOrX509SKIOrX509SubjectName );
     }

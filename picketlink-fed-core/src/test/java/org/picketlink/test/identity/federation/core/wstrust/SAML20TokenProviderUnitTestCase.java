@@ -241,9 +241,9 @@ public class SAML20TokenProviderUnitTestCase
 
       // key info should contain a X509Data section with the encoded certificate.
       X509DataType x509Data = (X509DataType) keyInfo.getContent().get(0);
-      assertEquals("Unexpected X509 data content size", 1, x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName()
+      assertEquals("Unexpected X509 data content size", 1, x509Data.getDataObjects()
             .size());
-      X509CertificateType cert = (X509CertificateType) x509Data.getX509IssuerSerialOrX509SKIOrX509SubjectName().get(0);
+      X509CertificateType cert = (X509CertificateType) x509Data.getDataObjects().get(0);
 
       // certificate should have been encoded to Base64, so we need to decode it first.
       byte[] encodedCert = Base64.decode(new String(cert.getEncodedCertificate()));
