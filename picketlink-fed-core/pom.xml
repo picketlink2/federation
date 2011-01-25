@@ -121,7 +121,7 @@
       </dependency>
       <dependency>
         <groupId>org.openid4java</groupId>
-        <artifactId>openid4java</artifactId>
+        <artifactId>openid4java-nodeps</artifactId>
       </dependency>
       <dependency>
         <groupId>commons-httpclient</groupId>
