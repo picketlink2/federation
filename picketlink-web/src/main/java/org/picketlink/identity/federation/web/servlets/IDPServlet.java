@@ -260,7 +260,7 @@ public class IDPServlet extends HttpServlet
       String configPath = context.getRealPath( "/WEB-INF/picketlink-sts.xml" );
       File stsConfigFile = configPath != null ? new File( configPath ) : null;
       
-      if( configPath == null || !stsConfigFile.exists()  )
+      if( stsConfigFile == null || !stsConfigFile.exists()  )
          sts.installDefaultConfiguration();
       else
          sts.installDefaultConfiguration( configPath );
