@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.web.servlets;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -255,9 +256,11 @@ public class IDPServlet extends HttpServlet
       
       //Ensure the configuration in the STS
       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-    //Let us look for a file
+      //Let us look for a file
       String configPath = context.getRealPath( "/WEB-INF/picketlink-sts.xml" );
-      if( configPath == null )
+      File stsConfigFile = configPath != null ? new File( configPath ) : null;
+      
+      if( configPath == null || !stsConfigFile.exists()  )
          sts.installDefaultConfiguration();
       else
          sts.installDefaultConfiguration( configPath );

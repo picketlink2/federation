@@ -458,4 +458,12 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
       else 
          throw new RuntimeException( "Unknown config :" + thatConfig  ); //TODO: Handle other configuration
    }
+
+   @Override
+   public String toString()
+   {
+      return "PicketLinkSTSConfiguration [delegate=" + delegate + ", tokenProviders=" + tokenProviders
+            + ", spMetadata=" + spMetadata + ", claimsProcessors=" + claimsProcessors + ", trustManager="
+            + trustManager + ", handler=" + handler + "]";
+   }
 }

@@ -100,19 +100,25 @@ public class PicketLinkCoreSTS
          fileName = configFileName[ 0 ];
       
       if( configuration == null )
-         configuration = new PicketLinkSTSConfiguration();
+      {
+         if(logger.isDebugEnabled() )
+            logger.debug( "[InstallDefaultConfiguration] Configuration is null. Creating a new configuration" );
+         configuration = new PicketLinkSTSConfiguration(); 
+      }
       
       try
       {
-         STSConfiguration config = getConfiguration(fileName);
+
+         if(logger.isDebugEnabled() )
+            logger.debug( "[InstallDefaultConfiguration] Configuration file name=" + fileName );
+         
+         STSConfiguration config = getConfiguration( fileName );
          configuration.copy(config);
       }
       catch (ConfigurationException e)
       {
          throw new RuntimeException( e );
-      }
-      //SAML2 Specification Provider
-      //configuration.addTokenProvider( SAML20AssertionTokenProvider.NS, new SAML20AssertionTokenProvider() );
+      } 
    }
    
    /**
@@ -130,7 +136,7 @@ public class PicketLinkCoreSTS
       SecurityTokenProvider provider = getProvider(protocolContext);  
       
       if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + protocolContext );
+         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
       
       if( logger.isDebugEnabled() )
       {
@@ -162,7 +168,7 @@ public class PicketLinkCoreSTS
          provider = getProviderBasedOnQName(protocolContext);
 
       if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + protocolContext );
+         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
       
       if( logger.isDebugEnabled() )
       {
@@ -225,7 +231,7 @@ public class PicketLinkCoreSTS
          provider = getProviderBasedOnQName(protocolContext);
 
       if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + protocolContext );
+         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
       
       if( logger.isDebugEnabled() )
       {
