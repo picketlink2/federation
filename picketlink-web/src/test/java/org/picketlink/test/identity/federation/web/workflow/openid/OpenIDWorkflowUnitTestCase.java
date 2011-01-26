@@ -21,7 +21,6 @@
  */
 package org.picketlink.test.identity.federation.web.workflow.openid;
 
-import java.io.InputStream;
 import java.net.URL;
 
 import org.mortbay.jetty.servlet.Context;
@@ -50,9 +49,6 @@ public class OpenIDWorkflowUnitTestCase extends EmbeddedWebServerBase
    protected void establishUserApps()
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream("openid/localhost-yadis.xml");
-
-      assertNotNull("Yadis descriptor not null", is);
       
       final String WEBAPPDIR = "openid/webapp"; 
 
