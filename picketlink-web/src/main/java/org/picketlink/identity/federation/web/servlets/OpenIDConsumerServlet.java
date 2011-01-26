@@ -79,6 +79,7 @@ public class OpenIDConsumerServlet extends HttpServlet
          manager = new OpenIDManager(openIDReq);
          session.setAttribute("openid_manager", manager); 
       }
+      manager.setUserString( userEntry );
       
       try
       {

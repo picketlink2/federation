@@ -25,14 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.OP;
-import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.TYPE;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDAssociationException;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDConsumerException;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDDiscoveryException;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDMessageException;
-import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
 import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
@@ -48,6 +40,14 @@ import org.openid4java.message.MessageException;
 import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.sreg.SRegRequest;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.OP;
+import org.picketlink.identity.federation.api.openid.OpenIDLifecycleEvent.TYPE;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDAssociationException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDConsumerException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDDiscoveryException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDLifeCycleException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDMessageException;
+import org.picketlink.identity.federation.api.openid.exceptions.OpenIDProtocolException;
 
 /**
  * OpenID Manager for consumers
@@ -87,6 +87,7 @@ public class OpenIDManager
          consumerManager = new ConsumerManager(); 
          consumerManager.setAssociations(new InMemoryConsumerAssociationStore());
          consumerManager.setNonceVerifier(new InMemoryNonceVerifier(5000));
+         
          userString = request.getURL(); 
       }
       catch(ConsumerException ce)
@@ -95,6 +96,15 @@ public class OpenIDManager
       }
    }
    
+   /**
+    * Set the user string
+    * @param userString
+    */
+   public void setUserString(String userString)
+   {
+      this.userString = userString;
+   }
+
    /**
     * Get the OpenID Request
     * @return
