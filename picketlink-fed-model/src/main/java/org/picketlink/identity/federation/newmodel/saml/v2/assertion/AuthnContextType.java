@@ -123,7 +123,7 @@ public class AuthnContextType
    public class AuthnContextTypeSequence
    {
       private AuthnContextClassRefType classRef;
-      private Set<URIType> URITypes;
+      private Set<URIType> URITypes = new HashSet<URIType>();
       public AuthnContextClassRefType getClassRef()
       {
          return classRef;
