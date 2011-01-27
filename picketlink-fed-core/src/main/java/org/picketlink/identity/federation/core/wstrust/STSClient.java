@@ -61,6 +61,24 @@ public class STSClient
 
    private String targetNS = "http://org.picketlink.trust/sts/";
 
+   /**
+    * Constructor
+    * @see {@link #setDispatch(Dispatch)} for the setting of the {@link Dispatch} object
+    */
+   public STSClient()
+   {   
+   }
+   
+   /**
+    * <p>
+    * Constructor that creates the {@link Dispatch} for use.
+    * </p>
+    * <p>
+    * If you need to customize the ws properties, it is suggested to preconstruct a {@link Dispatch}
+    * object and use the default no-arg constructor followed by a {@linkplain #setDispatch(Dispatch)} call
+    * </p>
+    * @param config
+    */
    public STSClient(STSClientConfig config)
    {
       QName service = new QName(targetNS, config.getServiceName());
@@ -77,10 +95,28 @@ public class STSClient
          // add the username and password to the request context.
          reqContext.put(BindingProvider.USERNAME_PROPERTY, config.getUsername());
          reqContext.put(BindingProvider.PASSWORD_PROPERTY, config.getPassword());
-      }
-      dispatchLocal.set(dispatch);
+      } 
+      setDispatch(dispatch); 
+   }
+   
+   /**
+    * Set the {@link Dispatch} object for use
+    * @param dispatch
+    */
+   public void setDispatch( Dispatch<Source> dispatch )
+   {
+      if( dispatch == null )
+         throw new IllegalArgumentException( "dispatch is null" );
+      
+      dispatchLocal.set( dispatch ); 
    }
 
+   /**
+    * Issue a token
+    * @param tokenType
+    * @return
+    * @throws WSTrustException
+    */
    public Element issueToken(String tokenType) throws WSTrustException
    {
       // create a custom token request message.
@@ -184,12 +220,20 @@ public class STSClient
       return request;
    }
 
+   /**
+    * Issue a token
+    * @param request
+    * @return
+    * @throws WSTrustException
+    */
    public Element issueToken(RequestSecurityToken request) throws WSTrustException
    {
       if (request.getRequestType() == null)
          request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
       if (request.getContext() == null)
          request.setContext("default-context");
+      
+      validateDispatch();
       DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
 
@@ -231,8 +275,16 @@ public class STSClient
       return (Element) rstr.getFirstChild();
    }
 
+   /**
+    * Renew a token
+    * @param tokenType
+    * @param token
+    * @return
+    * @throws WSTrustException
+    */
    public Element renewToken(String tokenType, Element token) throws WSTrustException
    {
+      validateDispatch();
       RequestSecurityToken request = new RequestSecurityToken();
       request.setContext("context");
 
@@ -281,12 +333,18 @@ public class STSClient
 
       Node rstr = nodes.item(0);
 
-      return (Element) rstr.getFirstChild();
-
+      return (Element) rstr.getFirstChild(); 
    }
 
+   /**
+    * Validate a token
+    * @param token
+    * @return
+    * @throws WSTrustException
+    */
    public boolean validateToken(Element token) throws WSTrustException
    {
+      validateDispatch();
       RequestSecurityToken request = new RequestSecurityToken();
       request.setContext("context");
 
@@ -332,6 +390,7 @@ public class STSClient
     */
    public boolean cancelToken(Element securityToken) throws WSTrustException
    {
+      validateDispatch();
       // create a WS-Trust cancel request containing the specified token.
       RequestSecurityToken request = new RequestSecurityToken();
       request.setRequestType(URI.create(WSTrustConstants.CANCEL_REQUEST));
@@ -359,6 +418,10 @@ public class STSClient
       }
    }
 
+   /**
+    * Get the dispatch object
+    * @return
+    */
    public Dispatch<Source> getDispatch()
    {
       return dispatchLocal.get();
@@ -377,5 +440,14 @@ public class STSClient
       {
          throw new WSTrustException("Error creating source from request: " + e.getMessage(), e);
       }
+   }
+   
+   /**
+    * Validate that we have a {@code Dispatch} to work with
+    */
+   private void validateDispatch()
+   {
+      if( getDispatch() == null )
+         throw new RuntimeException( "Dispatch has not been set" );
    }
 }
