@@ -176,7 +176,7 @@ public class BaseWriter
    {
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(), ASSERTION_NSURI.get());
 
-      StaxUtil.writeNameSpace(writer, "xsi", JBossSAMLURIConstants.XSI_NSURI.get());
+      StaxUtil.writeNameSpace(writer, JBossSAMLURIConstants.XSI_PREFIX.get(), JBossSAMLURIConstants.XSI_NSURI.get());
       StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
       StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
       StaxUtil.writeCharacters(writer, attributeValue ); 

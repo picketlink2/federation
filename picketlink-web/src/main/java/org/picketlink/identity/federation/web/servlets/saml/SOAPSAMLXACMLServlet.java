@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.PrivilegedActionException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -44,30 +42,16 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.JBossPDP;
-import org.jboss.security.xacml.core.JBossRequestContext;
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.core.model.context.ResponseType;
-import org.jboss.security.xacml.core.model.context.ResultType;
 import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
-import org.jboss.security.xacml.interfaces.RequestContext;
-import org.jboss.security.xacml.interfaces.ResponseContext;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.factories.XACMLContextFactory;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
-import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -243,8 +227,11 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
 
          if(xacmlRequest == null)
             throw new IOException("XACML Request not parsed"); 
+         
+         org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType =
+                                                     SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlRequest);
 
-         RequestType requestType = xacmlRequest.getRequest();
+         /*RequestType requestType = xacmlRequest.getRequest();
 
          RequestContext requestContext = new JBossRequestContext();
          requestContext.setRequest(requestType);
@@ -277,7 +264,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
                statements);
 
          org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType = saml2Response.createResponseType(ID, issuerInfo, assertion);
-
+*/
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
          XMLStreamWriter xmlStreamWriter = StaxUtil.getXMLStreamWriter(baos);
 

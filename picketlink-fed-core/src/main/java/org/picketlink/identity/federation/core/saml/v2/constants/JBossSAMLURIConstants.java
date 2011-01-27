@@ -102,8 +102,10 @@ public enum JBossSAMLURIConstants
    TRANSFORM_C14N_EXCL_OMIT_COMMENTS("http://www.w3.org/2001/10/xml-exc-c14n#WithComments"),
    
 
+   XSI_PREFIX( "xsi" ),
    X500_PREFIX("x500"),
    X500_NSURI("urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"),
+   XACML_NSURI( "urn:oasis:names:tc:xacml:2.0:context:schema:os" ),
    XACML_SAML_NSURI( "urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os" ),
    XACML_SAML_PROTO_NSURI( "urn:oasis:xacml:2.0:saml:protocol:schema:os" ),
    XML( "http://www.w3.org/XML/1998/namespace" ),

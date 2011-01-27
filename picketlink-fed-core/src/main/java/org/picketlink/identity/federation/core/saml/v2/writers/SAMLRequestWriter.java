@@ -24,13 +24,23 @@ package org.picketlink.identity.federation.core.saml.v2.writers;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
+import java.io.StringWriter;
 import java.net.URI;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.jboss.security.xacml.core.model.context.ObjectFactory;
+import org.jboss.security.xacml.core.model.context.RequestType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
@@ -38,6 +48,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protoc
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
+import org.w3c.dom.Document;
 
 /**
  * Writes a SAML2 Request Type to Stream
@@ -162,6 +173,73 @@ public class SAMLRequestWriter extends BaseWriter
    
    public void write( XACMLAuthzDecisionQueryType xacmlQuery ) throws ProcessingException
    {
-      throw new RuntimeException( "NYI" );
+      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.REQUEST_ABSTRACT.get(), PROTOCOL_NSURI.get() );
+      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
+      StaxUtil.writeNameSpace(writer, XACML_SAML_PROTO_PREFIX, JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get() );
+      StaxUtil.writeDefaultNameSpace( writer, JBossSAMLURIConstants.XACML_NSURI.get() );
+      
+      //Attributes 
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), xacmlQuery.getID() );
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), xacmlQuery.getVersion() );
+      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), xacmlQuery.getIssueInstant().toString() );
+      
+      StaxUtil.writeAttribute( writer, new QName( JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
+             JBossSAMLConstants.INPUT_CONTEXT_ONLY.get() , XACML_SAML_PROTO_PREFIX ),  "true" );
+      
+      StaxUtil.writeAttribute( writer, new QName( JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
+            JBossSAMLConstants.RETURN_CONTEXT.get(), XACML_SAML_PROTO_PREFIX ), "true" );
+
+      StaxUtil.writeNameSpace(writer, JBossSAMLURIConstants.XSI_PREFIX.get(), JBossSAMLURIConstants.XSI_NSURI.get());
+      StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
+      
+      StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type",
+             "xacml-samlp:XACMLAuthzDecisionQueryType" );
+       
+      URI destination = xacmlQuery.getDestination();
+      if( destination != null )
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() ); 
+
+      String consent = xacmlQuery.getConsent();
+      if( StringUtil.isNotNull( consent ))
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
+      
+       
+      NameIDType issuer = xacmlQuery.getIssuer();
+      if( issuer != null )
+      {
+         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      } 
+      
+      RequestType xacmlRequest = xacmlQuery.getRequest();
+      
+      ObjectFactory of = new ObjectFactory();
+       
+      StringWriter sw = new StringWriter();
+      try
+      {
+         Marshaller m = JAXBUtil.getMarshaller( RequestType.class.getPackage().getName() );
+         m.marshal( of.createRequest(xacmlRequest), sw );
+      }
+      catch (JAXBException e)
+      { 
+         throw new ProcessingException(e);
+      }
+      
+      try
+      {
+         Document xacmlDoc = DocumentUtil.getDocument( sw.toString() );
+         StaxUtil.writeDOMNode(writer, xacmlDoc.getDocumentElement() );
+      }
+      catch (ConfigurationException e)
+      {
+         throw new ProcessingException(e);
+      }
+      catch (ParsingException e)
+      {
+         throw new ProcessingException(e);
+      }
+
+      StaxUtil.writeEndElement( writer); 
+      StaxUtil.flush( writer ); 
    }
 }

@@ -34,6 +34,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
@@ -67,6 +68,8 @@ import org.w3c.dom.NodeList;
  */
 public class SOAPSAMLXACML
 { 
+   protected Logger log = Logger.getLogger( SOAPSAMLXACML.class );
+   
    /**
     * Given an xacml request
     * @param endpoint
@@ -92,9 +95,6 @@ public class SOAPSAMLXACML
          NameIDType nameIDType = new NameIDType();
          nameIDType.setValue(issuer);
          queryType.setIssuer(nameIDType);
-          
-         
-         
          
          MessageFactory messageFactory = MessageFactory.newInstance();
          
@@ -105,8 +105,14 @@ public class SOAPSAMLXACML
 
          SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( xmlStreamWriter );
          samlRequestWriter.write( queryType );
-         
-         Document reqDocument = DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() ));
+       
+         if( log.isDebugEnabled() )
+         {
+            log.debug( "Sending::" + new String( baos.toByteArray() ) );
+         }
+       
+         Document reqDocument = DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+       
          soapMessage.getSOAPBody().addDocument(reqDocument);
          
          

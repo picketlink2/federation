@@ -75,6 +75,12 @@
          <scope>compile</scope>
       </dependency>
       <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+         <version>2.4</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.security</groupId>
          <artifactId>jbosssx</artifactId>
          <version>2.0.4</version>
