@@ -65,6 +65,8 @@ public class ServiceProviderBaseProcessor
    protected SPType spConfiguration;
    protected TrustKeyManager keyManager;
    
+   protected String issuer = null;
+   
    protected boolean supportSignatures = false;
 
    /**
@@ -112,6 +114,15 @@ public class ServiceProviderBaseProcessor
    public void setSupportSignatures(boolean supportSignatures)
    {
       this.supportSignatures = supportSignatures;
+   }   
+   
+   /**
+    * Set a separate issuer that is different from the service url
+    * @param issuer
+    */
+   public void setIssuer(String issuer)
+   {
+      this.issuer = issuer;
    }
 
    public SAML2HandlerResponse process(HTTPContext httpContext,
@@ -175,7 +186,16 @@ public class ServiceProviderBaseProcessor
    protected SAML2HandlerRequest getSAML2HandlerRequest(SAMLDocumentHolder documentHolder,
          HTTPContext httpContext)
    {
-      IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);  
+      IssuerInfoHolder holder = null;
+      
+      if( issuer == null )
+      {
+         holder = new IssuerInfoHolder(this.serviceURL);
+      }
+      else
+      {
+         holder = new IssuerInfoHolder( issuer );
+      } 
 
       return  new DefaultSAML2HandlerRequest(httpContext,
             holder.getIssuer(), documentHolder, 
