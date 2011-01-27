@@ -68,6 +68,9 @@
   <category name="org.jboss">
     <priority value="TRACE"/>
   </category>
+  <category name="org.picketlink">
+    <priority value="TRACE"/>
+  </category>
 
   <!-- ======================= -->
   <!-- Setup the Root category -->
