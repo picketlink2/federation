@@ -26,6 +26,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -53,6 +54,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeSt
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
@@ -401,6 +403,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          {
             responseType = this.decryptAssertion(responseType);
          }
+         if( assertion == null )
+         {
+            assertion = assertions.get(0).getAssertion();
+         }
          
          Principal userPrincipal = handleSAMLResponse(responseType, response);
          if(userPrincipal == null)
@@ -479,28 +485,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          List<String> roles = new ArrayList<String>();
 
          //Let us get the roles
-         AttributeStatementType attributeStatement = (AttributeStatementType) assertion.getStatements().iterator().next();
-         List<ASTChoiceType> attList = attributeStatement.getAttributes();
-         for(ASTChoiceType obj:attList)
+         Set<StatementAbstractType> statements = assertion.getStatements();
+         for( StatementAbstractType statement : statements )
          {
-            AttributeType attr = obj.getAttribute();
-            List<Object> attributeValues = attr.getAttributeValue();
-            if( attributeValues != null)
+            if( statement instanceof AttributeStatementType )
             {
-               for( Object attrValue : attributeValues )
-               {
-                  if( attrValue instanceof String )
-                  {
-                     roles.add( (String) attrValue ); 
-                  }
-                  else if( attrValue instanceof Node )
-                  {
-                     Node roleNode = (Node) attrValue;
-                     roles.add( roleNode.getFirstChild().getNodeValue() );
-                  }
-                  else throw new RuntimeException( "Unknown role object type : " +  attrValue ); 
-               }
-            } 
+               AttributeStatementType attributeStatement = (AttributeStatementType) statement;
+               roles.addAll( getRoles( attributeStatement ));
+            }
          }
          
          response.setRoles(roles);
@@ -531,5 +523,39 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          return principal;
       } 
+      
+      /**
+       * Get the roles from the attribute statement
+       * @param attributeStatement
+       * @return
+       */
+      private List<String> getRoles( AttributeStatementType attributeStatement )
+      {
+         List<String> roles = new ArrayList<String>();
+         
+         List<ASTChoiceType> attList = attributeStatement.getAttributes();
+         for(ASTChoiceType obj:attList)
+         {
+            AttributeType attr = obj.getAttribute();
+            List<Object> attributeValues = attr.getAttributeValue();
+            if( attributeValues != null)
+            {
+               for( Object attrValue : attributeValues )
+               {
+                  if( attrValue instanceof String )
+                  {
+                     roles.add( (String) attrValue ); 
+                  }
+                  else if( attrValue instanceof Node )
+                  {
+                     Node roleNode = (Node) attrValue;
+                     roles.add( roleNode.getFirstChild().getNodeValue() );
+                  }
+                  else throw new RuntimeException( "Unknown role object type : " +  attrValue ); 
+               }
+            } 
+         }
+         return roles;
+      }
    }
 }
