@@ -13,6 +13,8 @@
     <param-name>debug</param-name>
     <param-value>false</param-value>
    </context-param>
+   
+   
    <servlet>
      <servlet-name>SOAPServlet</servlet-name>
      <servlet-class>org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet</servlet-class>
@@ -26,8 +28,13 @@
         <param-value>true</param-value>
      </init-param>
    </servlet>
+   
+   <servlet>
+     <servlet-name>SOAPSAMLXACMLPDPServlet</servlet-name>
+     <servlet-class>org.picketlink.identity.federation.core.pdp.SOAPSAMLXACMLPDP</servlet-class>
+   </servlet>
    <servlet-mapping>
-      <servlet-name>SOAPServlet</servlet-name>
-      <url-pattern>/SOAPServlet</url-pattern>
+      <servlet-name>SOAPSAMLXACMLPDPServlet</servlet-name>
+      <url-pattern>/SOAPSAMLXACMLPDP</url-pattern>
    </servlet-mapping>
 </web-app>

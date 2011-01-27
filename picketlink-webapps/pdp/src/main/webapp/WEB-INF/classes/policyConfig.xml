@@ -1,4 +1,4 @@
-<ns:jbosspdp xmlns:ns="urn:picketlink:xacml:2.0">
+<ns:jbosspdp xmlns:ns="urn:jboss:xacml:2.0">
    <ns:Policies>
       <ns:PolicySet>
          <ns:Location>policies/himss-policy.xml</ns:Location>
