@@ -69,12 +69,7 @@ implements IMetadataProvider<EntityDescriptorType>
       { 
          SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
          return (EntityDescriptorType) parser.parse( StaxParserUtil.getXMLEventReader(metadataFileStream));
-         /*
-         JAXBElement<EntityDescriptorType> j =
-            (JAXBElement<EntityDescriptorType>) MetaDataBuilderDelegate.getUnmarshaller().unmarshal(metadataFileStream); 
-         edt = j.getValue();
-         //TODO: use the signing and enc key data
-*/      }
+       }
       catch(Exception e)
       {
          throw new RuntimeException(e);

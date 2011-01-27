@@ -82,7 +82,7 @@ import org.w3c.dom.Node;
 public class SAML2Response
 { 
    private SAMLDocumentHolder samlDocumentHolder = null;
-   
+
    /**
     * Create an assertion
     * @param id
@@ -93,7 +93,7 @@ public class SAML2Response
    {
       return AssertionUtil.createAssertion(id, issuer); 
    }
-   
+
    /**
     * Create an AuthnStatement
     * @param authnContextDeclRef such as JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT
@@ -110,7 +110,7 @@ public class SAML2Response
       authnStatement.setAuthnContext(act);
       return authnStatement;
    }
-   
+
    /**
     * Create an Authorization Decision Statement Type
     * @param resource
@@ -129,15 +129,15 @@ public class SAML2Response
       authzDecST.setDecision(decision);
       if(evidence != null)
          authzDecST.setEvidence(evidence);
-      
+
       if(actions != null)
       {
          authzDecST.getAction().addAll(Arrays.asList(actions)); 
       }
-      
+
       return authzDecST;
    }
-   
+
    /**
     * Create a ResponseType
     * @param ID id of the response
@@ -151,43 +151,43 @@ public class SAML2Response
    public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo) 
    throws ConfigurationException, ProcessingException
    { 
-     String responseDestinationURI = sp.getResponseDestinationURI();
-      
+      String responseDestinationURI = sp.getResponseDestinationURI();
+
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
-      
+
       //Create an assertion
       //String id = IDGenerator.create( "ID_" ); 
-      
+
       //Create assertion -> subject
       SubjectType subjectType = new SubjectType();
-      
+
       //subject -> nameid
       NameIDType nameIDType = new NameIDType();
       nameIDType.setFormat( URI.create( idp.getNameIDFormat() ));
       nameIDType.setValue(idp.getNameIDFormatValue());
-      
+
       SubjectType.STSubType subType = new SubjectType.STSubType();
       subType.addBaseID(nameIDType); 
       subjectType.setSubType(subType);
-      
+
       SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
       subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
-      
+
       SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
       subjectConfirmationData.setInResponseTo(  sp.getRequestID() );
       subjectConfirmationData.setRecipient( responseDestinationURI );
       subjectConfirmationData.setNotBefore(issueInstant);
       subjectConfirmationData.setNotOnOrAfter(issueInstant);
-      
+
       subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
       subjectType.addConfirmation(subjectConfirmation);
-      
+
       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
       SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
       samlProtocolContext.setSubjectType( subjectType );
       samlProtocolContext.setIssuerID(nameIDType); 
-      
+
       AssertionType assertionType = idp.getAssertion();
       if( assertionType != null )
       {
@@ -197,22 +197,19 @@ public class SAML2Response
       }
       else
          sts.issueToken( samlProtocolContext );
-      
+
       assertionType = samlProtocolContext.getIssuedAssertion();
-      
-      /*AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, 
-            nameIDType , issueInstant, (ConditionsType) null, subjectType, (List<StatementAbstractType>)null );
-      */
-      
+
+  
       ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
       //InResponseTo ID
       responseType.setInResponseTo(sp.getRequestID());
       //Destination
       responseType.setDestination(responseDestinationURI);
-       
+
       return responseType; 
    } 
-   
+
    /**
     * Create an empty response type
     * @return
@@ -221,7 +218,7 @@ public class SAML2Response
    {
       return JBossSAMLAuthnResponseFactory.createResponseType();
    }
-   
+
    /**
     * Create a ResponseType
     * @param ID
@@ -235,7 +232,7 @@ public class SAML2Response
    {
       return JBossSAMLAuthnResponseFactory.createResponseType(ID, issuerInfo, assertion);
    }
-   
+
    /**
     * Add validity conditions to the SAML2 Assertion
     * @param assertion
@@ -248,7 +245,7 @@ public class SAML2Response
    {
       AssertionUtil.createTimedConditions(assertion, durationInMilis); 
    }
-   
+
    /**
     * Get an encrypted assertion from the stream
     * @param is
@@ -259,15 +256,12 @@ public class SAML2Response
    {
       if(is == null)
          throw new IllegalArgumentException( "inputstream is null" );
-      
+
       SAMLParser samlParser = new SAMLParser();
       return ( EncryptedAssertionType ) samlParser.parse(is);
-      
-      /*Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
-      JAXBElement<EncryptedElementType> jaxb = (JAXBElement<EncryptedElementType>) un.unmarshal(is);
-      return jaxb.getValue(); */
+ 
    }
-   
+
    /**
     * Read an assertion from an input stream
     * @param is
@@ -278,15 +272,11 @@ public class SAML2Response
    {
       if(is == null)
          throw new IllegalArgumentException( "inputstream is null" );
-      
+
       SAMLParser samlParser = new SAMLParser();
       return (AssertionType) samlParser.parse(is);
-      
-      /*Unmarshaller un = JBossSAMLAuthnResponseFactory.getUnmarshaller();
-      JAXBElement<AssertionType> jaxb = (JAXBElement<AssertionType>) un.unmarshal(is);
-      return jaxb.getValue(); */
    }
-  
+
    /**
     * Get the parsed {@code SAMLDocumentHolder}
     * @return
@@ -295,7 +285,7 @@ public class SAML2Response
    {
       return samlDocumentHolder;
    }
-   
+
    /**
     * Read a ResponseType from an input stream
     * @param is
@@ -314,15 +304,11 @@ public class SAML2Response
       SAMLParser samlParser = new SAMLParser();
       ResponseType responseType = (ResponseType) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
 
-
-      /*Binder<Node> binder = getBinder();
-         JAXBElement<ResponseType> jaxbResponseType = (JAXBElement<ResponseType>) binder.unmarshal(samlResponseDocument);
-         ResponseType responseType = jaxbResponseType.getValue();*/
       samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
       return responseType; 
    }
-   
-   
+
+
    /**
     * Read a {@code SAML2Object} from an input stream
     * @param is
@@ -335,30 +321,19 @@ public class SAML2Response
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      
+
       Document samlResponseDocument = DocumentUtil.getDocument(is); 
-      
+
       System.out.println( "RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
-      /*
-      try
-      {
-         Binder<Node> binder = getBinder();
-         JAXBElement<SAML2Object> saml2Object = (JAXBElement<SAML2Object>) binder.unmarshal(samlResponseDocument);
-         SAML2Object responseType = saml2Object.getValue();
-         */
-         SAMLParser samlParser = new SAMLParser();
-         SAML2Object responseType =  (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
-         
-         samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
-         return responseType;
-      /*   
-      }
-      catch (JAXBException e)
-      {
-         throw new ParsingException(e);
-      } */ 
+
+      SAMLParser samlParser = new SAMLParser();
+      SAML2Object responseType =  (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
+
+      samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
+      return responseType;
+
    }
-   
+
    /**
     * Convert an EncryptedElement into a Document
     * @param encryptedElementType
@@ -368,19 +343,15 @@ public class SAML2Response
    public Document convert(EncryptedElementType encryptedElementType) 
    throws  ConfigurationException 
    { 
-      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(EncryptedElementType.class);
-      Binder<Node> binder = jaxb.createBinder();
-      */
       if( encryptedElementType == null )
          throw new IllegalArgumentException( "encryptedElementType is null ");
       Document doc = DocumentUtil.createDocument();
       Node importedNode = doc.importNode( encryptedElementType.getEncryptedElement(), true );
       doc.appendChild(importedNode);
-      
-      //binder.marshal(JAXBElementMappingUtil.get(encryptedElementType), doc);
+
       return doc; 
    }
-   
+
    /**
     * Convert a SAML2 Response into a Document
     * @param responseType
@@ -389,16 +360,13 @@ public class SAML2Response
     * @throws ConfigurationException 
     * @throws JAXBException
     * @throws ParserConfigurationException
-    *//*
-   public Document convert(StatusResponseType responseType) throws JAXBException, ConfigurationException*/
-   
-
+    */ 
    public Document convert( StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(bos));
-      
+
       if( responseType instanceof ResponseType )
       {
          ResponseType response = (ResponseType) responseType;
@@ -408,45 +376,23 @@ public class SAML2Response
       {
          writer.write(responseType, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
       }
-      
-      //System.out.println( new String( bos.toByteArray() ) );
-      return DocumentUtil.getDocument( new ByteArrayInputStream( bos.toByteArray() ));
-            
-      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(StatusResponseType.class);
-             * 
-      Binder<Node> binder = jaxb.createBinder();
 
-      Document responseDocument = DocumentUtil.createDocument();
-      binder.marshal(JAXBElementMappingUtil.get(responseType), responseDocument);
-      return responseDocument; */
+      //System.out.println( new String( bos.toByteArray() ) );
+      return DocumentUtil.getDocument( new ByteArrayInputStream( bos.toByteArray() )); 
    }
-   
+
    /**
-    * Marshall the response type to the output stream
-    * <p> <b>Note:</b> JAXB marshaller by default picks up arbitrary namespace
-    * prefixes (ns2,ns3 etc). The NamespacePrefixMapper is a Sun RI customization
-    * that may be needed (this is a TODO) to get a prefix such as saml, samlp </b>
-    * 
+    * Marshall the response type to the output stream 
     * @param responseType
     * @param os 
     * @throws ProcessingException 
     */
    public void marshall(ResponseType responseType, OutputStream os) throws ProcessingException  
-   {
-		/*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-		boolean validate = Boolean.parseBoolean(SecurityActions
-				.getSystemProperty(key, "false"));
-
-		Marshaller marshaller = JBossSAMLAuthnResponseFactory
-				.getValidatingMarshaller(validate);
-		JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory()
-				.createResponse(responseType);
-		marshaller.marshal(jaxb, os); */
-      
+   { 
       SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter(os));
       samlWriter.write(responseType); 
    }
-   
+
    /**
     * Marshall the ResponseType into a writer
     * @param responseType
@@ -456,10 +402,6 @@ public class SAML2Response
    public void marshall(ResponseType responseType, Writer writer) throws ProcessingException 
    {
       SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter( writer ));
-      samlWriter.write(responseType); 
-      
-      /*Marshaller marshaller = JBossSAMLAuthnResponseFactory.getMarshaller();
-      JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory().createResponse(responseType);
-      marshaller.marshal(jaxb, writer);*/
+      samlWriter.write(responseType);
    }
 }
