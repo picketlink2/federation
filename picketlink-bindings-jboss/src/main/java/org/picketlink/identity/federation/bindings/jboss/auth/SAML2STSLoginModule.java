@@ -77,6 +77,9 @@ import org.w3c.dom.Element;
  * specify the username and password that are to be used by the application server to authenticate to the STS and
  * have the SAML assertions validated.
  * </p>
+ * <p>
+ * <b>NOTE:</b> Sub-classes can use {@link #getSTSClient()} method to customize the {@link STSClient} class to make calls to STS/
+ * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
@@ -84,13 +87,13 @@ import org.w3c.dom.Element;
 public class SAML2STSLoginModule extends AbstractServerLoginModule
 {
 
-   private String stsConfigurationFile;
+   protected String stsConfigurationFile;
 
-   private Principal principal;
+   protected Principal principal;
 
-   private SamlCredential credential;
+   protected SamlCredential credential;
 
-   private AssertionType assertion;
+   protected AssertionType assertion;
 
    /*
     * (non-Javadoc)
@@ -160,9 +163,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          throw exception;
       }
 
-      // send the assertion to the STS for validation.
-      Builder builder = new Builder(this.stsConfigurationFile);
-      STSClient client = new STSClient(builder.build());
+      // send the assertion to the STS for validation. 
+      STSClient client = this.getSTSClient() ;
       try
       {
          boolean isValid = client.validateToken(assertionElement);
@@ -298,5 +300,15 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          }
       }
       return null;
+   }
+   
+   /**
+    * Get the {@link STSClient} object with which we can make calls to the STS
+    * @return
+    */
+   protected STSClient getSTSClient()
+   {
+      Builder builder = new Builder(this.stsConfigurationFile);
+      return new STSClient(builder.build());
    }
 }
