@@ -27,14 +27,14 @@
   </wsdl:message>
   <wsdl:portType name="SecureTokenService">
     <wsdl:operation name="IssueToken">
-      <wsdl:input wsap10:Action="http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue" message="tns:RequestSecurityToken"/>
-      <wsdl:output wsap10:Action="http://schemas.xmlsoap.org/ws/2005/02/trust/RSTR/Issue" message="tns:RequestSecurityTokenResponse"/>
+      <wsdl:input wsap10:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" message="tns:RequestSecurityToken"/>
+      <wsdl:output wsap10:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Issue" message="tns:RequestSecurityTokenResponse"/>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="STSBinding" type="tns:SecureTokenService">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
     <wsdl:operation name="IssueToken">
-      <soap12:operation soapAction="http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue" style="document"/>
+      <soap12:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" style="document"/>
       <wsdl:input>
         <soap12:body use="literal"/>
       </wsdl:input>
