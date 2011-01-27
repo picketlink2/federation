@@ -51,29 +51,95 @@ extends SSODescriptorType
       super(protocolSupport); 
    }
 
+   /**
+    * Add a SSO service
+    * @param endpt
+    */
    public void addSingleSignOnService( EndpointType endpt)
    {
       this.singleSignOnService.add(endpt);
    }
 
+   /**
+    * Add name id mapping service
+    * @param endpt
+    */
    public void addNameIDMappingService( EndpointType endpt )
    {
       this.nameIDMappingService.add(endpt);
    }
 
+   /**
+    * Add assertion id request service
+    * @param endpt
+    */
    public void addAssertionIDRequestService( EndpointType endpt )
    {
       this.assertionIDRequestService.add(endpt);
    }
 
+   /**
+    * Add attribute profile
+    * @param str
+    */
    public void addAttributeProfile( String str )
    {
       this.attributeProfile.add( str );
    }  
 
+   /**
+    * Add attribute
+    * @param att
+    */
    public void addAttribute( AttributeType att )
    {
       this.attribute.add(att);
+   } 
+   
+   
+   /**
+    * Remove a SSO service
+    * @param endpt
+    */
+   public void removeSingleSignOnService( EndpointType endpt)
+   {
+      this.singleSignOnService.remove(endpt);
+   }
+
+   /**
+    * remove name id mapping service
+    * @param endpt
+    */
+   public void removeNameIDMappingService( EndpointType endpt )
+   {
+      this.nameIDMappingService.remove(endpt);
+   }
+
+   /**
+    * remove assertion id request service
+    * @param endpt
+    */
+   public void removeAssertionIDRequestService( EndpointType endpt )
+   {
+      this.assertionIDRequestService.remove(endpt);
+   }
+
+   /**
+    * Add attribute profile
+    * @param str
+    */
+   public void removeAttributeProfile( String str )
+   {
+      this.attributeProfile.remove( str );
+   }  
+
+   /**
+    * Add attribute
+    * @param att
+    */
+   public void removeAttribute( AttributeType att )
+   {
+      this.attribute.remove(att);
    } 
 
    /**

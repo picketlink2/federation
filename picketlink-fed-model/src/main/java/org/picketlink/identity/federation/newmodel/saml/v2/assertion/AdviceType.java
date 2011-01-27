@@ -54,13 +54,18 @@ public class AdviceType
 {  
    protected List<Object> advices = new ArrayList<Object>();
 
+   /**
+    * Add an advice
+    * @param obj
+    */
    public void addAdvice( Object obj )
    {
       advices.add( obj );
    }
 
    /**
-    * Gets the advices. 
+    * Gets the advices. (Read only list)
+    * @return {@link List} read only 
     */
    public List<Object> getAdvices() 
    { 

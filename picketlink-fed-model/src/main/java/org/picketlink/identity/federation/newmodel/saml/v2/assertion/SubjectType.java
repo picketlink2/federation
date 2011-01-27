@@ -63,29 +63,57 @@ public class SubjectType implements Serializable
 
    protected STSubType subType; 
 
+   /**
+    * Get the {@link STSubType}
+    * @return
+    */
    public STSubType getSubType()
    {
       return subType;
    }
 
+   /**
+    * Set the {@link STSubType}
+    * @param subType
+    */
    public void setSubType(STSubType subType)
    {
       this.subType = subType;
    }
 
+   /**
+    * Get the size of subject confirmations
+    * @return
+    */
    public int getCount()
    {
       return subjectConfirmation.size();
    }
 
+   /**
+    * Get a list of subject confirmations
+    * @return {@link} read only list of subject confirmation
+    */
    public List<SubjectConfirmationType> getConfirmation()
    {
       return Collections.unmodifiableList( subjectConfirmation );
    }
 
+   /**
+    * Add a subject confirmation
+    * @param con
+    */
    public void addConfirmation( SubjectConfirmationType con )
    {
       subjectConfirmation.add( con );
+   } 
+   /**
+    * Remove a subject confirmation
+    * @param con
+    */
+   public void removeConfirmation( SubjectConfirmationType con )
+   {
+      subjectConfirmation.remove( con );
    } 
 
    public static class STSubType

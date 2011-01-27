@@ -48,9 +48,22 @@ public class ExtensionsType
 { 
    protected List<Object> any = new ArrayList<Object>();
 
+   /**
+    * Add an extension
+    * @param extension
+    */
    public void addExtension( Object extension )
    {
       any.add( extension );
+   }
+   
+   /**
+    * Remove an extension
+    * @param extension
+    */
+   public void removeExtension( Object extension )
+   {
+      any.remove( extension );
    }
 
    /**

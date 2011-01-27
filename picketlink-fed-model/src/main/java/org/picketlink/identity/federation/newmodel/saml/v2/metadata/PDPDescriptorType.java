@@ -40,19 +40,58 @@ public class PDPDescriptorType extends RoleDescriptorType
       super(protocolSupport); 
    }
 
+   /**
+    * Add authorization service
+    * @param endpt
+    */
    public void addAuthZService( EndpointType endpt )
    {
       this.authzService.add(endpt);
    }
 
+   /**
+    * Add assertion id request service
+    * @param endpt
+    */
    public void addAssertionIDRequestService( EndpointType endpt )
    {
       this.assertionIDRequestService.add(endpt);
    }
 
+   /**
+    * Add Name ID Format
+    * @param str
+    */
    public void addNameIDFormat( String str )
    {
       this.nameIDFormat.add(str);
+   }
+   
+   /**
+    * remove authorization service
+    * @param endpt
+    */
+   public void removeAuthZService( EndpointType endpt )
+   {
+      this.authzService.remove(endpt);
+   }
+
+   /**
+    * remove assertion id request service
+    * @param endpt
+    */
+   public void removeAssertionIDRequestService( EndpointType endpt )
+   {
+      this.assertionIDRequestService.remove(endpt);
+   }
+
+   /**
+    * remove Name ID Format
+    * @param str
+    */
+   public void removeNameIDFormat( String str )
+   {
+      this.nameIDFormat.remove(str);
    }
 
    /**

@@ -60,9 +60,22 @@ extends SubjectQueryAbstractType
       super(id, version, instant); 
    }
 
+   /**
+    * Add an attribute
+    * @param att
+    */
    public void add( AttributeType att )
    {
       this.attribute.add(att);
+   }
+   
+   /**
+    * Remove an attribute
+    * @param att
+    */
+   public void remove( AttributeType att )
+   {
+      this.attribute.remove(att);
    }
    
    /**

@@ -63,9 +63,22 @@ extends SubjectQueryAbstractType
       super(id, version, instant); 
    }
 
+   /**
+    * Add an action
+    * @param act
+    */
    public void addAction( ActionType act )
    {
       this.action.add(act);
+   }
+   
+   /**
+    * Remove an action
+    * @param act
+    */
+   public void removeAction( ActionType act )
+   {
+      this.action.remove(act);
    }
 
    /**

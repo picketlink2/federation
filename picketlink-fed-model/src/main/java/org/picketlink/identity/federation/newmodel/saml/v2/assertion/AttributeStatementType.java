@@ -54,13 +54,27 @@ extends StatementAbstractType
    private static final long serialVersionUID = 1L;
    protected List<ASTChoiceType> attributes = new ArrayList<ASTChoiceType>();
 
+   /**
+    * Add an attribute
+    * @param attribute
+    */
    public void addAttribute( ASTChoiceType attribute )
    {
       attributes.add( attribute );
    }
+   
+   /**
+    * Remove an attribute
+    * @param attribute
+    */
+   public void removeAttribute( ASTChoiceType attribute )
+   {
+      attributes.remove( attribute );
+   }
 
    /**
-    * Gets the attributes. 
+    * Gets the attributes.
+    * @return a read only {@link List} 
     */
    public List<ASTChoiceType> getAttributes() 
    {

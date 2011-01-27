@@ -101,10 +101,24 @@ public class EntitiesDescriptorType
       this.extensions = value;
    }
 
+   /**
+    * Add an entity descriptor
+    * @param obj
+    */
    public void addEntityDescriptor( Object obj )
    {
       this.entityDescriptor.add( obj );
    }
+   
+   /**
+    * Remove an entity descriptor
+    * @param obj
+    */
+   public void removeEntityDescriptor( Object obj )
+   {
+      this.entityDescriptor.remove( obj );
+   }
+   
    /**
     * Gets the value of the entityDescriptorOrEntitiesDescriptor property.
     * <p>

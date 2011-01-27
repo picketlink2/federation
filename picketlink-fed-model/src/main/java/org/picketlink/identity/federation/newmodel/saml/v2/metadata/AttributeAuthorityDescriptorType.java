@@ -45,29 +45,94 @@ extends RoleDescriptorType
       super(protocolSupport);
    }
 
+   /**
+    * Add an attribute service
+    * @param endpoint
+    */
    public void addAttributeService( EndpointType endpoint )
    {
       this.attributeService.add(endpoint);
    }
 
+   /**
+    * Add an assertion id request service
+    * @param endpoint
+    */
    public void addAssertionIDRequestService( EndpointType endpoint )
    {
       this.assertionIDRequestService.add(endpoint);
    }
 
+   /**
+    * Add a name id
+    * @param str
+    */
    public void addNameIDFormat( String str )
    {
       this.nameIDFormat.add(str);
    }
 
+   /**
+    * Add an attribute profile
+    * @param str
+    */
    public void addAttributeProfile( String str )
    {
       this.attributeProfile.add(str);
    }
 
+   /**
+    * Add an attribute
+    * @param attribute
+    */
    public void addAttribute( AttributeType attribute )
    {
       this.attribute.add(attribute);
+   }
+   
+   /**
+    * Remove an attribute service
+    * @param endpoint
+    */
+   public void removeAttributeService( EndpointType endpoint )
+   {
+      this.attributeService.remove( endpoint);
+   }
+
+   /**
+    * Remove assertion id request service
+    * @param endpoint
+    */
+   public void removeAssertionIDRequestService( EndpointType endpoint )
+   {
+      this.assertionIDRequestService.remove(endpoint);
+   }
+
+   /**
+    * Remove Name ID
+    * @param str
+    */
+   public void removeNameIDFormat( String str )
+   {
+      this.nameIDFormat.remove(str);
+   }
+
+   /**
+    * Remove attribute profile
+    * @param str
+    */
+   public void removeAttributeProfile( String str )
+   {
+      this.attributeProfile.remove(str);
+   }
+
+   /**
+    * Remove attribute
+    * @param attribute
+    */
+   public void removeAttribute( AttributeType attribute )
+   {
+      this.attribute.remove(attribute);
    }
 
    /**

@@ -62,9 +62,22 @@ public class KeyDescriptorType
       this.keyInfo = value;
    }
 
+   /**
+    * Add encryption method type
+    * @param e
+    */
    public void addEncryptionMethod( EncryptionMethodType e )
    {
       this.encryptionMethod.add( e );
+   }
+   
+   /**
+    * Remove encryption method type
+    * @param e
+    */
+   public void removeEncryptionMethod( EncryptionMethodType e )
+   {
+      this.encryptionMethod.remove( e );
    }
 
    /**

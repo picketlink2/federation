@@ -143,12 +143,37 @@ public class ContactType extends TypeWithOtherAttributes
       this.surName = value;
    }
 
-
+   /**
+    * Add an email address
+    * @param email
+    */
    public void addEmailAddress( String email )
    {
       this.emailAddress.add(email);
    }
 
+   /**
+    * remove a telephone
+    * @param tel
+    */
+   public void removeTelephone( String tel )
+   {
+      this.telephoneNumber.remove(tel);
+   }
+   
+   /**
+    * remove an email address
+    * @param email
+    */
+   public void removeEmailAddress( String email )
+   {
+      this.emailAddress.remove(email);
+   }
+
+   /**
+    * Add a telephone
+    * @param tel
+    */
    public void addTelephone( String tel )
    {
       this.telephoneNumber.add(tel);

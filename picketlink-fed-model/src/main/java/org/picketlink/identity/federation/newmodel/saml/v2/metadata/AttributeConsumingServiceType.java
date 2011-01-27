@@ -48,6 +48,83 @@ public class AttributeConsumingServiceType
    }
 
    /**
+    * Add serviceName  
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link LocalizedNameType }
+    * 
+    * 
+    */
+   public void addServiceName( LocalizedNameType service ) 
+   {
+      this.serviceName.add(service) ;
+   }
+
+   /**
+    * Add serviceDescription.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link LocalizedNameType }
+    * 
+    * 
+    */
+   public void addServiceDescription( LocalizedNameType desc ) 
+   {
+      this.serviceDescription.add(desc);
+   }
+
+   /**
+    * Add requestedAttribute 
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link RequestedAttributeType }
+    * 
+    */
+   public void addRequestedAttribute( RequestedAttributeType req ) 
+   {
+      this.requestedAttribute.add(req);
+   }
+   
+   /**
+    * remove serviceName  
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link LocalizedNameType }
+    * 
+    * 
+    */
+   public void removeServiceName( LocalizedNameType service ) 
+   {
+      this.serviceName.remove(service) ;
+   }
+
+   /**
+    * remove serviceDescription.
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link LocalizedNameType }
+    * 
+    * 
+    */
+   public void removeServiceDescription( LocalizedNameType desc ) 
+   {
+      this.serviceDescription.remove(desc);
+   }
+
+   /**
+    * remove requestedAttribute 
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link RequestedAttributeType }
+    * 
+    */
+   public void removeRequestedAttribute( RequestedAttributeType req ) 
+   {
+      this.requestedAttribute.remove(req);
+   }
+   
+    
+   /**
     * Gets the value of the serviceName property.
     * <p>
     * Objects of the following type(s) are allowed in the list

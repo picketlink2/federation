@@ -36,19 +36,58 @@ extends RoleDescriptorType
       super(protocolSupport); 
    }
 
+   /**
+    * Add authn query service
+    * @param endpoint
+    */
    public void addAuthnQueryService( EndpointType endpoint )
    {
       this.authnQueryService.add(endpoint);
    }
 
+   /**
+    * Add assertion id request service
+    * @param endpoint
+    */
    public void addAssertionIDRequestService( EndpointType endpoint )
    {
       this.assertionIDRequestService.add(endpoint);
    }
 
+   /**
+    * Add name id format
+    * @param str
+    */
    public void addNameIDFormat( String str )
    {
       this.nameIDFormat.add(str);
+   }
+   
+   /**
+    * Remove authn query service
+    * @param endpoint
+    */
+   public void removeAuthnQueryService( EndpointType endpoint )
+   {
+      this.authnQueryService.remove(endpoint);
+   }
+
+   /**
+    * remove assertion id request service
+    * @param endpoint
+    */
+   public void removeAssertionIDRequestService( EndpointType endpoint )
+   {
+      this.assertionIDRequestService.remove(endpoint);
+   }
+
+   /**
+    * remove name id format
+    * @param str
+    */
+   public void removeNameIDFormat( String str )
+   {
+      this.nameIDFormat.remove(str);
    }
 
    /**

@@ -63,9 +63,22 @@ public class AttributeType
       this.name = name;
    }
 
+   /**
+    * Add an attribute value to the attribute
+    * @param value {@link Object}
+    */
    public void addAttributeValue( Object value )
    {
       attributeValue.add(value);
+   }
+   
+   /**
+    * Remove an attribute value to the attribute
+    * @param value {@link Object}
+    */
+   public void removeAttributeValue( Object value )
+   {
+      attributeValue.remove(value);
    }
 
    /**

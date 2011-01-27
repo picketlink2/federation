@@ -50,9 +50,22 @@ extends ConditionAbstractType
 { 
    protected List<URI> audience = new ArrayList<URI>();
 
+   /**
+    * Add an audience
+    * @param audienceval
+    */
    public void addAudience( URI audienceval )
    {
       audience.add( audienceval ); 
+   }
+   
+   /**
+    * Remove an audience
+    * @param audienceval
+    */
+   public void removeAudience( URI audienceval )
+   {
+      audience.remove( audienceval ); 
    }
 
    /**

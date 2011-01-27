@@ -45,6 +45,24 @@ public class EndpointType extends TypeWithOtherAttributes
       this.binding = binding;
       this.location = location;
    }
+   
+   /**
+    * Add an object
+    * @param obj
+    */
+   public void addObject( Object obj )
+   {
+      this.any.add(obj);
+   }
+   
+   /**
+    * remove an object
+    * @param obj
+    */
+   public void removeObject( Object obj )
+   {
+      this.any.remove(obj);
+   }
 
    /**
     * Gets the value of the any property.

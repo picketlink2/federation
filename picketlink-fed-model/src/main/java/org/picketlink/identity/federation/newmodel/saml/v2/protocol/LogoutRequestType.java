@@ -146,9 +146,22 @@ public class LogoutRequestType
         this.encryptedID = value;
     }
     
+    /**
+     * Add session index
+     * @param index
+     */
     public void addSessionIndex( String index )
     {
        this.sessionIndex.add( index );
+    }
+    
+    /**
+     * Remove session index
+     * @param index
+     */
+    public void removeSessionIndex( String index )
+    {
+       this.sessionIndex.remove( index );
     }
 
     /**

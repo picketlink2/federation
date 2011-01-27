@@ -70,46 +70,95 @@ public class AuthnContextType
 
    private Set<URIType> URITypes = new HashSet<URIType>();
 
-
+   /**
+    * Add an authenticating authority
+    * @param aa {@link URI}
+    */
    public void addAuthenticatingAuthority( URI aa )
    {
       authenticatingAuthority.add( aa );
    }
 
+   /**
+    * Add Authenticating Authority
+    * @param aas an array of {@link URI}
+    */
    public void addAuthenticatingAuthority( URI[] aas )
    {
       authenticatingAuthority.addAll( Arrays.asList( aas ) );
    }
 
+   /**
+    * Remove an authenticating authority
+    * @param aa
+    */
+   public void removeAuthenticatingAuthority( URI aa )
+   {
+      authenticatingAuthority.remove( aa );
+   }
+   
+   /**
+    * Get a read only set of authenticating authority
+    * @return
+    */
    public Set<URI> getAuthenticatingAuthority()
    {
       return Collections.unmodifiableSet( authenticatingAuthority );
    }   
 
+   /**
+    * Get the sequence
+    * @return
+    */
    public AuthnContextTypeSequence getSequence()
    {
       return sequence;
    }
 
+   /**
+    * Set the authn context sequence
+    * @param sequence
+    */
    public void setSequence(AuthnContextTypeSequence sequence)
    {
       this.sequence = sequence;
    } 
 
+   /**
+    * Add an URI type
+    * @param aa
+    */
    public void addURIType( URIType aa )
    {
       URITypes.add( aa );
    }
 
+   /**
+    * Add an array of URI Type
+    * @param aas
+    */
    public void addURIType( URIType[] aas )
    {
       URITypes.addAll( Arrays.asList( aas ) );
    }
 
+   /**
+    * Get a read only set of URI type
+    * @return
+    */
    public Set<URIType> getURIType()
    {
       return Collections.unmodifiableSet( URITypes );
-   } 
+   }
+   
+   /**
+    * Add an URI type
+    * @param aa
+    */
+   public void removeURIType( URIType aa )
+   {
+      URITypes.remove( aa );
+   }
 
    /**
     <sequence>
@@ -135,6 +184,11 @@ public class AuthnContextType
       public void addURIType( URIType aa )
       {
          URITypes.add( aa );
+      }
+      
+      public void removeURIType( URIType aa )
+      {
+         URITypes.remove( aa );
       }
 
       public void addURIType( URIType[] aas )

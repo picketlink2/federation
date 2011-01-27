@@ -54,11 +54,28 @@ public class EvidenceType
 {
    protected List<ChoiceType> evidences = new ArrayList<ChoiceType>();
 
+   /**
+    * Add an evidence
+    * @param evidence
+    */
    public void addEvidence( ChoiceType evidence )
    {
       evidences.add( evidence );
    }
+   
+   /**
+    * Remove an evidence
+    * @param evidence
+    */
+   public void removeEvidence( ChoiceType evidence )
+   {
+      evidences.remove( evidence );
+   }
 
+   /**
+    * Get the list of evidences as a read only list
+    * @return
+    */
    public List<ChoiceType> evidences()
    {
       return Collections.unmodifiableList( evidences );
@@ -110,6 +127,5 @@ public class EvidenceType
       {
          return encryptedAssertion;
       } 
-
    }
 }

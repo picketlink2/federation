@@ -209,8 +209,22 @@ public class SubjectConfirmationDataType
       return Collections.unmodifiableMap( otherAttributes );
    }
 
+   /**
+    * Add an other attribute
+    * @param qname
+    * @param str
+    */
    public void addOtherAttribute( QName qname, String str )
    {
       otherAttributes.put(qname, str );
-   } 
+   }
+   
+   /**
+    * Remove an other attribute
+    * @param qname {@link QName} of the attribute to be removed
+    */
+   public void removeOtherAttribute( QName qname )
+   {
+      otherAttributes.remove( qname );
+   }
 }

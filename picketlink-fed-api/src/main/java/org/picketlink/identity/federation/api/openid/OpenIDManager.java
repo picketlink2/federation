@@ -415,6 +415,11 @@ public class OpenIDManager
          this.providers = providers;
       }
       
+      void addProvider( DiscoveryInformation provider )
+      {
+         this.providers.add( provider );
+      }
+      
       List<DiscoveryInformation> get()
       {
          return Collections.unmodifiableList(providers);
@@ -424,6 +429,5 @@ public class OpenIDManager
       {
          return this.providers != null ? providers.size() : 0;
       }
-
    }
 }

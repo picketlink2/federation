@@ -56,14 +56,40 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
       protocolSupportEnumeration.addAll( protocolSupport );
    }
    
+   /**
+    * Add key descriptor
+    * @param keyD
+    */
    public void addKeyDescriptor( KeyDescriptorType keyD )
    {
       this.keyDescriptor.add(keyD);
    }
    
+   /**
+    * Add contact 
+    * @param contact
+    */
    public void addContactPerson( ContactType contact )
    {
       this.contactPerson.add(contact);
+   }
+   
+   /**
+    * remove key descriptor
+    * @param keyD
+    */
+   public void removeKeyDescriptor( KeyDescriptorType keyD )
+   {
+      this.keyDescriptor.remove(keyD);
+   }
+   
+   /**
+    * remove contact 
+    * @param contact
+    */
+   public void removeContactPerson( ContactType contact )
+   {
+      this.contactPerson.remove(contact);
    }
      
    /**

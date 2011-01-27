@@ -52,9 +52,22 @@ public class IDPListType
    protected List<IDPEntryType> idpEntry = new ArrayList<IDPEntryType>(); 
    protected URI getComplete;
 
+   /**
+    * Add an idp entry
+    * @param entry
+    */
    public void addIDPEntry( IDPEntryType entry )
    {
       this.idpEntry.add(entry);
+   }
+   
+   /**
+    * Remove an idp entry
+    * @param entry
+    */
+   public void removeIDPEntry( IDPEntryType entry )
+   {
+      this.idpEntry.remove(entry);
    }
 
    /**

@@ -57,9 +57,22 @@ extends RequestAbstractType
       super(id, version, instant);
    }
 
+   /**
+    * Add assertion id reference
+    * @param id
+    */
    public void addAssertionIDRef( String id )
    {
       assertionIDRef.add( id );
+   }
+   
+   /**
+    * remove assertion id reference
+    * @param id
+    */
+   public void removeAssertionIDRef( String id )
+   {
+      assertionIDRef.remove( id );
    }
 
    /**

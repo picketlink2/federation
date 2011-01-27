@@ -58,16 +58,30 @@ extends StatementAbstractType
    protected DecisionType decision;
 
    /**
-    * Gets the value of the action property. 
+    * Get the list of actions (read-only list)
+    * @return {@link List} read only 
     */
    public List<ActionType> getAction() 
    { 
       return Collections.unmodifiableList( this.action );
    }
 
+   /**
+    * Add an action
+    * @param actionType
+    */
    public void addAction( ActionType actionType )
    {
       action.add(actionType); 
+   }
+   
+   /**
+    * Remove an action
+    * @param actionType
+    */
+   public void removeAction( ActionType actionType )
+   {
+      action.remove(actionType); 
    }
 
    /**

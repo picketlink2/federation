@@ -49,13 +49,26 @@ public class StatusDetailType
 {
    protected List<Object> any = new ArrayList<Object>();
 
+   /**
+    * Add status detail
+    * @param obj
+    */
    public void addStatusDetail( Object obj )
    {
       this.any.add( obj );
    }
+   
+   /**
+    * Remove status detail
+    * @param obj
+    */
+   public void removeStatusDetail( Object obj )
+   {
+      this.any.remove( obj );
+   }
 
    /**
-    * Gets the value of the any property. 
+    * Gets the value of the any property.  Read-Only list
     */
    public List<Object> getAny() 
    {

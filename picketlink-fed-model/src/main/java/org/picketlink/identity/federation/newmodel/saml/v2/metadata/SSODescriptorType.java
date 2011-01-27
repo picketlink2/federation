@@ -40,24 +40,76 @@ public abstract class SSODescriptorType extends RoleDescriptorType
       super(protocolSupport); 
    }
 
+   /**
+    * Add SLO Service
+    * @param endpt
+    */
    public void addSingleLogoutService( EndpointType endpt )
    {
       this.singleLogoutService.add(endpt);
    }
 
+   /**
+    * Add atrifact resolution service
+    * @param i
+    */
    public void addArtifactResolutionService( IndexedEndpointType i )
    {
       this.artifactResolutionService.add(i);
    }
 
+   /**
+    * Add manage name id service
+    * @param end
+    */
    public void addManageNameIDService( EndpointType end )
    {
       this.manageNameIDService.add(end);
    }
 
+   /**
+    * Add Name ID Format
+    * @param s
+    */
    public void addNameIDFormat( String s )
    {
       this.nameIDFormat.add(s);
+   }
+   
+   /**
+    * remove SLO Service
+    * @param endpt
+    */
+   public void removeSingleLogoutService( EndpointType endpt )
+   {
+      this.singleLogoutService.remove(endpt);
+   }
+
+   /**
+    * remove atrifact resolution service
+    * @param i
+    */
+   public void removeArtifactResolutionService( IndexedEndpointType i )
+   {
+      this.artifactResolutionService.remove(i);
+   }
+
+   /**
+    * remove manage name id service
+    * @param end
+    */
+   public void removeManageNameIDService( EndpointType end )
+   {
+      this.manageNameIDService.remove(end);
+   }
+
+   /**
+    * remove Name ID Format
+    * @param s
+    */
+   public void removeNameIDFormat( String s )
+   {
+      this.nameIDFormat.remove(s);
    }
 
    /**

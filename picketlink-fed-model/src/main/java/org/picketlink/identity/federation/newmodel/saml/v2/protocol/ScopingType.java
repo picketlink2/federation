@@ -82,13 +82,6 @@ public class ScopingType
 
     /**
      * Gets the value of the requesterID property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the requesterID property.
-     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
@@ -107,9 +100,22 @@ public class ScopingType
         return Collections.unmodifiableList( this.requesterID );
     }
     
+    /**
+     * Add requester id
+     * @param uri
+     */
     public void addRequesterID( URI uri )
     {
        this.requesterID.add( uri );
+    }
+    
+    /**
+     * Remove requester id
+     * @param uri
+     */
+    public void removeRequesterID( URI uri )
+    {
+       this.requesterID.remove( uri );
     }
 
     /**

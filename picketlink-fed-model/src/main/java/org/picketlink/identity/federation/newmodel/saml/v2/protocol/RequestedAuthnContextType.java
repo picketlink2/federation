@@ -52,14 +52,40 @@ public class RequestedAuthnContextType
    protected List<String> authnContextDeclRef = new ArrayList<String>();
    protected AuthnContextComparisonType comparison;
 
+   /**
+    * Add an authn Context class ref
+    * @param str
+    */
    public void addAuthnContextClassRef( String str )
    {
       this.authnContextClassRef.add(str);
    }
 
+   /**
+    * Add authn context decl ref
+    * @param str
+    */
    public void addAuthnContextDeclRef( String str )
    {
       this.authnContextDeclRef.add(str);
+   }
+   
+   /**
+    * Remove an authn Context class ref
+    * @param str
+    */
+   public void removeAuthnContextClassRef( String str )
+   {
+      this.authnContextClassRef.remove(str);
+   }
+
+   /**
+    * remove authn context decl ref
+    * @param str
+    */
+   public void removeAuthnContextDeclRef( String str )
+   {
+      this.authnContextDeclRef.remove(str);
    }
 
    /**

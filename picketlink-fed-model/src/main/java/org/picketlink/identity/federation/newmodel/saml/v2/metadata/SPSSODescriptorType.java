@@ -39,6 +39,42 @@ public class SPSSODescriptorType  extends SSODescriptorType
    {
       super(protocolSupport); 
    }
+   
+   /**
+    * Add an Assertion Consumer Service
+    * @param assertionConsumer an endpoint of type {@link IndexedEndpointType}
+    */
+   public void addAssertionConsumerService( IndexedEndpointType assertionConsumer )
+   {
+      this.assertionConsumerService.add( assertionConsumer );
+   }
+   
+   /**
+    * Add an attribute consumer
+    * @param attributeConsumer an instance of type {@link AttributeConsumingServiceType}
+    */
+   public void addAttributeConsumerService( AttributeConsumingServiceType attributeConsumer )
+   {
+      this.attributeConsumingService.add( attributeConsumer );
+   }
+   
+   /**
+    * Remove an Assertion Consumer Service
+    * @param assertionConsumer an endpoint of type {@link IndexedEndpointType}
+    */
+   public void removeAssertionConsumerService( IndexedEndpointType assertionConsumer )
+   {
+      this.assertionConsumerService.remove( assertionConsumer );
+   }
+   
+   /**
+    * Remove an attribute consumer
+    * @param attributeConsumer an instance of type {@link AttributeConsumingServiceType}
+    */
+   public void removeAttributeConsumerService( AttributeConsumingServiceType attributeConsumer )
+   {
+      this.attributeConsumingService.remove( attributeConsumer );
+   }
 
    /**
     * Gets the value of the assertionConsumerService property.
@@ -50,6 +86,8 @@ public class SPSSODescriptorType  extends SSODescriptorType
    {
       return Collections.unmodifiableList( this.assertionConsumerService );
    }
+   
+   
 
    /**
     * Gets the value of the attributeConsumingService property.

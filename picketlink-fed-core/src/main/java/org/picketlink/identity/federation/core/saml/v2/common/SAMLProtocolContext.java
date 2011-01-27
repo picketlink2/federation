@@ -60,46 +60,82 @@ public class SAMLProtocolContext implements ProtocolContext
    
    protected AssertionType issuedAssertion;
    
+   /**
+    * Get the Issuer ID
+    * @return instance of {@link NameIDType}
+    */
    public NameIDType getIssuerID()
    {
       return issuerID;
    }
 
+   /**
+    * Set the Issuer ID
+    * @param issuerID {@link NameIDType}
+    */
    public void setIssuerID( NameIDType issuerID)
    {
       this.issuerID = issuerID;
    }
 
+   /**
+    * Get the subject
+    * @return {@link SubjectType}
+    */
    public SubjectType getSubjectType()
    {
       return subjectType;
    }
 
+   /**
+    * Set the subject
+    * @param subjectType {@link SubjectType}
+    */
    public void setSubjectType(SubjectType subjectType)
    {
       this.subjectType = subjectType;
    }
 
+   /**
+    * Get the conditions
+    * @return {@link ConditionsType}
+    */
    public ConditionsType getConditions()
    {
       return conditions;
    }
 
+   /**
+    * Set the conditions
+    * @param conditions {@link ConditionsType}
+    */
    public void setConditions(ConditionsType conditions)
    {
       this.conditions = conditions;
    }
 
+   /**
+    * Get the statements as a read-only list
+    * @return {@link StatementAbstractType}
+    */
    public List<StatementAbstractType> getStatements()
    {
       return Collections.unmodifiableList( statements );
    }
 
+   /**
+    * Add a list of statements 
+    * @param statements {@link List}
+    */
    public void setStatements(List<StatementAbstractType> statements)
    {
       this.statements = statements;
    } 
 
+   /**
+    * Get the previously issued assertion by the STS
+    * @return {@link AssertionType}
+    */
    public AssertionType getIssuedAssertion()
    {
       SecurityManager sm = System.getSecurityManager();
@@ -109,6 +145,10 @@ public class SAMLProtocolContext implements ProtocolContext
       return issuedAssertion;
    }
 
+   /**
+    * Set the assertion issued by the STS
+    * @param issuedAssertion {@link AssertionType}
+    */
    public void setIssuedAssertion(AssertionType issuedAssertion)
    {
       SecurityManager sm = System.getSecurityManager();

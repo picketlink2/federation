@@ -53,9 +53,22 @@ extends StatusResponseType
 { 
    protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
 
+   /**
+    * Add an assertion
+    * @param choice
+    */
    public void addAssertion( RTChoiceType choice )
    {
       assertions.add(choice);
+   }
+   
+   /**
+    * Remove an assertion
+    * @param choice
+    */
+   public void removeAssertion( RTChoiceType choice )
+   {
+      assertions.remove(choice);
    }
 
    /**

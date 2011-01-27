@@ -60,9 +60,22 @@ public class ConditionsType implements Serializable
    protected XMLGregorianCalendar notBefore; 
    protected XMLGregorianCalendar notOnOrAfter;
 
+   /**
+    * Add a condition
+    * @param condition
+    */
    public void addCondition( ConditionAbstractType condition )
    {
       this.conditions.add( condition );
+   }
+   
+   /**
+    * Remove a condition
+    * @param condition
+    */
+   public void removeCondition( ConditionAbstractType condition )
+   {
+      this.conditions.remove( condition );
    }
 
    /**

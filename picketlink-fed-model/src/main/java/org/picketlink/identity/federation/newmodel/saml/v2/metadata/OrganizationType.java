@@ -38,19 +38,58 @@ public class OrganizationType extends TypeWithOtherAttributes
 
    protected List<LocalizedURIType> organizationURL = new ArrayList<LocalizedURIType>();
 
+   /**
+    * Add an organization name
+    * @param name
+    */
    public void addOrganizationName( LocalizedNameType name )
    {
       this.organizationName.add(name);
    }
 
+   /**
+    * Add organization display name
+    * @param name
+    */
    public void addOrganizationDisplayName( LocalizedNameType name )
    {
       this.organizationDisplayName.add(name);
    }
 
+   /**
+    * Add organization url
+    * @param uri
+    */
    public void addOrganizationURL( LocalizedURIType uri )
    {
       this.organizationURL.add(uri);
+   }
+   
+   /**
+    * remove an organization name
+    * @param name
+    */
+   public void removeOrganizationName( LocalizedNameType name )
+   {
+      this.organizationName.remove(name);
+   }
+
+   /**
+    * remove organization display name
+    * @param name
+    */
+   public void removeOrganizationDisplayName( LocalizedNameType name )
+   {
+      this.organizationDisplayName.remove(name);
+   }
+
+   /**
+    * remove organization url
+    * @param uri
+    */
+   public void removeOrganizationURL( LocalizedURIType uri )
+   {
+      this.organizationURL.remove(uri);
    }
 
    /**

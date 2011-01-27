@@ -36,9 +36,24 @@ public abstract class TypeWithOtherAttributes
 {
    protected Map<QName, String> otherAttributes = new HashMap<QName, String>();
    
+   /**
+    * Add other attribute
+    * @param qame
+    * @param value
+    */
    public void addOtherAttribute( QName qame, String value )
    {
       otherAttributes.put(qame, value);
+   }
+   
+   /**
+    * Remove other attribute
+    * @param qame
+    * @param value
+    */
+   public void removeOtherAttribute( QName qame )
+   {
+      otherAttributes.remove( qame );
    }
    
    /**

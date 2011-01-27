@@ -55,6 +55,10 @@ extends ConditionAbstractType
 
    protected BigInteger count;
 
+   /**
+    * Add an audience
+    * @param a
+    */
    public void addAudience( URI a )
    {
       this.audience.add( a );
@@ -67,6 +71,15 @@ extends ConditionAbstractType
    public List<URI> getAudience() 
    { 
       return Collections.unmodifiableList( audience );
+   }
+   
+   /**
+    * Remove an audience
+    * @param a
+    */
+   public void removeAudience( URI a )
+   {
+      this.audience.remove( a );
    }
 
    /**

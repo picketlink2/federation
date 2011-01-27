@@ -215,14 +215,31 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       this.extensions = value;
    }
 
+   /**
+    * Get a read only list of choice types
+    * @return
+    */
    public List<EDTChoiceType> getChoiceType()
    {
       return Collections.unmodifiableList( choiceType );
    }
 
+   /**
+    * Add a choice type
+    * @param choiceType
+    */
    public void addChoiceType(EDTChoiceType choiceType)
    {
       this.choiceType.add( choiceType );
+   }
+   
+   /**
+    * Remove a choice type
+    * @param choiceType
+    */
+   public void removeChoiceType(EDTChoiceType choiceType)
+   {
+      this.choiceType.remove( choiceType );
    }
 
    /**
