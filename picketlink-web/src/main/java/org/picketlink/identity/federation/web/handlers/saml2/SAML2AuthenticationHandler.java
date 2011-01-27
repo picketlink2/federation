@@ -39,19 +39,21 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
@@ -69,7 +71,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
+ * <p>
  * Handles for dealing with SAML2 Authentication
+ * </p>
+ * <p>
+ * Configuration Options:
+ * @see SAML2Handler#DISABLE_AUTHN_STATEMENT  Setting a value will disable the generation of an AuthnStatement
+ * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP
+ * </p>
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Oct 8, 2009
  */
@@ -245,11 +255,19 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          //Add information on the roles
          AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
 
-         AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-         assertion.addStatement( attrStatement );
+         //Create an AuthnStatementType
+         if( handlerConfig.getParameter( DISABLE_AUTHN_STATEMENT ) == null )
+         {
+            AuthnStatementType authnStatement =
+               StatementUtil.createAuthnStatement( XMLTimeUtil.getIssueInstant(), JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get() );
+           assertion.addStatement( authnStatement ); 
+         }
          
-         /*//Add timed conditions
-         saml2Response.createTimedConditions(assertion, assertionValidity);*/
+         if( handlerConfig.getParameter( DISABLE_SENDING_ROLES ) == null )
+         {
+            AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
+            assertion.addStatement( attrStatement ); 
+         }
 
          //Add in the attributes information
          if(attribs != null && attribs.size() > 0 )
@@ -286,84 +304,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
                log.trace(e); 
          } 
          return samlResponseDocument; 
-      }
-      
-      @SuppressWarnings("unused")
-      @Deprecated
-      public Document getResponse( String assertionConsumerURL,
-            Principal userPrincipal,
-            List<String> roles, 
-            String identityURL,
-            Map<String, Object> attribs, 
-            long assertionValidity, String requestID) 
-      throws ConfigurationException, IssueInstantMissingException, ProcessingException
-      {
-         Document samlResponseDocument = null;
-         
-         if(trace) 
-            log.trace("AssertionConsumerURL=" + assertionConsumerURL + 
-               "::assertion validity=" + assertionValidity);
-         ResponseType responseType = null;     
-         
-         SAML2Response saml2Response = new SAML2Response();
-               
-         //Create a response type
-         String id = IDGenerator.create("ID_");
-
-         IssuerInfoHolder issuerHolder = new IssuerInfoHolder(identityURL); 
-         issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
-
-         IDPInfoHolder idp = new IDPInfoHolder();
-         idp.setNameIDFormatValue(userPrincipal.getName());
-         idp.setNameIDFormat(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
-
-         SPInfoHolder sp = new SPInfoHolder();
-         sp.setResponseDestinationURI(assertionConsumerURL);
-         sp.setRequestID(requestID);
-         responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
-         
-         //Add information on the roles
-         AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
-
-         AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-         assertion.addStatement( attrStatement );
-         
-         /*//Add timed conditions
-         saml2Response.createTimedConditions(assertion, assertionValidity);*/
-
-         //Add in the attributes information
-         if(attribs != null && attribs.size() > 0 )
-         {
-            AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
-            assertion.addStatement( attStatement );
-         } 
-    
-         //Lets see how the response looks like 
-         if(log.isTraceEnabled())
-         {
-            StringWriter sw = new StringWriter();
-            try
-            {
-               saml2Response.marshall(responseType, sw);
-            }
-            catch ( ProcessingException e)
-            {
-               log.trace(e);
-            } 
-            log.trace("Response="+sw.toString()); 
-         }
-         try
-         {
-            samlResponseDocument = saml2Response.convert(responseType);
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-            if(trace)
-               log.trace(e); 
-         } 
-         return samlResponseDocument; 
-      }
+      } 
    }
    
    private class SPAuthenticationHandler

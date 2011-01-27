@@ -32,6 +32,10 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
  */
 public interface SAML2Handler
 { 
+   //Define some constants
+   String DISABLE_AUTHN_STATEMENT = "DISABLE_AUTHN_STATEMENT";
+   String DISABLE_SENDING_ROLES = "DISABLE_SENDING_ROLES";
+   
    /**
     * Processing Point - idp side 
     * or service side

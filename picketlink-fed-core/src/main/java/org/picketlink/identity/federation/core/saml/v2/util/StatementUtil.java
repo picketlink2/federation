@@ -21,11 +21,13 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
@@ -34,6 +36,10 @@ import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfile
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
 
 /**
  * Deals with SAML2 Statements
@@ -42,8 +48,30 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeTy
  */
 public class StatementUtil
 {
-   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding", JBossSAMLURIConstants.X500_PREFIX.get()); 
-
+   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding", JBossSAMLURIConstants.X500_PREFIX.get());
+   
+   /**
+    * Create an AuthnStatementType given the issue instant and the type of authentication
+    * @param instant an instanceof {@link XMLGregorianCalendar}
+    * @param authnContextClassRefValue indicate the type of authentication performed
+    * @return {@link AuthnStatementType}
+    */
+   public static AuthnStatementType createAuthnStatement( XMLGregorianCalendar instant, String authnContextClassRefValue )
+   {
+      AuthnStatementType authnStatement = new AuthnStatementType( instant );
+      
+      AuthnContextType authnContext = new AuthnContextType();
+      AuthnContextClassRefType authnContextClassRef = new AuthnContextClassRefType( URI.create( authnContextClassRefValue ));
+      
+      AuthnContextTypeSequence sequence = (authnContext).new AuthnContextTypeSequence();
+      sequence.setClassRef( authnContextClassRef );
+      authnContext.setSequence( sequence );
+      
+      authnStatement.setAuthnContext( authnContext );
+      
+      return authnStatement;
+   }
+   
    /**
     * Create an attribute statement with all the attributes
     * @param attributes a map with keys from {@link AttributeConstants}
