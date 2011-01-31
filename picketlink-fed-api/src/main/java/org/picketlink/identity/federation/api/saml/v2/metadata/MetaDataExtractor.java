@@ -22,17 +22,20 @@
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
 import java.io.StringWriter;
+import java.security.cert.X509Certificate;
 import java.util.List;
-
+ 
 import javax.xml.stream.XMLStreamWriter;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
  
@@ -46,6 +49,23 @@ public class MetaDataExtractor
 {
    public static String LINE_SEPARATOR = SecurityActions.getSystemProperty("line.separator", 
          "\n");
+   
+   /**
+    * Get the {@link X509Certificate} from the KeyInfo
+    * @param keyDescriptor
+    * @return
+    */
+   public static X509Certificate getCertificate( KeyDescriptorType keyDescriptor )
+   {
+      try
+      {
+         return SAMLMetadataUtil.getCertificate(keyDescriptor);
+      }
+      catch ( Exception e)
+      { 
+         throw new RuntimeException( e );
+      }  
+   }
    
    /**
     * Generate a string from the information in the metadata

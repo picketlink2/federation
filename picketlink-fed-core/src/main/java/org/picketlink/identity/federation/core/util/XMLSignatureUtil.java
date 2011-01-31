@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.security.AccessController;
 import java.security.GeneralSecurityException;
@@ -29,14 +30,13 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.security.cert.X509Certificate;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.DigestMethod;
@@ -61,9 +61,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -81,9 +81,6 @@ public class XMLSignatureUtil
 {
    private static Logger log = Logger.getLogger(XMLSignatureUtil.class);
    private static boolean trace = log.isTraceEnabled();
-   
-   private static String pkgName = "org.picketlink.identity.federation.w3.xmldsig";
-   private static String schemaLocation = "schema/saml/v2/xmldsig-core-schema.xsd";  
 
    private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS; 
    
@@ -348,4 +345,36 @@ public class XMLSignatureUtil
       Transformer trans = tf.newTransformer();
       trans.transform(DocumentUtil.getXMLSource(signedDocument), new StreamResult(os)); 
    }
+   
+   /**
+    * Given the X509Certificate in the keyinfo element, get a {@link X509Certificate}
+    * @param certificateString
+    * @return
+    * @throws ProcessingException
+    */
+   public static X509Certificate getX509CertificateFromKeyInfoString( String certificateString ) throws ProcessingException
+   {
+      X509Certificate cert = null;
+      StringBuilder builder = new StringBuilder();
+      builder.append( "-----BEGIN CERTIFICATE-----\n" ).append( certificateString ).append( "\n-----END CERTIFICATE-----" );
+
+      String derFormattedString = builder.toString();
+
+      try
+      {
+         CertificateFactory cf = CertificateFactory.getInstance("X.509");
+         ByteArrayInputStream bais = new ByteArrayInputStream( derFormattedString.getBytes());
+
+         while ( bais.available() > 0) 
+         {
+            cert = (X509Certificate) cf.generateCertificate(bais);
+         } 
+      } 
+      catch (java.security.cert.CertificateException e)
+      { 
+         throw new ProcessingException( e );
+      }
+      return cert;
+   }
+       
 }

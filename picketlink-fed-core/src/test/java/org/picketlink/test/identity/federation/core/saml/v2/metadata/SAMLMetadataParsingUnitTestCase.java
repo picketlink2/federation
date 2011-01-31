@@ -24,12 +24,17 @@ package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
 
 /**
  * Unit test the SAML metadata parsing
@@ -50,5 +55,10 @@ public class SAMLMetadataParsingUnitTestCase
       EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
       Assert.assertNotNull(entities); 
       Assert.assertEquals( 2, entities.getEntityDescriptor().size() );
+      EntityDescriptorType entity = (EntityDescriptorType) entities.getEntityDescriptor().get(0);
+      IDPSSODescriptorType idp = entity.getChoiceType().get(0).getDescriptors().get(0).getIdpDescriptor();
+      KeyDescriptorType keyDescriptor = idp.getKeyDescriptor().get(0);
+      X509Certificate cert = SAMLMetadataUtil.getCertificate(keyDescriptor);
+      Assert.assertNotNull(cert);
    }
 }

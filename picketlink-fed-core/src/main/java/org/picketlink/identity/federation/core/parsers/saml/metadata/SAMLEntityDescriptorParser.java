@@ -241,7 +241,8 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             keyDescriptor.setUse( KeyTypes.fromValue(use) );
             
             Element key = StaxParserUtil.getDOMElement(xmlEventReader);
-            keyDescriptor.setKeyInfo(key);  
+            keyDescriptor.setKeyInfo(key);
+            idpSSODescriptor.addKeyDescriptor(keyDescriptor);
          }
          else
             throw new RuntimeException( "Unknown " + localPart ); 
