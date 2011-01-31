@@ -37,7 +37,6 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.identity.Role;
@@ -48,10 +47,10 @@ import org.jboss.security.mapping.MappingType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.w3c.dom.Element;
 
 /**
@@ -138,6 +137,12 @@ import org.w3c.dom.Element;
  * Also note that subclasses are not forced to put configuration options in a file. They
  * can all be set as options just like the 'configFile' is specified above.
  * 
+ * <h3>Additional Configuration</h3>
+ * <p>
+ * groupPrincipalName: If you want the group principal in the subject representing the subject roles to have a name that is different
+ *                     from "Roles".
+ * </p>
+ * 
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public abstract class AbstractSTSLoginModule implements LoginModule
@@ -164,51 +169,62 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     * file for WSTrustClient. 
     */
    public static final String STS_CONFIG_FILE = "configFile";
+   
+   /**
+    * Historically, JBoss has used the "Roles" as the group principal name in the subject
+    * to represent the subject roles. Users can customize this name with this option.
+    */
+   public static final String GROUP_PRINCIPAL_NAME = "groupPrincipalName";
 
    /**
     * The subject to be populated.
     */
-   private Subject subject;
+   protected Subject subject;
 
    /**
     * Callback handler used to gather information from the caller.
     */
-   private CallbackHandler callbackHandler;
+   protected CallbackHandler callbackHandler;
 
    /**
     * WS-Trust SAML Assertion element.
     */
-   private Element samlToken;
+   protected Element samlToken;
 
    /**
     * The outcome of the authentication process.
     */
-   private boolean success;
+   protected boolean success;
 
    /**
     * The options map passed into this login modules initalize method.
     */
-   private Map<String, ?> options;
+   protected Map<String, ?> options;
 
    /**
     * The shared state map passed into this login modules initalize method.
     */
-   private Map<String, ?> sharedState;
+   protected Map<String, ?> sharedState;
 
    /**
     * Indicates whether password stacking option was configured.
     */
-   private boolean passwordStacking;
+   protected boolean passwordStacking;
 
    /**
     * Indicates whether the password-stacking options was specifed as 'useFirstPass'.
     */
-   private boolean useFirstPass;
+   protected boolean useFirstPass;
 
    /**
     * Indicates whether the 'useOptionsCredentials' was configured.
     */
-   private boolean useOptionsCredentials;
+   protected boolean useOptionsCredentials;
+   
+   /**
+    * Name of the group principal. If unconfigured, will be "null"
+    */
+   protected String groupPrincipalName = null; 
 
    /**
     * Initialized this login module. Simple stores the passed in fields and
@@ -241,6 +257,10 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       final Boolean useOptionsCreds = Boolean.valueOf((String) options.get(OPTIONS_CREDENTIALS));
       if (useOptionsCreds != null)
          useOptionsCredentials = useOptionsCreds.booleanValue();
+      
+      final String gpPrincipalName = (String) options.get( GROUP_PRINCIPAL_NAME );
+      if( gpPrincipalName != null && gpPrincipalName.length() > 0 )
+         groupPrincipalName = gpPrincipalName;
    }
 
    /**
@@ -559,7 +579,18 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       {
          roleMappingContext.performMapping(contextMap, null);
          RoleGroup group = roleMappingContext.getMappingResult().getMappedObject();
-         SimpleGroup rolePrincipal = new SimpleGroup(group.getRoleName());
+         
+         SimpleGroup rolePrincipal = null;
+         
+         if( groupPrincipalName != null )
+         {
+            rolePrincipal = new SimpleGroup( groupPrincipalName );
+         }
+         else
+         {
+            rolePrincipal= new SimpleGroup( group.getRoleName() ); 
+         }
+         
          for (Role role : group.getRoles())
          {
             rolePrincipal.addMember(new SimplePrincipal(role.getRoleName()));
@@ -570,7 +601,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
 
    protected MappingManager getMappingManager()
    {
-      SecurityContext securityContext = SecurityContextAssociation.getSecurityContext();
+      SecurityContext securityContext = SecurityActions.getSecurityContext();
       if (securityContext == null)
       {
          return null;
@@ -580,5 +611,4 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          return securityContext.getMappingManager();
       }
    }
-
 }
