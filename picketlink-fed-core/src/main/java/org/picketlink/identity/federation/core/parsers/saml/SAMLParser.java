@@ -29,6 +29,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntitiesDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -109,6 +110,11 @@ public class SAMLParser extends AbstractParser
             else if( JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals( localPart ))
             {
                SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
+               return entityDescriptorParser.parse( xmlEventReader );
+            }
+            else if( JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equals( localPart ))
+            {
+               SAMLEntitiesDescriptorParser entityDescriptorParser = new SAMLEntitiesDescriptorParser();
                return entityDescriptorParser.parse( xmlEventReader );
             }
             else if( JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI) )

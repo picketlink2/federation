@@ -46,6 +46,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescri
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
@@ -173,6 +174,16 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             
             idpSSODescriptor.addArtifactResolutionService(endpoint);
          }
+         else if( JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement); 
+            
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate( endElement, JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get() );
+            
+            idpSSODescriptor.addAssertionIDRequestService( endpoint );
+         }
          else if( JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals( localPart ))
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -193,6 +204,26 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             
             idpSSODescriptor.addSingleSignOnService( endpoint );
          }
+         else if( JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement); 
+            
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate( endElement, JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get() );
+            
+            idpSSODescriptor.addManageNameIDService( endpoint );
+         }
+         else if( JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement); 
+            
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate( endElement, JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get() );
+            
+            idpSSODescriptor.addNameIDMappingService( endpoint );
+         }
          else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase( localPart ))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -203,7 +234,16 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             AttributeType attribute = SAMLParserUtil.parseAttribute(xmlEventReader);
             idpSSODescriptor.addAttribute(attribute);  
          }
-         else 
+         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase( localPart ))
+         {
+            KeyDescriptorType keyDescriptor = new KeyDescriptorType();
+            String use = StaxParserUtil.getAttributeValue(startElement, "use" );
+            keyDescriptor.setUse( KeyTypes.fromValue(use) );
+            
+            Element key = StaxParserUtil.getDOMElement(xmlEventReader);
+            keyDescriptor.setKeyInfo(key);  
+         }
+         else
             throw new RuntimeException( "Unknown " + localPart ); 
       }
       return idpSSODescriptor;
