@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
@@ -53,6 +54,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
@@ -98,6 +100,13 @@ public class SAML2Request
       issuer.setValue(issuerValue);
       
       authnRequest.setIssuer(issuer);
+      
+      //Create a default NameIDPolicy
+      NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
+      nameIDPolicy.setAllowCreate( Boolean.TRUE );
+      nameIDPolicy.setFormat( URI.create( JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get() ));
+      
+      authnRequest.setNameIDPolicy( nameIDPolicy );
       
       return authnRequest;  
    }

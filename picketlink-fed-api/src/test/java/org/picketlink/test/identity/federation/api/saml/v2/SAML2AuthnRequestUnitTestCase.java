@@ -21,12 +21,15 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
@@ -36,6 +39,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestedAuthnContextType;
 import org.w3c.dom.Element;
  
@@ -46,12 +50,13 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Dec 8, 2008
  */
-public class SAML2AuthnRequestUnitTestCase extends TestCase
+public class SAML2AuthnRequestUnitTestCase
 { 
    /**
     * Test reading a saml2 authn request
     * @throws Exception
     */
+   @Test
    public void testAuthnRequestExample() throws Exception
    {
       String resourceName = "saml/v2/authnrequest/samlAuthnRequestExample.xml";
@@ -99,6 +104,7 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
     * contains a digital signature
     * @throws Exception
     */
+   @Test
    public void testAuthnRequestWithSignature() throws Exception
    {
       String resourceName = "saml/v2/authnrequest/samlAuthnRequestWithSignature.xml";
@@ -120,13 +126,19 @@ public class SAML2AuthnRequestUnitTestCase extends TestCase
     * Test the creation of AuthnRequestType
     * @throws Exception
     */
+   @Test
    public void testAuthnRequestCreation() throws Exception
    {
       String id = IDGenerator.create("ID_");
       
       SAML2Request request = new SAML2Request();
       AuthnRequestType authnRequest = request.createAuthnRequestType( 
-            id, "http://sp", "http://idp", "http://sp"); 
+            id, "http://sp", "http://idp", "http://sp");
+      
+      //Verify whether NameIDPolicy exists
+      NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+      assertNotNull( "NameIDPolicy is not null", nameIDPolicy );
+      assertTrue( nameIDPolicy.isAllowCreate() );
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       request.marshall(authnRequest, baos); 
