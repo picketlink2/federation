@@ -60,5 +60,6 @@ public class SAMLMetadataParsingUnitTestCase
       KeyDescriptorType keyDescriptor = idp.getKeyDescriptor().get(0);
       X509Certificate cert = SAMLMetadataUtil.getCertificate(keyDescriptor);
       Assert.assertNotNull(cert);
+      Assert.assertEquals( "CN=test, OU=OpenSSO, O=Sun, L=Santa Clara, ST=California, C=US", cert.getIssuerDN().getName() );
    }
 }
