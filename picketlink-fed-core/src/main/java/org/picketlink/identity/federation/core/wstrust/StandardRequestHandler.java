@@ -273,7 +273,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          }
          catch (ProcessingException e)
          {
-            throw new WSTrustException( "Exception during token issue::", e );
+            throw new WSTrustException(e.getMessage(), e);
          }
 
          if (requestContext.getSecurityToken() == null)
@@ -398,7 +398,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       }
       catch (ProcessingException e)
       {
-         throw new WSTrustException( "Exception during token renewal:", e );
+         throw new WSTrustException(e.getMessage(), e);
       }
 
       // create the WS-Trust response with the renewed token.
@@ -513,7 +513,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          }
          catch (ProcessingException e)
          {
-            throw new WSTrustException( "Exception during token validation:", e );
+            throw new WSTrustException(e.getMessage(), e);
          }
          status = context.getStatus();
       }
@@ -570,7 +570,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       }
       catch (ProcessingException e)
       {
-         throw new WSTrustException( "Exception during token cancellation:", e );
+         throw new WSTrustException(e.getMessage(), e);
       }
 
       // if no exception has been raised, the token has been successfully canceled.

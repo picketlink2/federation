@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -1384,7 +1385,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
             URL configURL = Thread.currentThread().getContextClassLoader().getResource(configFileName);
             stream = configURL.openStream();
 
-            STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
+            STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
             return new PicketLinkSTSConfiguration(stsConfig);
          }
          catch (Exception e)

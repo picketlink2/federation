@@ -35,9 +35,9 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
-import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 
 /**
  * <p>
@@ -315,7 +315,7 @@ public class PicketLinkCoreSTS
          }
 
          InputStream stream = configurationFileURL.openStream();
-         STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
+         STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
          if (logger.isInfoEnabled())
             logger.info( fileName + " configuration file loaded");

@@ -37,6 +37,7 @@ import javax.xml.ws.WebServiceProvider;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
@@ -238,7 +239,7 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
          }
 
          InputStream stream = configurationFileURL.openStream();
-         STSType stsConfig = WSTrustUtil.getSTSConfiguration(stream);
+         STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
          if (logger.isInfoEnabled())
             logger.info(STS_CONFIG_FILE + " configuration file loaded");

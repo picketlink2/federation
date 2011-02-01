@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.security.InvalidKeyException;
@@ -278,21 +277,6 @@ public class WSTrustUtil
          }
       }
       return secret;
-   }
-
-   /**
-    * <p>
-    *   Given a stream of xml configuration (such as picketlink-sts.xml), return the {@code STSType}
-    * </p>
-    * @param stream
-    * @return {@code STSType}
-    * @throws JAXBException
-    */
-   public static STSType getSTSConfiguration(InputStream stream) throws JAXBException
-   {
-      String pkgName = "org.picketlink.identity.federation.core.config";
-      JAXBElement<STSType> element = (JAXBElement<STSType>) JAXBUtil.getUnmarshaller(pkgName).unmarshal(stream);
-      return element.getValue();
    }
 
    /**
