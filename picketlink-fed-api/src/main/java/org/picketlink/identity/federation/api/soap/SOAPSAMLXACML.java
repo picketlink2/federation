@@ -54,8 +54,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -129,22 +129,7 @@ public class SOAPSAMLXACML
          //Send it across the wire
          URL url = new URL(endpoint);
          
-         SOAPMessage response = connection.call(soapMessage, url);
-         
-         /*URLConnection conn = url.openConnection();
-         conn.setDoOutput(true); 
-         marshaller.marshal(soapRequest, conn.getOutputStream());
-         
-         JAXBElement<?> result = (JAXBElement<?>) unmarshaller.unmarshal(conn.getInputStream()); 
-         Envelope resultEnvelope = (Envelope) result.getValue();
-         
-         JAXBElement<?> samlResponse = (JAXBElement<?>) resultEnvelope.getBody().getAny().get(0);
-         Object response = samlResponse.getValue();
-         if(response instanceof Fault)
-         {
-            Fault fault = (Fault) response;
-            return new Result(null,fault); 
-         }*/
+         SOAPMessage response = connection.call(soapMessage, url); 
          
          NodeList nl = response.getSOAPBody().getChildNodes();
          Node node = null;
@@ -184,23 +169,14 @@ public class SOAPSAMLXACML
       {
          throw new ProcessingException(e);
       }
-   }
-   /*
-   private Envelope createEnvelope(JAXBElement<?> jaxbElement)
-   {
-      Envelope envelope = SOAPFactory.getObjectFactory().createEnvelope();
-      Body body = SOAPFactory.getObjectFactory().createBody();
-      body.getAny().add(jaxbElement); 
-      envelope.setBody(body);
-      return envelope;
-   } */
+   } 
    
    public static class Result
    {
-      private Fault fault = null; 
+      private Element fault = null; 
       private DecisionType decisionType;
       
-      Result(DecisionType decision, Fault fault)
+      Result(DecisionType decision, Element fault)
       {
          this.decisionType = decision;
          this.fault = fault;
@@ -221,7 +197,7 @@ public class SOAPSAMLXACML
          return decisionType;
       }
       
-      public Fault getFault()
+      public Element getFault()
       {
          return fault;
       }
