@@ -88,7 +88,6 @@ public class STSConfigParser extends AbstractParser
     * 
     * @see org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport#parse(javax.xml.stream.XMLEventReader)
     */
-   @Override
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -174,8 +173,7 @@ public class STSConfigParser extends AbstractParser
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport#supports(javax.xml.namespace.QName)
-    */
-   @Override
+    */ 
    public boolean supports(QName qname)
    {
       return CONFIG_NS.equals(qname.getNamespaceURI());
@@ -248,7 +246,7 @@ public class STSConfigParser extends AbstractParser
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, VALIDATING_ALIAS_ELEMENT);
-            keyProvider.getValidatingAlias().add(keyValue);
+            keyProvider.add( keyValue );
          }
          else if (AUTH_ELEMENT.equalsIgnoreCase(elementName))
          {
@@ -266,7 +264,7 @@ public class STSConfigParser extends AbstractParser
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, AUTH_ELEMENT);
-            keyProvider.getAuth().add(authProperty);
+            keyProvider.add(authProperty);
          }
          else
             throw new ParsingException("Unknown Element: " + elementName);
@@ -364,12 +362,12 @@ public class STSConfigParser extends AbstractParser
 
                   EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                   StaxParserUtil.validate(endElement, PROPERTY_ELEMENT);
-                  claimsProcessor.getProperty().add(keyValue);
+                  claimsProcessor.add(keyValue);
                }
                else
                   throw new ParsingException("Unknown Element: " + elementName);
             }
-            claimsProcessors.getClaimsProcessor().add(claimsProcessor);
+            claimsProcessors.add( claimsProcessor );
          }
          else
             throw new ParsingException("Unknown Element: " + elementName);
@@ -475,12 +473,12 @@ public class STSConfigParser extends AbstractParser
 
                   EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                   StaxParserUtil.validate(endElement, PROPERTY_ELEMENT);
-                  tokenProvider.getProperty().add(keyValue);
+                  tokenProvider.add(keyValue);
                }
                else
                   throw new ParsingException("Unknown Element: " + elementName);
             }
-            tokenProviders.getTokenProvider().add(tokenProvider);
+            tokenProviders.add( tokenProvider );
          }
          else
             throw new ParsingException("Unknown Element: " + elementName);
@@ -547,7 +545,7 @@ public class STSConfigParser extends AbstractParser
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, SERVICE_PROVIDER_ELEMENT);
-            serviceProviders.getServiceProvider().add(serviceProvider);
+            serviceProviders.add(serviceProvider);
          }
          else
             throw new ParsingException("Unknown Element: " + elementName);

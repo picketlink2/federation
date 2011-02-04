@@ -21,15 +21,16 @@
  */
 package org.picketlink.test.identity.federation.core.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStream;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -43,7 +44,8 @@ import org.picketlink.identity.federation.core.config.TokenProvidersType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.handler.config.Handler;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
+import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 
 /**
  * Unit Test the various config
@@ -51,18 +53,19 @@ import org.picketlink.identity.federation.core.util.JAXBUtil;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 21, 2009
  */
-public class ConfigUnitTestCase extends TestCase
+public class ConfigUnitTestCase 
 {
    String config = "config/test-config-";
 
-   @SuppressWarnings("unchecked")
+   @Test
    public void test01() throws Exception
    {
       Object object = this.unmarshall(config + "1.xml");
       assertNotNull("IDP is not null", object);
-      assertTrue(object instanceof JAXBElement);
+      /*assertTrue(object instanceof JAXBElement);
 
-      IDPType idp = ((JAXBElement<IDPType>) object).getValue();
+      IDPType idp = ((JAXBElement<IDPType>) object).getValue();*/
+      IDPType idp  = (IDPType) object;
       assertEquals("300000", 300000L, idp.getAssertionValidity());
       assertEquals("org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator", idp.getRoleGenerator());
 
@@ -73,14 +76,13 @@ public class ConfigUnitTestCase extends TestCase
       assertTrue("jboss.com trusted", domains.indexOf("jboss.com") > -1);
    }
 
-   @SuppressWarnings("unchecked")
+   @Test
    public void test02() throws Exception
    {
       Object object = this.unmarshall(config + "2.xml");
-      assertNotNull("IDP is not null", object);
-      assertTrue(object instanceof JAXBElement);
+      assertNotNull("IDP is not null", object); 
 
-      IDPType idp = ((JAXBElement<IDPType>) object).getValue();
+      IDPType idp = (IDPType) object;
       assertEquals("20000", 20000L, idp.getAssertionValidity());
       assertEquals("somefqn", idp.getRoleGenerator());
       assertTrue(idp.isEncrypt());
@@ -115,14 +117,13 @@ public class ConfigUnitTestCase extends TestCase
       assertTrue("jboss.com trusted", domains.indexOf("jboss.com") > -1);
    }
 
-   @SuppressWarnings("unchecked")
+   @Test
    public void test03() throws Exception
    {
       Object object = this.unmarshall(config + "3.xml");
-      assertNotNull("SP is null", object);
-      assertTrue(object instanceof JAXBElement);
+      assertNotNull("SP is null", object); 
 
-      SPType sp = ((JAXBElement<SPType>) object).getValue();
+      SPType sp = (SPType) object;
       assertEquals("http://localhost:8080/idp", sp.getIdentityURL());
       assertEquals("http://localhost:8080/sales", sp.getServiceURL());
       assertEquals( CanonicalizationMethod.EXCLUSIVE , sp.getCanonicalizationMethod() );
@@ -135,14 +136,19 @@ public class ConfigUnitTestCase extends TestCase
     * 
     * @throws Exception if an error occurs while running the test.
     */
-   @SuppressWarnings("unchecked")
+   @Test
    public void test04() throws Exception
    {
-      Object object = this.unmarshall(this.config + "4.xml");
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream is = tcl.getResourceAsStream( this.config + "4.xml" );
+      assertNotNull("Inputstream not null for config file:" + this.config + "4.xml", is);
+      
+      STSConfigParser parser = new STSConfigParser();
+      
+      Object object = parser.parse(is);
       assertNotNull("Found a null STS configuration", object);
-      assertTrue("Unexpected configuration type", object instanceof JAXBElement);
 
-      STSType stsType = ((JAXBElement<STSType>) object).getValue();
+      STSType stsType = (STSType) object;
       // general STS configurations.
       assertEquals("Unexpected STS name", "Test STS", stsType.getSTSName());
       assertEquals("Unexpected token timeout value", 7200, stsType.getTokenTimeout());
@@ -175,13 +181,10 @@ public class ConfigUnitTestCase extends TestCase
       assertEquals("Unexpected token type", "specialToken", serviceProvider.getTokenType());
    }
    
-   @SuppressWarnings("unchecked")
+   @Test
    public void test05() throws Exception
-   {
-      JAXBElement<Handlers> handlersJaxb = (JAXBElement<Handlers>) this.unmarshall(config + "5.xml"); 
-      assertNotNull("Handlers not null", handlersJaxb); 
-
-      Handlers handlers = handlersJaxb.getValue();
+   {  
+      Handlers handlers = (Handlers) this.unmarshall(config + "5.xml");
       List<Handler> handlerList = handlers.getHandler();
       assertEquals("1 handler",1, handlerList.size());
       
@@ -199,17 +202,21 @@ public class ConfigUnitTestCase extends TestCase
 
    private Object unmarshall(String configFile) throws Exception
    {
-      String[] schemas = new String[] { "schema/config/picketlink-fed.xsd",
-            "schema/config/picketlink-fed-handler.xsd"};
+      
+      /*String[] schemas = new String[] { "schema/config/picketlink-fed.xsd",
+            "schema/config/picketlink-fed-handler.xsd"};*/
 
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(configFile);
       assertNotNull("Inputstream not null for config file:" + configFile, is);
+      
+      SAMLConfigParser parser = new SAMLConfigParser();
+      return parser.parse( is );
 
-      String[] pkgNames = new String[] {"org.picketlink.identity.federation.core.config",
+     /* String[] pkgNames = new String[] {"org.picketlink.identity.federation.core.config",
                                         "org.picketlink.identity.federation.core.handler.config"};
       Unmarshaller un = JAXBUtil.getValidatingUnmarshaller(pkgNames,
             schemas);
-      return un.unmarshal(is);
+      return un.unmarshal(is);*/
    }
 }

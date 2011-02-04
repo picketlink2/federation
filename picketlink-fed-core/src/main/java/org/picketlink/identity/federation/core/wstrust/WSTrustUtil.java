@@ -289,11 +289,13 @@ public class WSTrustUtil
     */
    public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream) throws JAXBException
    {
-      String pkgName = "org.picketlink.identity.federation.core.config";
+      throw new RuntimeException();
+      
+      /*String pkgName = "org.picketlink.identity.federation.core.config";
       Marshaller marshaller = JAXBUtil.getMarshaller(pkgName);
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       org.picketlink.identity.federation.core.config.ObjectFactory objectFactory = new org.picketlink.identity.federation.core.config.ObjectFactory();
-      marshaller.marshal(objectFactory.createPicketLinkSTS(stsConfiguration), outputStream);
+      marshaller.marshal(objectFactory.createPicketLinkSTS(stsConfiguration), outputStream);*/
    }
 
    /**
