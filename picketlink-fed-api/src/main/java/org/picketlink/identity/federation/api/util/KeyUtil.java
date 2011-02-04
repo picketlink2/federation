@@ -29,15 +29,12 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.util.JAXBUtil; 
 import org.w3c.dom.Element;
 
 /**
@@ -97,26 +94,6 @@ public class KeyUtil
          throw new RuntimeException("NYI");
       
       return DocumentUtil.getDocument(builder.toString()).getDocumentElement(); 
-   }
-    
-   /**
-    * Get the Unmarshaller for the W3 XMLDSIG
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Unmarshaller getUnmarshaller() throws JAXBException  
-   {
-      return JAXBUtil.getUnmarshaller("org.picketlink.identity.xmlsec.w3.xmldsig");
-   }
-   
-   /**
-    * Get the marshaller for the W3 XMLDSig
-    * @return 
-    * @throws JAXBException 
-    */
-   public static Marshaller getMarshaller() throws JAXBException 
-   {
-      return JAXBUtil.getMarshaller("org.picketlink.identity.xmlsec.w3.xmldsig");
    }
    
    /**

@@ -21,19 +21,13 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import java.io.IOException;
 import java.io.InputStream;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
-import org.xml.sax.SAXException;
+import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
 
 /**
  * Deals with Configuration
@@ -46,22 +40,22 @@ public class ConfigurationUtil
     * Get the IDP Configuration
     * from the passed configuration
     * @param is
-    * @return
-    * @throws JAXBException
-    * @throws SAXException
-    * @throws IOException
-    */
-   @SuppressWarnings("unchecked")
-   public static IDPType getIDPConfiguration(InputStream is) throws JAXBException, SAXException, IOException  
+    * @return 
+    * @throws ParsingException 
+    */ 
+   public static IDPType getIDPConfiguration(InputStream is) throws ParsingException  
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
-      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
+      /*String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
       
       Unmarshaller un = getUnmarshaller(schema);
       
       JAXBElement<IDPType> jaxbSp =  (JAXBElement<IDPType>) un.unmarshal(is);
-      return jaxbSp.getValue(); 
+      return jaxbSp.getValue(); */
+      
+      SAMLConfigParser parser = new SAMLConfigParser();
+      return (IDPType) parser.parse(is);
    }
 
    
@@ -69,60 +63,40 @@ public class ConfigurationUtil
     * Get the SP Configuration from the
     * passed inputstream
     * @param is
-    * @return
-    * @throws JAXBException
-    * @throws SAXException
-    * @throws IOException
-    */
-   @SuppressWarnings("unchecked")
-   public static SPType getSPConfiguration(InputStream is) throws JAXBException, SAXException, IOException  
+    * @return 
+    * @throws ParsingException 
+    */ 
+   public static SPType getSPConfiguration(InputStream is) throws ParsingException  
    {
       if(is == null)
          throw new IllegalArgumentException("inputstream is null");
+      /*
       String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
       
       Unmarshaller un = getUnmarshaller(schema);
       
       JAXBElement<SPType> jaxbSp =  (JAXBElement<SPType>) un.unmarshal(is);
       return jaxbSp.getValue(); 
+      */
+      return (SPType) (new SAMLConfigParser()).parse(is);
    }
    
    /**
     * Get the Handlers from the configuration
     * @param is
-    * @return
-    * @throws JAXBException
-    * @throws SAXException
-    * @throws IOException
+    * @return 
+    * @throws ParsingException 
     */
-   @SuppressWarnings("unchecked")
-   public static Handlers getHandlers(InputStream is) throws JAXBException, SAXException, IOException
+   public static Handlers getHandlers(InputStream is) throws ParsingException
    {
       if(is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException("inputstream is null");/*
       String[] schemas = new String[] { PicketLinkFederationConstants.SCHEMA_IDFED,
     		  PicketLinkFederationConstants.SCHEMA_IDFED_HANDLER};
 
       Unmarshaller un = getUnmarshaller(schemas);
       JAXBElement<Handlers> handlers = (JAXBElement<Handlers>) un.unmarshal(is);
-      return handlers.getValue(); 
-   }
-   
-
-   private static Unmarshaller getUnmarshaller(String... schema) throws JAXBException, SAXException, IOException
-   {
-      String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-      boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
-      
-      String[] pkgName =  new String[] { IDPType.class.getPackage().getName(),
-            Handlers.class.getPackage().getName()    
-      } ; 
-      
-      Unmarshaller un = null;
-      if(validate)
-         un = JAXBUtil.getValidatingUnmarshaller(pkgName, schema);
-      else
-         un = JAXBUtil.getUnmarshaller(pkgName);
-      return un;
+      return handlers.getValue(); */
+      return (Handlers) (new SAMLConfigParser()).parse(is);
    }
 }
