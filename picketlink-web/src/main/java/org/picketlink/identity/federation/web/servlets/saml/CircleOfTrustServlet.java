@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBException;
 
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
@@ -147,7 +146,7 @@ public class CircleOfTrustServlet extends HttpServlet
    }
     
    private void addIDP(HttpServletRequest request, HttpServletResponse response) 
-   throws IOException, JAXBException
+   throws IOException
    {
       String spName = request.getParameter("spname");
       String idpName = request.getParameter("idpname");
@@ -179,7 +178,7 @@ public class CircleOfTrustServlet extends HttpServlet
    }
    
    private void addSP(HttpServletRequest request, HttpServletResponse response) 
-   throws JAXBException, IOException
+   throws IOException
    {
       String idpName = request.getParameter("idpname");
       String spName = request.getParameter("spname");
@@ -209,7 +208,7 @@ public class CircleOfTrustServlet extends HttpServlet
    }
 
 
-   private EntityDescriptorType getMetaData(String metadataURL) throws JAXBException, IOException
+   private EntityDescriptorType getMetaData(String metadataURL) throws IOException
    {
       throw new RuntimeException();
       

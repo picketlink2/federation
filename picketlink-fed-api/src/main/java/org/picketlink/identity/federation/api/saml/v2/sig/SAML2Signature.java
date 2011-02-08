@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
-
-import javax.xml.bind.JAXBException;
+ 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
@@ -87,14 +86,13 @@ public class SAML2Signature
     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
     * @return 
     * @throws ParserConfigurationException 
-    * @throws JAXBException 
     * @throws IOException 
     * @throws SAXException 
     * @throws XMLSignatureException 
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException, JAXBException, ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
+   public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException, ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
    {
       SAML2Request saml2Request = new SAML2Request();
       Document doc = saml2Request.convert(request);
@@ -115,13 +113,12 @@ public class SAML2Signature
     * @param digestMethod (Example: DigestMethod.SHA1)
     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
     * @return 
-    * @throws ParserConfigurationException 
-    * @throws JAXBException 
+    * @throws ParserConfigurationException  
     * @throws XMLSignatureException 
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(ResponseType response,KeyPair keypair) throws JAXBException, ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
+   public Document sign(ResponseType response,KeyPair keypair) throws ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
    {
       SAML2Response saml2Request = new SAML2Response();
       Document doc = saml2Request.convert(response);
@@ -137,15 +134,14 @@ public class SAML2Signature
     * @param digestMethod (Example: DigestMethod.SHA1)
     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
     * @return 
-    * @throws ParserConfigurationException 
-    * @throws JAXBException 
+    * @throws ParserConfigurationException  
     * @throws XMLSignatureException 
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
    public Document sign(Document doc,
          String referenceID, 
-         KeyPair keypair) throws JAXBException, 
+         KeyPair keypair) throws 
          ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
    {  
       String referenceURI = "#" + referenceID;
@@ -163,8 +159,7 @@ public class SAML2Signature
     * @param keypair
     * @param referenceURI
     * @return 
-    * @throws ParserConfigurationException 
-    * @throws JAXBException 
+    * @throws ParserConfigurationException  
     * @throws TransformerException 
     * @throws TransformerFactoryConfigurationError 
     * @throws XPathException 
@@ -175,7 +170,7 @@ public class SAML2Signature
    public Document sign(ResponseType response,
          String idValueOfAssertion,
          KeyPair keypair, 
-         String referenceURI) throws JAXBException, ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
+         String referenceURI) throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
       SAML2Response saml2Response = new SAML2Response();
       Document doc = saml2Response.convert(response);
@@ -190,7 +185,6 @@ public class SAML2Signature
     * @param keypair
     * @param referenceURI
     * @return
-    * @throws JAXBException
     * @throws ParserConfigurationException
     * @throws XPathException
     * @throws TransformerFactoryConfigurationError
@@ -202,7 +196,7 @@ public class SAML2Signature
    public Document sign(Document doc,
          String idValueOfAssertion,
          KeyPair keypair, 
-         String referenceURI) throws JAXBException, ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
+         String referenceURI) throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
 
       Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, 

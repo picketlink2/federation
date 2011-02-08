@@ -28,11 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+ 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -48,10 +44,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
@@ -143,25 +137,14 @@ public class SAML2Request
    {
       if(is == null)
          throw new IllegalStateException("InputStream is null"); 
-      
+
       Document samlDocument =  DocumentUtil.getDocument(is); 
- 
-      /*try
-      {*/
-         /*Binder<Node> binder = getBinder();
-         JAXBElement<SAML2Object> jaxbAuthnRequestType = (JAXBElement<SAML2Object>) binder.unmarshal(samlDocument);
-         SAML2Object requestType = jaxbAuthnRequestType.getValue();*/
-         
-         SAMLParser samlParser = new SAMLParser();
-         SAML2Object requestType = (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlDocument ));
-         
-         samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
-         return requestType;
-      /*}
-      catch (JAXBException e)
-      {
-         throw new ParsingException(e);
-      }*/
+
+      SAMLParser samlParser = new SAMLParser();
+      SAML2Object requestType = (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlDocument ));
+
+      samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
+      return requestType; 
    }
    
    /**
@@ -184,9 +167,6 @@ public class SAML2Request
       SAMLParser samlParser = new SAMLParser();
       RequestAbstractType requestType = (RequestAbstractType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
 
-      /*Binder<Node> binder = getBinder();
-         JAXBElement<RequestAbstractType> jaxbAuthnRequestType = (JAXBElement<RequestAbstractType>) binder.unmarshal(samlDocument);
-         RequestAbstractType requestType = jaxbAuthnRequestType.getValue();*/
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
       return requestType; 
    }
@@ -203,20 +183,14 @@ public class SAML2Request
    public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException, ParsingException 
    {
       if(is == null)
-         throw new IllegalStateException("InputStream is null");
-      //String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-      //boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
+         throw new IllegalStateException("InputStream is null"); 
       
       Document samlDocument = DocumentUtil.getDocument( is );
 
       SAMLParser samlParser = new SAMLParser();
       AuthnRequestType requestType = (AuthnRequestType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
-      return requestType; 
-      
-      /*Unmarshaller un = JBossSAMLAuthnRequestFactory.getValidatingUnmarshaller(validate);
-      JAXBElement<AuthnRequestType> jaxbAuthnRequestType = (JAXBElement<AuthnRequestType>) un.unmarshal(is);
-      return jaxbAuthnRequestType.getValue();*/  
+      return requestType;
    } 
    
 
@@ -250,48 +224,6 @@ public class SAML2Request
    }
    
    /**
-    * Parse an XACML Authorization Decision Query from an xml file
-    * @param resourceName
-    * @return
-    * @throws JAXBException 
-    */
-   public XACMLAuthzDecisionQueryType parseXACMLDecisionQuery(String resourceName) throws JAXBException 
-   {
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(resourceName);
-      return this.parseXACMLDecisionQuery(is);
-   }
-   
-   /**
-    * XACMLAuthorizationDecisionQuery from an input stream
-    * @param is The InputStream where the xacml query exists
-    * @return
-    * @throws JAXBException  
-    */
-   @SuppressWarnings("unchecked")
-   public XACMLAuthzDecisionQueryType parseXACMLDecisionQuery(InputStream is) throws JAXBException 
-   {
-      if(is == null)
-         throw new IllegalArgumentException("Inputstream is null");
-      
-      String samlPath = "org.picketlink.identity.federation.saml.v2.protocol";
-      String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
-      String xsAssert = "org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion";
-      String xsProto = "org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol";
-      String path = samlPath + ":" + xacmlPath + ":" + xsAssert + ":" + xsProto;
-      
-      JAXBContext jaxb = JAXBUtil.getJAXBContext(path);
-      Unmarshaller un = jaxb.createUnmarshaller();
-      
-      JAXBElement<RequestAbstractType> jaxbRequestType = (JAXBElement<RequestAbstractType>) un.unmarshal(is);
-      RequestAbstractType req = jaxbRequestType.getValue();
-      if(req instanceof XACMLAuthzDecisionQueryType == false)
-         throw new IllegalStateException("Not of type XACMLAuthzDecisionQueryType");
-      
-      return (XACMLAuthzDecisionQueryType) req;
-   }
-   
-   /**
     * Return the DOM object
     * @param rat
     * @return
@@ -299,9 +231,6 @@ public class SAML2Request
     * @throws ParsingException 
     * @throws ConfigurationException 
     */
-   /*public Document convert(RequestAbstractType rat) 
-   throws SAXException, IOException, JAXBException, ConfigurationException */
-   
    public Document convert(RequestAbstractType rat) 
    throws ProcessingException, ConfigurationException, ParsingException 
    {
@@ -317,21 +246,13 @@ public class SAML2Request
          writer.write( (LogoutRequestType) rat);
       }
       
-      return DocumentUtil.getDocument( new String( bos.toByteArray() )); 
-         
-      /*JAXBContext jaxb = JAXBUtil.getJAXBContext(RequestAbstractType.class);
-      Binder<Node> binder = jaxb.createBinder();
-      
-      Document doc = DocumentUtil.createDocument();
-      binder.marshal(JAXBElementMappingUtil.get(rat), doc);
-      return doc;*/ 
+      return DocumentUtil.getDocument( new String( bos.toByteArray() ));  
    }
    
    /**
     * Convert a SAML2 Response into a Document
     * @param responseType
-    * @return
-    * @throws JAXBException
+    * @return 
     * @throws ParserConfigurationException
     */
    public Document convert( ResponseType responseType) throws ProcessingException, ParsingException, ConfigurationException
@@ -347,19 +268,11 @@ public class SAML2Request
    /**
     * Marshall the AuthnRequestType to an output stream
     * @param requestType
-    * @param os
-    * @throws JAXBException 
+    * @param os 
     * @throws SAXException 
     */
    public void marshall(RequestAbstractType requestType, OutputStream os) throws ProcessingException 
-   {
-      /*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-      boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
-      
-      Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);
-      JAXBElement<?> j = JAXBElementMappingUtil.get(requestType);
-      marshaller.marshal(j, os);
-      */
+   { 
       SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter(os));
       if( requestType instanceof AuthnRequestType )
       {
@@ -376,19 +289,11 @@ public class SAML2Request
    /**
     * Marshall the AuthnRequestType to a writer
     * @param requestType
-    * @param writer
-    * @throws JAXBException 
+    * @param writer 
     * @throws SAXException 
     */
    public void marshall(RequestAbstractType requestType, Writer writer) throws ProcessingException  
-   {
-      /*String key = PicketLinkFederationConstants.JAXB_SCHEMA_VALIDATION;
-      boolean validate = Boolean.parseBoolean(SecurityActions.getSystemProperty(key, "false"));
-      
-      Marshaller marshaller = JBossSAMLAuthnRequestFactory.getValidatingMarshaller(validate);
-      JAXBElement<?> j = JAXBElementMappingUtil.get(requestType);
-      marshaller.marshal(j, writer);*/
-      
+   {  
       SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter( writer ));
       if( requestType instanceof AuthnRequestType )
       {

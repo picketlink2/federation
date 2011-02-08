@@ -281,12 +281,6 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          //Create a SOAP Envelope to hold the SAML response
          envelope = this.createEnvelope(jaxbResponse); */
       }
-      /*catch (JAXBException e)r
-      {
-         String id = IDGenerator.create();
-         log.error(id + "::Exception parsing SOAP:", e);  
-         envelope = this.createEnvelope(this.createFault("Parsing Error. Reference::" + id));
-      } */
       catch ( Exception e )
       { 
          e.printStackTrace();

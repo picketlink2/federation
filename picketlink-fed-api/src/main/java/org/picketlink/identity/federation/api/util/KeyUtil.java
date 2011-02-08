@@ -28,8 +28,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.xml.bind.JAXBException;
-
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -60,8 +58,7 @@ public class KeyUtil
    /**
     * Given a certificate, build a keyinfo type
     * @param certificate
-    * @return   
-    * @throws JAXBException 
+    * @return 
     * @throws CertificateException 
     * @throws ProcessingException 
     * @throws ParsingException 

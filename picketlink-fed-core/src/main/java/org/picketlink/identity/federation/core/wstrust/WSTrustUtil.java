@@ -37,8 +37,6 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
@@ -47,7 +45,6 @@ import org.apache.xml.security.encryption.XMLCipher;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -78,7 +75,6 @@ import org.w3c.dom.Element;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-@SuppressWarnings("unchecked")
 public class WSTrustUtil
 {
 
@@ -284,10 +280,9 @@ public class WSTrustUtil
     *   Marshall the {@code STSType} to an outputstream
     * </p>
     * @param stsConfiguration
-    * @param outputStream
-    * @throws JAXBException
+    * @param outputStream 
     */
-   public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream) throws JAXBException
+   public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream)
    {
       throw new RuntimeException();
       

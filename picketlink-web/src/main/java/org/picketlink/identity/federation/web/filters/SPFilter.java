@@ -50,7 +50,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -591,7 +590,7 @@ public class SPFilter implements Filter
    
    protected void sendRequestToIDP(AuthnRequestType authnRequest, String relayState, 
          HttpServletResponse response)
-   throws IOException, SAXException, JAXBException,GeneralSecurityException
+   throws IOException, SAXException, GeneralSecurityException
    {
       SAML2Request saml2Request = new SAML2Request();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -607,7 +606,7 @@ public class SPFilter implements Filter
          String destination,
          HttpServletResponse response,
          boolean request)
-   throws IOException, SAXException, JAXBException,GeneralSecurityException
+   throws IOException, SAXException, GeneralSecurityException
    {
       if(!ignoreSignatures)
       {

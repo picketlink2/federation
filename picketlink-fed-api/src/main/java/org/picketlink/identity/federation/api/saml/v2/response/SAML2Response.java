@@ -32,7 +32,6 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.Arrays;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -358,7 +357,6 @@ public class SAML2Response
     * @return
     * @throws ParsingException 
     * @throws ConfigurationException 
-    * @throws JAXBException
     * @throws ParserConfigurationException
     */ 
    public Document convert( StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException

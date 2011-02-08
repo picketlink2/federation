@@ -31,8 +31,6 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import javax.xml.bind.JAXBException;
-
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -60,13 +58,12 @@ public class RedirectBindingSignatureUtil
     * @param relayState
     * @param signingKey
     * @return
-    * @throws JAXBException 
     * @throws SAXException  
     * @throws IOException 
     * @throws GeneralSecurityException 
     */
    public static String getSAMLRequestURLWithSignature(AuthnRequestType authRequest, String relayState,
-         PrivateKey signingKey) throws SAXException, JAXBException, IOException, GeneralSecurityException
+         PrivateKey signingKey) throws SAXException, IOException, GeneralSecurityException
    {
       SAML2Request saml2Request = new SAML2Request();
        
@@ -94,11 +91,10 @@ public class RedirectBindingSignatureUtil
     * @param signingKey
     * @return   
     * @throws IOException 
-    * @throws GeneralSecurityException 
-    * @throws JAXBException 
+    * @throws GeneralSecurityException
     */
    public static String getSAMLResponseURLWithSignature(ResponseType responseType, String relayState,
-         PrivateKey signingKey) throws IOException, GeneralSecurityException, JAXBException
+         PrivateKey signingKey) throws IOException, GeneralSecurityException
    {
       SAML2Response saml2Response = new SAML2Response();
        

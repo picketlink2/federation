@@ -315,18 +315,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          {
             throw new ProcessingException( e );
          }
-         /*catch(JAXBException pe)
-         {
-            throw new ProcessingException(pe);
-         }
-         catch(IOException pe)
-         {
-            throw new ProcessingException(pe);
-         }
-         catch(SAXException pe)
-         {
-            throw new ProcessingException(pe);
-         }*/
+
          return;
       }
 

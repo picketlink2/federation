@@ -182,23 +182,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       catch (ParsingException e)
       {
          throw new RuntimeException( e );
-      }/*
-      Unmarshaller un;
-      try
-      {
-         
-         un = JAXBUtil.getUnmarshaller(pkgName);
-         JAXBElement<EntityDescriptorType> je = 
-            (JAXBElement<EntityDescriptorType>) un.unmarshal(persistedFile);
-        return je.getValue();
       }
-      catch (JAXBException e)
-      {
-         IOException ioe =new IOException(e.getLocalizedMessage());
-         ioe.initCause(e);
-         throw ioe;
-      }*/
-      
    }
 
    /**  
