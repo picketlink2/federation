@@ -34,8 +34,10 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
@@ -45,12 +47,17 @@ import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
+import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
 
 /**
@@ -143,7 +150,12 @@ import org.w3c.dom.Element;
  *                     from "Roles".
  * </p>
  * 
+ * <p>cache.invalidation:  set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.</p>
+ *  <p>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
+ *  if the cache.invalidation option is configured.</p>
+ * 
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
+ * @author Anil.Saldhana@redhat.com
  */
 public abstract class AbstractSTSLoginModule implements LoginModule
 {
@@ -225,6 +237,10 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     * Name of the group principal. If unconfigured, will be "null"
     */
    protected String groupPrincipalName = null; 
+   
+   protected boolean enableCacheInvalidation = false;
+   
+   protected String securityDomain = null;
 
    /**
     * Initialized this login module. Simple stores the passed in fields and
@@ -261,6 +277,15 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       final String gpPrincipalName = (String) options.get( GROUP_PRINCIPAL_NAME );
       if( gpPrincipalName != null && gpPrincipalName.length() > 0 )
          groupPrincipalName = gpPrincipalName;
+      
+      String cacheInvalidation = (String) options.get( "cache.invalidation" );
+      if( cacheInvalidation != null && !cacheInvalidation.isEmpty() )
+      {
+         enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
+         securityDomain = (String) options.get( SecurityConstants.SECURITY_DOMAIN_OPTION );
+         if( securityDomain == null || securityDomain.isEmpty() )
+            throw new RuntimeException( "Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION );
+      }
    }
 
    /**
@@ -573,6 +598,30 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          principalMappingContext.performMapping(contextMap, null);
          Principal principal = principalMappingContext.getMappingResult().getMappedObject();
          subject.getPrincipals().add(principal);
+         
+         //If the user has configured cache invalidation of subject based on saml token expiry
+         if( enableCacheInvalidation )
+         {
+            TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
+            AssertionType assertion = null;
+            try
+            {
+               assertion = SAMLUtil.fromElement( samlToken );
+            }
+            catch ( Exception e)
+            {
+               throw new RuntimeException( e );
+            } 
+            XMLGregorianCalendar expiry = AssertionUtil.getExpiration( assertion );
+            if( expiry != null )
+            {
+               cacheExpiry.register( securityDomain, expiry.toGregorianCalendar().getTime() , principal );
+            } 
+            else
+            {
+               log.warn( "SAML Assertion has been found to have no expiration: ID = " + assertion.getID() );
+            }
+         }
       }
 
       if (roleMappingContext != null)

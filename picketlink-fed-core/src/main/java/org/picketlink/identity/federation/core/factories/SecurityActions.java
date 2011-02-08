@@ -19,11 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.bindings.jboss.auth;
+package org.picketlink.identity.federation.core.factories;
 
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextFactory;
@@ -45,5 +49,17 @@ class SecurityActions
             return SecurityContextFactory.createSecurityContext("CLIENT");
          }
       });
+   }
+   
+   static MBeanServer getJBossMBeanServer()
+   {
+      return AccessController.doPrivileged( new PrivilegedAction<MBeanServer>() 
+      { 
+         public MBeanServer run()
+         { 
+            return MBeanServerFactory.findMBeanServer( "jboss").get( 0 );
+         }
+      });
+      
    }
 }

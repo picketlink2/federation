@@ -24,8 +24,6 @@ package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import javax.xml.bind.JAXBException;
-
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -100,12 +98,11 @@ public class SAMLUtil
     * @param assertionElement
     *           the {@code Element} that contains the marshaled SAMLV2.0 assertion.
     * @return a reference to the unmarshaled {@code AssertionType} instance.
-    * @throws JAXBException if an error occurs while unmarshalling the document.
     * @throws ConfigurationException 
     * @throws ProcessingException 
     * @throws ParsingException 
     */ 
-   public static AssertionType fromElement(Element assertionElement) throws JAXBException, ProcessingException, ConfigurationException, ParsingException
+   public static AssertionType fromElement(Element assertionElement) throws ProcessingException, ConfigurationException, ParsingException
    {
       String assertionAsString = DocumentUtil.getDOMElementAsString(assertionElement);
       

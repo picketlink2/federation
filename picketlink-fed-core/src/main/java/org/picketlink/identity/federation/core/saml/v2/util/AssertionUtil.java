@@ -161,4 +161,21 @@ public class AssertionUtil
       //TODO: if conditions do not exist, assume the assertion to be everlasting?
       return false; 
    } 
+   
+   /**
+    * Extract the expiration time from an {@link AssertionType}
+    * @param assertion
+    * @return
+    */
+   public static XMLGregorianCalendar getExpiration( AssertionType assertion )
+   {
+      XMLGregorianCalendar expiry = null;
+      
+      ConditionsType conditionsType = assertion.getConditions();
+      if(conditionsType != null)
+      {
+         expiry = conditionsType.getNotOnOrAfter();
+      }
+      return expiry; 
+   }
 }

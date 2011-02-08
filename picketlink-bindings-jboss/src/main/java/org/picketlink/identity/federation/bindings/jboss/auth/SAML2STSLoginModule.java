@@ -32,11 +32,16 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.jboss.security.SecurityConstants;
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
+import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
@@ -59,10 +64,15 @@ import org.w3c.dom.Element;
  * and included in the {@code Group} returned by the {@code getRoleSets} method.
  * </p>
  * <p>
- * This module defines one module option:
+ * This module defines module options:
  * <li>
  *  <ul>configFile - this property identifies the properties file that will be used to establish communication with
  *  the external security token service.
+ *  </ul>
+ *  <ul>cache.invalidation:  set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
+ *  </ul>
+ *  <ul>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
+ *  if the cache.invalidation option is configured.
  *  </ul>
  * </li>
  * An example of a {@code configFile} can be seen bellow:
@@ -82,6 +92,7 @@ import org.w3c.dom.Element;
  * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
+ * @author Anil.Saldhana@redhat.com
  */
 @SuppressWarnings("unchecked")
 public class SAML2STSLoginModule extends AbstractServerLoginModule
@@ -95,6 +106,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected AssertionType assertion;
 
+   protected boolean enableCacheInvalidation = false;
+   
+   protected String securityDomain = null;
+   
    /*
     * (non-Javadoc)
     * @see org.jboss.security.auth.spi.AbstractServerLoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
@@ -106,6 +121,16 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       super.initialize(subject, callbackHandler, sharedState, options);
       // check if the options contain the name of the STS configuration file.
       this.stsConfigurationFile = (String) options.get("configFile");
+      
+      String cacheInvalidation = (String) options.get( "cache.invalidation" );
+      if( cacheInvalidation != null && !cacheInvalidation.isEmpty() )
+      {
+         enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
+         securityDomain = (String) options.get( SecurityConstants.SECURITY_DOMAIN_OPTION );
+         if( securityDomain == null || securityDomain.isEmpty() )
+            throw new RuntimeException( "Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION );
+      }
+      
    }
 
    /*
@@ -191,17 +216,22 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             {
                NameIDType nameID = (NameIDType) baseID;
                this.principal = new PicketLinkPrincipal(nameID.getValue()); 
-            }
                
-            /*for (JAXBElement<?> element : subject.getContent())
-            {
-               if (element.getDeclaredType().equals(NameIDType.class))
+               //If the user has configured cache invalidation of subject based on saml token expiry
+               if( enableCacheInvalidation )
                {
-                  NameIDType nameID = (NameIDType) element.getValue();
-                  this.principal = new PicketLinkPrincipal(nameID.getValue());
-                  break;
+                  TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
+                  XMLGregorianCalendar expiry = AssertionUtil.getExpiration( assertion );
+                  if( expiry != null )
+                  {
+                     cacheExpiry.register( securityDomain, expiry.toGregorianCalendar().getTime() , principal );
+                  } 
+                  else
+                  {
+                     log.warn( "SAML Assertion has been found to have no expiration: ID = " + assertion.getID() );
+                  }
                }
-            }*/
+            }
          }
       }
       catch (Exception e)
