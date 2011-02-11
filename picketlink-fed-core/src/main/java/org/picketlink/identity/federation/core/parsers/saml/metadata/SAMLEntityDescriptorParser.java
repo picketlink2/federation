@@ -41,6 +41,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeAuthorityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeConsumingServiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactTypeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
@@ -135,6 +137,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             OrganizationType organization = parseOrganization(xmlEventReader);
             
             entityDescriptorType.setOrganization(organization); 
+         }
+         else if( JBossSAMLConstants.CONTACT_PERSON.get().equals( localPart ))
+         {
+            entityDescriptorType.addContactPerson( parseContactPerson(xmlEventReader)); 
          }
          else 
             throw new RuntimeException( "Unknown " + localPart );
@@ -477,6 +483,60 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             throw new RuntimeException( "Unknown " + localPart ); 
       }
       return org;
+   }
+   
+   private ContactType parseContactPerson( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.CONTACT_PERSON.get() );
+
+      Attribute attr = startElement.getAttributeByName( new QName( JBossSAMLConstants.CONTACT_TYPE.get() ));
+      if( attr == null )
+         throw new ParsingException( "attribute contactType required" );
+      ContactType contactType = new ContactType(ContactTypeType.fromValue( StaxParserUtil.getAttributeValue(attr)));
+      
+      while( xmlEventReader.hasNext() )
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
+            StaxParserUtil.validate( end , JBossSAMLConstants.CONTACT_PERSON.get() );
+            break;
+         }
+         
+         startElement = (StartElement) xmlEvent; 
+         String localPart = startElement.getName().getLocalPart();
+         
+         if( JBossSAMLConstants.COMPANY.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setCompany( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }  
+         else if( JBossSAMLConstants.GIVEN_NAME.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setGivenName( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }
+         else if( JBossSAMLConstants.SURNAME.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setSurName( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }
+         else if( JBossSAMLConstants.EMAIL_ADDRESS.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.addEmailAddress( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }
+         else if( JBossSAMLConstants.TELEPHONE_NUMBER.get().equals( localPart ))
+         { 
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.addTelephone( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }
+         else 
+            throw new RuntimeException( "Unknown " + localPart ); 
+      }
+      return contactType;
    }
 
    private LocalizedNameType getLocalizedName(XMLEventReader xmlEventReader, StartElement startElement)

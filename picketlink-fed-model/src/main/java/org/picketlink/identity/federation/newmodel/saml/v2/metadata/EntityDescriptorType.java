@@ -267,6 +267,20 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
    }
 
    /**
+    * Add a {@link ContactType} contact person
+    * @param ct
+    */
+   public void addContactPerson( ContactType ct )
+   {
+      contactPerson.add(ct);
+   }
+   
+   public void removeContactPerson( ContactType ct )
+   {
+      contactPerson.remove(ct);
+   }
+   
+   /**
     * Gets the value of the contactPerson property.
     * <p>
     * Objects of the following type(s) are allowed in the list

@@ -38,6 +38,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AffiliationD
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeAuthorityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeConsumingServiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AuthnAuthorityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactTypeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
@@ -115,6 +117,12 @@ public class SAMLMetadataWriter extends BaseWriter
       }
       OrganizationType organization = entityDescriptor.getOrganization();
       writeOrganization(organization);
+      
+      List<ContactType> contactPersons = entityDescriptor.getContactPerson();
+      for( ContactType contact : contactPersons )
+      {
+         write( contact );
+      }
       
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer); 
@@ -355,6 +363,63 @@ public class SAMLMetadataWriter extends BaseWriter
          StaxUtil.writeEndElement(writer);
       }
 
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+   
+   public void write( ContactType contact ) throws ProcessingException
+   { 
+      StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.CONTACT_PERSON.get(),
+            METADATA_NSURI.get());
+      
+      ContactTypeType attribs  = contact.getContactType();
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONTACT_TYPE.get(), attribs.value() );
+      
+      //Write the name
+      String company = contact.getCompany();
+      if( company != null )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.COMPANY.get(),
+               METADATA_NSURI.get());
+         StaxUtil.writeCharacters(writer, company);
+         StaxUtil.writeEndElement(writer); 
+      }
+      String givenName = contact.getGivenName();
+      if( givenName != null )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.GIVEN_NAME.get(),
+               METADATA_NSURI.get());
+         StaxUtil.writeCharacters(writer, givenName );
+         StaxUtil.writeEndElement(writer);
+      }
+      
+      String surName = contact.getSurName();
+      if( surName != null )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.SURNAME.get(),
+               METADATA_NSURI.get());
+         StaxUtil.writeCharacters(writer, surName );
+         StaxUtil.writeEndElement(writer);
+      }
+      
+      List<String> emailAddresses = contact.getEmailAddress();
+      for( String email: emailAddresses )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.EMAIL_ADDRESS.get(),
+               METADATA_NSURI.get());
+         StaxUtil.writeCharacters(writer, email );
+         StaxUtil.writeEndElement(writer);
+      }
+      
+      List<String> tels = contact.getTelephoneNumber();
+      for( String telephone: tels )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.TELEPHONE_NUMBER.get(),
+               METADATA_NSURI.get());
+         StaxUtil.writeCharacters(writer, telephone );
+         StaxUtil.writeEndElement(writer);
+      }
+      
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }

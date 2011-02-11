@@ -21,20 +21,25 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
 
 /**
  * Unit test the SAML metadata parsing
@@ -61,5 +66,28 @@ public class SAMLMetadataParsingUnitTestCase
       X509Certificate cert = SAMLMetadataUtil.getCertificate(keyDescriptor);
       Assert.assertNotNull(cert);
       Assert.assertEquals( "CN=test, OU=OpenSSO, O=Sun, L=Santa Clara, ST=California, C=US", cert.getIssuerDN().getName() );
+   }
+   
+   @Test
+   public void parseOrganizationAndContactPerson() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream is = 
+         tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
+      assertNotNull("Inputstream not null", is); 
+      
+      SAMLParser parser = new SAMLParser();
+      EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
+      assertNotNull( entity );
+      OrganizationType org = entity.getOrganization();
+      assertNotNull( org );
+      
+      List<ContactType> contactPersons = entity.getContactPerson();
+      assertNotNull( contactPersons );
+      assertTrue( contactPersons.size() == 1 );
+      
+      assertEquals( "technical", contactPersons.get(0).getContactType().value() );
+      assertEquals( "SAML SP Support", contactPersons.get(0).getSurName() );
+      assertEquals( "mailto:saml-support@sp.example.com", contactPersons.get(0).getEmailAddress().get(0) ); 
    }
 }

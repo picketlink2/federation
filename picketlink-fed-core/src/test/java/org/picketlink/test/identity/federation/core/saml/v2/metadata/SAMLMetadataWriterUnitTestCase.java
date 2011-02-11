@@ -62,4 +62,26 @@ public class SAMLMetadataWriterUnitTestCase
       
       System.out.println( new String( baos.toByteArray() ));
    }
+   
+   @Test
+   public void testWriteEntityDescWithContactPerson() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream is = 
+         tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
+      assertNotNull("Inputstream not null", is); 
+      
+      SAMLParser parser = new SAMLParser();
+      EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
+      assertNotNull( entity );
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      
+      XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
+      
+      //write it back
+      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
+      mdWriter.writeEntityDescriptor( entity ) ; 
+      
+      System.out.println( new String( baos.toByteArray() ));
+   }
 }
