@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AffiliationDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeAuthorityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AttributeConsumingServiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AuthnAuthorityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
@@ -44,9 +45,11 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescri
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RequestedAttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
 import org.w3c.dom.Element;
@@ -74,6 +77,14 @@ public class SAMLMetadataWriter extends BaseWriter
       StaxUtil.writeNameSpace(writer, "ds", JBossSAMLURIConstants.XMLDSIG_NSURI.get() ); 
       
       StaxUtil.writeAttribute(writer, JBossSAMLConstants.ENTITY_ID.get(), entityDescriptor.getEntityID() );
+      if( entityDescriptor.getValidUntil() != null )
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.VALID_UNTIL.get(), entityDescriptor.getValidUntil().toString() );
+      }
+      if( entityDescriptor.getID() != null )
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), entityDescriptor.getID() );
+      }
       
       List<EDTChoiceType> choiceTypes = entityDescriptor.getChoiceType();
       for( EDTChoiceType edtChoice : choiceTypes )
@@ -91,7 +102,7 @@ public class SAMLMetadataWriter extends BaseWriter
             
             SPSSODescriptorType spSSO = edtDescChoice.getSpDescriptor();
             if( spSSO != null )
-               throw new RuntimeException( "NYI" );
+               write( spSSO );
             
             AttributeAuthorityDescriptorType attribAuth = edtDescChoice.getAttribDescriptor();
             if( attribAuth != null )
@@ -102,6 +113,8 @@ public class SAMLMetadataWriter extends BaseWriter
                throw new RuntimeException( "NYI" );
          }
       }
+      OrganizationType organization = entityDescriptor.getOrganization();
+      writeOrganization(organization);
       
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer); 
@@ -111,9 +124,53 @@ public class SAMLMetadataWriter extends BaseWriter
    {
       throw new RuntimeException( "should not called" );
    }
+   
    public void write( SPSSODescriptorType spSSODescriptor ) throws ProcessingException
    {
-      throw new RuntimeException( "NYI" );
+      StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.SP_SSO_DESCRIPTOR.get(), METADATA_NSURI.get());
+      StaxUtil.writeAttribute(writer, new QName( JBossSAMLConstants.PROTOCOL_SUPPORT_ENUMERATION.get())
+      , spSSODescriptor.getProtocolSupportEnumeration().get(0) );
+
+      //Get the key descriptors
+      List<KeyDescriptorType> keyDescriptors = spSSODescriptor.getKeyDescriptor();
+      for( KeyDescriptorType keyDescriptor  :keyDescriptors )
+      { 
+         writeKeyDescriptor(keyDescriptor); 
+      }
+      
+      List<EndpointType> sloServices = spSSODescriptor.getSingleLogoutService();
+      for( EndpointType endpoint: sloServices )
+      {
+         writeSingleLogoutService(endpoint);
+      }
+      
+      
+      List<IndexedEndpointType> artifactResolutions = spSSODescriptor.getArtifactResolutionService();
+      for( IndexedEndpointType artifactResolution: artifactResolutions )
+      { 
+         writeArtifactResolutionService( artifactResolution );   
+      }
+      
+      List<String> nameIDFormats = spSSODescriptor.getNameIDFormat();
+      for( String nameIDFormat : nameIDFormats )
+      {
+         writeNameIDFormat(nameIDFormat);
+      }
+      
+      List<IndexedEndpointType> assertionConsumers = spSSODescriptor.getAssertionConsumerService();
+      for( IndexedEndpointType assertionConsumer: assertionConsumers )
+      { 
+         writeAssertionConsumerService( assertionConsumer );   
+      }
+      
+      List<AttributeConsumingServiceType> attributeConsumers = spSSODescriptor.getAttributeConsumingService();
+      for( AttributeConsumingServiceType attributeConsumer : attributeConsumers )
+      {
+         writeAttributeConsumingService(attributeConsumer);
+      }
+      
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer); 
    }
    
    public void write( IDPSSODescriptorType idpSSODescriptor ) throws ProcessingException
@@ -197,13 +254,65 @@ public class SAMLMetadataWriter extends BaseWriter
    {
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get(), METADATA_NSURI.get());
 
+      writeIndexedEndpointType(indexedEndpoint);  
+   }
+   
+   public void writeAssertionConsumerService( IndexedEndpointType indexedEndpoint ) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE.get(), METADATA_NSURI.get());
+      writeIndexedEndpointType(indexedEndpoint);      
+   }
+   
+   public void writeIndexedEndpointType( IndexedEndpointType indexedEndpoint ) throws ProcessingException
+   {
       writeEndpointType( indexedEndpoint ); 
+      if( indexedEndpoint.isIsDefault() != null )
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISDEFAULT.get(), ""+ indexedEndpoint.isIsDefault() );
+
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.INDEX.get(), ""+ indexedEndpoint.getIndex() ); 
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+   
+   public void writeAttributeConsumingService( AttributeConsumingServiceType attributeConsumer ) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE.get(), METADATA_NSURI.get());
+ 
       
-      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISDEFAULT.get(), ""+ indexedEndpoint.isIsDefault() );
-      StaxUtil.writeAttribute(writer, JBossSAMLConstants.INDEX.get(), ""+ indexedEndpoint.getIndex() );
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISDEFAULT.get(), ""+ attributeConsumer.isIsDefault() );
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.INDEX.get(), ""+ attributeConsumer.getIndex() ); 
+      
+      //Service Name 
+      List<LocalizedNameType> serviceNames = attributeConsumer.getServiceName();
+      for( LocalizedNameType serviceName: serviceNames )
+      { 
+         writeLocalizedNameType( serviceName, new QName(METADATA_NSURI.get(), JBossSAMLConstants.SERVICE_NAME.get(), 
+               METADATA_PREFIX )); 
+      }
+      
+      List<LocalizedNameType> serviceDescriptions = attributeConsumer.getServiceDescription();
+      for( LocalizedNameType serviceDescription:  serviceDescriptions )
+      { 
+         writeLocalizedNameType( serviceDescription, new QName(METADATA_NSURI.get(), JBossSAMLConstants.SERVICE_DESCRIPTION.get(), 
+               METADATA_PREFIX )); 
+      }
+      
+      List<RequestedAttributeType> requestedAttributes = attributeConsumer.getRequestedAttribute();
+      for( RequestedAttributeType requestedAttribute : requestedAttributes )
+      {
+         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get(), METADATA_NSURI.get());
+         Boolean isRequired = requestedAttribute.isIsRequired();
+         if( isRequired != null )
+         {
+            StaxUtil.writeAttribute(writer, new QName( JBossSAMLConstants.IS_REQUIRED.get()), isRequired.toString() );
+         }
+         writeAttributeTypeWithoutRootTag(requestedAttribute);
+         StaxUtil.writeEndElement(writer);   
+      }
       
       StaxUtil.writeEndElement(writer);
-      StaxUtil.flush(writer);   
+      StaxUtil.flush(writer); 
    }
    
    public void writeOrganization( OrganizationType org ) throws ProcessingException
@@ -254,6 +363,10 @@ public class SAMLMetadataWriter extends BaseWriter
    { 
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.KEY_DESCRIPTOR.get(),
             METADATA_NSURI.get());
+      
+      KeyTypes keyTypes = keyDescriptor.getUse();
+      if( keyTypes != null )
+         StaxUtil.writeAttribute(writer, new QName( JBossSAMLConstants.USE.get()), keyTypes.toString() );
       
       Element keyInfo = keyDescriptor.getKeyInfo();
       StaxUtil.writeDOMElement(writer, keyInfo);

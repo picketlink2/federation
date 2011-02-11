@@ -152,6 +152,26 @@ public class XMLTimeUtil
    }
    
    /**
+    * Given a string, get the Duration object
+    * @param timeValue
+    * @return
+    * @throws ParsingException
+    */
+   public static Duration parseAsDuration( String timeValue ) throws ParsingException
+   {
+      DatatypeFactory factory = null;
+      try
+      {
+         factory = DatatypeFactory.newInstance();
+      }
+      catch (DatatypeConfigurationException e)
+      {
+         throw new ParsingException( e );
+      }
+      return factory.newDuration( Long.parseLong(timeValue));
+   }
+   
+   /**
     * Given a string representing xml time, parse into {@code XMLGregorianCalendar}
     * @param timeString
     * @return

@@ -107,8 +107,11 @@ public class SAMLParserUtil
       if( name == null )
          throw new RuntimeException( "Required attribute Name in Attribute" );
       attributeType = new AttributeType( StaxParserUtil.getAttributeValue( name ));
+      
+      parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.ATTRIBUTE.get(), attributeType);
+      
 
-      //Look for X500 Encoding
+      /*//Look for X500 Encoding
       QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
             JBossSAMLConstants.ENCODING.get(), JBossSAMLURIConstants.X500_PREFIX.get() );
       Attribute x500EncodingAttr = startElement.getAttributeByName( x500EncodingName );
@@ -150,9 +153,61 @@ public class SAMLParserUtil
             attributeType.addAttributeValue( attributeValue ); 
          }
          else throw new RuntimeException( "Unknown tag:" + tag );
-      }
+      }*/
       
       return attributeType; 
+   }
+   
+   /**
+    * Parse an {@code AttributeType}
+    * @param xmlEventReader 
+    * @throws ParsingException
+    */
+   public static void parseAttributeType( XMLEventReader xmlEventReader,
+         StartElement startElement, String rootTag, AttributeType attributeType ) throws ParsingException
+   {  
+      //Look for X500 Encoding
+      QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
+            JBossSAMLConstants.ENCODING.get(), JBossSAMLURIConstants.X500_PREFIX.get() );
+      Attribute x500EncodingAttr = startElement.getAttributeByName( x500EncodingName );
+      
+      if( x500EncodingAttr != null )
+      {   
+         attributeType.getOtherAttributes().put( x500EncodingAttr.getName(), StaxParserUtil.getAttributeValue( x500EncodingAttr ));
+      } 
+      
+      Attribute friendlyName = startElement.getAttributeByName( new QName( JBossSAMLConstants.FRIENDLY_NAME.get() ));
+      if( friendlyName != null ) 
+         attributeType.setFriendlyName( StaxParserUtil.getAttributeValue( friendlyName ));
+      
+      Attribute nameFormat = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME_FORMAT.get() ));
+      if( nameFormat != null ) 
+         attributeType.setNameFormat( StaxParserUtil.getAttributeValue( nameFormat ));
+      
+      while( xmlEventReader.hasNext() )
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if( xmlEvent instanceof EndElement )
+         {
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if( StaxParserUtil.matches( end, rootTag ))
+               break;
+         }
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if( startElement == null )
+            break;
+         String tag = StaxParserUtil.getStartElementName(startElement);
+         
+         if( JBossSAMLConstants.ATTRIBUTE.get().equals( tag ))
+            break;
+         
+         if( JBossSAMLConstants.ATTRIBUTE_VALUE.get().equals( tag ) )
+         {
+            Object attributeValue = parseAttributeValue(xmlEventReader);
+            attributeType.addAttributeValue( attributeValue ); 
+         }
+         else throw new RuntimeException( "Unknown tag:" + tag );
+      }
    }
    
    /**

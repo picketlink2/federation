@@ -1,4 +1,8 @@
-<md:EntityDescriptor entityID="https://service.example.org/shibboleth" validUntil="2010-01-01T00:00:00Z">
+<md:EntityDescriptor entityID="https://service.example.org/shibboleth" validUntil="2010-01-01T00:00:00Z"
+    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata http://docs.oasis-open.org/security/saml/v2.0/saml-schema-metadata-2.0.xsd"
+	>
 
   <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
 

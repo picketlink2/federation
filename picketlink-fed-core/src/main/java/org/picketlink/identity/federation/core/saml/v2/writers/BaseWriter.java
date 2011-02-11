@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNameType;
 
 /**
  * Base Class for the Stax writers for SAML
@@ -116,6 +117,14 @@ public class BaseWriter
    {
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get(), ASSERTION_NSURI.get());
 
+      writeAttributeTypeWithoutRootTag(attributeType); 
+      
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+   
+   public void writeAttributeTypeWithoutRootTag( AttributeType attributeType ) throws ProcessingException
+   {
       String attributeName = attributeType.getName();
       if (attributeName != null)
       {
@@ -168,8 +177,6 @@ public class BaseWriter
                throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
          }
       }
-      StaxUtil.writeEndElement(writer);
-      StaxUtil.flush(writer);
    }
    
    public void writeStringAttributeValue( String attributeValue ) throws ProcessingException
@@ -180,6 +187,16 @@ public class BaseWriter
       StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
       StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
       StaxUtil.writeCharacters(writer, attributeValue ); 
+      StaxUtil.writeEndElement(writer);
+   }
+   
+
+   
+   public void writeLocalizedNameType( LocalizedNameType localizedNameType, QName startElement ) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, startElement.getPrefix(), startElement.getLocalPart(), startElement.getNamespaceURI() );
+      StaxUtil.writeAttribute(writer,  new QName( JBossSAMLURIConstants.XML.get(), "lang", "xml" ),  localizedNameType.getLang() );
+      StaxUtil.writeCharacters(writer, localizedNameType.getValue() );
       StaxUtil.writeEndElement(writer);
    }
 }
