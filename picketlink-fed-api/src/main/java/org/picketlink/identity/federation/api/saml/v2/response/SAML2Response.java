@@ -198,6 +198,9 @@ public class SAML2Response
          sts.issueToken( samlProtocolContext );
 
       assertionType = samlProtocolContext.getIssuedAssertion();
+      
+      //Update the subjectConfirmationData expiry based on the assertion
+      subjectConfirmationData.setNotOnOrAfter( assertionType.getConditions().getNotOnOrAfter() );
 
   
       ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
