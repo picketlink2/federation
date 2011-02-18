@@ -71,6 +71,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -233,6 +234,20 @@ public class SAML2Response
    throws ConfigurationException
    {
       return JBossSAMLAuthnResponseFactory.createResponseType(ID, issuerInfo, assertion);
+   }
+   
+   /**
+    * Create a ResponseType
+    * @param ID
+    * @param issuerInfo
+    * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
+    * @return
+    * @throws ConfigurationException
+    */
+   public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion) 
+   throws ConfigurationException
+   {
+      return JBossSAMLAuthnResponseFactory.createResponseType(ID, issuerInfo, encryptedAssertion);
    }
 
    /**

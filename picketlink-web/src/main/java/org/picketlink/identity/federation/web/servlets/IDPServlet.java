@@ -341,7 +341,8 @@ public class IDPServlet extends HttpServlet
                SAML2HandlerRequest saml2HandlerRequest = 
                   new DefaultSAML2HandlerRequest(protocolContext,
                         idpIssuer.getIssuer(), samlDocumentHolder, 
-                        HANDLER_TYPE.IDP);
+                        HANDLER_TYPE.IDP); 
+               
                saml2HandlerRequest.setRelayState(relayState);
                
                SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
@@ -416,7 +417,7 @@ public class IDPServlet extends HttpServlet
                requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
                
                Map<String,Object> attribs  = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-               requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+               requestOptions.put(GeneralConstants.ATTRIBUTES, attribs); 
                
                saml2HandlerRequest.setOptions(requestOptions); 
                

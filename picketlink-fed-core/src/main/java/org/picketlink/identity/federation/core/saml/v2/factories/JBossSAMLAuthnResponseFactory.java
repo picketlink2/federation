@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
@@ -43,6 +44,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 /**
  * Factory for the SAML v2 Authn Response
@@ -166,6 +168,44 @@ public class JBossSAMLAuthnResponseFactory
       responseType.setIssueInstant(issueInstant); 
       
       responseType.addAssertion( new RTChoiceType( assertionType )); 
+      return responseType; 
+   }  
+   
+   /**
+    * Create a Response Type
+    * @param ID
+    * @param issuerInfo
+    * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
+    * @return
+    * @throws ConfigurationException 
+    */
+   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion ) 
+   throws ConfigurationException 
+   {
+      ResponseType responseType = new ResponseType();
+      responseType.setVersion(issuerInfo.getSamlVersion());
+      
+      //ID
+      responseType.setID(ID);
+      
+      //Issuer 
+      NameIDType issuer = issuerInfo.getIssuer();
+      responseType.setIssuer(issuer);
+      
+      //Status
+      String statusCode = issuerInfo.getStatusCode();
+      if(statusCode == null)
+         throw new IllegalArgumentException("issuerInfo missing status code");
+      
+      responseType.setStatus(createStatusType(statusCode) );
+      
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
+      
+      //IssueInstant
+      responseType.setIssueInstant(issueInstant); 
+      
+      
+      responseType.addAssertion( new RTChoiceType( new EncryptedAssertionType( encryptedAssertion ) )); 
       return responseType; 
    }  
 }

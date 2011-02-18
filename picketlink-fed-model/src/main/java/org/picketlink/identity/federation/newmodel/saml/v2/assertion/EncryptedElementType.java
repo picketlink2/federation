@@ -39,8 +39,17 @@ public class EncryptedElementType
     </complexType>
     */
    
-   private Element encryptedElement;
+   protected Element encryptedElement;
 
+   public EncryptedElementType()
+   {   
+   }
+   
+   public EncryptedElementType( Element el)
+   {
+      this.encryptedElement = el;
+   }
+   
    public Element getEncryptedElement()
    {
       return encryptedElement;

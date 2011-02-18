@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusCodeTy
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 /**
  * Write a SAML Response to stream
@@ -70,6 +71,7 @@ public class SAMLResponseWriter extends BaseWriter
       StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.RESPONSE.get() , PROTOCOL_NSURI.get() ); 
       
       StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
+      StaxUtil.writeNameSpace( writer, ASSERTION_PREFIX, ASSERTION_NSURI.get() );   
       StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
       
       writeBaseAttributes( response ); 
@@ -94,7 +96,8 @@ public class SAMLResponseWriter extends BaseWriter
             EncryptedAssertionType encryptedAssertion = choiceType.getEncryptedAssertion();
             if( encryptedAssertion != null )
             {
-               //Skip 
+               Element encElement = encryptedAssertion.getEncryptedElement();
+               StaxUtil.writeDOMElement(writer, encElement);
             } 
          }
       }

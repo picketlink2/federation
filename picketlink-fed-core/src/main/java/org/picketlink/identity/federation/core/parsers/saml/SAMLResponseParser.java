@@ -32,9 +32,11 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.w3c.dom.Element;
 
 /**
  * Parse the SAML Response
@@ -84,6 +86,13 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
          {
             response.setStatus( parseStatus(xmlEventReader) ); 
          }
+         else if( JBossSAMLConstants.ENCRYPTED_ASSERTION.get().equals( elementName ))
+         {
+            Element encryptedAssertion = StaxParserUtil.getDOMElement(xmlEventReader);
+            response.addAssertion( new RTChoiceType( new EncryptedAssertionType(encryptedAssertion ) )); 
+         }
+         else
+            throw new RuntimeException( "Unknown tag=" + elementName );
       }
       
       return response;

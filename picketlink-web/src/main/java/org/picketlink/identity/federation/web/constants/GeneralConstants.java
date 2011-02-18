@@ -48,8 +48,8 @@ public interface GeneralConstants
    String IDENTITY_SERVER = "IDENTITY_SERVER";
    String IGNORE_SIGNATURES = "IGNORE_SIGNATURES";
    
-   String KEYPAIR = "KEYPAIR";
-   
+   String KEYPAIR = "KEYPAIR"; 
+  
    String LOGOUT_PAGE = "LOGOUT_PAGE";
    String LOGOUT_PAGE_NAME = "/logout.jsp";
    
@@ -65,9 +65,10 @@ public interface GeneralConstants
    String SAML_REQUEST_KEY = "SAMLRequest";
    String SAML_RESPONSE_KEY = "SAMLResponse";
    
+   String DECRYPTING_KEY = "DECRYPTING_KEY";
    String SENDER_PUBLIC_KEY = "SENDER_PUBLIC_KEY";
    String SIGN_OUTGOING_MESSAGES = "SIGN_OUTGOING_MESSAGES";
-  
+   
    String USERNAME_FIELD = "JBID_USERNAME";
    String PASS_FIELD = "JBID_PASSWORD";
 }

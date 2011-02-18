@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import org.w3c.dom.Element;
+
 /**
  * Assertion that is encrypted
  * @author Anil.Saldhana@redhat.com
@@ -28,4 +30,18 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  */
 public class EncryptedAssertionType extends EncryptedElementType
 { 
+   public EncryptedAssertionType()
+   {
+      super(); 
+   }
+
+   public EncryptedAssertionType(Element el)
+   {
+      super(el); 
+   } 
+   
+   public String getID()
+   {   
+      return null;
+   }
 }

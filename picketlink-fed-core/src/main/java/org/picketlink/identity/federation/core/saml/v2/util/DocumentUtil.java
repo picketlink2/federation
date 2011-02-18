@@ -30,6 +30,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -267,6 +268,28 @@ public class DocumentUtil
 
       return sw.toString();
    }
+   
+   /**
+    * <p>Get an element from the document given its {@link QName} </p>
+    * <p>First an attempt to get the element based on its namespace is made, failing which
+    * an element with the localpart ignoring any namespace is returned.</p>
+    * @param doc
+    * @param elementQName
+    * @return
+    */
+   public static Element getElement( Document doc, QName elementQName )
+   {
+      NodeList nl = doc.getElementsByTagNameNS( elementQName.getNamespaceURI(), elementQName.getLocalPart() );
+      if( nl.getLength() == 0 )
+      {
+         nl = doc.getElementsByTagNameNS( "*", elementQName.getLocalPart() ); 
+         if( nl.getLength() == 0 )
+            nl = doc.getElementsByTagName( elementQName.getPrefix() + ":" + elementQName.getLocalPart() ); 
+         if( nl.getLength() == 0 )
+            return null; 
+      }
+      return (Element) nl.item(0);
+   }
 
    /**
     * Stream a DOM Node as an input stream
@@ -280,6 +303,13 @@ public class DocumentUtil
       return getSourceAsStream(new DOMSource(node));
    }
 
+   /**
+    * Get the {@link Source} as an {@link InputStream}
+    * @param source
+    * @return
+    * @throws ConfigurationException
+    * @throws ProcessingException
+    */
    public static InputStream getSourceAsStream(Source source) throws ConfigurationException, ProcessingException 
    {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();

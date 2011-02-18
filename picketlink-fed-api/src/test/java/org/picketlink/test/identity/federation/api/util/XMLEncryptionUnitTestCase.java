@@ -83,6 +83,8 @@ public class XMLEncryptionUnitTestCase extends TestCase
       Element docElement = XMLEncryptionUtil.encryptElementInDocument(responseDoc,kp.getPublic(), sk, 
             128, assertionQName, true); 
       
+      System.out.println( DocumentUtil.getDOMElementAsString(docElement));
+      
      // System.out.println( DocumentUtil.getNodeAsString(docElement));
 
       InputStream is = DocumentUtil.getNodeAsStream( docElement );
@@ -95,7 +97,7 @@ public class XMLEncryptionUnitTestCase extends TestCase
       Document eetDoc = sr.convert( encryptedAssertionType );
       
       Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,kp.getPrivate());
-
+        
       //Let us use the encrypted doc element to decrypt it
       
       ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));

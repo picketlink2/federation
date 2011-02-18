@@ -70,6 +70,29 @@ extends StatusResponseType
    {
       assertions.remove(choice);
    }
+   
+   /**
+    * Replace the first assertion with the passed assertion
+    * @param id id of the old assertion
+    * @param newAssertion
+    */
+   public void replaceAssertion( String id,  RTChoiceType newAssertion )
+   {
+      int index = 0;
+      if( id != null && !id.isEmpty())
+      {
+         for( RTChoiceType assertion : assertions )
+         {
+            if( assertion.getID().equals(id) )
+            {
+               break;
+            }
+            index++;
+         } 
+      }
+      assertions.remove(index); 
+      assertions.add(index, newAssertion);
+   }
 
    /**
     * Gets a read only list of assertions
@@ -83,13 +106,16 @@ extends StatusResponseType
    {
       private AssertionType assertion;
       private EncryptedAssertionType encryptedAssertion;
+      private String id;
       public RTChoiceType(AssertionType assertion)
       { 
          this.assertion = assertion;
+         this.id = assertion.getID();
       }
       public RTChoiceType(EncryptedAssertionType encryptedAssertion)
       { 
          this.encryptedAssertion = encryptedAssertion;
+         
       }
       public AssertionType getAssertion()
       {
@@ -99,5 +125,9 @@ extends StatusResponseType
       {
          return encryptedAssertion;
       } 
+      public String getID()
+      {
+         return id; 
+      }
    } 
 }

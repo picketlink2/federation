@@ -156,6 +156,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             }
             PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
             requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey); 
+            requestOptions.put( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
          }
 
          saml2HandlerRequest.setOptions(requestOptions);

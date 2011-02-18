@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.io.StringWriter;
 import java.security.Principal;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,17 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
@@ -47,8 +52,10 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -68,6 +75,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -339,10 +347,13 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if(assertions.size() == 0)
             throw new IllegalStateException("No assertions in reply from IDP"); 
          
+         PrivateKey privateKey = (PrivateKey) request.getOptions().get( GeneralConstants.DECRYPTING_KEY );
+         
          Object assertion = assertions.get(0).getEncryptedAssertion();
          if(assertion instanceof EncryptedAssertionType)
          {
-            responseType = this.decryptAssertion(responseType);
+            responseType = this.decryptAssertion(responseType, privateKey );
+            assertion = responseType.getAssertions().get(0).getAssertion();
          }
          if( assertion == null )
          {
@@ -367,9 +378,34 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       {  
       }
       
-      private ResponseType decryptAssertion(ResponseType responseType)
+      private ResponseType decryptAssertion(ResponseType responseType, PrivateKey privateKey ) throws ProcessingException
       {
-         throw new RuntimeException("This authenticator does not handle encryption");
+         if( privateKey == null )
+            throw new IllegalArgumentException( "privateKey is null" );
+         SAML2Response saml2Response = new SAML2Response();
+         try
+         {
+            Document doc = saml2Response.convert( responseType ); 
+            
+            Element enc = DocumentUtil.getElement(doc, new QName( JBossSAMLConstants.ENCRYPTED_ASSERTION.get() ));
+            if( enc == null )
+               throw new ProcessingException( "Null encrypted assertion element" );
+            String oldID = enc.getAttribute( "ID" );
+            Document newDoc = DocumentUtil.createDocument();
+            Node importedNode = newDoc.importNode(enc, true);
+            newDoc.appendChild(importedNode);
+            
+            Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument( newDoc, privateKey );
+            SAMLParser parser = new SAMLParser();
+            AssertionType assertion = (AssertionType) parser.parse( StaxParserUtil.getXMLEventReader( DocumentUtil.getNodeAsStream(decryptedDocumentElement)));
+            
+            responseType.replaceAssertion( oldID, new RTChoiceType(assertion));
+            return  responseType;
+         }
+         catch ( Exception e )
+         { 
+            throw new ProcessingException( e );
+         }
       }
        
       private Principal handleSAMLResponse(ResponseType responseType, SAML2HandlerResponse response) 

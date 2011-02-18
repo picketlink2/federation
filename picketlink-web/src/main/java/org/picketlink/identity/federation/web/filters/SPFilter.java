@@ -210,7 +210,8 @@ public class SPFilter implements Filter
             SAML2HandlerRequest saml2HandlerRequest = 
                new DefaultSAML2HandlerRequest(protocolContext,
                      holder.getIssuer(), null, 
-                     HANDLER_TYPE.SP);
+                     HANDLER_TYPE.SP); 
+            
             SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
           
             saml2HandlerResponse.setDestination(identityURL);
@@ -305,6 +306,8 @@ public class SPFilter implements Filter
                   new DefaultSAML2HandlerRequest(protocolContext,
                         holder.getIssuer(), documentHolder, 
                         HANDLER_TYPE.SP);
+               if( keyManager != null )
+                  saml2HandlerRequest.addOption( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
                
                SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
              
@@ -397,6 +400,8 @@ public class SPFilter implements Filter
                   new DefaultSAML2HandlerRequest(protocolContext,
                         holder.getIssuer(), documentHolder, 
                         HANDLER_TYPE.SP);
+               if( keyManager != null )
+                  saml2HandlerRequest.addOption( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
                
                SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
              

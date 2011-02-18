@@ -35,6 +35,7 @@ import org.apache.xml.security.encryption.XMLCipher;
 import org.apache.xml.security.encryption.XMLEncryptionException;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -185,10 +186,7 @@ public class XMLEncryptionUtil
       if (wrappingElementPrefix == null || wrappingElementPrefix == "")
          throw new IllegalArgumentException("Wrapping element prefix invalid");
 
-      NodeList elements = document.getElementsByTagName(elementQName.toString());
-      if (elements == null || elements.getLength() > 1)
-         throw new IllegalStateException("Element was either null or more than one:" + elements);
-      Element documentElement = (Element) elements.item(0);
+      Element documentElement  = DocumentUtil.getElement(document , elementQName );
 
       if (documentElement == null)
          throw new IllegalStateException("Element could not be found in the document:" + elementQName.toString());
