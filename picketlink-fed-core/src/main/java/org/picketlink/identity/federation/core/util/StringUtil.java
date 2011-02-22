@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+
 /**
  * Utility dealing with Strings
  * @author Anil.Saldhana@redhat.com
@@ -38,8 +39,32 @@ public class StringUtil
       return str != null && !"".equals(str);
    } 
    
+   /**
+    * Check whether the string is null or empty
+    * @param str
+    * @return
+    */
    public static boolean isNullOrEmpty(String str)
    {
-      return str == null || "".equals(str);
+      return str == null || str.isEmpty();
+   }
+    
+   /**
+    * Get the system property value if the string is of the format ${sysproperty}
+    * @param str
+    * @return
+    */
+   public static String getSystemPropertyAsString( String str )
+   {
+      if( str.startsWith( "${") && str.endsWith( "}" ))
+      {
+         int len = str.length();
+         str = str.substring( 2, len -1 );
+         String sysPropertyValue = SecurityActions.getSystemProperty(str, "" );
+         if( sysPropertyValue.isEmpty() )
+            throw new IllegalArgumentException( "System Property " + str + " is not set" );
+         str = sysPropertyValue;
+      }
+      return str;
    }
 }

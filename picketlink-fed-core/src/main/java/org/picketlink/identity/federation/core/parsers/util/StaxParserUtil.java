@@ -41,6 +41,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -79,7 +80,9 @@ public class StaxParserUtil
     */
    public static String getAttributeValue(Attribute attribute)
    {
-      return trim(attribute.getValue());
+      String str = trim(attribute.getValue());
+      str = StringUtil.getSystemPropertyAsString(str);
+      return str;
    }
    
    /**
@@ -150,15 +153,18 @@ public class StaxParserUtil
     * @throws ParsingException
     */
    public static String getElementText( XMLEventReader xmlEventReader ) throws ParsingException
-   {
+   {  
+      String str = null;
       try
       {
-         return xmlEventReader.getElementText().trim();
+         str =  xmlEventReader.getElementText().trim();
+         str = StringUtil.getSystemPropertyAsString(str);
       }
       catch (XMLStreamException e)
       {
          throw new ParsingException( e );
       }
+      return str;
    }
    
    /**
