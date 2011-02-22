@@ -90,4 +90,21 @@ public class SAMLMetadataParsingUnitTestCase
       assertEquals( "SAML SP Support", contactPersons.get(0).getSurName() );
       assertEquals( "mailto:saml-support@sp.example.com", contactPersons.get(0).getEmailAddress().get(0) ); 
    }
+   
+   /**
+    * PLFED-39
+    * @throws Exception
+    */
+   @Test
+   public void testShibbolethMetadataExtensions() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream is = 
+         tcl.getResourceAsStream("saml2/metadata/testshib.org.idp-metadata.xml");
+      assertNotNull("Inputstream not null", is); 
+      SAMLParser parser = new SAMLParser();
+
+      EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
+      assertNotNull(entities);  
+   }
 }

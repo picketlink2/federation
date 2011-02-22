@@ -241,6 +241,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             keyDescriptor.setKeyInfo(key);
             spSSODescriptor.addKeyDescriptor(keyDescriptor);
          }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            skipMetadataExtensions(xmlEventReader);
+         }
          else
             throw new RuntimeException( "Unknown " + localPart ); 
       }
@@ -346,13 +350,20 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          {
             KeyDescriptorType keyDescriptor = new KeyDescriptorType();
             String use = StaxParserUtil.getAttributeValue(startElement, "use" );
-            keyDescriptor.setUse( KeyTypes.fromValue(use) );
+            if( use != null && !use.isEmpty())
+            {
+               keyDescriptor.setUse( KeyTypes.fromValue(use) ); 
+            }
             
             Element key = StaxParserUtil.getDOMElement(xmlEventReader);
             keyDescriptor.setKeyInfo(key);
             idpSSODescriptor.addKeyDescriptor(keyDescriptor);
          }
-         else
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            skipMetadataExtensions(xmlEventReader);
+         }
+         else 
             throw new RuntimeException( "Unknown " + localPart ); 
       }
       return idpSSODescriptor;
@@ -659,5 +670,21 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
       
       SAMLParserUtil.parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get(), attributeType);
       return attributeType;
+   }
+   
+   private void skipMetadataExtensions( XMLEventReader xmlEventReader ) throws ParsingException
+   {
+    //Got to skip
+      String endElementVal = "bogus";
+      
+      EndElement endElement = null;
+      do
+      {
+         endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+         if( endElement == null )
+            throw new RuntimeException( "Exhausted all end elements when entered Saml MD Extensions" );
+         endElementVal = StaxParserUtil.getEndElementName(endElement);
+      }
+      while( !endElementVal.equals( JBossSAMLConstants.EXTENSIONS.get() ));
    }
 }

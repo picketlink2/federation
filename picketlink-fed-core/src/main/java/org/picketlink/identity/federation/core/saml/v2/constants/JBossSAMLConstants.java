@@ -66,6 +66,7 @@ public enum JBossSAMLConstants
    ENTITY_ID( "entityID" ),
    ENTITY_DESCRIPTOR( "EntityDescriptor" ),
    ENTITIES_DESCRIPTOR( "EntitiesDescriptor" ),
+   EXTENSIONS( "Extensions" ),
    FORMAT( "Format" ),
    FRIENDLY_NAME( "FriendlyName" ),
    GIVEN_NAME( "GivenName" ),
