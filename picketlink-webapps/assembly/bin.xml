@@ -69,5 +69,10 @@
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
     </file>
+    <file>
+      <source>${basedir}/src/main/resources/picketlink-sts-jboss-beans.xml</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
   </files>
 </assembly>
