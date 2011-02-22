@@ -36,15 +36,18 @@ import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 import org.w3c.dom.Element;
 
 /**
@@ -115,6 +118,37 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType( new URI( value ));
+            }
+            else if (tag.equals(WSTrustConstants.LIFETIME))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(subEvent, WSTrustConstants.LIFETIME);
+
+               LifetimeType lifeTime = new LifetimeType();
+               // Get the Created
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               String subTag = StaxParserUtil.getStartElementName(subEvent);
+               if (subTag.equals(WSTrustConstants.CREATED))
+               {
+                  AttributedDateTime created = new AttributedDateTime();
+                  created.setValue(StaxParserUtil.getElementText(xmlEventReader));
+                  lifeTime.setCreated(created);
+               }
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               subTag = StaxParserUtil.getStartElementName(subEvent);
+
+               if (subTag.equals(WSTrustConstants.EXPIRES))
+               {
+                  AttributedDateTime expires = new AttributedDateTime();
+                  expires.setValue(StaxParserUtil.getElementText(xmlEventReader));
+                  lifeTime.setExpires(expires);
+               }
+               else
+                  throw new RuntimeException(subTag + " was unexpected");
+
+               requestToken.setLifetime(new Lifetime(lifeTime));
+               EndElement lifeTimeElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(lifeTimeElement, WSTrustConstants.LIFETIME);
             }
             else if( tag.equals( WSTrustConstants.CANCEL_TARGET ))
             {

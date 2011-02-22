@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection; 
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
@@ -152,6 +153,17 @@ public class WSTrustRequestWriter
       {
          writeTokenType( writer, tokenType );
       }
+      
+      // deal with the token lifetime.
+      if (requestToken.getLifetime() != null)
+      {
+         Lifetime lifetime = requestToken.getLifetime();
+         StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.LIFETIME,
+               WSTrustConstants.BASE_NAMESPACE);
+         new WSSecurityWriter(this.writer).writeLifetime(lifetime.getCreated(), lifetime.getExpires());
+         StaxUtil.writeEndElement(this.writer);
+      }
+      
       //Deal with AppliesTo
       AppliesTo appliesTo = requestToken.getAppliesTo();
       if( appliesTo != null )

@@ -25,6 +25,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Iterator;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -57,7 +58,15 @@ class SecurityActions
       { 
          public MBeanServer run()
          { 
-            return MBeanServerFactory.findMBeanServer( "jboss").get( 0 );
+            for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext(); )
+            {
+               MBeanServer server = i.next();
+               if (server.getDefaultDomain().equals("jboss"))
+               {
+                  return server;
+               }
+            }
+            throw new IllegalStateException("No 'jboss' MBeanServer found!");
          }
       });
       

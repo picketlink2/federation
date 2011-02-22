@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <!-- ejb3 test application-policy definition -->
+   <application-policy xmlns="urn:jboss:security-beans:1.0" name="cache-test">
+      <authentication>
+         <login-module code="org.picketlink.identity.federation.bindings.jboss.auth.SAML2STSLoginModule" flag="required">
+            <module-option name="password-stacking">useFirstPass</module-option>
+            <module-option name="configFile">sts-config.properties</module-option>
+            <module-option name="cache.invalidation">true</module-option>
+         </login-module>
+      </authentication>
+   </application-policy>
+
+</deployment>
+
