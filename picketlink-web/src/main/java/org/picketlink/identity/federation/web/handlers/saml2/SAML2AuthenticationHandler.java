@@ -55,6 +55,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
@@ -510,10 +511,32 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       {
          List<String> roles = new ArrayList<String>();
          
+         //PLFED-141: Disable role picking from IDP response
+         if( handlerConfig.containsKey( GeneralConstants.DISABLE_ROLE_PICKING ))
+         {
+            String val = (String) handlerConfig.getParameter( GeneralConstants.DISABLE_ROLE_PICKING );
+            if( StringUtil.isNotNull(val) && "true".equalsIgnoreCase(val) )
+               return roles;
+         }
+         
+         //PLFED-140: which of the attribute statements represent roles?
+         List<String> roleKeys = new ArrayList<String>();
+         
+         if( handlerConfig.containsKey( GeneralConstants.ROLE_KEY ) )
+         {
+            String roleKey = (String) handlerConfig.getParameter( GeneralConstants.ROLE_KEY );
+            roleKeys.addAll( StringUtil.tokenize( roleKey ) );
+         }
+         
          List<ASTChoiceType> attList = attributeStatement.getAttributes();
          for(ASTChoiceType obj:attList)
          {
             AttributeType attr = obj.getAttribute();
+            if( roleKeys.size() > 0 )
+            {
+               if( !roleKeys.contains( attr.getNameFormat() ) )
+                  continue;
+            }
             List<Object> attributeValues = attr.getAttributeValue();
             if( attributeValues != null)
             {

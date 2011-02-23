@@ -40,9 +40,10 @@ public interface GeneralConstants
    String CONFIGURATION = "CONFIGURATION";
    String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
    
+   String DISABLE_ROLE_PICKING = "DisableRolePicking";
+   
    String GLOBAL_LOGOUT = "GLO";
    
-
    String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-handlers.xml";
    
    String IDENTITY_SERVER = "IDENTITY_SERVER";
@@ -57,6 +58,12 @@ public interface GeneralConstants
    String RELAY_STATE = "RelayState";
    String ROLES = "ROLES";
    String ROLES_ID = "jboss_identity.roles";
+   
+   /**
+    * {@link SAML2AuthenticationHandler} can be configured with a key that picks
+    * the attributes from the IDP attribute statements
+    */
+   String ROLE_KEY = "ROLE_KEY";
    
    String ROLE_GENERATOR = "ROLE_GENERATOR";
    String ROLE_VALIDATOR = "ROLE_VALIDATOR";

@@ -175,7 +175,9 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
     * @throws IssuerNotTrustedException
     */
    private boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
-   {   
+   {  
+      if( keyManager == null )
+         throw new IllegalStateException( "Key Manager is null" );
       Document samlResponse = samlDocumentHolder.getSamlDocument();
       ResponseType response = (ResponseType) samlDocumentHolder.getSamlObject();
       
