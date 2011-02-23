@@ -23,6 +23,7 @@ package org.picketlink.test.identity.federation.core.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
@@ -34,13 +35,25 @@ import org.picketlink.identity.federation.core.util.StringUtil;
  */
 public class SystemPropertyAsStringUnitTestCase
 {
+   @Before
+   public void setup()
+   {
+      System.setProperty( "test", "anil" );
+      System.setProperty( "person", "marcus" );
+   }
    
    @Test
    public void testSystemProperty() throws Exception
    {
-      System.setProperty( "test", "anil" );
-      String str = "${test}";
-      assertEquals( "anil", StringUtil.getSystemPropertyAsString( str ) );
-   }
+      assertEquals( "test" , StringUtil.getSystemPropertyAsString( "test" ) );
+      assertEquals( "test/test" , StringUtil.getSystemPropertyAsString( "test/test" ) );
+      
+      assertEquals( "anil", StringUtil.getSystemPropertyAsString( "${test}" ) );
+      assertEquals( "test/anil", StringUtil.getSystemPropertyAsString( "test/${test}" ) );
+      
+      assertEquals( "anil:anil:marcus//anil", StringUtil.getSystemPropertyAsString( "${test}:${test}:${person}//${test}" ) );    
 
+      //Test if any of the parantheses are not correctly closed
+      assertEquals( "anil:anil:marcus//${test", StringUtil.getSystemPropertyAsString( "${test}:${test}:${person}//${test" ) );
+   }
 }

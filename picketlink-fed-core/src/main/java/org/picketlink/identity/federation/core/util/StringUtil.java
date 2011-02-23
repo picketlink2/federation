@@ -24,6 +24,8 @@ package org.picketlink.identity.federation.core.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -60,14 +62,26 @@ public class StringUtil
     */
    public static String getSystemPropertyAsString( String str )
    {
-      if( str.startsWith( "${") && str.endsWith( "}" ))
-      {
-         int len = str.length();
-         str = str.substring( 2, len -1 );
-         String sysPropertyValue = SecurityActions.getSystemProperty(str, "" );
-         if( sysPropertyValue.isEmpty() )
-            throw new IllegalArgumentException( "System Property " + str + " is not set" );
-         str = sysPropertyValue;
+      if( str.contains( "${") )
+      { 
+         Pattern pattern = Pattern.compile( "\\$\\{([^}]+)}" ); 
+         Matcher matcher = pattern.matcher(str);
+
+         StringBuffer buffer = new StringBuffer(); 
+         String sysPropertyValue = null; 
+
+         while (matcher.find()) 
+         {
+            sysPropertyValue = SecurityActions.getSystemProperty( matcher.group(1), "" );
+            if( sysPropertyValue.isEmpty() )
+            {
+               throw new IllegalArgumentException( "System Property " + matcher.group(1) + " is not set" ); 
+            } 
+            matcher.appendReplacement(buffer,sysPropertyValue); 
+         }
+
+         matcher.appendTail(buffer); 
+         str = buffer.toString();
       }
       return str;
    }
