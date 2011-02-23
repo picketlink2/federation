@@ -151,7 +151,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
          }
          else 
-            throw new RuntimeException( "Unknown " + localPart );
+            throw new RuntimeException( "Unknown " + localPart + "::location=" + startElement.getLocation() );
       }
       return entityDescriptorType;
    }

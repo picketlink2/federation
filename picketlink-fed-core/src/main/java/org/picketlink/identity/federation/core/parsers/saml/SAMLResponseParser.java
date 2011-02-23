@@ -92,7 +92,7 @@ public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements 
             response.addAssertion( new RTChoiceType( new EncryptedAssertionType(encryptedAssertion ) )); 
          }
          else
-            throw new RuntimeException( "Unknown tag=" + elementName );
+            throw new RuntimeException( "Unknown tag=" + elementName  + "::location=" + startElement.getLocation()  );
       }
       
       return response;

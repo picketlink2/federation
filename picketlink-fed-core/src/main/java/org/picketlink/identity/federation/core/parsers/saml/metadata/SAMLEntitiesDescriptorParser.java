@@ -110,7 +110,7 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport
             entitiesDescriptorType.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) );
          }
          else 
-            throw new RuntimeException( "Unknown " + localPart );
+            throw new RuntimeException( "Unknown " + localPart + " ::location=" + startElement.getLocation() );
       }
       return entitiesDescriptorType;
    }

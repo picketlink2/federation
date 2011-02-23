@@ -86,7 +86,7 @@ public class SAMLParserUtil
             AttributeType attribute = parseAttribute(xmlEventReader);
             attributeStatementType.addAttribute( new ASTChoiceType( attribute ));
          }
-         else throw new RuntimeException( "Unknown tag:" + tag );
+         else throw new RuntimeException( "Unknown tag:" + tag + "::Location=" + startElement.getLocation() );
       } 
       return attributeStatementType;
    }
@@ -206,7 +206,7 @@ public class SAMLParserUtil
             Object attributeValue = parseAttributeValue(xmlEventReader);
             attributeType.addAttributeValue( attributeValue ); 
          }
-         else throw new RuntimeException( "Unknown tag:" + tag );
+         else throw new RuntimeException( "Unknown tag:" + tag + "::Location=" + startElement.getLocation()  );
       }
    }
    
@@ -268,7 +268,7 @@ public class SAMLParserUtil
       {
          authnStatementType.setAuthnContext( parseAuthnContextType( xmlEventReader ) );
       }
-      else throw new RuntimeException( "Unknown tag:" + tag );
+      else throw new RuntimeException( "Unknown tag:" + tag + "::Location=" + startElement.getLocation() );
       
       EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
       StaxParserUtil.validate(endElement, AUTHNSTATEMENT );
@@ -312,7 +312,7 @@ public class SAMLParserUtil
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get() );
       }
       else
-         throw new RuntimeException( "Unknown Tag:" + tag );
+         throw new RuntimeException( "Unknown Tag:" + tag + "::Location=" + startElement.getLocation() );
       
       return authnContextType;
    } 

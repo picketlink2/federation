@@ -23,6 +23,9 @@ package org.picketlink.identity.federation.core.exceptions;
 
 import java.security.GeneralSecurityException;
 
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
+
 /**
  * General Exception indicating parsing exception
  * @author Anil.Saldhana@redhat.com
@@ -31,6 +34,8 @@ import java.security.GeneralSecurityException;
 public class ParsingException extends GeneralSecurityException
 {
    private static final long serialVersionUID = 1L;
+   
+   private Location location;
 
    public ParsingException()
    {
@@ -50,5 +55,22 @@ public class ParsingException extends GeneralSecurityException
    public ParsingException(Throwable cause)
    {
       super(cause); 
-   } 
+   }
+   
+   public ParsingException( XMLStreamException xmle )
+   {
+      super( xmle );
+      location = xmle.getLocation();
+   }
+   
+   public Location getLocation()
+   {
+      return location;
+   }
+
+   @Override
+   public String toString()
+   {
+      return "ParsingException [location=" + location + "]" + super.toString();
+   }
 }

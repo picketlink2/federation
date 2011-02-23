@@ -65,7 +65,7 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
          return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
       }
       
-      throw new RuntimeException( "Parsing Failed: Unknown Tag=" + tag );
+      throw new RuntimeException( "Parsing Failed: Unknown Tag=" + tag + "::location=" + startElement.getLocation() );
    }
 
    public boolean supports(QName qname)

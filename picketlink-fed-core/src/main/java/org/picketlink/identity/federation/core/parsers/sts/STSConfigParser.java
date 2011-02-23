@@ -164,7 +164,7 @@ public class STSConfigParser extends AbstractParser
             configType.setServiceProviders(this.parseServiceProviders(xmlEventReader));
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName);
+            throw new ParsingException("Unknown Element: " + elementName + "::Location=" + subEvent.getLocation() );
       }
       return configType;
    }

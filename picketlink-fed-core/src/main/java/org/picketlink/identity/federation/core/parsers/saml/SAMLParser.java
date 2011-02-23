@@ -122,7 +122,7 @@ public class SAMLParser extends AbstractParser
                SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
                return assertionParser.parse( xmlEventReader );
             }  
-            else throw new RuntimeException( "Unknown Tag:" + elementName );
+            else throw new RuntimeException( "Unknown Tag:" + elementName + "::location=" + startElement.getLocation() );
          }
          else
          {

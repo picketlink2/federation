@@ -123,7 +123,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag);
+            throw new RuntimeException("Unknown tag:" + tag  + "::location=" + peekedElement.getLocation() );
       }
       return subject;
    }

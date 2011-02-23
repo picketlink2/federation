@@ -119,7 +119,7 @@ public class SAMLConditionsParser implements ParserNamespaceSupport
             AudienceRestrictionType audienceRestriction = getAudienceRestriction(xmlEventReader);
             conditions.addCondition( audienceRestriction ); 
          }
-         else throw new RuntimeException( "Unknown tag:" + tag );
+         else throw new RuntimeException( "Unknown tag:" + tag + "::location=" + xmlEvent.getLocation());
       }       
       return conditions;
    }

@@ -193,7 +193,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             else
                throw new RuntimeException( "Unknown xsi:type=" + xsiTypeValue );
          }
-         else throw new RuntimeException( "SAMLAssertionParser:: unknown: " +   tag );
+         else throw new RuntimeException( "SAMLAssertionParser:: unknown: " +   tag + "::location=" + peekedElement.getLocation() );
       }
       return assertion;
    }

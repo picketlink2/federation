@@ -92,7 +92,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
          { 
             continue;
          }
-         else throw new RuntimeException( "Unknown Element:" + elementName );
+         else throw new RuntimeException( "Unknown Element:" + elementName + "::location=" + startElement.getLocation()  );
       }
       return authnRequest;
    }
