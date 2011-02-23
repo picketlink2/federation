@@ -132,6 +132,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             EDTChoiceType edtChoice = EDTChoiceType.oneValue( edtDescChoice );
             entityDescriptorType.addChoiceType(edtChoice);  
          }
+         else if( localPart.equals( JBossSAMLConstants.SIGNATURE.get() ) )
+         { 
+            entityDescriptorType.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) );
+         }
          else if( JBossSAMLConstants.ORGANIZATION.get().equals( localPart ))
          {
             OrganizationType organization = parseOrganization(xmlEventReader);
@@ -141,6 +145,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          else if( JBossSAMLConstants.CONTACT_PERSON.get().equals( localPart ))
          {
             entityDescriptorType.addContactPerson( parseContactPerson(xmlEventReader)); 
+         }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
          }
          else 
             throw new RuntimeException( "Unknown " + localPart );
@@ -243,7 +251,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          }
          else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
          {
-            skipMetadataExtensions(xmlEventReader);
+            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
          }
          else
             throw new RuntimeException( "Unknown " + localPart ); 
@@ -361,7 +369,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          }
          else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
          {
-            skipMetadataExtensions(xmlEventReader);
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
          }
          else 
             throw new RuntimeException( "Unknown " + localPart ); 
@@ -442,6 +450,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             attributeAuthority.addNameIDFormat( StaxParserUtil.getElementText(xmlEventReader) ); 
          }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+         }
          else 
             throw new RuntimeException( "Unknown " + localPart );
          
@@ -489,7 +501,11 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             LocalizedURIType localName = new LocalizedURIType( langVal );
             localName.setValue( URI.create( StaxParserUtil.getElementText( xmlEventReader )));
             org.addOrganizationURL( localName ) ;  
-         } 
+         }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+         }
          else 
             throw new RuntimeException( "Unknown " + localPart ); 
       }
@@ -543,6 +559,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          { 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             contactType.addTelephone( StaxParserUtil.getElementText(xmlEventReader) ); 
+         }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
          }
          else 
             throw new RuntimeException( "Unknown " + localPart ); 
@@ -643,7 +663,11 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          { 
             RequestedAttributeType attType = parseRequestedAttributeType(xmlEventReader, startElement);
             attributeConsumer.addRequestedAttribute(attType);
-         } 
+         }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+         }
          else 
             throw new RuntimeException( "Unknown " + localPart ); 
       }
@@ -670,21 +694,5 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
       
       SAMLParserUtil.parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get(), attributeType);
       return attributeType;
-   }
-   
-   private void skipMetadataExtensions( XMLEventReader xmlEventReader ) throws ParsingException
-   {
-    //Got to skip
-      String endElementVal = "bogus";
-      
-      EndElement endElement = null;
-      do
-      {
-         endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-         if( endElement == null )
-            throw new RuntimeException( "Exhausted all end elements when entered Saml MD Extensions" );
-         endElementVal = StaxParserUtil.getEndElementName(endElement);
-      }
-      while( !endElementVal.equals( JBossSAMLConstants.EXTENSIONS.get() ));
    }
 }

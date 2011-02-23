@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Element;
 
 
 /**
@@ -143,7 +143,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       }  
    }
 
-   protected SignatureType signature;
+   protected Element signature;
    protected ExtensionsType extensions;
 
    protected List<EDTChoiceType> choiceType = new ArrayList<EntityDescriptorType.EDTChoiceType>();
@@ -172,10 +172,10 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     * 
     * @return
     *     possible object is
-    *     {@link SignatureType }
+    *     {@link Element }
     *     
     */
-   public SignatureType getSignature() {
+   public Element getSignature() {
       return signature;
    }
 
@@ -184,10 +184,10 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     * 
     * @param value
     *     allowed object is
-    *     {@link SignatureType }
+    *     {@link Element }
     *     
     */
-   public void setSignature(SignatureType value) {
+   public void setSignature( Element value) {
       this.signature = value;
    }
 

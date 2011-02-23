@@ -106,5 +106,11 @@ public class SAMLMetadataParsingUnitTestCase
 
       EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
       assertNotNull(entities);  
+      
+      is = tcl.getResourceAsStream("saml2/metadata/shib.idp-metadata.xml");
+      assertNotNull("Inputstream not null", is); 
+     
+      EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
+      assertNotNull( entity );
    }
 }

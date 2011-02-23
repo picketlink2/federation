@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.parsers.saml.metadata;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -32,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
 
 /**
@@ -50,6 +52,26 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport
       
       EntitiesDescriptorType entitiesDescriptorType = new EntitiesDescriptorType();
       
+      //Parse the attributes 
+      Attribute validUntil = startElement.getAttributeByName( new QName( JBossSAMLConstants.VALID_UNTIL.get() ));
+      if( validUntil != null )
+      {
+         String validUntilValue = StaxParserUtil.getAttributeValue(validUntil);
+         entitiesDescriptorType.setValidUntil( XMLTimeUtil.parse(validUntilValue)); 
+      } 
+      
+      Attribute id = startElement.getAttributeByName( new QName( JBossSAMLConstants.ID.get() ));
+      if( id != null )
+      {
+         entitiesDescriptorType.setID( StaxParserUtil.getAttributeValue(id));  
+      } 
+      
+      Attribute cacheDuration = startElement.getAttributeByName( new QName( JBossSAMLConstants.CACHE_DURATION.get() ));
+      if( cacheDuration != null )
+      {
+         entitiesDescriptorType.setCacheDuration( XMLTimeUtil.parseAsDuration( StaxParserUtil.getAttributeValue( cacheDuration )) );  
+      }
+      
       //Get the Child Elements
       while( xmlEventReader.hasNext() )
       {
@@ -67,7 +89,20 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport
          { 
             SAMLEntityDescriptorParser entityParser = new SAMLEntityDescriptorParser();
             entitiesDescriptorType.addEntityDescriptor( entityParser.parse(xmlEventReader)); 
-         } 
+         }
+         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         {
+            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+         }
+         else if( JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equalsIgnoreCase( localPart ))
+         {
+            SAMLEntitiesDescriptorParser parser = new SAMLEntitiesDescriptorParser();
+            entitiesDescriptorType.addEntityDescriptor( parser.parse(xmlEventReader));
+         }
+         else if( localPart.equals( JBossSAMLConstants.SIGNATURE.get() ) )
+         { 
+            entitiesDescriptorType.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) );
+         }
          else 
             throw new RuntimeException( "Unknown " + localPart );
       }
