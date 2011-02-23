@@ -88,6 +88,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       private AuthnAuthorityDescriptorType authnDescriptor;
       private AttributeAuthorityDescriptorType attribDescriptor;
       private PDPDescriptorType pdpDescriptor;
+      
       public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
       { 
          if( roleDescriptor instanceof IDPSSODescriptorType )
@@ -111,26 +112,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
             this.pdpDescriptor = (PDPDescriptorType) roleDescriptor;
          }
          else this.roleDescriptor = roleDescriptor;
-      }
-      public EDTDescriptorChoiceType(IDPSSODescriptorType idpDescriptor)
-      { 
-         this.idpDescriptor = idpDescriptor;
-      }
-      public EDTDescriptorChoiceType(SPSSODescriptorType spDescriptor)
-      {
-         this.spDescriptor = spDescriptor;
-      }
-      public EDTDescriptorChoiceType(AuthnAuthorityDescriptorType authnDescriptor)
-      {
-         this.authnDescriptor = authnDescriptor;
-      }
-      public EDTDescriptorChoiceType(AttributeAuthorityDescriptorType attribDescriptor)
-      {
-         this.attribDescriptor = attribDescriptor;
-      }
-      public EDTDescriptorChoiceType(PDPDescriptorType pdpDescriptor)
-      {
-         this.pdpDescriptor = pdpDescriptor;
       }
       public RoleDescriptorType getRoleDescriptor()
       {
