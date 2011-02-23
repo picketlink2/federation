@@ -41,6 +41,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.AuthnAuthori
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactTypeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
@@ -69,6 +70,44 @@ public class SAMLMetadataWriter extends BaseWriter
    public SAMLMetadataWriter(XMLStreamWriter writer) throws ProcessingException
    {
       super(writer); 
+   }
+   
+   public void writeEntitiesDescriptor( EntitiesDescriptorType entities ) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ENTITIES_DESCRIPTOR.get(), METADATA_NSURI.get());
+      
+      StaxUtil.writeDefaultNameSpace(writer, JBossSAMLURIConstants.METADATA_NSURI.get() );
+      StaxUtil.writeNameSpace(writer, "md", JBossSAMLURIConstants.METADATA_NSURI.get() ); 
+      StaxUtil.writeNameSpace(writer, "saml", JBossSAMLURIConstants.ASSERTION_NSURI.get() ); 
+      StaxUtil.writeNameSpace(writer, "ds", JBossSAMLURIConstants.XMLDSIG_NSURI.get() ); 
+      
+      if( entities.getValidUntil() != null )
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.VALID_UNTIL.get(), entities.getValidUntil().toString() );
+      }
+      if( entities.getID() != null )
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), entities.getID() );
+      }
+
+      if( entities.getName() != null )
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME.get(), entities.getName() );
+      }
+      
+      List<Object> entityDescriptors = entities.getEntityDescriptor();
+      for( Object ed: entityDescriptors )
+      {
+         if( ed instanceof EntityDescriptorType )
+         {
+            writeEntityDescriptor( (EntityDescriptorType)ed ); 
+         }
+         else
+            writeEntitiesDescriptor( (EntitiesDescriptorType) ed );
+      }
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer); 
    }
    
    public void writeEntityDescriptor( EntityDescriptorType entityDescriptor ) throws ProcessingException
@@ -106,7 +145,7 @@ public class SAMLMetadataWriter extends BaseWriter
             
             IDPSSODescriptorType idpSSO = edtDescChoice.getIdpDescriptor();
             if( idpSSO != null )
-               write( edtDescChoice.getIdpDescriptor() ); 
+               write( idpSSO ); 
             
             SPSSODescriptorType spSSO = edtDescChoice.getSpDescriptor();
             if( spSSO != null )
@@ -192,11 +231,17 @@ public class SAMLMetadataWriter extends BaseWriter
    
    public void write( IDPSSODescriptorType idpSSODescriptor ) throws ProcessingException
    {
+      if( idpSSODescriptor == null )
+         throw new ProcessingException( "IDPSSODescriptorType is null" );
+      
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get(), METADATA_NSURI.get());
       
-      boolean wantsAuthnRequestsSigned = idpSSODescriptor.isWantAuthnRequestsSigned();
-      StaxUtil.writeAttribute(writer, new QName( JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get() ), "" + wantsAuthnRequestsSigned );
-      
+      Boolean wantsAuthnRequestsSigned = idpSSODescriptor.isWantAuthnRequestsSigned();
+      if( wantsAuthnRequestsSigned != null )
+      {
+         StaxUtil.writeAttribute(writer, new QName( JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get() ), 
+                wantsAuthnRequestsSigned.toString() ); 
+      }
       writeProtocolSupportEnumeration( idpSSODescriptor.getProtocolSupportEnumeration() );
       
       List<IndexedEndpointType> artifactResolutionServices = idpSSODescriptor.getArtifactResolutionService();

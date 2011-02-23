@@ -66,6 +66,12 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport
          entitiesDescriptorType.setID( StaxParserUtil.getAttributeValue(id));  
       } 
       
+      Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
+      if( name != null )
+      {
+         entitiesDescriptorType.setName( StaxParserUtil.getAttributeValue(name) );  
+      } 
+      
       Attribute cacheDuration = startElement.getAttributeByName( new QName( JBossSAMLConstants.CACHE_DURATION.get() ));
       if( cacheDuration != null )
       {

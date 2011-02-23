@@ -29,6 +29,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.util.JAXBSource;
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
@@ -346,13 +347,23 @@ public class TransformerUtil
          {  
             Characters characterEvent = (Characters) nextEvent; 
             String trimmedData = characterEvent.getData().trim();
+            
             if( trimmedData != null && trimmedData.length() > 0 )
             {
                holder.encounteredTextNode = true;
-               String text = StaxParserUtil.getElementText(xmlEventReader);
-               Node textNode = doc.createTextNode( text );
-               textNode = doc.importNode(textNode, true);
-               el.appendChild( textNode ); 
+               try
+               {
+                  String text = StaxParserUtil.getElementText(xmlEventReader); 
+
+                  Node textNode = doc.createTextNode( text );
+                  textNode = doc.importNode(textNode, true);
+                  el.appendChild( textNode ); 
+               }
+               catch( Exception e )
+               {
+                  Location location = characterEvent.getLocation();
+                  throw new ParsingException( " Location:" + location.toString(), e ); 
+               }
             } 
          }   
          return el;
