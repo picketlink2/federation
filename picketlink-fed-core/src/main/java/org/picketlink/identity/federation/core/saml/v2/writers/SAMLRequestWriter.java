@@ -91,6 +91,41 @@ public class SAMLRequestWriter extends BaseWriter
       if( assertionURL != null )
          StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL.toASCIIString() );
       
+      Boolean forceAuthn = request.isForceAuthn();
+      if( forceAuthn != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORCE_AUTHN.get(), forceAuthn.toString() );
+      }
+      
+      Boolean isPassive = request.isIsPassive();
+      if( isPassive != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.IS_PASSIVE.get(), isPassive.toString() );
+      } 
+      
+      URI protocolBinding = request.getProtocolBinding();
+      if( protocolBinding != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.PROTOCOL_BINDING.get(), protocolBinding.toString() );
+      }
+      
+      Integer assertionIndex = request.getAssertionConsumerServiceIndex();
+      if( assertionIndex != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_INDEX.get(), assertionIndex.toString() );
+      }
+      
+      Integer attrIndex = request.getAttributeConsumingServiceIndex();
+      if( attrIndex != null )
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE_INDEX.get(), attrIndex.toString() );
+      }
+      String providerName = request.getProviderName();
+      if( StringUtil.isNotNull( providerName ))
+      {
+         StaxUtil.writeAttribute( writer, JBossSAMLConstants.PROVIDER_NAME.get(), providerName );
+      } 
+      
       NameIDType issuer = request.getIssuer();
       if( issuer != null )
       {
