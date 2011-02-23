@@ -89,30 +89,37 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       private AttributeAuthorityDescriptorType attribDescriptor;
       private PDPDescriptorType pdpDescriptor;
       
-      public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
-      { 
-         if( roleDescriptor instanceof IDPSSODescriptorType )
-         {
-            this.idpDescriptor = (IDPSSODescriptorType) roleDescriptor;
-         }
-         else if( roleDescriptor instanceof SPSSODescriptorType )
-         {
-            this.spDescriptor = (SPSSODescriptorType) roleDescriptor;
-         }
-         else if( roleDescriptor instanceof AuthnAuthorityDescriptorType )
-         {
-            this.authnDescriptor = (AuthnAuthorityDescriptorType) roleDescriptor;
-         }
-         else if( roleDescriptor instanceof AttributeAuthorityDescriptorType )
-         {
-            this.attribDescriptor = (AttributeAuthorityDescriptorType) roleDescriptor;
-         }
-         else if( roleDescriptor instanceof PDPDescriptorType )
-         {
-            this.pdpDescriptor = (PDPDescriptorType) roleDescriptor;
-         }
-         else this.roleDescriptor = roleDescriptor;
+      public EDTDescriptorChoiceType(AuthnAuthorityDescriptorType authnDescriptor)
+      {
+         this.authnDescriptor = authnDescriptor;
       }
+      
+      public EDTDescriptorChoiceType(AttributeAuthorityDescriptorType attribDescriptor)
+      {
+         this.attribDescriptor = attribDescriptor;
+      }
+      
+      public EDTDescriptorChoiceType(PDPDescriptorType pdpDescriptor)
+      {
+         this.pdpDescriptor = pdpDescriptor;
+      }
+      
+      public EDTDescriptorChoiceType( SSODescriptorType sso )
+      {
+         if(sso instanceof IDPSSODescriptorType )
+         {
+            this.idpDescriptor = (IDPSSODescriptorType) sso;
+         }
+         else
+            this.spDescriptor = (SPSSODescriptorType) sso;
+      }
+      
+      public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
+      {  
+          this.roleDescriptor = roleDescriptor;
+      }
+      
+      
       public RoleDescriptorType getRoleDescriptor()
       {
          return roleDescriptor;
