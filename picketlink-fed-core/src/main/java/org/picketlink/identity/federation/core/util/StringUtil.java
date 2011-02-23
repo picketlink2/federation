@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 
 /**
  * Utility dealing with Strings
@@ -66,5 +70,21 @@ public class StringUtil
          str = sysPropertyValue;
       }
       return str;
+   }
+   
+   /**
+    * Given a comma separated string, get the tokens as a {@link List}
+    * @param str
+    * @return
+    */
+   public static List<String> tokenize( String str )
+   {
+      List<String> list = new ArrayList<String>();
+      StringTokenizer tokenizer = new StringTokenizer(str, ",");
+      while( tokenizer.hasMoreTokens() )
+      {
+         list.add( tokenizer.nextToken() );
+      }
+      return list;
    }
 }
