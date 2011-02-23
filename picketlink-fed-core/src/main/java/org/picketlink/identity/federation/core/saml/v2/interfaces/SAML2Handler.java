@@ -34,7 +34,9 @@ public interface SAML2Handler
 { 
    //Define some constants
    String DISABLE_AUTHN_STATEMENT = "DISABLE_AUTHN_STATEMENT";
-   String DISABLE_SENDING_ROLES = "DISABLE_SENDING_ROLES";
+   String DISABLE_SENDING_ROLES = "DISABLE_SENDING_ROLES"; 
+   String DISABLE_ROLE_PICKING = "DISABLE_ROLE_PICKING";
+   String ROLE_KEY = "ROLE_KEY";
    
    /**
     * Processing Point - idp side 

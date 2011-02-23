@@ -512,9 +512,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          List<String> roles = new ArrayList<String>();
          
          //PLFED-141: Disable role picking from IDP response
-         if( handlerConfig.containsKey( GeneralConstants.DISABLE_ROLE_PICKING ))
+         if( handlerConfig.containsKey( DISABLE_ROLE_PICKING ))
          {
-            String val = (String) handlerConfig.getParameter( GeneralConstants.DISABLE_ROLE_PICKING );
+            String val = (String) handlerConfig.getParameter( DISABLE_ROLE_PICKING );
             if( StringUtil.isNotNull(val) && "true".equalsIgnoreCase(val) )
                return roles;
          }
@@ -522,9 +522,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          //PLFED-140: which of the attribute statements represent roles?
          List<String> roleKeys = new ArrayList<String>();
          
-         if( handlerConfig.containsKey( GeneralConstants.ROLE_KEY ) )
+         if( handlerConfig.containsKey( ROLE_KEY ) )
          {
-            String roleKey = (String) handlerConfig.getParameter( GeneralConstants.ROLE_KEY );
+            String roleKey = (String) handlerConfig.getParameter( ROLE_KEY );
             roleKeys.addAll( StringUtil.tokenize( roleKey ) );
          }
          
