@@ -52,6 +52,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedNam
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RequestedAttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SSODescriptorType;
 import org.w3c.dom.Element;
@@ -98,6 +99,11 @@ public class SAMLMetadataWriter extends BaseWriter
          List<EDTDescriptorChoiceType> edtDescChoices = edtChoice.getDescriptors();
          for( EDTDescriptorChoiceType edtDescChoice : edtDescChoices )
          {
+            RoleDescriptorType roleDesc = edtDescChoice.getRoleDescriptor();
+            
+            if( roleDesc != null )
+               throw new RuntimeException( "Role Descriptor type not handled" );
+            
             IDPSSODescriptorType idpSSO = edtDescChoice.getIdpDescriptor();
             if( idpSSO != null )
                write( edtDescChoice.getIdpDescriptor() ); 
@@ -116,7 +122,10 @@ public class SAMLMetadataWriter extends BaseWriter
          }
       }
       OrganizationType organization = entityDescriptor.getOrganization();
-      writeOrganization(organization);
+      if( organization != null )
+      {
+         writeOrganization(organization);
+      }
       
       List<ContactType> contactPersons = entityDescriptor.getContactPerson();
       for( ContactType contact : contactPersons )
@@ -130,7 +139,7 @@ public class SAMLMetadataWriter extends BaseWriter
    
    public void write( SSODescriptorType ssoDescriptor ) throws ProcessingException
    {
-      throw new RuntimeException( "should not called" );
+      throw new RuntimeException( "should not be called" );
    }
    
    public void write( SPSSODescriptorType spSSODescriptor ) throws ProcessingException
@@ -325,6 +334,8 @@ public class SAMLMetadataWriter extends BaseWriter
    
    public void writeOrganization( OrganizationType org ) throws ProcessingException
    { 
+      if( org == null )
+         throw new ProcessingException( "Organization is null" );
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ORGANIZATION.get(),
             METADATA_NSURI.get());
       

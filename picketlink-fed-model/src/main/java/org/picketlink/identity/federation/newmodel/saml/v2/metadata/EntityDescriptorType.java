@@ -90,7 +90,15 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
       private PDPDescriptorType pdpDescriptor;
       public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
       { 
-         this.roleDescriptor = roleDescriptor;
+         if( roleDescriptor instanceof IDPSSODescriptorType )
+         {
+            this.idpDescriptor = (IDPSSODescriptorType) roleDescriptor;
+         }
+         else if( roleDescriptor instanceof SPSSODescriptorType )
+         {
+            this.spDescriptor = (SPSSODescriptorType) roleDescriptor;
+         }
+         else this.roleDescriptor = roleDescriptor;
       }
       public EDTDescriptorChoiceType(IDPSSODescriptorType idpDescriptor)
       {

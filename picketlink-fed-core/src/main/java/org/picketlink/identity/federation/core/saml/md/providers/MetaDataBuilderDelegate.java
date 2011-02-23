@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants; 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
@@ -168,8 +169,10 @@ public class MetaDataBuilderDelegate
          List<AttributeType> attributes,
          OrganizationType org)
    {
-      List<String> emptyList = new ArrayList<String>(); 
-      SPSSODescriptorType sp = new SPSSODescriptorType( emptyList );
+      List<String> protocolEnumList = new ArrayList<String>(); 
+      protocolEnumList.add( JBossSAMLURIConstants.PROTOCOL_NSURI.get() );
+      
+      SPSSODescriptorType sp = new SPSSODescriptorType( protocolEnumList );
       sp.addSingleLogoutService( sloEndPoint );
       sp.addKeyDescriptor( keyDescriptorType );
       sp.setAuthnRequestsSigned(requestsSigned); 

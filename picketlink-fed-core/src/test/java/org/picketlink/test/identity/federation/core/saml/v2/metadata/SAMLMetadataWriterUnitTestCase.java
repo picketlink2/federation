@@ -25,14 +25,24 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.stream.XMLStreamWriter;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilderDelegate;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
 
 
 /**
@@ -82,6 +92,38 @@ public class SAMLMetadataWriterUnitTestCase
       SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
       mdWriter.writeEntityDescriptor( entity ) ; 
       
+      System.out.println( new String( baos.toByteArray() ));
+   }
+   
+   /**
+    * PLFED-142
+    * @throws Exception
+    */
+   @Test
+   public void testDynamicMetadataCreation() throws Exception
+   {
+      OrganizationType org = new OrganizationType();
+      AttributeType attributeType = new AttributeType( "hello" );
+      List<AttributeType> attributes = new ArrayList<AttributeType>();
+      attributes.add(attributeType);
+      
+      URI test = URI.create( "http://test");
+      EndpointType sloEndPoint = new EndpointType( test, test );
+      KeyDescriptorType keyDescriptorType = new KeyDescriptorType();
+      String str = "<a/>";
+      keyDescriptorType.setKeyInfo( DocumentUtil.getDocument( str ).getDocumentElement() );
+      
+      SPSSODescriptorType spSSO = MetaDataBuilderDelegate.createSPSSODescriptor(false, keyDescriptorType, sloEndPoint, attributes, org);
+      EntityDescriptorType entity = MetaDataBuilderDelegate.createEntityDescriptor(spSSO);
+      
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      
+      XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
+      
+      //write it back
+      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
+      mdWriter.writeEntityDescriptor( entity ) ; 
       System.out.println( new String( baos.toByteArray() ));
    }
 }
