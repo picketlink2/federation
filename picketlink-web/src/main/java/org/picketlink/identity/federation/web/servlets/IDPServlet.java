@@ -75,12 +75,14 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object; 
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.roles.DefaultRoleGenerator;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
@@ -105,27 +107,32 @@ public class IDPServlet extends HttpServlet
    
    protected transient IDPType idpConfiguration = null;
 
-   private transient RoleGenerator roleGenerator = new DefaultRoleGenerator();
+   protected transient RoleGenerator roleGenerator = new DefaultRoleGenerator();
    
-   private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
+   protected transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
 
-   private List<String> attributeKeys = new ArrayList<String>();
+   protected List<String> attributeKeys = new ArrayList<String>();
    
-   private long assertionValidity = 5000; // 5 seconds in miliseconds
+   protected long assertionValidity = 5000; // 5 seconds in miliseconds
 
-   private String identityURL = null;
+   protected String identityURL = null;
 
-   private transient TrustKeyManager keyManager;
+   protected transient TrustKeyManager keyManager;
 
-   private Boolean ignoreIncomingSignatures = false;
+   protected Boolean ignoreIncomingSignatures = false;
 
-   private Boolean signOutgoingMessages = true; 
+   protected Boolean signOutgoingMessages = true; 
    
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
    
-   private transient ServletContext context = null;
+   protected transient ServletContext context = null;
    
-   private transient SAML2HandlerChain chain = null;
+   protected transient SAML2HandlerChain chain = null;
+
+   /**
+    * If the user wants to set a particular {@link IdentityParticipantStack}
+    */
+   protected String identityParticipantStack = null;
 
    public Boolean getIgnoreIncomingSignatures()
    {
@@ -252,6 +259,27 @@ public class IDPServlet extends HttpServlet
       {
          identityServer = new IdentityServer();
          context.setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer); 
+         String theStackParam = config.getInitParameter( GeneralConstants.IDENTITY_PARTICIPANT_STACK );
+         if( StringUtil.isNotNull( theStackParam ) )
+         {
+            try
+            {
+               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass(theStackParam);
+               identityServer.setStack( (IdentityParticipantStack) stackClass.newInstance() );
+            }
+            catch (ClassNotFoundException e)
+            { 
+               log( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+            catch (InstantiationException e)
+            {
+               log( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+            catch (IllegalAccessException e)
+            {
+               log( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+         }
       } 
       
       //Ensure the configuration in the STS

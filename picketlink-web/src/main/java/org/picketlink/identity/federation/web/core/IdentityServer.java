@@ -58,9 +58,9 @@ public class IdentityServer implements HttpSessionListener
    
    private static int activeSessionCount = 0;
    
-   private STACK stack = new STACK(); 
+   private IdentityParticipantStack stack = new STACK(); 
    
-   public class STACK
+   public class STACK implements IdentityParticipantStack
    {   
       private ConcurrentHashMap<String,Stack<String>> sessionParticipantsMap = 
          new ConcurrentHashMap<String, Stack<String>>();
@@ -71,9 +71,7 @@ public class IdentityServer implements HttpSessionListener
       private ConcurrentHashMap<String, Boolean> postBindingMap = new ConcurrentHashMap<String, Boolean>();
       
       /**
-       * Peek at the most recent participant in the session
-       * @param sessionID
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#peek(java.lang.String)
        */
       public String peek(String sessionID)
       {
@@ -84,9 +82,7 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * Remove the most recent participant in the session
-       * @param sessionID
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#pop(java.lang.String)
        */
       public String pop(String sessionID)
       {
@@ -100,9 +96,7 @@ public class IdentityServer implements HttpSessionListener
       }      
 
       /**
-       * Register a participant in a session
-       * @param sessionID
-       * @param participant
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#register(java.lang.String, java.lang.String, boolean)
        */
       public void register(String sessionID, String participant, boolean postBinding)
       {
@@ -120,9 +114,7 @@ public class IdentityServer implements HttpSessionListener
       }
 
       /**
-       * For a given identity session, return the number of participants
-       * @param sessionID
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#getParticipants(java.lang.String)
        */
       public int getParticipants(String sessionID)
       {
@@ -134,10 +126,7 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * Register a participant as in transit in a logout interaction
-       * @param sessionID
-       * @param participant
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#registerTransitParticipant(java.lang.String, java.lang.String)
        */
       public boolean registerTransitParticipant(String sessionID, String participant)
       {
@@ -151,10 +140,7 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * Deregister a participant as in transit in a logout interaction
-       * @param sessionID
-       * @param participant
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#deRegisterTransitParticipant(java.lang.String, java.lang.String)
        */
       public boolean deRegisterTransitParticipant(String sessionID, String participant)
       {
@@ -168,9 +154,7 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * Return the number of participants in transit
-       * @param sessionID
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#getNumOfParticipantsInTransit(java.lang.String)
        */
       public int getNumOfParticipantsInTransit(String sessionID)
       {
@@ -181,15 +165,7 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * <p>
-       * For a particular participant, indicate whether it supports
-       * POST or REDIRECT binding.
-       * </p>
-       * <p>
-       * <b>NOTE:</b> true: POST, false: REDIRECT, null: does not exist
-       * </p>
-       * @param participant
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#getBinding(java.lang.String)
        */
       public Boolean getBinding(  String participant )
       {
@@ -197,21 +173,26 @@ public class IdentityServer implements HttpSessionListener
       }
       
       /**
-       * The total number of sessions active
-       * @return
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#totalSessions()
        */
       public int totalSessions()
       {
          return sessionParticipantsMap.keySet().size();
       }
       
-      private void put(String id)
+      /**
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#createSession(java.lang.String)
+       */
+      public void createSession( String id )
       {
          sessionParticipantsMap.put(id, new Stack<String>());
          inTransitMap.put(id, new HashSet<String>());
       }
       
-      private void remove(String id)
+      /**
+       * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#removeSession(java.lang.String)
+       */
+      public void removeSession( String id )
       {
          sessionParticipantsMap.remove(id);
          inTransitMap.remove(id);
@@ -231,9 +212,18 @@ public class IdentityServer implements HttpSessionListener
     * Return a reference to the internal stack 
     * @return
     */
-   public STACK stack()
+   public IdentityParticipantStack stack()
    {
       return stack;
+   }
+   
+   /**
+    * Set a custom instance of the {@link IdentityParticipantStack}
+    * @param theStack
+    */
+   public void setStack( IdentityParticipantStack theStack )
+   {
+      this.stack = theStack;
    }
    
 
@@ -268,7 +258,7 @@ public class IdentityServer implements HttpSessionListener
          throw new IllegalStateException("Identity Server mismatch");
       
       String id = sessionEvent.getSession().getId();
-      stack.put(id); 
+      stack.createSession( id ); 
    }
 
    /**
@@ -282,6 +272,6 @@ public class IdentityServer implements HttpSessionListener
       if(trace)
          log.trace("Session Destroyed with id=" + id + "::active session count=" 
                + activeSessionCount);
-      stack.remove(id); 
+      stack.removeSession( id ); 
    }
 }

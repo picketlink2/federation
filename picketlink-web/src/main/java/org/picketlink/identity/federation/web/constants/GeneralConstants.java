@@ -45,6 +45,7 @@ public interface GeneralConstants
    String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-handlers.xml";
    
    String IDENTITY_SERVER = "IDENTITY_SERVER";
+   String IDENTITY_PARTICIPANT_STACK = "IDENTITY_PARTICIPANT_STACK";
    String IGNORE_SIGNATURES = "IGNORE_SIGNATURES";
    
    String KEYPAIR = "KEYPAIR"; 
