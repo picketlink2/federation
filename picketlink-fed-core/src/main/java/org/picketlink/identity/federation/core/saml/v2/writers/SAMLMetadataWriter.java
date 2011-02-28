@@ -507,7 +507,7 @@ public class SAMLMetadataWriter extends BaseWriter
 
       KeyTypes keyTypes = keyDescriptor.getUse();
       if (keyTypes != null)
-         StaxUtil.writeAttribute(writer, new QName(JBossSAMLConstants.USE.get()), keyTypes.toString());
+         StaxUtil.writeAttribute(writer, new QName(JBossSAMLConstants.USE.get()), keyTypes.value());
 
       Element keyInfo = keyDescriptor.getKeyInfo();
       StaxUtil.writeDOMElement(writer, keyInfo);
