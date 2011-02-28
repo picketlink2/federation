@@ -147,6 +147,8 @@ public class AssertionUtil
     */
    public static boolean hasExpired(AssertionType assertion) throws ConfigurationException
    {
+      boolean expiry = false;
+      
       //Check for validity of assertion
       ConditionsType conditionsType = assertion.getConditions();
       if(conditionsType != null)
@@ -156,10 +158,15 @@ public class AssertionUtil
          XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
          if(trace) log.trace("Now="+now.toXMLFormat() + " ::notBefore="+notBefore.toXMLFormat() 
                + "::notOnOrAfter="+notOnOrAfter);
-         return !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter); 
+         expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter); 
+         if( !expiry )
+         {
+            log.info( "Assertion has expired with id=" + assertion.getID() );
+         }
       }
+      
       //TODO: if conditions do not exist, assume the assertion to be everlasting?
-      return false; 
+      return expiry; 
    } 
    
    /**
