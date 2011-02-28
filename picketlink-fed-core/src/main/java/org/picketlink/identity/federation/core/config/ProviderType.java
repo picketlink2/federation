@@ -71,7 +71,7 @@ public class ProviderType
 
    protected String serverEnvironment;
 
-   protected String canonicalizationMethod;
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
    /**
     * Gets the value of the identityURL property.
@@ -220,9 +220,6 @@ public class ProviderType
     */
    public String getCanonicalizationMethod()
    {
-      if (canonicalizationMethod == null)
-         canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
-
       return canonicalizationMethod;
    }
 
