@@ -1,5 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.core.config;
-
 
 /**
  * 
@@ -27,83 +47,92 @@ package org.picketlink.identity.federation.core.config;
  * </pre>
  * 
  * 
- */ 
-public class ServiceProviderType {
- 
-    protected String endpoint; 
-    protected String tokenType; 
-    protected String truststoreAlias;
+ */
+public class ServiceProviderType
+{
 
-    /**
-     * Gets the value of the endpoint property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEndpoint() {
-        return endpoint;
-    }
+   protected String endpoint;
 
-    /**
-     * Sets the value of the endpoint property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEndpoint(String value) {
-        this.endpoint = value;
-    }
+   protected String tokenType;
 
-    /**
-     * Gets the value of the tokenType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTokenType() {
-        return tokenType;
-    }
+   protected String truststoreAlias;
 
-    /**
-     * Sets the value of the tokenType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTokenType(String value) {
-        this.tokenType = value;
-    }
+   /**
+    * Gets the value of the endpoint property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getEndpoint()
+   {
+      return endpoint;
+   }
 
-    /**
-     * Gets the value of the truststoreAlias property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTruststoreAlias() {
-        return truststoreAlias;
-    }
+   /**
+    * Sets the value of the endpoint property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setEndpoint(String value)
+   {
+      this.endpoint = value;
+   }
 
-    /**
-     * Sets the value of the truststoreAlias property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTruststoreAlias(String value) {
-        this.truststoreAlias = value;
-    }
+   /**
+    * Gets the value of the tokenType property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getTokenType()
+   {
+      return tokenType;
+   }
+
+   /**
+    * Sets the value of the tokenType property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setTokenType(String value)
+   {
+      this.tokenType = value;
+   }
+
+   /**
+    * Gets the value of the truststoreAlias property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getTruststoreAlias()
+   {
+      return truststoreAlias;
+   }
+
+   /**
+    * Sets the value of the truststoreAlias property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setTruststoreAlias(String value)
+   {
+      this.truststoreAlias = value;
+   }
 
 }

@@ -1,7 +1,27 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.core.config;
 
 import javax.xml.crypto.dsig.CanonicalizationMethod;
-
 
 /**
  * Base Type for IDP and SP
@@ -37,154 +57,172 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
  * </pre>
  * 
  * 
- */ 
-public class ProviderType {
+ */
+public class ProviderType
+{
 
-    protected String identityURL;
-    protected TrustType trust;
-    protected KeyProviderType keyProvider;
-    protected MetadataProviderType metaDataProvider;
-    protected String serverEnvironment;
-    protected String canonicalizationMethod;
+   protected String identityURL;
 
-    /**
-     * Gets the value of the identityURL property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getIdentityURL() {
-        return identityURL;
-    }
+   protected TrustType trust;
 
-    /**
-     * Sets the value of the identityURL property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setIdentityURL(String value) {
-        this.identityURL = value;
-    }
+   protected KeyProviderType keyProvider;
 
-    /**
-     * Gets the value of the trust property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link TrustType }
-     *     
-     */
-    public TrustType getTrust() {
-        return trust;
-    }
+   protected MetadataProviderType metaDataProvider;
 
-    /**
-     * Sets the value of the trust property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link TrustType }
-     *     
-     */
-    public void setTrust(TrustType value) {
-        this.trust = value;
-    }
+   protected String serverEnvironment;
 
-    /**
-     * Gets the value of the keyProvider property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link KeyProviderType }
-     *     
-     */
-    public KeyProviderType getKeyProvider() {
-        return keyProvider;
-    }
+   protected String canonicalizationMethod;
 
-    /**
-     * Sets the value of the keyProvider property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link KeyProviderType }
-     *     
-     */
-    public void setKeyProvider(KeyProviderType value) {
-        this.keyProvider = value;
-    }
+   /**
+    * Gets the value of the identityURL property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getIdentityURL()
+   {
+      return identityURL;
+   }
 
-    /**
-     * Gets the value of the metaDataProvider property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link MetadataProviderType }
-     *     
-     */
-    public MetadataProviderType getMetaDataProvider() {
-        return metaDataProvider;
-    }
+   /**
+    * Sets the value of the identityURL property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setIdentityURL(String value)
+   {
+      this.identityURL = value;
+   }
 
-    /**
-     * Sets the value of the metaDataProvider property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link MetadataProviderType }
-     *     
-     */
-    public void setMetaDataProvider(MetadataProviderType value) {
-        this.metaDataProvider = value;
-    }
+   /**
+    * Gets the value of the trust property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link TrustType }
+    *     
+    */
+   public TrustType getTrust()
+   {
+      return trust;
+   }
 
-    /**
-     * Gets the value of the serverEnvironment property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getServerEnvironment() {
-        if (serverEnvironment == null) {
-            return "picketlink";
-        } else {
-            return serverEnvironment;
-        }
-    }
+   /**
+    * Sets the value of the trust property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link TrustType }
+    *     
+    */
+   public void setTrust(TrustType value)
+   {
+      this.trust = value;
+   }
 
-    /**
-     * Sets the value of the serverEnvironment property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setServerEnvironment(String value) {
-        this.serverEnvironment = value;
-    }
+   /**
+    * Gets the value of the keyProvider property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link KeyProviderType }
+    *     
+    */
+   public KeyProviderType getKeyProvider()
+   {
+      return keyProvider;
+   }
 
+   /**
+    * Sets the value of the keyProvider property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link KeyProviderType }
+    *     
+    */
+   public void setKeyProvider(KeyProviderType value)
+   {
+      this.keyProvider = value;
+   }
 
-    /**
-     * Gets the value of the canonicalizationMethod property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
+   /**
+    * Gets the value of the metaDataProvider property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link MetadataProviderType }
+    *     
+    */
+   public MetadataProviderType getMetaDataProvider()
+   {
+      return metaDataProvider;
+   }
+
+   /**
+    * Sets the value of the metaDataProvider property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link MetadataProviderType }
+    *     
+    */
+   public void setMetaDataProvider(MetadataProviderType value)
+   {
+      this.metaDataProvider = value;
+   }
+
+   /**
+    * Gets the value of the serverEnvironment property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getServerEnvironment()
+   {
+      if (serverEnvironment == null)
+      {
+         return "picketlink";
+      }
+      else
+      {
+         return serverEnvironment;
+      }
+   }
+
+   /**
+    * Sets the value of the serverEnvironment property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setServerEnvironment(String value)
+   {
+      this.serverEnvironment = value;
+   }
+
+   /**
+    * Gets the value of the canonicalizationMethod property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
    public String getCanonicalizationMethod()
    {
-      if( canonicalizationMethod == null )
+      if (canonicalizationMethod == null)
          canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
-      
+
       return canonicalizationMethod;
    }
 

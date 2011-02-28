@@ -1,5 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.core.config;
- 
 
 /**
  * 
@@ -28,151 +48,176 @@ package org.picketlink.identity.federation.core.config;
  * </pre>
  * 
  * 
- */ 
-public class IDPType
-    extends ProviderType
+ */
+public class IDPType extends ProviderType
 {
 
-    protected EncryptionType encryption;
-    protected Long assertionValidity;
-    protected String roleGenerator;
-    protected String attributeManager;
-    protected Boolean encrypt;
+   protected EncryptionType encryption;
 
-    /**
-     * Gets the value of the encryption property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EncryptionType }
-     *     
-     */
-    public EncryptionType getEncryption() {
-        return encryption;
-    }
+   protected Long assertionValidity;
 
-    /**
-     * Sets the value of the encryption property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EncryptionType }
-     *     
-     */
-    public void setEncryption(EncryptionType value) {
-        this.encryption = value;
-    }
+   protected String roleGenerator;
 
-    /**
-     * Gets the value of the assertionValidity property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Long }
-     *     
-     */
-    public long getAssertionValidity() {
-        if (assertionValidity == null) {
-            return  300000L;
-        } else {
-            return assertionValidity;
-        }
-    }
+   protected String attributeManager;
 
-    /**
-     * Sets the value of the assertionValidity property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Long }
-     *     
-     */
-    public void setAssertionValidity(Long value) {
-        this.assertionValidity = value;
-    }
+   protected Boolean encrypt;
 
-    /**
-     * Gets the value of the roleGenerator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getRoleGenerator() {
-        if (roleGenerator == null) {
-            return "org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator";
-        } else {
-            return roleGenerator;
-        }
-    }
+   /**
+    * Gets the value of the encryption property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link EncryptionType }
+    *     
+    */
+   public EncryptionType getEncryption()
+   {
+      return encryption;
+   }
 
-    /**
-     * Sets the value of the roleGenerator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setRoleGenerator(String value) {
-        this.roleGenerator = value;
-    }
+   /**
+    * Sets the value of the encryption property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link EncryptionType }
+    *     
+    */
+   public void setEncryption(EncryptionType value)
+   {
+      this.encryption = value;
+   }
 
-    /**
-     * Gets the value of the attributeManager property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAttributeManager() {
-        if (attributeManager == null) {
-            return "org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager";
-        } else {
-            return attributeManager;
-        }
-    }
+   /**
+    * Gets the value of the assertionValidity property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Long }
+    *     
+    */
+   public long getAssertionValidity()
+   {
+      if (assertionValidity == null)
+      {
+         return 300000L;
+      }
+      else
+      {
+         return assertionValidity;
+      }
+   }
 
-    /**
-     * Sets the value of the attributeManager property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAttributeManager(String value) {
-        this.attributeManager = value;
-    }
+   /**
+    * Sets the value of the assertionValidity property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Long }
+    *     
+    */
+   public void setAssertionValidity(Long value)
+   {
+      this.assertionValidity = value;
+   }
 
-    /**
-     * Gets the value of the encrypt property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public boolean isEncrypt() {
-        if (encrypt == null) {
-            return false;
-        } else {
-            return encrypt;
-        }
-    }
+   /**
+    * Gets the value of the roleGenerator property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getRoleGenerator()
+   {
+      if (roleGenerator == null)
+      {
+         return "org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator";
+      }
+      else
+      {
+         return roleGenerator;
+      }
+   }
 
-    /**
-     * Sets the value of the encrypt property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setEncrypt(Boolean value) {
-        this.encrypt = value;
-    }
+   /**
+    * Sets the value of the roleGenerator property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setRoleGenerator(String value)
+   {
+      this.roleGenerator = value;
+   }
+
+   /**
+    * Gets the value of the attributeManager property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getAttributeManager()
+   {
+      if (attributeManager == null)
+      {
+         return "org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager";
+      }
+      else
+      {
+         return attributeManager;
+      }
+   }
+
+   /**
+    * Sets the value of the attributeManager property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setAttributeManager(String value)
+   {
+      this.attributeManager = value;
+   }
+
+   /**
+    * Gets the value of the encrypt property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Boolean }
+    *     
+    */
+   public boolean isEncrypt()
+   {
+      if (encrypt == null)
+      {
+         return false;
+      }
+      else
+      {
+         return encrypt;
+      }
+   }
+
+   /**
+    * Sets the value of the encrypt property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Boolean }
+    *     
+    */
+   public void setEncrypt(Boolean value)
+   {
+      this.encrypt = value;
+   }
 
 }
