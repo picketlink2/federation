@@ -22,6 +22,7 @@
 		ID="ID_976d8310-658a-450d-be39-f33c73c8afa6" Version="2.0">
 		<Issuer>testIssuer</Issuer>
 		<AuthnStatement AuthnInstant="2009-05-26T14:06:26.359-05:00">
+		    <SubjectLocality Address="127.0.0.1"/>
 			<AuthnContext>
 				<AuthnContextDeclRef>
 					urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
