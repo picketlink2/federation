@@ -42,45 +42,30 @@ public class ConfigurationUtil
     * @param is
     * @return 
     * @throws ParsingException 
-    */ 
-   public static IDPType getIDPConfiguration(InputStream is) throws ParsingException  
+    */
+   public static IDPType getIDPConfiguration(InputStream is) throws ParsingException
    {
-      if(is == null)
+      if (is == null)
          throw new IllegalArgumentException("inputstream is null");
-      /*String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
-      
-      Unmarshaller un = getUnmarshaller(schema);
-      
-      JAXBElement<IDPType> jaxbSp =  (JAXBElement<IDPType>) un.unmarshal(is);
-      return jaxbSp.getValue(); */
-      
+
       SAMLConfigParser parser = new SAMLConfigParser();
       return (IDPType) parser.parse(is);
    }
 
-   
    /**
     * Get the SP Configuration from the
     * passed inputstream
     * @param is
     * @return 
     * @throws ParsingException 
-    */ 
-   public static SPType getSPConfiguration(InputStream is) throws ParsingException  
+    */
+   public static SPType getSPConfiguration(InputStream is) throws ParsingException
    {
-      if(is == null)
+      if (is == null)
          throw new IllegalArgumentException("inputstream is null");
-      /*
-      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
-      
-      Unmarshaller un = getUnmarshaller(schema);
-      
-      JAXBElement<SPType> jaxbSp =  (JAXBElement<SPType>) un.unmarshal(is);
-      return jaxbSp.getValue(); 
-      */
       return (SPType) (new SAMLConfigParser()).parse(is);
    }
-   
+
    /**
     * Get the Handlers from the configuration
     * @param is
@@ -89,14 +74,8 @@ public class ConfigurationUtil
     */
    public static Handlers getHandlers(InputStream is) throws ParsingException
    {
-      if(is == null)
-         throw new IllegalArgumentException("inputstream is null");/*
-      String[] schemas = new String[] { PicketLinkFederationConstants.SCHEMA_IDFED,
-    		  PicketLinkFederationConstants.SCHEMA_IDFED_HANDLER};
-
-      Unmarshaller un = getUnmarshaller(schemas);
-      JAXBElement<Handlers> handlers = (JAXBElement<Handlers>) un.unmarshal(is);
-      return handlers.getValue(); */
+      if (is == null)
+         throw new IllegalArgumentException("inputstream is null");
       return (Handlers) (new SAMLConfigParser()).parse(is);
    }
 }

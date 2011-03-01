@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:picketlink:identity-federation:config:1.0"
-	xmlns:tns="urn:picketlink:identity-federation:config:1.0"
-	elementFormDefault="qualified" version="1.0">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:picketlink:identity-federation:config:2.0"
+	xmlns:tns="urn:picketlink:identity-federation:config:2.0"
+	elementFormDefault="qualified" version="2.0">
 	<complexType name="IDPType">
 		<annotation>
 			<documentation>
@@ -101,8 +101,7 @@
     		<documentation>Base Type for IDP and SP</documentation>
     	</annotation>
     	<sequence>
-    		<element name="IdentityURL" type="string" maxOccurs="1"
-    			minOccurs="1">
+    		<element name="IdentityURL" type="string" maxOccurs="1" minOccurs="0">
     		</element>
     		<element name="Trust" type="tns:TrustType" maxOccurs="1"
     			minOccurs="0">
@@ -133,6 +132,7 @@
     		<extension base="tns:ProviderType">
     			<sequence>
     				<element name="ServiceURL" type="string"></element>
+    				<element name="IDPMetadataFile" type="string" minOccurs="0" maxOccurs="1"></element>
     			</sequence>
     		</extension>
     	</complexContent>

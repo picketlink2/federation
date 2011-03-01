@@ -64,6 +64,9 @@ public enum JBossSAMLURIConstants
    SIGNATURE_DSA_SHA1("http://www.w3.org/2000/09/xmldsig#dsa-sha1"),
    SIGNATURE_RSA_SHA1("http://www.w3.org/2000/09/xmldsig#rsa-sha1"),
    
+   SAML_HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
+   SAML_HTTP_REDIRECT_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
+   
    SUBJECT_CONFIRMATION_BEARER("urn:oasis:names:tc:SAML:2.0:cm:bearer"),
    
    

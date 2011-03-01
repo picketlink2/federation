@@ -38,11 +38,17 @@ import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
 
 /**
  * Utility for configuration
@@ -62,9 +68,9 @@ public class CoreConfigUtil
    public static TrustKeyManager getTrustKeyManager(ProviderType idpOrSPConfiguration)
    {
       KeyProviderType keyProvider = idpOrSPConfiguration.getKeyProvider();
-      return getTrustKeyManager(keyProvider); 
+      return getTrustKeyManager(keyProvider);
    }
-   
+
    /**
     * Once the {@code KeyProviderType} is derived, get
     * the {@code TrustKeyManager}
@@ -73,24 +79,24 @@ public class CoreConfigUtil
     */
    public static TrustKeyManager getTrustKeyManager(KeyProviderType keyProvider)
    {
-      TrustKeyManager trustKeyManager = null; 
+      TrustKeyManager trustKeyManager = null;
       try
       {
          ClassLoader tcl = SecurityActions.getContextClassLoader();
          String keyManagerClassName = keyProvider.getClassName();
-         if(keyManagerClassName == null)
+         if (keyManagerClassName == null)
             throw new RuntimeException("KeyManager class name is null");
 
          Class<?> clazz = tcl.loadClass(keyManagerClassName);
          trustKeyManager = (TrustKeyManager) clazz.newInstance();
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-         log.error("Exception in getting TrustKeyManager:",e); 
-      } 
-      return trustKeyManager; 
+         log.error("Exception in getting TrustKeyManager:", e);
+      }
+      return trustKeyManager;
    }
-   
+
    /**
     * Get the validating key
     * @param idpSpConfiguration
@@ -100,13 +106,13 @@ public class CoreConfigUtil
     * @throws ProcessingException
     */
    public static PublicKey getValidatingKey(ProviderType idpSpConfiguration, String domain)
-   throws ConfigurationException, ProcessingException
+         throws ConfigurationException, ProcessingException
    {
-      TrustKeyManager trustKeyManager = getTrustKeyManager(idpSpConfiguration); 
-      
-      return getValidatingKey(trustKeyManager, domain); 
-   } 
-   
+      TrustKeyManager trustKeyManager = getTrustKeyManager(idpSpConfiguration);
+
+      return getValidatingKey(trustKeyManager, domain);
+   }
+
    /**
     * Get the validating key given the trust key manager
     * @param trustKeyManager
@@ -115,16 +121,15 @@ public class CoreConfigUtil
     * @throws ConfigurationException
     * @throws ProcessingException
     */
-   public static PublicKey getValidatingKey(TrustKeyManager trustKeyManager, 
-         String domain)
-   throws ConfigurationException, ProcessingException
-   {   
-      if(trustKeyManager == null)
+   public static PublicKey getValidatingKey(TrustKeyManager trustKeyManager, String domain)
+         throws ConfigurationException, ProcessingException
+   {
+      if (trustKeyManager == null)
          throw new IllegalArgumentException("Trust Key Manager is null");
-      
-      return trustKeyManager.getValidatingKey(domain); 
-   } 
-   
+
+      return trustKeyManager.getValidatingKey(domain);
+   }
+
    /**
     * Given a {@code KeyProviderType}, return the list of auth properties that have been decrypted for any
     * masked password
@@ -133,15 +138,16 @@ public class CoreConfigUtil
     * @throws GeneralSecurityException
     */
    @SuppressWarnings("unchecked")
-   public static List<AuthPropertyType> getKeyProviderProperties( KeyProviderType keyProviderType ) throws GeneralSecurityException
+   public static List<AuthPropertyType> getKeyProviderProperties(KeyProviderType keyProviderType)
+         throws GeneralSecurityException
    {
       List<AuthPropertyType> authProperties = keyProviderType.getAuth();
-      if( decryptionNeeded( authProperties ))
+      if (decryptionNeeded(authProperties))
          authProperties = decryptPasswords(authProperties);
-          
+
       return authProperties;
    }
-   
+
    /**
     * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for
     * any masked property value
@@ -150,15 +156,15 @@ public class CoreConfigUtil
     * @throws GeneralSecurityException
     */
    @SuppressWarnings("unchecked")
-   public static List<KeyValueType> getProperties( TokenProviderType tokenProviderType ) throws GeneralSecurityException
+   public static List<KeyValueType> getProperties(TokenProviderType tokenProviderType) throws GeneralSecurityException
    {
       List<KeyValueType> keyValueTypeList = tokenProviderType.getProperty();
-      if( decryptionNeeded( keyValueTypeList ))
-         keyValueTypeList = decryptPasswords( keyValueTypeList );
-          
+      if (decryptionNeeded(keyValueTypeList))
+         keyValueTypeList = decryptPasswords(keyValueTypeList);
+
       return keyValueTypeList;
    }
-   
+
    /**
     * Given a {@code ClaimsProcessorType}, return the list of properties that have been decrypted for
     * any masked property value
@@ -167,37 +173,38 @@ public class CoreConfigUtil
     * @throws GeneralSecurityException
     */
    @SuppressWarnings("unchecked")
-   public static List<KeyValueType> getProperties( ClaimsProcessorType claimsProcessorType ) throws GeneralSecurityException
+   public static List<KeyValueType> getProperties(ClaimsProcessorType claimsProcessorType)
+         throws GeneralSecurityException
    {
       List<KeyValueType> keyValueTypeList = claimsProcessorType.getProperty();
-      if( decryptionNeeded( keyValueTypeList ))
-         keyValueTypeList = decryptPasswords( keyValueTypeList );
-          
+      if (decryptionNeeded(keyValueTypeList))
+         keyValueTypeList = decryptPasswords(keyValueTypeList);
+
       return keyValueTypeList;
    }
-   
+
    /**
     * Given a key value list, check if decrypt of any properties is needed. 
     * Unless one of the keys is "salt", we cannot figure out is decrypt is needed
     * @param keyValueList
     * @return
     */
-   public static boolean decryptionNeeded( List<? extends KeyValueType> keyValueList )
-   { 
+   public static boolean decryptionNeeded(List<? extends KeyValueType> keyValueList)
+   {
       int length = keyValueList.size();
-      
+
       //Let us run through the list to see if there is any salt
-      for( int i = 0 ; i < length; i++ )
+      for (int i = 0; i < length; i++)
       {
-         KeyValueType kvt = keyValueList.get( i );
-         
+         KeyValueType kvt = keyValueList.get(i);
+
          String key = kvt.getKey();
-         if(PicketLinkFederationConstants.SALT.equalsIgnoreCase( key ) )
-            return true;  
+         if (PicketLinkFederationConstants.SALT.equalsIgnoreCase(key))
+            return true;
       }
-      return false; 
+      return false;
    }
-   
+
    /**
     * Given a key value pair read from PicketLink configuration, ensure
     * that we replace the masked passwords with the decoded passwords
@@ -207,75 +214,130 @@ public class CoreConfigUtil
     * @return
     * @throws GeneralSecurityException 
     * @throws Exception
-    */ 
+    */
    @SuppressWarnings("rawtypes")
-   private static List decryptPasswords( List keyValueList ) throws GeneralSecurityException
+   private static List decryptPasswords(List keyValueList) throws GeneralSecurityException
    {
       String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
-      
+
       String salt = null;
       int iterationCount = 0;
-      
+
       int length = keyValueList.size();
-      
+
       //Let us run through the list to see if there is any salt
-      for( int i = 0 ; i < length; i++ )
+      for (int i = 0; i < length; i++)
       {
-         KeyValueType kvt = (KeyValueType) keyValueList.get( i );
-         
+         KeyValueType kvt = (KeyValueType) keyValueList.get(i);
+
          String key = kvt.getKey();
-         if(PicketLinkFederationConstants.SALT.equalsIgnoreCase( key ) )
+         if (PicketLinkFederationConstants.SALT.equalsIgnoreCase(key))
             salt = kvt.getValue();
-         if(PicketLinkFederationConstants.ITERATION_COUNT.equalsIgnoreCase( key ) )
-            iterationCount = Integer.parseInt( kvt.getValue() ); 
+         if (PicketLinkFederationConstants.ITERATION_COUNT.equalsIgnoreCase(key))
+            iterationCount = Integer.parseInt(kvt.getValue());
       }
-      
-      if( salt == null )
+
+      if (salt == null)
          return keyValueList;
-      
+
       //Ok. there is a salt configured. So we have some properties with masked values
-      List<KeyValueType>  returningList = new ArrayList<KeyValueType>();
-       
+      List<KeyValueType> returningList = new ArrayList<KeyValueType>();
+
       // Create the PBE secret key 
-      SecretKeyFactory factory = SecretKeyFactory.getInstance( pbeAlgo );
+      SecretKeyFactory factory = SecretKeyFactory.getInstance(pbeAlgo);
 
       char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
-      PBEParameterSpec cipherSpec = new PBEParameterSpec( salt.getBytes(), iterationCount );
+      PBEParameterSpec cipherSpec = new PBEParameterSpec(salt.getBytes(), iterationCount);
       PBEKeySpec keySpec = new PBEKeySpec(password);
       SecretKey cipherKey = factory.generateSecret(keySpec);
 
-      
-      for( int i = 0 ; i < length; i++ )
+      for (int i = 0; i < length; i++)
       {
-         KeyValueType kvt = (KeyValueType) keyValueList.get( i );
-         
+         KeyValueType kvt = (KeyValueType) keyValueList.get(i);
+
          String val = kvt.getValue();
-         if( val.startsWith( PicketLinkFederationConstants.PASS_MASK_PREFIX) )
+         if (val.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
          {
-            val = val.substring( PicketLinkFederationConstants.PASS_MASK_PREFIX.length() );
+            val = val.substring(PicketLinkFederationConstants.PASS_MASK_PREFIX.length());
             String decodedValue;
             try
             {
-               decodedValue = PBEUtils.decode64( val, pbeAlgo , cipherKey, cipherSpec);
+               decodedValue = PBEUtils.decode64(val, pbeAlgo, cipherKey, cipherSpec);
             }
             catch (UnsupportedEncodingException e)
             {
-               throw new RuntimeException( e );
-            } 
-            
+               throw new RuntimeException(e);
+            }
+
             KeyValueType newKVT = new KeyValueType();
-            if( keyValueList.get( 0 ) instanceof AuthPropertyType )
+            if (keyValueList.get(0) instanceof AuthPropertyType)
                newKVT = new AuthPropertyType();
-            newKVT.setKey( kvt.getKey() );
-            newKVT.setValue( new String( decodedValue ) );
-            returningList.add( newKVT );
+            newKVT.setKey(kvt.getKey());
+            newKVT.setValue(new String(decodedValue));
+            returningList.add(newKVT);
          }
          else
          {
-            returningList.add( kvt );
+            returningList.add(kvt);
          }
       }
-      
-      return returningList; 
+
+      return returningList;
+   }
+
+   public static SPType getSPConfiguration(EntityDescriptorType entityDescriptor, String bindingURI)
+   {
+      List<EDTChoiceType> edtChoices = entityDescriptor.getChoiceType();
+      for (EDTChoiceType edt : edtChoices)
+      {
+         List<EDTDescriptorChoiceType> edtDescriptors = edt.getDescriptors();
+         for (EDTDescriptorChoiceType edtDesc : edtDescriptors)
+         {
+            IDPSSODescriptorType idpSSO = edtDesc.getIdpDescriptor();
+            if (idpSSO != null)
+            {
+               return getSPConfiguration(idpSSO, bindingURI);
+            }
+         }
+      }
+      return null;
+   }
+
+   public static IDPSSODescriptorType getIDPDescriptor(EntityDescriptorType entityDescriptor)
+   {
+      List<EDTChoiceType> edtChoices = entityDescriptor.getChoiceType();
+      for (EDTChoiceType edt : edtChoices)
+      {
+         List<EDTDescriptorChoiceType> edtDescriptors = edt.getDescriptors();
+         for (EDTDescriptorChoiceType edtDesc : edtDescriptors)
+         {
+            IDPSSODescriptorType idpSSO = edtDesc.getIdpDescriptor();
+            if (idpSSO != null)
+            {
+               return idpSSO;
+            }
+         }
+      }
+      return null;
+   }
+
+   public static SPType getSPConfiguration(IDPSSODescriptorType idp, String bindingURI)
+   {
+      String identityURL = null;
+
+      SPType sp = new SPType();
+      List<EndpointType> endpoints = idp.getSingleSignOnService();
+      for (EndpointType endpoint : endpoints)
+      {
+         if (endpoint.getBinding().toString().equals(bindingURI))
+         {
+            identityURL = endpoint.getLocation().toString();
+            break;
+         }
+
+      }
+      //get identity url
+      sp.setIdentityURL(identityURL);
+      return sp;
    }
 }

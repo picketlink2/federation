@@ -47,6 +47,8 @@ public class SPType extends ProviderType
 
    protected String serviceURL;
 
+   protected String idpMetadataFile;
+
    /**
     * Gets the value of the serviceURL property.
     * 
@@ -73,4 +75,21 @@ public class SPType extends ProviderType
       this.serviceURL = value;
    }
 
+   /**
+    * Get the IDP metadata file String
+    * @return
+    */
+   public String getIdpMetadataFile()
+   {
+      return idpMetadataFile;
+   }
+
+   /**
+    * Set the IDP Metadata file String
+    * @param idpMetadataFile
+    */
+   public void setIdpMetadataFile(String idpMetadataFile)
+   {
+      this.idpMetadataFile = idpMetadataFile;
+   }
 }
