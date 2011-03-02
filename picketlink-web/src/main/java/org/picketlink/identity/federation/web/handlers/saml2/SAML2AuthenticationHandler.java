@@ -546,7 +546,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             AttributeType attr = obj.getAttribute();
             if (roleKeys.size() > 0)
             {
-               if (!roleKeys.contains(attr.getNameFormat()))
+               if (!roleKeys.contains(attr.getName()))
                   continue;
             }
             List<Object> attributeValues = attr.getAttributeValue();
