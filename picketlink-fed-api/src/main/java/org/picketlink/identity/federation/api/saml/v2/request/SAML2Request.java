@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
- 
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -63,7 +63,18 @@ import org.xml.sax.SAXException;
 public class SAML2Request
 {
    private SAMLDocumentHolder samlDocumentHolder = null;
-   
+
+   private String nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get();
+
+   /**
+    * Set the NameIDFormat 
+    * @param nameIDFormat
+    */
+   public void setNameIDFormat(String nameIDFormat)
+   {
+      this.nameIDFormat = nameIDFormat;
+   }
+
    /**
     * Create an authentication request
     * @param id
@@ -73,38 +84,36 @@ public class SAML2Request
     * @return 
     * @throws ConfigurationException 
     */
-   public AuthnRequestType createAuthnRequestType(String id, 
-         String assertionConsumerURL, 
-         String destination, 
-         String issuerValue) throws ConfigurationException 
+   public AuthnRequestType createAuthnRequestType(String id, String assertionConsumerURL, String destination,
+         String issuerValue) throws ConfigurationException
    {
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
-      
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+
       String version = JBossSAMLConstants.VERSION_2_0.get();
-      AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant ); 
-      authnRequest.setAssertionConsumerServiceURL( URI.create( assertionConsumerURL ));
-      authnRequest.setProtocolBinding( URI.create( JBossSAMLConstants.HTTP_POST_BINDING.get() ));
-      if( destination != null )
+      AuthnRequestType authnRequest = new AuthnRequestType(id, version, issueInstant);
+      authnRequest.setAssertionConsumerServiceURL(URI.create(assertionConsumerURL));
+      authnRequest.setProtocolBinding(URI.create(JBossSAMLConstants.HTTP_POST_BINDING.get()));
+      if (destination != null)
       {
-         authnRequest.setDestination(  URI.create( destination )); 
-      } 
-      
+         authnRequest.setDestination(URI.create(destination));
+      }
+
       //Create an issuer 
       NameIDType issuer = new NameIDType();
       issuer.setValue(issuerValue);
-      
+
       authnRequest.setIssuer(issuer);
-      
+
       //Create a default NameIDPolicy
       NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
-      nameIDPolicy.setAllowCreate( Boolean.TRUE );
-      nameIDPolicy.setFormat( URI.create( JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get() ));
-      
-      authnRequest.setNameIDPolicy( nameIDPolicy );
-      
-      return authnRequest;  
+      nameIDPolicy.setAllowCreate(Boolean.TRUE);
+      nameIDPolicy.setFormat(URI.create(this.nameIDFormat));
+
+      authnRequest.setNameIDPolicy(nameIDPolicy);
+
+      return authnRequest;
    }
-   
+
    /**
     * Get AuthnRequestType from a file
     * @param fileName file with the serialized AuthnRequestType
@@ -115,38 +124,38 @@ public class SAML2Request
     * @throws IllegalArgumentException if the input fileName is null
     *         IllegalStateException if the InputStream from the fileName is null
     */
-   public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException, ParsingException  
-   {   
-      if(fileName == null)
+   public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException,
+         ParsingException
+   {
+      if (fileName == null)
          throw new IllegalArgumentException("fileName is null");
       ClassLoader tcl = SecurityActions.getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(fileName);
       return getAuthnRequestType(is);
-   }  
-   
+   }
+
    /**
     * Get the Underlying SAML2Object from the input stream
     * @param is
     * @return
     * @throws IOException
     * @throws ParsingException
-    */ 
-   public SAML2Object getSAML2ObjectFromStream(InputStream is) 
-   throws  ConfigurationException, ParsingException,
-   ProcessingException
+    */
+   public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ConfigurationException, ParsingException,
+         ProcessingException
    {
-      if(is == null)
-         throw new IllegalStateException("InputStream is null"); 
+      if (is == null)
+         throw new IllegalStateException("InputStream is null");
 
-      Document samlDocument =  DocumentUtil.getDocument(is); 
+      Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
-      SAML2Object requestType = (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlDocument ));
+      SAML2Object requestType = (SAML2Object) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
 
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
-      return requestType; 
+      return requestType;
    }
-   
+
    /**
     * Get a Request Type from Input Stream
     * @param is
@@ -155,22 +164,23 @@ public class SAML2Request
     * @throws ConfigurationException 
     * @throws  
     * @throws IllegalArgumentException inputstream is null
-    */ 
-   public RequestAbstractType getRequestType(InputStream is) 
-   throws ParsingException, ConfigurationException, ProcessingException 
+    */
+   public RequestAbstractType getRequestType(InputStream is) throws ParsingException, ConfigurationException,
+         ProcessingException
    {
-      if(is == null)
-         throw new IllegalStateException("InputStream is null"); 
+      if (is == null)
+         throw new IllegalStateException("InputStream is null");
 
-      Document samlDocument = DocumentUtil.getDocument( is );
+      Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
-      RequestAbstractType requestType = (RequestAbstractType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
+      RequestAbstractType requestType = (RequestAbstractType) samlParser.parse(DocumentUtil
+            .getNodeAsStream(samlDocument));
 
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
-      return requestType; 
+      return requestType;
    }
-   
+
    /**
     * Get the AuthnRequestType from an input stream
     * @param is Inputstream containing the AuthnRequest
@@ -179,20 +189,20 @@ public class SAML2Request
     * @throws ProcessingException 
     * @throws ConfigurationException 
     * @throws IllegalArgumentException inputstream is null
-    */ 
-   public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException, ParsingException 
+    */
+   public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException,
+         ParsingException
    {
-      if(is == null)
-         throw new IllegalStateException("InputStream is null"); 
-      
-      Document samlDocument = DocumentUtil.getDocument( is );
+      if (is == null)
+         throw new IllegalStateException("InputStream is null");
+
+      Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
-      AuthnRequestType requestType = (AuthnRequestType) samlParser.parse( DocumentUtil.getNodeAsStream(samlDocument));
+      AuthnRequestType requestType = (AuthnRequestType) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
       return requestType;
-   } 
-   
+   }
 
    /**
     * Get the parsed {@code SAMLDocumentHolder}
@@ -201,28 +211,28 @@ public class SAML2Request
    public SAMLDocumentHolder getSamlDocumentHolder()
    {
       return samlDocumentHolder;
-   }  
-   
+   }
+
    /**
     * Create a Logout Request
     * @param issuer
     * @return  
     * @throws ConfigurationException 
     */
-   public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException 
-   {  
-      LogoutRequestType lrt = new LogoutRequestType( IDGenerator.create("ID_"), JBossSAMLConstants.VERSION_2_0.get(),
-             XMLTimeUtil.getIssueInstant() ); 
-      
+   public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException
+   {
+      LogoutRequestType lrt = new LogoutRequestType(IDGenerator.create("ID_"), JBossSAMLConstants.VERSION_2_0.get(),
+            XMLTimeUtil.getIssueInstant());
+
       //Create an issuer 
-      NameIDType issuerNameID = new NameIDType(); 
+      NameIDType issuerNameID = new NameIDType();
       issuerNameID.setValue(issuer);
-      
+
       lrt.setIssuer(issuerNameID);
-      
+
       return lrt;
    }
-   
+
    /**
     * Return the DOM object
     * @param rat
@@ -231,79 +241,80 @@ public class SAML2Request
     * @throws ParsingException 
     * @throws ConfigurationException 
     */
-   public Document convert(RequestAbstractType rat) 
-   throws ProcessingException, ConfigurationException, ParsingException 
+   public Document convert(RequestAbstractType rat) throws ProcessingException, ConfigurationException,
+         ParsingException
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      
+
       SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(bos));
-      if( rat instanceof AuthnRequestType )
+      if (rat instanceof AuthnRequestType)
       {
-         writer.write( (AuthnRequestType) rat);
-      } 
-      else if( rat instanceof LogoutRequestType )
-      {
-         writer.write( (LogoutRequestType) rat);
+         writer.write((AuthnRequestType) rat);
       }
-      
-      return DocumentUtil.getDocument( new String( bos.toByteArray() ));  
+      else if (rat instanceof LogoutRequestType)
+      {
+         writer.write((LogoutRequestType) rat);
+      }
+
+      return DocumentUtil.getDocument(new String(bos.toByteArray()));
    }
-   
+
    /**
     * Convert a SAML2 Response into a Document
     * @param responseType
     * @return 
     * @throws ParserConfigurationException
     */
-   public Document convert( ResponseType responseType) throws ProcessingException, ParsingException, ConfigurationException
+   public Document convert(ResponseType responseType) throws ProcessingException, ParsingException,
+         ConfigurationException
    {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos)); 
-      writer.write( responseType );
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      return DocumentUtil.getDocument(bis);  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(responseType);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      return DocumentUtil.getDocument(bis);
    }
-   
+
    /**
     * Marshall the AuthnRequestType to an output stream
     * @param requestType
     * @param os 
     * @throws SAXException 
     */
-   public void marshall(RequestAbstractType requestType, OutputStream os) throws ProcessingException 
-   { 
-      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter(os));
-      if( requestType instanceof AuthnRequestType )
+   public void marshall(RequestAbstractType requestType, OutputStream os) throws ProcessingException
+   {
+      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(os));
+      if (requestType instanceof AuthnRequestType)
       {
-         samlRequestWriter.write((AuthnRequestType)requestType ); 
+         samlRequestWriter.write((AuthnRequestType) requestType);
       }
-      else if( requestType instanceof LogoutRequestType )
+      else if (requestType instanceof LogoutRequestType)
       {
-         samlRequestWriter.write((LogoutRequestType)requestType ); 
+         samlRequestWriter.write((LogoutRequestType) requestType);
       }
       else
-         throw new RuntimeException( "Unsupported" );
+         throw new RuntimeException("Unsupported");
    }
-   
+
    /**
     * Marshall the AuthnRequestType to a writer
     * @param requestType
     * @param writer 
     * @throws SAXException 
     */
-   public void marshall(RequestAbstractType requestType, Writer writer) throws ProcessingException  
-   {  
-      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter( StaxUtil.getXMLStreamWriter( writer ));
-      if( requestType instanceof AuthnRequestType )
+   public void marshall(RequestAbstractType requestType, Writer writer) throws ProcessingException
+   {
+      SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(writer));
+      if (requestType instanceof AuthnRequestType)
       {
-         samlRequestWriter.write((AuthnRequestType)requestType ); 
+         samlRequestWriter.write((AuthnRequestType) requestType);
       }
-      else if( requestType instanceof LogoutRequestType )
+      else if (requestType instanceof LogoutRequestType)
       {
-         samlRequestWriter.write((LogoutRequestType)requestType ); 
+         samlRequestWriter.write((LogoutRequestType) requestType);
       }
       else
-         throw new RuntimeException( "Unsupported" );
+         throw new RuntimeException("Unsupported");
    }
 }

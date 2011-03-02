@@ -62,6 +62,8 @@ public interface GeneralConstants
 
    String LOGOUT_PAGE_NAME = "/logout.jsp";
 
+   String NAMEID_FORMAT = "NAMEID_FORMAT";
+
    String PRINCIPAL_ID = "jboss_identity.principal";
 
    String RELAY_STATE = "RelayState";
