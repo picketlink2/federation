@@ -30,15 +30,14 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
  * @author Anil.Saldhana@redhat.com
  * @since Oct 10, 2009
  */
-public class DefaultSAML2HandlerChainConfig extends BaseHandlerConfig 
-implements SAML2HandlerChainConfig
-{ 
+public class DefaultSAML2HandlerChainConfig extends BaseHandlerConfig implements SAML2HandlerChainConfig
+{
    public DefaultSAML2HandlerChainConfig()
-   { 
-   }
-   
-   public DefaultSAML2HandlerChainConfig(Map<String,Object> map)
    {
-      this.params = map;
+   }
+
+   public DefaultSAML2HandlerChainConfig(Map<String, Object> map)
+   {
+      this.params.putAll(map);
    }
 }

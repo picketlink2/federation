@@ -333,7 +333,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          String id = IDGenerator.create("ID_");
 
          //Check if there is a nameid policy
-         String nameIDFormat = (String) request.getOptions().get(GeneralConstants.NAMEID_FORMAT);
+         String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
          if (StringUtil.isNotNull(nameIDFormat))
          {
             samlRequest.setNameIDFormat(nameIDFormat);

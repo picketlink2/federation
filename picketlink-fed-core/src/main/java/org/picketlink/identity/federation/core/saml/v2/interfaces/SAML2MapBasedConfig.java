@@ -35,17 +35,24 @@ public interface SAML2MapBasedConfig
     * @return
     */
    boolean containsKey(String key);
-   
+
    /**
     * Get a parameter from the chain config
     * @param parameterName
     * @return
     */
-   public Object getParameter(String parameterName); 
-   
+   public Object getParameter(String parameterName);
+
+   /**
+    * Add a parameter
+    * @param parameterName
+    * @param value
+    */
+   public void addParameter(String parameterName, Object value);
+
    /**
     * Set the options
     * @param options
     */
-   void set(Map<String,Object> options);
+   void set(Map<String, Object> options);
 }

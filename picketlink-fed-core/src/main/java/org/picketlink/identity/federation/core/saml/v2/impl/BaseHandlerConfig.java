@@ -41,7 +41,7 @@ public class BaseHandlerConfig
    {
       return params.containsKey(key);
    }
-   
+
    /**
     * @see SAML2HandlerChainConfig#getParameter(String)
     */
@@ -50,6 +50,13 @@ public class BaseHandlerConfig
       return params.get(parameterName);
    }
 
+   /**
+    * @see org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2MapBasedConfig#addParameter(java.lang.String, java.lang.Object)
+    */
+   public void addParameter(String parameterName, Object value)
+   {
+      this.params.put(parameterName, value);
+   }
 
    public void set(Map<String, Object> options)
    {

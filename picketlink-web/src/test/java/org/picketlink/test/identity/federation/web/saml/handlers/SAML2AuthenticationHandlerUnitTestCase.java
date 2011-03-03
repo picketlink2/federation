@@ -88,6 +88,7 @@ public class SAML2AuthenticationHandlerUnitTestCase
 
       SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
       SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+      handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
       Map<String, Object> chainOptions = new HashMap<String, Object>();
       SPType spType = new SPType();
@@ -116,7 +117,6 @@ public class SAML2AuthenticationHandlerUnitTestCase
       SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
             SAML2Handler.HANDLER_TYPE.SP);
       request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
-      request.addOption(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
       SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
       handler.generateSAMLRequest(request, response);
