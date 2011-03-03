@@ -85,8 +85,11 @@ import org.w3c.dom.Node;
  * </p>
  * <p>
  * Configuration Options:
- * @see SAML2Handler#DISABLE_AUTHN_STATEMENT  Setting a value will disable the generation of an AuthnStatement
- * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP
+ * @see SAML2Handler#DISABLE_AUTHN_STATEMENT  Setting a value will disable the generation of an AuthnStatement (IDP Setting)
+ * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
+ * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
+ * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
+ * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
  * </p>
  * 
  * @author Anil.Saldhana@redhat.com
