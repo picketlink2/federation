@@ -33,6 +33,8 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.transform.Source;
+import javax.xml.ws.Dispatch;
 
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.auth.callback.ObjectCallback;
@@ -64,7 +66,7 @@ import org.w3c.dom.Element;
  * and included in the {@code Group} returned by the {@code getRoleSets} method.
  * </p>
  * <p>
- * This module defines module options:
+ * This module defines the following module options:
  * <li>
  *  <ul>configFile - this property identifies the properties file that will be used to establish communication with
  *  the external security token service.
@@ -75,6 +77,14 @@ import org.w3c.dom.Element;
  *  if the cache.invalidation option is configured.
  *  </ul>
  * </li>
+ * </p>
+ * <p>
+ * Any properties specified besides the above properties are assumed to be used to configure how the {@code STSClient}
+ * will connect to the STS. For example, the JBossWS {@code StubExt.PROPERTY_SOCKET_FACTORY} can be specified in order
+ * to inform the socket factory that must be used to connect to the STS. All properties will be set in the request
+ * context of the {@code Dispatch} instance used by the {@code STSClient} to send requests to the STS.  
+ * </p>
+ * <p>
  * An example of a {@code configFile} can be seen bellow:
  * <pre>
  * serviceName=PicketLinkSTS
@@ -110,6 +120,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    
    protected String securityDomain = null;
    
+   protected Map<String, ?> options = null;
+   
    /*
     * (non-Javadoc)
     * @see org.jboss.security.auth.spi.AbstractServerLoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
@@ -119,18 +131,19 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          Map<String, ?> options)
    {
       super.initialize(subject, callbackHandler, sharedState, options);
-      // check if the options contain the name of the STS configuration file.
-      this.stsConfigurationFile = (String) options.get("configFile");
-      
-      String cacheInvalidation = (String) options.get( "cache.invalidation" );
+      this.options = options;
+
+      // save the config file and cache validation options, removing them from the map - all remainig properties will
+      // be set in the request context of the Dispatch instance used to send requests to the STS.
+      this.stsConfigurationFile = (String) this.options.remove("configFile");
+      String cacheInvalidation = (String) this.options.remove( "cache.invalidation" );
       if( cacheInvalidation != null && !cacheInvalidation.isEmpty() )
       {
-         enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
-         securityDomain = (String) options.get( SecurityConstants.SECURITY_DOMAIN_OPTION );
-         if( securityDomain == null || securityDomain.isEmpty() )
+         this.enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
+         this.securityDomain = (String) this.options.remove( SecurityConstants.SECURITY_DOMAIN_OPTION );
+         if( this.securityDomain == null || this.securityDomain.isEmpty() )
             throw new RuntimeException( "Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION );
       }
-      
    }
 
    /*
@@ -339,6 +352,15 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    protected STSClient getSTSClient()
    {
       Builder builder = new Builder(this.stsConfigurationFile);
-      return new STSClient(builder.build());
+      STSClient client = new STSClient(builder.build());
+      // if the login module options map still contains any properties, assume they are for configuring the connection
+      // to the STS and set them in the Dispatch request context.
+      if (!this.options.isEmpty())
+      {
+         Dispatch<Source> dispatch = client.getDispatch();
+         for (Map.Entry<String, ?> entry : this.options.entrySet())
+            dispatch.getRequestContext().put(entry.getKey(), entry.getValue());
+      }
+      return client;
    }
 }
