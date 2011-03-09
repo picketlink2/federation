@@ -1,6 +1,6 @@
 <PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" ServerEnvironment="tomcat">
- <IdentityURL>http://localhost:8080/idp-standalone/</IdentityURL>
- <ServiceURL>http://localhost:8080/sales-standalone/</ServiceURL>
+ <IdentityURL>${idp-standalone.url::http://localhost:8080/idp-standalone/}</IdentityURL>
+ <ServiceURL>${sales-standalone.url::http://localhost:8080/sales-standalone/}</ServiceURL>
  <Trust>
     <Domains>localhost,jboss.com,jboss.org,redhat.com</Domains>
  </Trust>

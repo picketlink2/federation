@@ -1,6 +1,6 @@
 <PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" ServerEnvironment="tomcat">
- <IdentityURL>http://localhost:8080/idp-sig/</IdentityURL>
- <ServiceURL>http://localhost:8080/employee-post-sig/</ServiceURL>
+ <IdentityURL>${idp-sig.url::http://localhost:8080/idp-sig/}</IdentityURL>
+ <ServiceURL>${employee-post-sig.url::http://localhost:8080/employee-post-sig/}</ServiceURL>
  <KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
    <Auth Key="KeyStoreURL" Value="/jbid_test_keystore.jks" />
    <Auth Key="KeyStorePass" Value="store123" />

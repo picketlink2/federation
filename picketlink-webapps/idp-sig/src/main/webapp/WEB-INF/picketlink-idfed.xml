@@ -1,7 +1,7 @@
 <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" >
-<IdentityURL>http://localhost:8080/idp-sig/</IdentityURL>
+<IdentityURL>${idp-sig.url::http://localhost:8080/idp-sig/}</IdentityURL>
 <Trust>
-   <Domains>localhost,jboss.com,jboss.org,redhat.com</Domains>
+   <Domains>localhost,jboss.com,jboss.org,redhat.com,amazonaws.com</Domains>
 </Trust>
 <KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
    <Auth Key="KeyStoreURL" Value="/jbid_test_keystore.jks" />
