@@ -38,22 +38,33 @@ public class SystemPropertyAsStringUnitTestCase
    @Before
    public void setup()
    {
-      System.setProperty( "test", "anil" );
-      System.setProperty( "person", "marcus" );
+      System.setProperty("test", "anil");
+      System.setProperty("person", "marcus");
    }
-   
+
    @Test
    public void testSystemProperty() throws Exception
    {
-      assertEquals( "test" , StringUtil.getSystemPropertyAsString( "test" ) );
-      assertEquals( "test/test" , StringUtil.getSystemPropertyAsString( "test/test" ) );
-      
-      assertEquals( "anil", StringUtil.getSystemPropertyAsString( "${test}" ) );
-      assertEquals( "test/anil", StringUtil.getSystemPropertyAsString( "test/${test}" ) );
-      
-      assertEquals( "anil:anil:marcus//anil", StringUtil.getSystemPropertyAsString( "${test}:${test}:${person}//${test}" ) );    
+      assertEquals("test", StringUtil.getSystemPropertyAsString("test"));
+      assertEquals("test/test", StringUtil.getSystemPropertyAsString("test/test"));
+
+      assertEquals("anil", StringUtil.getSystemPropertyAsString("${test}"));
+      assertEquals("test/anil", StringUtil.getSystemPropertyAsString("test/${test}"));
+
+      assertEquals("anil:anil:marcus//anil", StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}"));
 
       //Test if any of the parantheses are not correctly closed
-      assertEquals( "anil:anil:marcus//${test", StringUtil.getSystemPropertyAsString( "${test}:${test}:${person}//${test" ) );
+      assertEquals("anil:anil:marcus//${test",
+            StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test"));
+
+      //Test the default values
+      assertEquals("http://something", StringUtil.getSystemPropertyAsString("${dummy::http://something}"));
+      assertEquals("http://something__hi",
+            StringUtil.getSystemPropertyAsString("${dummy::http://something}__${to::hi}"));
+      assertEquals("anil:anil:marcus//anilhi",
+            StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}"));
+      assertEquals("anil:anil:marcus//anilhihttp://something",
+            StringUtil
+                  .getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}${dummy::http://something}"));
    }
 }

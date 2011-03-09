@@ -27,7 +27,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Utility dealing with Strings
  * @author Anil.Saldhana@redhat.com
@@ -43,8 +42,8 @@ public class StringUtil
    public static boolean isNotNull(String str)
    {
       return str != null && !"".equals(str);
-   } 
-   
+   }
+
    /**
     * Check whether the string is null or empty
     * @param str
@@ -54,50 +53,75 @@ public class StringUtil
    {
       return str == null || str.isEmpty();
    }
-    
+
    /**
+    * <p>
     * Get the system property value if the string is of the format ${sysproperty}
+    * </p>
+    * <p>
+    * You can insert default value when the system property is not set, by
+    * separating it at the beginning with ::
+    * </p>
+    * <p>
+    * <b>Examples:</b>
+    * </p>
+    * 
+    * <p>
+    * ${idp} should resolve to a value if the system property "idp" is set.
+    * </p>
+    * <p>
+    * ${idp::http://localhost:8080} will resolve to http://localhost:8080 if the system property "idp" is not set.
+    * </p>
     * @param str
     * @return
     */
-   public static String getSystemPropertyAsString( String str )
+   public static String getSystemPropertyAsString(String str)
    {
-      if( str.contains( "${") )
-      { 
-         Pattern pattern = Pattern.compile( "\\$\\{([^}]+)}" ); 
+      if (str.contains("${"))
+      {
+         Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
          Matcher matcher = pattern.matcher(str);
 
-         StringBuffer buffer = new StringBuffer(); 
-         String sysPropertyValue = null; 
+         StringBuffer buffer = new StringBuffer();
+         String sysPropertyValue = null;
 
-         while (matcher.find()) 
+         while (matcher.find())
          {
-            sysPropertyValue = SecurityActions.getSystemProperty( matcher.group(1), "" );
-            if( sysPropertyValue.isEmpty() )
+            String subString = matcher.group(1);
+            String defaultValue = "";
+
+            //Look for default value
+            if (subString.contains("::"))
             {
-               throw new IllegalArgumentException( "System Property " + matcher.group(1) + " is not set" ); 
-            } 
-            matcher.appendReplacement(buffer,sysPropertyValue); 
+               int index = subString.indexOf("::");
+               defaultValue = subString.substring(index + 2);
+            }
+            sysPropertyValue = SecurityActions.getSystemProperty(subString, defaultValue);
+            if (sysPropertyValue.isEmpty())
+            {
+               throw new IllegalArgumentException("System Property " + matcher.group(1) + " is not set");
+            }
+            matcher.appendReplacement(buffer, sysPropertyValue);
          }
 
-         matcher.appendTail(buffer); 
+         matcher.appendTail(buffer);
          str = buffer.toString();
       }
       return str;
    }
-   
+
    /**
     * Given a comma separated string, get the tokens as a {@link List}
     * @param str
     * @return
     */
-   public static List<String> tokenize( String str )
+   public static List<String> tokenize(String str)
    {
       List<String> list = new ArrayList<String>();
       StringTokenizer tokenizer = new StringTokenizer(str, ",");
-      while( tokenizer.hasMoreTokens() )
+      while (tokenizer.hasMoreTokens())
       {
-         list.add( tokenizer.nextToken() );
+         list.add(tokenizer.nextToken());
       }
       return list;
    }
