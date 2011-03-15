@@ -30,10 +30,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.Principal;
 import java.security.PrivateKey;
-import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,21 +46,16 @@ import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
@@ -77,66 +69,53 @@ import org.w3c.dom.Document;
 public class IDPWebRequestUtil
 {
    private static Logger log = Logger.getLogger(IDPWebRequestUtil.class);
-   private boolean trace = log.isTraceEnabled();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    private boolean redirectProfile = false;
+
    private boolean postProfile = false;
 
-   private IDPType idpConfiguration;
-   private TrustKeyManager keyManager;
-   private AttributeManager attributeManager;
-   private List<String> attribKeys;
+   private final IDPType idpConfiguration;
+
+   private final TrustKeyManager keyManager;
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
-   
+
    public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym)
    {
       this.idpConfiguration = idp;
       this.keyManager = keym;
       this.redirectProfile = "GET".equals(request.getMethod());
-      this.postProfile = "POST".equals(request.getMethod()); 
-   }  
-   
+      this.postProfile = "POST".equals(request.getMethod());
+   }
+
    public String getCanonicalizationMethod()
    {
       return canonicalizationMethod;
    }
-
-
 
    public void setCanonicalizationMethod(String canonicalizationMethod)
    {
       this.canonicalizationMethod = canonicalizationMethod;
    }
 
-
-
-   public void setAttributeKeys(List<String> attribKeys)
-   {
-      this.attribKeys = attribKeys;
-   }
-   
-   public void setAttributeManager(AttributeManager attributeManager)
-   {
-      this.attributeManager = attributeManager;
-   }
-   
    public boolean hasSAMLRequestInRedirectProfile()
    {
-      return redirectProfile;  
+      return redirectProfile;
    }
-   
+
    public boolean hasSAMLRequestInPostProfile()
    {
       return postProfile;
    }
-   
-   public SAMLDocumentHolder getSAMLDocumentHolder(String samlMessage)
-   throws ParsingException, ConfigurationException, ProcessingException
-   { 
-      InputStream is = null; 
-      SAML2Request saml2Request = new SAML2Request();  
-      if(redirectProfile)
+
+   public SAMLDocumentHolder getSAMLDocumentHolder(String samlMessage) throws ParsingException, ConfigurationException,
+         ProcessingException
+   {
+      InputStream is = null;
+      SAML2Request saml2Request = new SAML2Request();
+      if (redirectProfile)
       {
          is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
       }
@@ -145,32 +124,33 @@ public class IDPWebRequestUtil
          try
          {
             byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-            if(trace) log.trace("SAMLRequest=" + new String(samlBytes));
+            if (trace)
+               log.trace("SAMLRequest=" + new String(samlBytes));
             is = new ByteArrayInputStream(samlBytes);
          }
-         catch(Exception rte)
+         catch (Exception rte)
          {
-            if(trace)
-               log.trace("Error in base64 decoding saml message: "+rte);
+            if (trace)
+               log.trace("Error in base64 decoding saml message: " + rte);
             throw new ParsingException(rte);
-         } 
+         }
       }
       saml2Request.getSAML2ObjectFromStream(is);
       return saml2Request.getSamlDocumentHolder();
    }
-   
-   public RequestAbstractType getSAMLRequest(String samlMessage) 
-   throws ParsingException, ConfigurationException, ProcessingException
-   { 
-      InputStream is = null; 
-      SAML2Request saml2Request = new SAML2Request();  
-      if(redirectProfile)
+
+   public RequestAbstractType getSAMLRequest(String samlMessage) throws ParsingException, ConfigurationException,
+         ProcessingException
+   {
+      InputStream is = null;
+      SAML2Request saml2Request = new SAML2Request();
+      if (redirectProfile)
       {
          try
          {
-            is = RedirectBindingUtil.base64DeflateDecode(samlMessage); 
+            is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
          }
-         catch(Exception e)
+         catch (Exception e)
          {
             log.error("Exception in parsing saml message:", e);
             throw new ParsingException();
@@ -179,113 +159,13 @@ public class IDPWebRequestUtil
       else
       {
          byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-         if(trace) log.trace("SAMLRequest=" + new String(samlBytes));
+         if (trace)
+            log.trace("SAMLRequest=" + new String(samlBytes));
          is = new ByteArrayInputStream(samlBytes);
       }
       return saml2Request.getRequestType(is);
-   } 
-   
-    
-   public Document getResponse( String assertionConsumerURL,
-         Principal userPrincipal,
-         List<String> roles, 
-         String identityURL,
-         long assertionValidity,
-         boolean supportSignature) 
-   throws ConfigurationException, IssueInstantMissingException, ProcessingException
-   {
-      Document samlResponseDocument = null;
-      
-      if(trace) 
-         log.trace("AssertionConsumerURL=" + assertionConsumerURL + 
-            "::assertion validity=" + assertionValidity);
-      ResponseType responseType = null;     
-      
-      SAML2Response saml2Response = new SAML2Response();
-            
-      //Create a response type
-      String id = IDGenerator.create("ID_");
-
-      IssuerInfoHolder issuerHolder = new IssuerInfoHolder(identityURL); 
-      issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
-
-      IDPInfoHolder idp = new IDPInfoHolder();
-      idp.setNameIDFormatValue(userPrincipal.getName());
-      idp.setNameIDFormat(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
-
-      SPInfoHolder sp = new SPInfoHolder();
-      sp.setResponseDestinationURI(assertionConsumerURL);
-      responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
-      
-      //Add information on the roles
-      AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
-
-      AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-      assertion.addStatement( attrStatement );
-      
-      //Add timed conditions
-      saml2Response.createTimedConditions(assertion, assertionValidity);
-      
-      //Add in the attributes information
-      if(this.attributeManager != null)
-      {
-         try
-         {
-            Map<String, Object> attribs = 
-               attributeManager.getAttributes(userPrincipal, this.attribKeys);
-            AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
-            assertion.addStatement( attStatement );
-         }
-         catch(Exception e)
-         {
-            log.error("Exception in generating attributes:",e);
-         }
-      }
- 
-      //Lets see how the response looks like 
-      if(log.isTraceEnabled())
-      {
-         StringWriter sw = new StringWriter();
-         try
-         {
-            saml2Response.marshall(responseType, sw);
-         }
-         catch ( ProcessingException e)
-         {
-            log.trace(e);
-         } 
-         log.trace("Response="+sw.toString()); 
-      }
-      
-      if(trace) 
-         log.trace("Support Sig=" + supportSignature + " ::Post Profile?=" + hasSAMLRequestInPostProfile());
-      if(supportSignature && hasSAMLRequestInPostProfile())
-      {
-         try
-         {
-            SAML2Signature saml2Signature = new SAML2Signature(); 
-            samlResponseDocument = saml2Signature.sign(responseType, keyManager.getSigningKeyPair());
-         }  
-         catch (Exception e)
-         {  
-            if(trace) log.trace(e);
-         } 
-      }
-      else
-         try
-         {
-            samlResponseDocument = saml2Response.convert(responseType);
-         }
-         catch (Exception e)
-         {
-            if(trace)  log.trace(e);
-         } 
-      
-      return samlResponseDocument; 
    }
-   
-   
-   
+
    /**
     * Verify that the issuer is trusted
     * @param issuer
@@ -293,43 +173,43 @@ public class IDPWebRequestUtil
     */
    public void isTrusted(String issuer) throws IssuerNotTrustedException
    {
-      if(idpConfiguration == null)
+      if (idpConfiguration == null)
          throw new IllegalStateException("IDP Configuration is null");
       try
       {
          String issuerDomain = getDomain(issuer);
-         TrustType idpTrust =  idpConfiguration.getTrust();
-         if(idpTrust != null)
+         TrustType idpTrust = idpConfiguration.getTrust();
+         if (idpTrust != null)
          {
             String domainsTrusted = idpTrust.getDomains();
-            if(trace) 
-               log.trace("Domains that IDP trusts="+domainsTrusted + " and issuer domain="+issuerDomain);
-            if(domainsTrusted.indexOf(issuerDomain) < 0)
+            if (trace)
+               log.trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+            if (domainsTrusted.indexOf(issuerDomain) < 0)
             {
                //Let us do string parts checking
                StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
-               while(st != null && st.hasMoreTokens())
+               while (st != null && st.hasMoreTokens())
                {
                   String uriBit = st.nextToken();
-                  if(trace) 
-                     log.trace("Matching uri bit="+ uriBit);
-                  if(issuerDomain.indexOf(uriBit) > 0)
+                  if (trace)
+                     log.trace("Matching uri bit=" + uriBit);
+                  if (issuerDomain.indexOf(uriBit) > 0)
                   {
-                     if(trace) 
-                        log.trace("Matched " + uriBit + " trust for " + issuerDomain );
+                     if (trace)
+                        log.trace("Matched " + uriBit + " trust for " + issuerDomain);
                      return;
-                  } 
-               } 
+                  }
+               }
                throw new IssuerNotTrustedException(issuer);
-            } 
+            }
          }
       }
       catch (Exception e)
       {
-         throw new IssuerNotTrustedException(e.getLocalizedMessage(),e);
+         throw new IssuerNotTrustedException(e.getLocalizedMessage(), e);
       }
    }
-   
+
    /** 
     * Send a response
     * @param responseDoc
@@ -338,69 +218,11 @@ public class IDPWebRequestUtil
     * @throws GeneralSecurityException 
     * @throws IOException  
     */
-  /* public void send(Document responseDoc, String destination,
-         String relayState, 
-         HttpServletResponse response, 
-         boolean supportSignature,
-         PrivateKey signingKey,
-         boolean sendRequest) throws GeneralSecurityException, IOException
-   {
-      if(responseDoc == null)
-         throw new IllegalArgumentException("responseType is null");
-
-      
-      if(redirectProfile)
-      { 
-         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
-         
-         String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
- 
-         if(trace) log.trace("IDP:Destination=" + destination);
-
-         if(isNotNull(relayState))
-            relayState = RedirectBindingUtil.urlEncode(relayState);
-
-         String finalDest = destination + getDestination(urlEncodedResponse, relayState, 
-               supportSignature, sendRequest);
-         if(trace) log.trace("Redirecting to="+ finalDest);
-         HTTPRedirectUtil.sendRedirectForResponder(finalDest, response); 
-      }  
-      else
-      {   
-         //If we support signature
-         if(supportSignature)
-         {
-            //Sign the document
-            SAML2Signature samlSignature = new SAML2Signature();
-
-            KeyPair keypair = keyManager.getSigningKeyPair();
-            samlSignature.signSAMLDocument(responseDoc, keypair); 
-            
-            if(trace)
-               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc)); 
-         }
-         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
-         
-         String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
-         
-         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, 
-               samlResponse, relayState), response, sendRequest);
-      }
-   }*/
-   
-   /** 
-    * Send a response
-    * @param responseDoc
-    * @param relayState
-    * @param response 
-    * @throws GeneralSecurityException 
-    * @throws IOException  
-    */
-   public void send( WebRequestUtilHolder holder) throws GeneralSecurityException, IOException
+   public void send(WebRequestUtilHolder holder) throws GeneralSecurityException, IOException
    {
       Document responseDoc = holder.getResponseDoc();
-      
-      if( responseDoc == null )
+
+      if (responseDoc == null)
          throw new IllegalArgumentException("responseType is null");
 
       String destination = holder.getDestination();
@@ -408,48 +230,47 @@ public class IDPWebRequestUtil
       boolean supportSignature = holder.isSupportSignature();
       boolean sendRequest = holder.isAreWeSendingRequest();
       HttpServletResponse response = holder.getServletResponse();
-      
-      if(holder.isPostBindingRequested() == false)
-      { 
-         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
-         
-         String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
- 
-         
-         if(trace) log.trace("IDP:Destination=" + destination);
 
-         if(isNotNull(relayState))
+      if (holder.isPostBindingRequested() == false)
+      {
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
+
+         String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
+
+         if (trace)
+            log.trace("IDP:Destination=" + destination);
+
+         if (isNotNull(relayState))
             relayState = RedirectBindingUtil.urlEncode(relayState);
 
-         String finalDest = destination + getDestination(urlEncodedResponse, relayState, 
-               supportSignature, sendRequest);
-         if(trace) log.trace("Redirecting to="+ finalDest);
-         HTTPRedirectUtil.sendRedirectForResponder(finalDest, response); 
-      }  
+         String finalDest = destination + getDestination(urlEncodedResponse, relayState, supportSignature, sendRequest);
+         if (trace)
+            log.trace("Redirecting to=" + finalDest);
+         HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
+      }
       else
-      {   
+      {
          //If we support signature
-         if(supportSignature)
+         if (supportSignature)
          {
             //Sign the document
-            SAML2Signature samlSignature = new SAML2Signature(); 
+            SAML2Signature samlSignature = new SAML2Signature();
 
             KeyPair keypair = keyManager.getSigningKeyPair();
-            samlSignature.signSAMLDocument(responseDoc, keypair); 
-            
-            if(trace)
-               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc)); 
+            samlSignature.signSAMLDocument(responseDoc, keypair);
+
+            if (trace)
+               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc));
          }
-         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8"); 
-         
+         byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
+
          String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
-         
-         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, 
-               samlResponse, relayState), response, sendRequest);
+
+         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlResponse, relayState), response,
+               sendRequest);
       }
-   }  
-   
-   
+   }
+
    /**
     * Generate a Destination URL for the HTTPRedirect binding
     * with the saml response and relay state
@@ -457,8 +278,8 @@ public class IDPWebRequestUtil
     * @param urlEncodedRelayState
     * @return
     */
-   public String getDestination(String urlEncodedResponse, String urlEncodedRelayState, 
-         boolean supportSignature, boolean sendRequest)
+   public String getDestination(String urlEncodedResponse, String urlEncodedRelayState, boolean supportSignature,
+         boolean sendRequest)
    {
       StringBuilder sb = new StringBuilder();
 
@@ -472,12 +293,13 @@ public class IDPWebRequestUtil
          }
          catch (Exception e)
          {
-            if(trace) log.trace(e);
+            if (trace)
+               log.trace(e);
          }
       }
       else
       {
-         if(sendRequest)
+         if (sendRequest)
             sb.append("?SAMLRequest=").append(urlEncodedResponse);
          else
             sb.append("?SAMLResponse=").append(urlEncodedResponse);
@@ -486,12 +308,12 @@ public class IDPWebRequestUtil
       }
       return sb.toString();
    }
-   
+
    public WebRequestUtilHolder getHolder()
    {
       return new WebRequestUtilHolder();
    }
-   
+
    /**
     * Create an Error Response
     * @param responseURL
@@ -501,18 +323,17 @@ public class IDPWebRequestUtil
     * @return 
     * @throws ConfigurationException   
     */
-   public Document getErrorResponse(String responseURL, String status,
-         String identityURL, boolean supportSignature) 
-   { 
+   public Document getErrorResponse(String responseURL, String status, String identityURL, boolean supportSignature)
+   {
       Document samlResponse = null;
-      ResponseType responseType = null; 
+      ResponseType responseType = null;
 
       SAML2Response saml2Response = new SAML2Response();
 
       //Create a response type
       String id = IDGenerator.create("ID_");
 
-      IssuerInfoHolder issuerHolder = new IssuerInfoHolder(identityURL); 
+      IssuerInfoHolder issuerHolder = new IssuerInfoHolder(identityURL);
       issuerHolder.setStatusCode(status);
 
       IDPInfoHolder idp = new IDPInfoHolder();
@@ -527,17 +348,19 @@ public class IDPWebRequestUtil
       }
       catch (ConfigurationException e1)
       {
-         if(trace) log.trace(e1);
+         if (trace)
+            log.trace(e1);
          responseType = saml2Response.createResponseType();
       }
       catch (ProcessingException e)
       {
-         if(trace) log.trace( e );
+         if (trace)
+            log.trace(e);
          responseType = saml2Response.createResponseType();
-      } 
+      }
 
       //Lets see how the response looks like 
-      if(log.isTraceEnabled())
+      if (log.isTraceEnabled())
       {
          log.trace("Error_ResponseType = ");
          StringWriter sw = new StringWriter();
@@ -545,24 +368,25 @@ public class IDPWebRequestUtil
          {
             saml2Response.marshall(responseType, sw);
          }
-         catch ( ProcessingException e)
+         catch (ProcessingException e)
          {
             log.trace(e);
-         } 
-         log.trace("Response="+sw.toString()); 
+         }
+         log.trace("Response=" + sw.toString());
       }
 
-      if(supportSignature)
-      { 
+      if (supportSignature)
+      {
          try
-         {   
-            SAML2Signature ss = new SAML2Signature(); 
+         {
+            SAML2Signature ss = new SAML2Signature();
             samlResponse = ss.sign(responseType, keyManager.getSigningKeyPair());
          }
          catch (Exception e)
          {
-            if(trace) log.trace(e);
-         } 
+            if (trace)
+               log.trace(e);
+         }
       }
       else
          try
@@ -571,106 +395,129 @@ public class IDPWebRequestUtil
          }
          catch (Exception e)
          {
-            if(trace) log.trace(e);
-         } 
-      
-      return samlResponse;    
+            if (trace)
+               log.trace(e);
+         }
+
+      return samlResponse;
    }
-   
+
    /**
     * Given a SP or IDP issuer from the assertion, return the host
     * @param domainURL
     * @return
     * @throws IOException  
     */
-   private static String getDomain(String domainURL) throws IOException  
+   private static String getDomain(String domainURL) throws IOException
    {
       URL url = new URL(domainURL);
       return url.getHost();
    }
-   
+
    public class WebRequestUtilHolder
-   { 
+   {
       private Document responseDoc;
+
       private String relayState;
+
       private String destination;
+
       private HttpServletResponse servletResponse;
+
       private PrivateKey privateKey;
+
       private boolean supportSignature;
+
       private boolean postBindingRequested;
+
       private boolean areWeSendingRequest;
+
       public Document getResponseDoc()
       {
          return responseDoc;
       }
-      
+
       public WebRequestUtilHolder setResponseDoc(Document responseDoc)
       {
          this.responseDoc = responseDoc;
          return this;
       }
+
       public String getRelayState()
       {
          return relayState;
       }
+
       public WebRequestUtilHolder setRelayState(String relayState)
       {
          this.relayState = relayState;
          return this;
       }
+
       public String getDestination()
       {
          return destination;
       }
+
       public WebRequestUtilHolder setDestination(String destination)
       {
          this.destination = destination;
          return this;
       }
+
       public HttpServletResponse getServletResponse()
       {
          return servletResponse;
       }
+
       public WebRequestUtilHolder setServletResponse(HttpServletResponse servletResponse)
       {
          this.servletResponse = servletResponse;
          return this;
       }
+
       public PrivateKey getPrivateKey()
       {
          return privateKey;
       }
+
       public WebRequestUtilHolder setPrivateKey(PrivateKey privateKey)
       {
          this.privateKey = privateKey;
          return this;
       }
+
       public boolean isSupportSignature()
       {
          return supportSignature;
       }
+
       public WebRequestUtilHolder setSupportSignature(boolean supportSignature)
       {
          this.supportSignature = supportSignature;
          return this;
       }
+
       public boolean isPostBindingRequested()
       {
          return postBindingRequested;
       }
+
       public WebRequestUtilHolder setPostBindingRequested(boolean postBindingRequested)
       {
          this.postBindingRequested = postBindingRequested;
          return this;
       }
+
       public boolean isAreWeSendingRequest()
       {
          return areWeSendingRequest;
       }
+
       public WebRequestUtilHolder setAreWeSendingRequest(boolean areWeSendingRequest)
       {
          this.areWeSendingRequest = areWeSendingRequest;
          return this;
-      }  
+      }
    }
 }
