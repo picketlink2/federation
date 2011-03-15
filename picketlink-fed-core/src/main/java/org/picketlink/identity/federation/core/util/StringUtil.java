@@ -77,6 +77,8 @@ public class StringUtil
     */
    public static String getSystemPropertyAsString(String str)
    {
+      if (str == null)
+         throw new IllegalArgumentException("str is null");
       if (str.contains("${"))
       {
          Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");

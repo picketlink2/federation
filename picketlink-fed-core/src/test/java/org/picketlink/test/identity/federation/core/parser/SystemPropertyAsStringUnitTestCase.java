@@ -22,6 +22,7 @@
 package org.picketlink.test.identity.federation.core.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,19 @@ public class SystemPropertyAsStringUnitTestCase
    @Test
    public void testSystemProperty() throws Exception
    {
+      try
+      {
+         assertEquals(null, StringUtil.getSystemPropertyAsString(null));
+         fail("should not have passed");
+      }
+      catch (IllegalArgumentException iae)
+      {
+
+      }
+      catch (Exception e)
+      {
+         fail("unknown ex");
+      }
       assertEquals("test", StringUtil.getSystemPropertyAsString("test"));
       assertEquals("test/test", StringUtil.getSystemPropertyAsString("test/test"));
 
