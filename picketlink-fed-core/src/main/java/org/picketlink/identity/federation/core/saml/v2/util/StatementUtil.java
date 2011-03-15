@@ -124,7 +124,11 @@ public class StatementUtil
                att.setFriendlyName(key);
             }
             else
-               throw new RuntimeException("Unknown:" + key);
+            {
+               att = new AttributeType(key);
+               att.setFriendlyName(key);
+               att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get());
+            }
 
             att.addAttributeValue(value);
             attrStatement.addAttribute(new ASTChoiceType(att));

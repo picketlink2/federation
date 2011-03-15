@@ -374,6 +374,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             assertion = assertions.get(0).getAssertion();
          }
 
+         request.addOption(GeneralConstants.ASSERTION, assertion);
+
          Principal userPrincipal = handleSAMLResponse(responseType, response);
          if (userPrincipal == null)
          {
