@@ -161,11 +161,11 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
             for (ASTChoiceType attrChoice : attrs)
             {
                AttributeType attr = attrChoice.getAttribute();
-               Map<String, Object> attrMap = (Map<String, Object>) session
+               Map<String, List<Object>> attrMap = (Map<String, List<Object>>) session
                      .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
                if (attrMap == null)
                {
-                  attrMap = new HashMap<String, Object>();
+                  attrMap = new HashMap<String, List<Object>>();
                   session.setAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP, attrMap);
                }
                attrMap.put(attr.getFriendlyName(), attr.getAttributeValue());

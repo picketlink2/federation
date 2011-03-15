@@ -167,10 +167,10 @@ public class SAML2AttributeHandlerUnitTestCase
       request.addOption(GeneralConstants.ASSERTION, assertion);
       handler.handleStatusResponseType(request, response);
 
-      Map<String, Object> sessionMap = (Map<String, Object>) session
+      Map<String, List<Object>> sessionMap = (Map<String, List<Object>>) session
             .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
       assertNotNull(sessionMap);
-      List<Object> values = (List<Object>) sessionMap.get("testKey");
+      List<Object> values = sessionMap.get("testKey");
       assertEquals("hello", values.get(0));
    }
 
