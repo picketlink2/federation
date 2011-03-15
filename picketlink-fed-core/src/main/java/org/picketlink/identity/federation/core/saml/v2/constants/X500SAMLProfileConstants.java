@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.constants;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * X500 SAML Profile Constants
  * Adapted from http://code.google.com/p/simplesamlphp/source/browse/trunk/attributemap/name2oid.php?r=2654
@@ -190,13 +194,21 @@ public enum X500SAMLProfileConstants
    X121_ADDRESS("x121Address" , "urn:oid:2.5.4.24"),
    X500_UNIQUE_IDENTIFIER("x500UniqueIdentifier" , "urn:oid:2.5.4.45");
    
-   private final String friendlyName = null;
+   private String friendlyName = null;
    private String uri = null;
    
+   private static final Map<String,String> lookup  = new HashMap<String,String>();
+
+   static {
+      for(X500SAMLProfileConstants s : EnumSet.allOf(X500SAMLProfileConstants.class))
+         lookup.put(s.friendlyName, s.uri);
+   }
+
    private X500SAMLProfileConstants(String friendlyName,
          String uristr)
    {
-      this.uri = uristr;  
+      this.uri = uristr;
+      this.friendlyName = friendlyName;
    }
    
    public String get()
@@ -208,4 +220,9 @@ public enum X500SAMLProfileConstants
    {
       return friendlyName;
    }  
+   
+   public static String getOID( final String key)
+   {
+      return lookup.get(key);
+   }
 }

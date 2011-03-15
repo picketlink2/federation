@@ -29,9 +29,9 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
@@ -59,66 +59,69 @@ import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 public class SAML2AttributeHandlerUnitTestCase extends TestCase
 {
    private static String name = "anil";
+
    private static String email = "anil@test";
-   
+
    @SuppressWarnings("unchecked")
    public void testAttributes() throws Exception
    {
       SAML2AttributeHandler handler = new SAML2AttributeHandler();
-      
+
       SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
       SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
- 
-      Map<String,Object> chainOptions = new HashMap<String, Object>();
+
+      Map<String, Object> chainOptions = new HashMap<String, Object>();
       IDPType idpType = new IDPType();
       idpType.setAttributeManager(TestAttributeManager.class.getName());
       chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
       chainConfig.set(chainOptions);
-      
-      
+
       //Initialize the handler
       handler.initChainConfig(chainConfig);
       handler.initHandlerConfig(handlerConfig);
-      
+
       //Create a Protocol Context
       MockHttpSession session = new MockHttpSession();
       MockServletContext servletContext = new MockServletContext();
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
       MockHttpServletResponse servletResponse = new MockHttpServletResponse();
       HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
-      
-      SAML2Object saml2Object = new SAML2Object(){};
-      
+
+      SAML2Object saml2Object = new SAML2Object()
+      {
+      };
+
       SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
       IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
-      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, 
-            issuerInfo.getIssuer(), docHolder, SAML2Handler.HANDLER_TYPE.IDP);
+      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+            SAML2Handler.HANDLER_TYPE.IDP);
       SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
-      
+
       session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
       {
          public String getName()
          {
             return name;
-         }});
-      handler.handleRequestType(request, response); 
-      
+         }
+      });
+      handler.handleRequestType(request, response);
+
       Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
       assertNotNull("Attributes are not null", attribs);
-      assertEquals(email,attribs.get(AttributeConstants.EMAIL_ADDRESS));
+      assertEquals(email, attribs.get(X500SAMLProfileConstants.EMAIL.getFriendlyName()));
    }
-   
+
    public static class TestAttributeManager implements AttributeManager
-   { 
+   {
       public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
       {
-         Map<String,Object> attribs = new HashMap<String, Object>();
-         
-         if(name.equals(userPrincipal.getName()))
+         Map<String, Object> attribs = new HashMap<String, Object>();
+
+         if (name.equals(userPrincipal.getName()))
          {
-            attribs.put(AttributeConstants.EMAIL_ADDRESS, email);
+            attribs.put(X500SAMLProfileConstants.EMAIL.getFriendlyName(), email);
          }
          return attribs;
-      }     
+      }
    }
 }

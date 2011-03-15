@@ -33,6 +33,7 @@ import javax.xml.namespace.QName;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
@@ -116,26 +117,11 @@ public class StatementUtil
             AttributeType att;
             Object value = attributes.get(key);
 
-            if (AttributeConstants.EMAIL_ADDRESS.equals(key))
+            String uri = X500SAMLProfileConstants.getOID(key);
+            if (StringUtil.isNotNull(uri))
             {
-               att = getX500Attribute(X500SAMLProfileConstants.EMAIL_ADDRESS.get());
-               att.setFriendlyName(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName());
-            }
-            else if (AttributeConstants.EMPLOYEE_NUMBER.equals(key))
-            {
-               att = getX500Attribute(X500SAMLProfileConstants.EMPLOYEE_NUMBER.get());
-               att.setFriendlyName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.getFriendlyName());
-            }
-            else if (AttributeConstants.GIVEN_NAME.equals(key))
-            {
-               att = getX500Attribute(X500SAMLProfileConstants.GIVEN_NAME.get());
-               att.setFriendlyName(X500SAMLProfileConstants.GIVEN_NAME.getFriendlyName());
-            }
-            else if (AttributeConstants.TELEPHONE.equals(key))
-            {
-               att = getX500Attribute(X500SAMLProfileConstants.TELEPHONE_NUMBER.get());
-               att.setFriendlyName(X500SAMLProfileConstants.TELEPHONE_NUMBER.getFriendlyName());
-               att.setName(X500SAMLProfileConstants.TELEPHONE_NUMBER.get());
+               att = getX500Attribute(uri);
+               att.setFriendlyName(key);
             }
             else
                throw new RuntimeException("Unknown:" + key);

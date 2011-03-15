@@ -28,18 +28,5 @@ package org.picketlink.identity.federation.core.constants;
  */
 public interface AttributeConstants
 {
-   String COUNTRY = "country";
-   String EMAIL_ADDRESS = "email";
-   String EMPLOYEE_TYPE = "employeeType";
-   String EMPLOYEE_NUMBER = "employeeNumber";
-   String GIVEN_NAME = "givenName"; 
-   String PREFERRED_LANGUAGE = "preferredLanguage";
-   String PO_BOX = "postOfficeBox";
-   String POSTAL_CODE = "postalCode";
-   String POSTAL_ADDRESS ="postalAddress";
-   String SURNAME = "surname";
-   String STREET = "street"; 
-   String TITLE = "title";
-   String TELEPHONE = "telephoneNumber";
    String ROLES = "roles";
 }
