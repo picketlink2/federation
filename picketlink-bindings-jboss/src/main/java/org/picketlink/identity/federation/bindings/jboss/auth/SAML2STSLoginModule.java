@@ -125,7 +125,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    protected String groupName = "Roles";
 
    protected Map<String, ?> options = null;
-   
+
    /*
     * (non-Javadoc)
     * @see org.jboss.security.auth.spi.AbstractServerLoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
@@ -135,24 +135,25 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          Map<String, ?> options)
    {
       super.initialize(subject, callbackHandler, sharedState, options);
-      // check if the options contain the name of the STS configuration file.
-      this.stsConfigurationFile = (String) options.get("configFile");
+      this.options = options;
+      // save the config file and cache validation options, removing them from the map - all remaining properties will
+      // be set in the request context of the Dispatch instance used to send requests to the STS.
+      this.stsConfigurationFile = (String) this.options.remove("configFile");
+      String cacheInvalidation = (String) this.options.remove("cache.invalidation");
+      if (cacheInvalidation != null && !cacheInvalidation.isEmpty())
+      {
+         this.enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
+
+         this.securityDomain = (String) this.options.remove(SecurityConstants.SECURITY_DOMAIN_OPTION);
+         if (this.securityDomain == null || this.securityDomain.isEmpty())
+            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
+      }
 
       String groupNameStr = (String) options.get("groupPrincipalName");
       if (StringUtil.isNotNull(groupNameStr))
       {
          groupName = groupNameStr.trim();
       }
-
-      String cacheInvalidation = (String) options.get("cache.invalidation");
-      if (cacheInvalidation != null && !cacheInvalidation.isEmpty())
-      {
-         enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
-         securityDomain = (String) options.get(SecurityConstants.SECURITY_DOMAIN_OPTION);
-         if (securityDomain == null || securityDomain.isEmpty())
-            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
-      }
-
    }
 
    /*
