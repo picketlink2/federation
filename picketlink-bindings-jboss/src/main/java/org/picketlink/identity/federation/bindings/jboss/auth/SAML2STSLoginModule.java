@@ -44,19 +44,20 @@ import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrinc
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -76,6 +77,7 @@ import org.w3c.dom.Element;
  *  <ul>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
  *  if the cache.invalidation option is configured.
  *  </ul>
+ *  <ul>groupPrincipalName: if you do not want the Roles in the subject to be "Roles", then set it to a different value</ul>
  * </li>
  * </p>
  * <p>
@@ -117,9 +119,11 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    protected AssertionType assertion;
 
    protected boolean enableCacheInvalidation = false;
-   
+
    protected String securityDomain = null;
-   
+
+   protected String groupName = "Roles";
+
    protected Map<String, ?> options = null;
    
    /*
@@ -131,19 +135,24 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          Map<String, ?> options)
    {
       super.initialize(subject, callbackHandler, sharedState, options);
-      this.options = options;
+      // check if the options contain the name of the STS configuration file.
+      this.stsConfigurationFile = (String) options.get("configFile");
 
-      // save the config file and cache validation options, removing them from the map - all remainig properties will
-      // be set in the request context of the Dispatch instance used to send requests to the STS.
-      this.stsConfigurationFile = (String) this.options.remove("configFile");
-      String cacheInvalidation = (String) this.options.remove( "cache.invalidation" );
-      if( cacheInvalidation != null && !cacheInvalidation.isEmpty() )
+      String groupNameStr = (String) options.get("groupPrincipalName");
+      if (StringUtil.isNotNull(groupNameStr))
       {
-         this.enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
-         this.securityDomain = (String) this.options.remove( SecurityConstants.SECURITY_DOMAIN_OPTION );
-         if( this.securityDomain == null || this.securityDomain.isEmpty() )
-            throw new RuntimeException( "Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION );
+         groupName = groupNameStr.trim();
       }
+
+      String cacheInvalidation = (String) options.get("cache.invalidation");
+      if (cacheInvalidation != null && !cacheInvalidation.isEmpty())
+      {
+         enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
+         securityDomain = (String) options.get(SecurityConstants.SECURITY_DOMAIN_OPTION);
+         if (securityDomain == null || securityDomain.isEmpty())
+            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
+      }
+
    }
 
    /*
@@ -188,7 +197,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       Element assertionElement = null;
       try
       {
-         super.callbackHandler.handle(new Callback[]{callback});
+         super.callbackHandler.handle(new Callback[]
+         {callback});
          if (callback.getCredential() instanceof SamlCredential == false)
             throw new IllegalArgumentException("Supplied credential is not a SAML credential");
          this.credential = (SamlCredential) callback.getCredential();
@@ -202,7 +212,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       }
 
       // send the assertion to the STS for validation. 
-      STSClient client = this.getSTSClient() ;
+      STSClient client = this.getSTSClient();
       try
       {
          boolean isValid = client.validateToken(assertionElement);
@@ -225,23 +235,23 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          if (subject != null)
          {
             BaseIDAbstractType baseID = subject.getSubType().getBaseID();
-            if( baseID instanceof NameIDType )
+            if (baseID instanceof NameIDType)
             {
                NameIDType nameID = (NameIDType) baseID;
-               this.principal = new PicketLinkPrincipal(nameID.getValue()); 
-               
+               this.principal = new PicketLinkPrincipal(nameID.getValue());
+
                //If the user has configured cache invalidation of subject based on saml token expiry
-               if( enableCacheInvalidation )
+               if (enableCacheInvalidation)
                {
                   TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
-                  XMLGregorianCalendar expiry = AssertionUtil.getExpiration( assertion );
-                  if( expiry != null )
+                  XMLGregorianCalendar expiry = AssertionUtil.getExpiration(assertion);
+                  if (expiry != null)
                   {
-                     cacheExpiry.register( securityDomain, expiry.toGregorianCalendar().getTime() , principal );
-                  } 
+                     cacheExpiry.register(securityDomain, expiry.toGregorianCalendar().getTime(), principal);
+                  }
                   else
                   {
-                     log.warn( "SAML Assertion has been found to have no expiration: ID = " + assertion.getID() );
+                     log.warn("SAML Assertion has been found to have no expiration: ID = " + assertion.getID());
                   }
                }
             }
@@ -300,10 +310,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       {
          Set<Principal> roles = new HashSet<Principal>();
          List<ASTChoiceType> attributeList = attributeStatement.getAttributes();
-         for ( ASTChoiceType obj : attributeList )
+         for (ASTChoiceType obj : attributeList)
          {
             AttributeType attribute = obj.getAttribute();
-            if( attribute != null ) 
+            if (attribute != null)
             {
                // if this is a role attribute, get its values and add them to the role set.
                if (attribute.getName().equals("role"))
@@ -313,14 +323,15 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
                }
             }
          }
-         Group rolesGroup = new PicketLinkGroup("Roles");
+         Group rolesGroup = new PicketLinkGroup(groupName);
          for (Principal role : roles)
             rolesGroup.addMember(role);
-         return new Group[]{rolesGroup};
+         return new Group[]
+         {rolesGroup};
       }
       return new Group[0];
    }
-   
+
    /**
     * <p>
     * Checks if the specified SAML assertion contains a {@code AttributeStatementType} and returns this type when it
@@ -344,7 +355,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       }
       return null;
    }
-   
+
    /**
     * Get the {@link STSClient} object with which we can make calls to the STS
     * @return
