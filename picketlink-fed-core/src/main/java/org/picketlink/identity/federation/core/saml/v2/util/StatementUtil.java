@@ -48,30 +48,32 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatem
  */
 public class StatementUtil
 {
-   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding", JBossSAMLURIConstants.X500_PREFIX.get());
-   
+   public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding",
+         JBossSAMLURIConstants.X500_PREFIX.get());
+
    /**
     * Create an AuthnStatementType given the issue instant and the type of authentication
     * @param instant an instanceof {@link XMLGregorianCalendar}
     * @param authnContextClassRefValue indicate the type of authentication performed
     * @return {@link AuthnStatementType}
     */
-   public static AuthnStatementType createAuthnStatement( XMLGregorianCalendar instant, String authnContextClassRefValue )
+   public static AuthnStatementType createAuthnStatement(XMLGregorianCalendar instant, String authnContextClassRefValue)
    {
-      AuthnStatementType authnStatement = new AuthnStatementType( instant );
-      
+      AuthnStatementType authnStatement = new AuthnStatementType(instant);
+
       AuthnContextType authnContext = new AuthnContextType();
-      AuthnContextClassRefType authnContextClassRef = new AuthnContextClassRefType( URI.create( authnContextClassRefValue ));
-      
+      AuthnContextClassRefType authnContextClassRef = new AuthnContextClassRefType(
+            URI.create(authnContextClassRefValue));
+
       AuthnContextTypeSequence sequence = (authnContext).new AuthnContextTypeSequence();
-      sequence.setClassRef( authnContextClassRef );
-      authnContext.setSequence( sequence );
-      
-      authnStatement.setAuthnContext( authnContext );
-      
+      sequence.setClassRef(authnContextClassRef);
+      authnContext.setSequence(sequence);
+
+      authnStatement.setAuthnContext(authnContext);
+
       return authnStatement;
    }
-   
+
    /**
     * Create an attribute statement with all the attributes
     * @param attributes a map with keys from {@link AttributeConstants}
@@ -89,7 +91,7 @@ public class StatementUtil
          if (i == 0)
          {
             //Deal with the X500 Profile of SAML2
-            attrStatement = new AttributeStatementType(); 
+            attrStatement = new AttributeStatementType();
             i++;
          }
 
@@ -102,9 +104,9 @@ public class StatementUtil
                Collection<?> roles = (Collection<?>) value;
                for (Object role : roles)
                {
-                  AttributeType roleAttr = new AttributeType( "Role" );
+                  AttributeType roleAttr = new AttributeType("Role");
                   roleAttr.addAttributeValue(role);
-                  attrStatement.addAttribute( new ASTChoiceType( roleAttr ));
+                  attrStatement.addAttribute(new ASTChoiceType(roleAttr));
                }
             }
          }
@@ -116,30 +118,30 @@ public class StatementUtil
 
             if (AttributeConstants.EMAIL_ADDRESS.equals(key))
             {
-               att = getX500Attribute( X500SAMLProfileConstants.EMAIL_ADDRESS.get() );
-               att.setFriendlyName(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName()); 
+               att = getX500Attribute(X500SAMLProfileConstants.EMAIL_ADDRESS.get());
+               att.setFriendlyName(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName());
             }
             else if (AttributeConstants.EMPLOYEE_NUMBER.equals(key))
             {
-               att = getX500Attribute( X500SAMLProfileConstants.EMPLOYEE_NUMBER.get() );
-               att.setFriendlyName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.getFriendlyName()); 
+               att = getX500Attribute(X500SAMLProfileConstants.EMPLOYEE_NUMBER.get());
+               att.setFriendlyName(X500SAMLProfileConstants.EMPLOYEE_NUMBER.getFriendlyName());
             }
             else if (AttributeConstants.GIVEN_NAME.equals(key))
             {
-               att = getX500Attribute( X500SAMLProfileConstants.GIVENNAME.get() );
-               att.setFriendlyName(X500SAMLProfileConstants.GIVENNAME.getFriendlyName()); 
+               att = getX500Attribute(X500SAMLProfileConstants.GIVEN_NAME.get());
+               att.setFriendlyName(X500SAMLProfileConstants.GIVEN_NAME.getFriendlyName());
             }
             else if (AttributeConstants.TELEPHONE.equals(key))
             {
-               att = getX500Attribute( X500SAMLProfileConstants.TELEPHONE.get() );
-               att.setFriendlyName(X500SAMLProfileConstants.TELEPHONE.getFriendlyName());
-               att.setName(X500SAMLProfileConstants.TELEPHONE.get());
+               att = getX500Attribute(X500SAMLProfileConstants.TELEPHONE_NUMBER.get());
+               att.setFriendlyName(X500SAMLProfileConstants.TELEPHONE_NUMBER.getFriendlyName());
+               att.setName(X500SAMLProfileConstants.TELEPHONE_NUMBER.get());
             }
             else
-               throw new RuntimeException( "Unknown:" + key );
-            
-            att.addAttributeValue( value );
-            attrStatement.addAttribute( new ASTChoiceType( att ));
+               throw new RuntimeException("Unknown:" + key);
+
+            att.addAttributeValue(value);
+            attrStatement.addAttribute(new ASTChoiceType(att));
          }
       }
       return attrStatement;
@@ -155,16 +157,16 @@ public class StatementUtil
       AttributeStatementType attrStatement = new AttributeStatementType();
       for (String role : roles)
       {
-         AttributeType attr = new AttributeType( "Role" );
-         attr.addAttributeValue( role );
-         attrStatement.addAttribute( new ASTChoiceType(  attr ));
+         AttributeType attr = new AttributeType("Role");
+         attr.addAttributeValue(role);
+         attrStatement.addAttribute(new ASTChoiceType(attr));
       }
       return attrStatement;
    }
 
-   private static AttributeType getX500Attribute( String name )
+   private static AttributeType getX500Attribute(String name)
    {
-      AttributeType att = new AttributeType( name );
+      AttributeType att = new AttributeType(name);
       att.getOtherAttributes().put(X500_QNAME, "LDAP");
 
       att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get());
