@@ -41,7 +41,7 @@ public class StringUtil
     */
    public static boolean isNotNull(String str)
    {
-      return str != null && !"".equals(str);
+      return str != null && !"".equals(str.trim());
    }
 
    /**
