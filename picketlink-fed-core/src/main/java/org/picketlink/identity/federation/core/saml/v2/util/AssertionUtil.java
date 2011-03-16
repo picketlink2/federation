@@ -159,7 +159,7 @@ public class AssertionUtil
          if(trace) log.trace("Now="+now.toXMLFormat() + " ::notBefore="+notBefore.toXMLFormat() 
                + "::notOnOrAfter="+notOnOrAfter);
          expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter); 
-         if( !expiry )
+         if( expiry )
          {
             log.info( "Assertion has expired with id=" + assertion.getID() );
          }
