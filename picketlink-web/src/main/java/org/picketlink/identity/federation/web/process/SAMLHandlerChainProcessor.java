@@ -22,7 +22,7 @@
 package org.picketlink.identity.federation.web.process;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -31,7 +31,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.SAML2Object; 
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
@@ -41,20 +41,17 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  */
 public class SAMLHandlerChainProcessor
 {
-   private Set<SAML2Handler> handlers = new HashSet<SAML2Handler>();
-   
+   private final Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
+
    public SAMLHandlerChainProcessor(Set<SAML2Handler> handlers)
    {
-      this.handlers.addAll(handlers); 
+      this.handlers.addAll(handlers);
    }
-   
-   public void callHandlerChain(SAML2Object samlObject, 
-         SAML2HandlerRequest saml2HandlerRequest,
-         SAML2HandlerResponse saml2HandlerResponse, 
-         HTTPContext httpContext,
-         Lock chainLock) 
-   throws ProcessingException, IOException
-   { 
+
+   public void callHandlerChain(SAML2Object samlObject, SAML2HandlerRequest saml2HandlerRequest,
+         SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock)
+         throws ProcessingException, IOException
+   {
       try
       {
          chainLock.lock();
@@ -79,6 +76,6 @@ public class SAMLHandlerChainProcessor
       finally
       {
          chainLock.unlock();
-      } 
-   } 
+      }
+   }
 }

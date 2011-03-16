@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -50,7 +51,17 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
- * Handler dealing with attributes for SAML2
+ * <p>Handler dealing with attributes for SAML2</p>
+ * <p>
+ * <b>Configuration for handler:</b>
+ * </p>
+ * <p>
+ * <ul>
+ * <li>ATTRIBUTE_MANAGER:  a fqn of the attribute manager class. This is an IDP setting.</li>
+ * <li>ATTRIBUTE_KEYS:  a comma separated list of string values representing attributes to be sent.  IDP setting.</li>
+ * <li>ATTRIBUTE_CHOOSE_FRIENDLY_NAME : set to true if you require attributes to be keyed by friendly name rather than default name. SP Setting.</li>
+ * </ul>
+ * </p>
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
@@ -63,6 +74,8 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
    protected AttributeManager attribManager = new EmptyAttributeManager();
 
    protected List<String> attributeKeys = new ArrayList<String>();
+
+   protected boolean chooseFriendlyName = false;
 
    @Override
    public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException
@@ -88,6 +101,13 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
       List<String> ak = (List<String>) this.handlerConfig.getParameter(GeneralConstants.ATTRIBUTE_KEYS);
       if (ak != null)
          this.attributeKeys.addAll(ak);
+
+      String chooseFriendlyNameStr = (String) handlerConfig
+            .getParameter(GeneralConstants.ATTRIBUTE_CHOOSE_FRIENDLY_NAME);
+      if (StringUtil.isNotNull(chooseFriendlyNameStr))
+      {
+         chooseFriendlyName = Boolean.parseBoolean(chooseFriendlyNameStr);
+      }
    }
 
    @SuppressWarnings("unchecked")
@@ -150,7 +170,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
 
       AssertionType assertion = (AssertionType) request.getOptions().get(GeneralConstants.ASSERTION);
       if (assertion == null)
-         throw new RuntimeException("Assertion not found in the handler request");
+         throw new RuntimeException("Assertion not found in the handler request:" + request.getOptions());
       Set<StatementAbstractType> statements = assertion.getStatements();
       for (StatementAbstractType statement : statements)
       {
@@ -168,7 +188,14 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
                   attrMap = new HashMap<String, List<Object>>();
                   session.setAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP, attrMap);
                }
-               attrMap.put(attr.getFriendlyName(), attr.getAttributeValue());
+               if (chooseFriendlyName)
+               {
+                  attrMap.put(attr.getFriendlyName(), attr.getAttributeValue());
+               }
+               else
+               {
+                  attrMap.put(attr.getName(), attr.getAttributeValue());
+               }
             }
          }
       }
