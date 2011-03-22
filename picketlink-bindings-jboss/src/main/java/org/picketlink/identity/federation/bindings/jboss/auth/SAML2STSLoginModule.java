@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.Principal;
 import java.security.acl.Group;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +125,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected String groupName = "Roles";
 
-   protected Map<String, ?> options = null;
+   protected Map<String, Object> options = new HashMap<String, Object>();
 
    /*
     * (non-Javadoc)
@@ -135,7 +136,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          Map<String, ?> options)
    {
       super.initialize(subject, callbackHandler, sharedState, options);
-      this.options = options;
+      this.options.putAll(options);
       // save the config file and cache validation options, removing them from the map - all remaining properties will
       // be set in the request context of the Dispatch instance used to send requests to the STS.
       this.stsConfigurationFile = (String) this.options.remove("configFile");
