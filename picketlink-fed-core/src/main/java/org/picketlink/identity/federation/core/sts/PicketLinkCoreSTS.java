@@ -53,97 +53,99 @@ import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
  */
 public class PicketLinkCoreSTS
 {
-   private static final Logger logger = Logger.getLogger( PicketLinkCoreSTS.class );
-   public static final RuntimePermission rte = new RuntimePermission( "org.picketlink.sts" );
-   
+   private static final Logger logger = Logger.getLogger(PicketLinkCoreSTS.class);
+
+   public static final RuntimePermission rte = new RuntimePermission("org.picketlink.sts");
+
    protected STSCoreConfig configuration;
-   
+
    private static PicketLinkCoreSTS _instance = null;
-   
-   private static final String SEPARATOR = AccessController.doPrivileged( new PrivilegedAction<String>()
-   { 
+
+   private static final String SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>()
+   {
       public String run()
-      { 
+      {
          return System.getProperty("file.separator");
       }
-   } ); 
+   });
 
    private static final String STS_CONFIG_DIR = "picketlink-store" + SEPARATOR + "sts" + SEPARATOR;
-   
+
    protected PicketLinkCoreSTS()
-   {   
+   {
    }
-   
+
    public static PicketLinkCoreSTS instance()
    {
-      if( _instance == null )
+      if (_instance == null)
          _instance = new PicketLinkCoreSTS();
-      
+
       return _instance;
    }
-   
-   public void initialize( STSCoreConfig config )
+
+   public void initialize(STSCoreConfig config)
    {
-      if( this.configuration != null )
+      if (this.configuration != null)
       {
-         this.configuration.copy(config); 
-      } 
+         this.configuration.copy(config);
+      }
       else
          this.configuration = config;
    }
-   
-   public void installDefaultConfiguration( String... configFileName )
+
+   public void installDefaultConfiguration(String... configFileName)
    {
       String fileName = "core-sts.xml";
-      
-      if( configFileName != null && configFileName.length > 0  )
-         fileName = configFileName[ 0 ];
-      
-      if( configuration == null )
+
+      if (configFileName != null && configFileName.length > 0)
+         fileName = configFileName[0];
+
+      if (configuration == null)
       {
-         if(logger.isDebugEnabled() )
-            logger.debug( "[InstallDefaultConfiguration] Configuration is null. Creating a new configuration" );
-         configuration = new PicketLinkSTSConfiguration(); 
+         if (logger.isDebugEnabled())
+            logger.debug("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
+         configuration = new PicketLinkSTSConfiguration();
       }
-      
+
       try
       {
 
-         if(logger.isDebugEnabled() )
-            logger.debug( "[InstallDefaultConfiguration] Configuration file name=" + fileName );
-         
-         STSConfiguration config = getConfiguration( fileName );
+         if (logger.isDebugEnabled())
+            logger.debug("[InstallDefaultConfiguration] Configuration file name=" + fileName);
+
+         STSConfiguration config = getConfiguration(fileName);
          configuration.copy(config);
       }
       catch (ConfigurationException e)
       {
-         throw new RuntimeException( e );
-      } 
+         throw new RuntimeException(e);
+      }
    }
-   
+
    /**
     * Issue a security token
     * @param protocolContext
     * @throws ProcessingException
     * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
-   public void issueToken( ProtocolContext protocolContext) throws ProcessingException
-   { 
+   public void issueToken(ProtocolContext protocolContext) throws ProcessingException
+   {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( rte );
-      
-      SecurityTokenProvider provider = getProvider(protocolContext);  
-      
-      if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
-      
-      if( logger.isDebugEnabled() )
+      if (sm != null)
+         sm.checkPermission(rte);
+
+      SecurityTokenProvider provider = getProvider(protocolContext);
+
+      if (provider == null)
+         throw new ProcessingException("No Security Token Provider found in configuration:[" + configuration
+               + "][ProtoCtx=" + protocolContext + "]");
+
+      if (logger.isDebugEnabled())
       {
-         logger.debug( "issueToken::provider=" + provider );
+         logger.debug("issueToken::provider=" + provider);
       }
-      
-      provider.issueToken( protocolContext );
+
+      provider.issueToken(protocolContext);
    }
 
    /**
@@ -156,25 +158,26 @@ public class PicketLinkCoreSTS
     * @throws ProcessingException if an error occurs while renewing the security token.
     * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
-   public void renewToken( ProtocolContext protocolContext) throws ProcessingException
-   { 
+   public void renewToken(ProtocolContext protocolContext) throws ProcessingException
+   {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( rte );
-      
+      if (sm != null)
+         sm.checkPermission(rte);
+
       SecurityTokenProvider provider = null;
-      
-      if( provider == null )
+
+      if (provider == null)
          provider = getProviderBasedOnQName(protocolContext);
 
-      if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
-      
-      if( logger.isDebugEnabled() )
+      if (provider == null)
+         throw new ProcessingException("No Security Token Provider found in configuration:" + configuration
+               + "[ProtoCtx=]" + protocolContext);
+
+      if (logger.isDebugEnabled())
       {
-         logger.debug( "renewToken::provider=" + provider );
+         logger.debug("renewToken::provider=" + provider);
       }
-      provider.renewToken( protocolContext ); 
+      provider.renewToken(protocolContext);
    }
 
    /**
@@ -187,26 +190,26 @@ public class PicketLinkCoreSTS
     * @throws ProcessingException if an error occurs while canceling the security token.
     * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
-   public void cancelToken( ProtocolContext protocolContext) throws ProcessingException
+   public void cancelToken(ProtocolContext protocolContext) throws ProcessingException
    {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( rte );
-      
+      if (sm != null)
+         sm.checkPermission(rte);
+
       SecurityTokenProvider provider = null;
-      
-      if( provider == null )
+
+      if (provider == null)
          provider = getProviderBasedOnQName(protocolContext);
 
-      if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + protocolContext );
-      
-      if( logger.isDebugEnabled() )
+      if (provider == null)
+         throw new ProcessingException("No Security Token Provider found in configuration:" + protocolContext);
+
+      if (logger.isDebugEnabled())
       {
-         logger.debug( "cancelToken::provider=" + provider );
+         logger.debug("cancelToken::provider=" + provider);
       }
-      
-      provider.cancelToken( protocolContext ); 
+
+      provider.cancelToken(protocolContext);
    }
 
    /**
@@ -219,72 +222,73 @@ public class PicketLinkCoreSTS
     * @throws ProcessingException if an error occurs while validating the security token.
     * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
     */
-   public void validateToken( ProtocolContext protocolContext) throws ProcessingException
+   public void validateToken(ProtocolContext protocolContext) throws ProcessingException
    {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( rte );
-      
+      if (sm != null)
+         sm.checkPermission(rte);
+
       SecurityTokenProvider provider = null;
-      
-      if( provider == null )
+
+      if (provider == null)
          provider = getProviderBasedOnQName(protocolContext);
 
-      if( provider == null )
-         throw new ProcessingException( "No Security Token Provider found in configuration:" + configuration + "[ProtoCtx=]" + protocolContext );
-      
-      if( logger.isDebugEnabled() )
+      if (provider == null)
+         throw new ProcessingException("No Security Token Provider found in configuration:" + configuration
+               + "[ProtoCtx=]" + protocolContext);
+
+      if (logger.isDebugEnabled())
       {
-         logger.debug( "validateToken::provider=" + provider );
+         logger.debug("validateToken::provider=" + provider);
       }
-      
-      provider.validateToken( protocolContext );     
+
+      provider.validateToken(protocolContext);
    }
-   
-   private SecurityTokenProvider getProvider( ProtocolContext protocolContext )
+
+   private SecurityTokenProvider getProvider(ProtocolContext protocolContext)
    {
-      if( configuration == null )
-         throw new RuntimeException( "Configuration is not set" );
-      
+      if (configuration == null)
+         throw new RuntimeException("Configuration is not set");
+
       SecurityTokenProvider provider = null;
-      
+
       //Special Case: WST Applies To
       String serviceName = protocolContext.serviceName();
       if (serviceName != null)
       {
-         provider = this.configuration.getProviderForService( serviceName ); 
+         provider = this.configuration.getProviderForService(serviceName);
       }
-      
-      if( provider == null )
+
+      if (provider == null)
       {
          //lets get the provider based on token type
          String tokenType = protocolContext.tokenType();
-         if( tokenType != null )
-            provider = this.configuration.getProviderForTokenType( protocolContext.tokenType() );
+         if (tokenType != null)
+            provider = this.configuration.getProviderForTokenType(protocolContext.tokenType());
       }
       return provider;
    }
-   
-   private SecurityTokenProvider getProviderBasedOnQName( ProtocolContext protocolContext ) throws ProcessingException
+
+   private SecurityTokenProvider getProviderBasedOnQName(ProtocolContext protocolContext) throws ProcessingException
    {
       SecurityTokenProvider provider = null;
-      
+
       QName qname = null;
-      if( provider == null )
+      if (provider == null)
       {
          qname = protocolContext.getQName();
-         if( qname == null )
-            throw new ProcessingException( "QName of the token type is null " );
-         provider = this.configuration.getProviderForTokenElementNS( protocolContext.family(), qname );  
-      } 
-       
+         if (qname == null)
+            throw new ProcessingException("QName of the token type is null ");
+         provider = this.configuration.getProviderForTokenElementNS(protocolContext.family(), qname);
+      }
+
       if (provider == null)
          throw new ProcessingException("No SecurityTokenProvider configured for " + qname.getNamespaceURI() + ":"
-               + qname.getLocalPart() );
-      
+               + qname.getLocalPart());
+
       return provider;
    }
-   
+
    /**
     * <p>
     * Obtains the STS configuration options.
@@ -292,7 +296,7 @@ public class PicketLinkCoreSTS
     * 
     * @return an instance of {@code STSConfiguration} containing the STS configuration properties.
     */
-   protected STSConfiguration getConfiguration( String fileName ) throws ConfigurationException
+   protected STSConfiguration getConfiguration(String fileName) throws ConfigurationException
    {
       URL configurationFileURL = null;
 
@@ -305,12 +309,12 @@ public class PicketLinkCoreSTS
             configurationFileURL = configurationFile.toURI().toURL();
          else
             // if not configuration file was found in the user home, check the context classloader.
-            configurationFileURL = SecurityActions.getContextClassLoader().getResource( fileName );
+            configurationFileURL = SecurityActions.getContextClassLoader().getResource(fileName);
 
          // if no configuration file was found, log a warn message and use default configuration values.
          if (configurationFileURL == null)
          {
-            logger.warn( fileName + " configuration file not found. Using default configuration values");
+            logger.warn(fileName + " configuration file not found. Using default configuration values");
             return new PicketLinkSTSConfiguration();
          }
 
@@ -318,7 +322,7 @@ public class PicketLinkCoreSTS
          STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
          STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
          if (logger.isInfoEnabled())
-            logger.info( fileName + " configuration file loaded");
+            logger.info(fileName + " configuration file loaded");
          return configuration;
       }
       catch (Exception e)
