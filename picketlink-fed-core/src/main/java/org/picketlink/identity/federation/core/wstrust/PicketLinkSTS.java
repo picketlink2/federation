@@ -61,13 +61,13 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
 
-   private static final String SEPARATOR = AccessController.doPrivileged( new PrivilegedAction<String>()
-   { 
+   private static final String SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>()
+   {
       public String run()
-      { 
+      {
          return System.getProperty("file.separator");
       }
-   } ); 
+   });
 
    private static final String STS_CONFIG_FILE = "picketlink-sts.xml";
 
@@ -247,7 +247,7 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
       }
       catch (Exception e)
       {
-         throw new ConfigurationException("Error parsing the configuration file:", e);
+         throw new ConfigurationException("Error parsing the configuration file:[" + configurationFileURL + "]", e);
       }
    }
 }
