@@ -40,7 +40,7 @@ import org.jboss.security.SecurityContextFactory;
  * @version $Revision: 1 $
  */
 class SecurityActions
-{ 
+{
    static SecurityContext createSecurityContext() throws PrivilegedActionException
    {
       return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()
@@ -51,24 +51,33 @@ class SecurityActions
          }
       });
    }
-   
+
    static MBeanServer getJBossMBeanServer()
    {
-      return AccessController.doPrivileged( new PrivilegedAction<MBeanServer>() 
-      { 
+      return AccessController.doPrivileged(new PrivilegedAction<MBeanServer>()
+      {
          public MBeanServer run()
-         { 
-            for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext(); )
+         {
+            //Differences in JBAS5.1, 6.0 with the "jboss" mbean server.
+            MBeanServer cached = null;
+
+            for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext();)
             {
                MBeanServer server = i.next();
+
+               if (server.getDefaultDomain().contains("Default"))
+                  cached = server;
+
                if (server.getDefaultDomain().equals("jboss"))
                {
                   return server;
                }
             }
+            if (cached != null)
+               return cached; //We did not find one with jboss but there is "DefaultDomain" which is the norm in AS6
             throw new IllegalStateException("No 'jboss' MBeanServer found!");
          }
       });
-      
+
    }
 }
