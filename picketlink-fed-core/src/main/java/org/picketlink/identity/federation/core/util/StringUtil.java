@@ -27,6 +27,13 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+
 /**
  * Utility dealing with Strings
  * @author Anil.Saldhana@redhat.com
@@ -126,5 +133,34 @@ public class StringUtil
          list.add(tokenizer.nextToken());
       }
       return list;
+   }
+
+   /**
+    * Given a masked password {@link String}, decode it
+    * @param maskedString a password string that is masked
+    * @param salt Salt
+    * @param iterationCount Iteration Count
+    * @return Decoded String
+    * @throws Exception
+    */
+   public static String decode(String maskedString, String salt, int iterationCount) throws Exception
+   {
+      String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
+      if (maskedString.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
+      {
+         // Create the PBE secret key 
+         SecretKeyFactory factory = SecretKeyFactory.getInstance(pbeAlgo);
+
+         char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
+         PBEParameterSpec cipherSpec = new PBEParameterSpec(salt.getBytes(), iterationCount);
+         PBEKeySpec keySpec = new PBEKeySpec(password);
+         SecretKey cipherKey = factory.generateSecret(keySpec);
+
+         maskedString = maskedString.substring(PicketLinkFederationConstants.PASS_MASK_PREFIX.length());
+         String decodedValue = PBEUtils.decode64(maskedString, pbeAlgo, cipherKey, cipherSpec);
+
+         maskedString = decodedValue;
+      }
+      return maskedString;
    }
 }

@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.util.StringUtil;
+
 /**
  * STSClientConfig has the ability to either programatically construct the configuration 
  * needed for {@link STSClient} or parse a file containing the configuration parameters.
@@ -48,223 +51,254 @@ import java.util.Properties;
  * }</pre>
  * 
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
+ * @author Anil Saldhana
  */
 public class STSClientConfig
 {
-    public static final String DEFAULT_CONFIG_FILE = "sts-client.properties";
-    
-    public static final String SERVICE_NAME = "serviceName";
-    public static final String PORT_NAME = "portName";
-    public static final String ENDPOINT_ADDRESS = "endpointAddress";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String TOKEN_TYPE = "tokenType";
+   public static final String DEFAULT_CONFIG_FILE = "sts-client.properties";
 
-    private String serviceName;
-    private String portName;
-    private String endpointAddress;
-    private String username;
-    private String password;
+   public static final String SERVICE_NAME = "serviceName";
 
-    private STSClientConfig(final Builder builder)
-    {
-        serviceName = builder.serviceName;
-        portName = builder.portName;
-        endpointAddress = builder.endpointAddress;
-        username = builder.username;
-        password = builder.password;
-    }
+   public static final String PORT_NAME = "portName";
 
-    public String getServiceName()
-    {
-        return serviceName;
-    }
+   public static final String ENDPOINT_ADDRESS = "endpointAddress";
 
-    public String getPortName()
-    {
-        return portName;
-    }
+   public static final String USERNAME = "username";
 
-    public String getEndPointAddress()
-    {
-        return endpointAddress;
-    }
+   public static final String PASSWORD = "password";
 
-    public String getUsername()
-    {
-        return username;
-    }
+   public static final String TOKEN_TYPE = "tokenType";
 
-    public String getPassword()
-    {
-        return password;
-    }
-    
-    public String toString()
-    {
-        return getClass().getSimpleName() + "[serviceName=" + serviceName + ", portName=" + portName + ", endpointAddress=" + endpointAddress + "]";
-    }
+   private final String serviceName;
 
-    public static class Builder
-    {
-        private String serviceName;
-        private String portName;
-        private String endpointAddress;
-        private String username;
-        private String password;
-        
-        public Builder()
-        {
-        }
-        
-        public Builder(final String configFile)
-        {
-            populate(configFile);
-        }
+   private final String portName;
 
-        public Builder serviceName(final String serviceName)
-        {
-            this.serviceName = serviceName;
-            return this;
-        }
+   private final String endpointAddress;
 
-        public Builder portName(final String portName)
-        {
-            this.portName = portName;
-            return this;
-        }
+   private final String username;
 
-        public Builder endpointAddress(final String address)
-        {
-            this.endpointAddress = address;
-            return this;
-        }
+   private final String password;
 
-        public Builder username(final String username)
-        {
-            this.username = username;
-            return this;
-        }
+   private STSClientConfig(final Builder builder)
+   {
+      serviceName = builder.serviceName;
+      portName = builder.portName;
+      endpointAddress = builder.endpointAddress;
+      username = builder.username;
+      password = builder.password;
+   }
 
-        public Builder password(final String password)
-        {
-            this.password = password;
-            return this;
-        }
-        
-        public String getServiceName()
-        {
-            return serviceName;
-        }
+   public String getServiceName()
+   {
+      return serviceName;
+   }
 
-        public String getPortName()
-        {
-            return portName;
-        }
+   public String getPortName()
+   {
+      return portName;
+   }
 
-        public String getEndpointAddress()
-        {
-            return endpointAddress;
-        }
+   public String getEndPointAddress()
+   {
+      return endpointAddress;
+   }
 
-        public String getUsername()
-        {
-            return username;
-        }
+   public String getUsername()
+   {
+      return username;
+   }
 
-        public String getPassword()
-        {
-            return password;
-        }
+   public String getPassword()
+   {
+      return password;
+   }
 
-        public STSClientConfig build()
-        {
-            validate(this);
-            return new STSClientConfig(this);
-        }
+   public String toString()
+   {
+      return getClass().getSimpleName() + "[serviceName=" + serviceName + ", portName=" + portName
+            + ", endpointAddress=" + endpointAddress + "]";
+   }
 
-        private void populate(final String configFile)
-        {
-            InputStream in = null;
-        
+   public static class Builder
+   {
+      private String serviceName;
+
+      private String portName;
+
+      private String endpointAddress;
+
+      private String username;
+
+      private String password;
+
+      public Builder()
+      {
+      }
+
+      public Builder(final String configFile)
+      {
+         populate(configFile);
+      }
+
+      public Builder serviceName(final String serviceName)
+      {
+         this.serviceName = serviceName;
+         return this;
+      }
+
+      public Builder portName(final String portName)
+      {
+         this.portName = portName;
+         return this;
+      }
+
+      public Builder endpointAddress(final String address)
+      {
+         this.endpointAddress = address;
+         return this;
+      }
+
+      public Builder username(final String username)
+      {
+         this.username = username;
+         return this;
+      }
+
+      public Builder password(final String password)
+      {
+         this.password = password;
+         return this;
+      }
+
+      public String getServiceName()
+      {
+         return serviceName;
+      }
+
+      public String getPortName()
+      {
+         return portName;
+      }
+
+      public String getEndpointAddress()
+      {
+         return endpointAddress;
+      }
+
+      public String getUsername()
+      {
+         return username;
+      }
+
+      public String getPassword()
+      {
+         return password;
+      }
+
+      public STSClientConfig build()
+      {
+         validate(this);
+         return new STSClientConfig(this);
+      }
+
+      private void populate(final String configFile)
+      {
+         InputStream in = null;
+
+         try
+         {
+            in = getResource(configFile);
+            if (in == null)
+            {
+               throw new IllegalStateException("Could not find properties file " + configFile);
+
+            }
+            final Properties properties = new Properties();
+            properties.load(in);
+            this.serviceName = properties.getProperty(SERVICE_NAME);
+            this.portName = properties.getProperty(PORT_NAME);
+            this.endpointAddress = properties.getProperty(ENDPOINT_ADDRESS);
+            this.username = properties.getProperty(USERNAME);
+            this.password = properties.getProperty(PASSWORD);
+
+            if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
+            {
+               //password is masked
+               String salt = properties.getProperty(PicketLinkFederationConstants.SALT);
+               int iterationCount = Integer.parseInt(properties
+                     .getProperty(PicketLinkFederationConstants.ITERATION_COUNT));
+               try
+               {
+                  this.password = StringUtil.decode(password, salt, iterationCount);
+               }
+               catch (Exception e)
+               {
+                  throw new RuntimeException("Unable to decode password:" + this.password);
+               }
+            }
+         }
+         catch (IOException e)
+         {
+            throw new IllegalStateException("Could not load properties from " + configFile);
+         }
+         finally
+         {
             try
             {
-                in = getResource(configFile);
-                if (in == null)
-                {
-                    throw new IllegalStateException("Could not find properties file " + configFile);
-                    
-                }
-                final Properties properties = new Properties();
-                properties.load(in);
-                this.serviceName = properties.getProperty(SERVICE_NAME);
-                this.portName = properties.getProperty(PORT_NAME);
-                this.endpointAddress = properties.getProperty(ENDPOINT_ADDRESS);
-                this.username = properties.getProperty(USERNAME);
-                this.password = properties.getProperty(PASSWORD);
+               if (in != null)
+                  in.close();
             }
-            catch (IOException e)
+            catch (final IOException ignored)
             {
-                throw new IllegalStateException("Could not load properties from " + configFile);
+               ignored.printStackTrace();
             }
-            finally
-            {
-                try
-                {
-                    if (in != null)
-                        in.close();
-                }
-                catch (final IOException ignored)
-                {
-                    ignored.printStackTrace();
-                }
-            }
-        }
+         }
+      }
 
-        private void validate(Builder builder)
-        {
-            checkPropertyShowValue(serviceName, SERVICE_NAME);
-            checkPropertyShowValue(portName, PORT_NAME);
-            checkPropertyShowValue(endpointAddress, endpointAddress);
-            checkProperty(username, USERNAME);
-            checkProperty(password, PASSWORD);
-        }
+      private void validate(Builder builder)
+      {
+         checkPropertyShowValue(serviceName, SERVICE_NAME);
+         checkPropertyShowValue(portName, PORT_NAME);
+         checkPropertyShowValue(endpointAddress, endpointAddress);
+         checkProperty(username, USERNAME);
+         checkProperty(password, PASSWORD);
+      }
 
-        private void checkPropertyShowValue(final String propertyName, final String propertyValue)
-        {
-            if (propertyValue == null || propertyValue.equals(""))
-                throw new IllegalArgumentException(propertyName + " property must not be null or empty was:" + propertyValue);
-        }
+      private void checkPropertyShowValue(final String propertyName, final String propertyValue)
+      {
+         if (propertyValue == null || propertyValue.equals(""))
+            throw new IllegalArgumentException(propertyName + " property must not be null or empty was:"
+                  + propertyValue);
+      }
 
-        private void checkProperty(final String propertyName, final String propertyValue)
-        {
-            if (propertyValue == null || propertyValue.equals(""))
-                throw new IllegalArgumentException(propertyName + " property must not be null");
-        }
-    }
+      private void checkProperty(final String propertyName, final String propertyValue)
+      {
+         if (propertyValue == null || propertyValue.equals(""))
+            throw new IllegalArgumentException(propertyName + " property must not be null");
+      }
+   }
 
-    private static InputStream getResource(String resource) throws IOException
-    {
-        // Try it as a File resource...
-        final File file = new File(resource);
+   private static InputStream getResource(String resource) throws IOException
+   {
+      // Try it as a File resource...
+      final File file = new File(resource);
 
-        if (file.exists() && !file.isDirectory())
-        {
-            return new FileInputStream(file);
-        }
-        // Try it as a classpath resource ...
-        final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader() ;
-        if (threadClassLoader != null)
-        {
-            final InputStream is = threadClassLoader.getResourceAsStream(resource) ;
-            if (is != null)
-            {
-                return is ;
-            }
-        }
-        
-        return  null;
-    }
+      if (file.exists() && !file.isDirectory())
+      {
+         return new FileInputStream(file);
+      }
+      // Try it as a classpath resource ...
+      final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+      if (threadClassLoader != null)
+      {
+         final InputStream is = threadClassLoader.getResourceAsStream(resource);
+         if (is != null)
+         {
+            return is;
+         }
+      }
+
+      return null;
+   }
 
 }
-
