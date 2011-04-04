@@ -23,8 +23,8 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI; 
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,9 +37,10 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil; 
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+
 /**
  * Validate the parsing of SLO Response
  * @author Anil.Saldhana@redhat.com
@@ -51,33 +52,58 @@ public class SAMLSloResponseParserTestCase
    public void testSAMLResponseParse() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-logout-response.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-response.xml");
+
       SAMLParser parser = new SAMLParser();
-      StatusResponseType response = ( StatusResponseType ) parser.parse(configStream);
-      assertNotNull( "ResponseType is not null", response ); 
-      
-      assertEquals( XMLTimeUtil.parse( "2010-07-29T13:46:03.862-05:00" ), response.getIssueInstant() );
-      assertEquals( "2.0", response.getVersion() );
-      assertEquals( "ID_97d332a8-3224-4653-a1ff-65c966e56852", response.getID() ); 
-      
+      StatusResponseType response = (StatusResponseType) parser.parse(configStream);
+      assertNotNull("ResponseType is not null", response);
+
+      assertEquals(XMLTimeUtil.parse("2010-07-29T13:46:03.862-05:00"), response.getIssueInstant());
+      assertEquals("2.0", response.getVersion());
+      assertEquals("ID_97d332a8-3224-4653-a1ff-65c966e56852", response.getID());
+
       //Issuer
-      assertEquals( "http://localhost:8080/employee-post/", response.getIssuer().getValue() );
-      
+      assertEquals("http://localhost:8080/employee-post/", response.getIssuer().getValue());
+
       //Status
       StatusType status = response.getStatus();
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue().toString() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue().toString() );
-      
+      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue().toString());
+      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue()
+            .toString());
+
       //Let us do some writing - currently only visual inspection. We will do proper validation later.
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(response, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
-      
-      System.out.println( new String( baos.toByteArray() ));
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      DocumentUtil.getDocument( bis ); //throws exceptions
-      
-   } 
+      writer.write(response, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
+
+      System.out.println(new String(baos.toByteArray()));
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      DocumentUtil.getDocument(bis); //throws exceptions
+
+   }
+
+   @Test
+   public void testSLOResponseWithSig() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-response-sig.xml");
+
+      SAMLParser parser = new SAMLParser();
+      StatusResponseType response = (StatusResponseType) parser.parse(configStream);
+      assertNotNull("ResponseType is not null", response);
+
+      assertEquals(XMLTimeUtil.parse("2011-04-04T11:48:32.372-05:00"), response.getIssueInstant());
+      assertEquals("2.0", response.getVersion());
+      assertEquals("ID_2b178fbb-224c-4f01-950d-e3d1be2d3821", response.getID());
+
+      //Issuer
+      assertEquals("http://localhost:8080/idp-sig/", response.getIssuer().getValue());
+
+      //Status
+      StatusType status = response.getStatus();
+      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue().toString());
+      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue()
+            .toString());
+   }
 }
