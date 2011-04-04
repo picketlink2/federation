@@ -36,6 +36,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -80,7 +81,11 @@ import org.w3c.dom.Node;
  * @since Jan 5, 2009
  */
 public class SAML2Response
-{ 
+{
+   private static Logger log = Logger.getLogger(SAML2Response.class);
+
+   private final boolean trace = log.isTraceEnabled();
+
    private SAMLDocumentHolder samlDocumentHolder = null;
 
    /**
@@ -91,7 +96,7 @@ public class SAML2Response
     */
    public AssertionType createAssertion(String id, NameIDType issuer)
    {
-      return AssertionUtil.createAssertion(id, issuer); 
+      return AssertionUtil.createAssertion(id, issuer);
    }
 
    /**
@@ -100,13 +105,12 @@ public class SAML2Response
     * @param issueInstant
     * @return
     */
-   public AuthnStatementType createAuthnStatement(String authnContextDeclRef,
-         XMLGregorianCalendar issueInstant)
-   { 
-      AuthnStatementType authnStatement = new AuthnStatementType( issueInstant ); 
+   public AuthnStatementType createAuthnStatement(String authnContextDeclRef, XMLGregorianCalendar issueInstant)
+   {
+      AuthnStatementType authnStatement = new AuthnStatementType(issueInstant);
       AuthnContextType act = new AuthnContextType();
       String authContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
-      act.addAuthenticatingAuthority( URI.create( authContextDeclRef )); 
+      act.addAuthenticatingAuthority(URI.create(authContextDeclRef));
       authnStatement.setAuthnContext(act);
       return authnStatement;
    }
@@ -119,20 +123,18 @@ public class SAML2Response
     * @param actions
     * @return
     */
-   public AuthzDecisionStatementType createAuthzDecisionStatementType(String resource,
-         DecisionType decision,
-         EvidenceType evidence,
-         ActionType... actions)
-   { 
+   public AuthzDecisionStatementType createAuthzDecisionStatementType(String resource, DecisionType decision,
+         EvidenceType evidence, ActionType... actions)
+   {
       AuthzDecisionStatementType authzDecST = new AuthzDecisionStatementType();
       authzDecST.setResource(resource);
       authzDecST.setDecision(decision);
-      if(evidence != null)
+      if (evidence != null)
          authzDecST.setEvidence(evidence);
 
-      if(actions != null)
+      if (actions != null)
       {
-         authzDecST.getAction().addAll(Arrays.asList(actions)); 
+         authzDecST.getAction().addAll(Arrays.asList(actions));
       }
 
       return authzDecST;
@@ -148,12 +150,12 @@ public class SAML2Response
     * @throws ConfigurationException 
     * @throws ProcessingException 
     */
-   public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo) 
-   throws ConfigurationException, ProcessingException
-   { 
+   public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo)
+         throws ConfigurationException, ProcessingException
+   {
       String responseDestinationURI = sp.getResponseDestinationURI();
 
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
 
       //Create an assertion
       //String id = IDGenerator.create( "ID_" ); 
@@ -163,19 +165,19 @@ public class SAML2Response
 
       //subject -> nameid
       NameIDType nameIDType = new NameIDType();
-      nameIDType.setFormat( URI.create( idp.getNameIDFormat() ));
+      nameIDType.setFormat(URI.create(idp.getNameIDFormat()));
       nameIDType.setValue(idp.getNameIDFormatValue());
 
       SubjectType.STSubType subType = new SubjectType.STSubType();
-      subType.addBaseID(nameIDType); 
+      subType.addBaseID(nameIDType);
       subjectType.setSubType(subType);
 
-      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
-      subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
+      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType();
+      subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
 
       SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
-      subjectConfirmationData.setInResponseTo(  sp.getRequestID() );
-      subjectConfirmationData.setRecipient( responseDestinationURI );
+      subjectConfirmationData.setInResponseTo(sp.getRequestID());
+      subjectConfirmationData.setRecipient(responseDestinationURI);
       subjectConfirmationData.setNotBefore(issueInstant);
       subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
@@ -185,33 +187,32 @@ public class SAML2Response
 
       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
       SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
-      samlProtocolContext.setSubjectType( subjectType );
-      samlProtocolContext.setIssuerID(nameIDType); 
+      samlProtocolContext.setSubjectType(subjectType);
+      samlProtocolContext.setIssuerID(nameIDType);
 
       AssertionType assertionType = idp.getAssertion();
-      if( assertionType != null )
+      if (assertionType != null)
       {
          samlProtocolContext.setIssuedAssertion(assertionType);
          //renew it
-         sts.renewToken( samlProtocolContext ); 
+         sts.renewToken(samlProtocolContext);
       }
       else
-         sts.issueToken( samlProtocolContext );
+         sts.issueToken(samlProtocolContext);
 
       assertionType = samlProtocolContext.getIssuedAssertion();
-      
-      //Update the subjectConfirmationData expiry based on the assertion
-      subjectConfirmationData.setNotOnOrAfter( assertionType.getConditions().getNotOnOrAfter() );
 
-  
-      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
+      //Update the subjectConfirmationData expiry based on the assertion
+      subjectConfirmationData.setNotOnOrAfter(assertionType.getConditions().getNotOnOrAfter());
+
+      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
       //InResponseTo ID
       responseType.setInResponseTo(sp.getRequestID());
       //Destination
       responseType.setDestination(responseDestinationURI);
 
-      return responseType; 
-   } 
+      return responseType;
+   }
 
    /**
     * Create an empty response type
@@ -230,12 +231,12 @@ public class SAML2Response
     * @return
     * @throws ConfigurationException
     */
-   public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertion) 
-   throws ConfigurationException
+   public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertion)
+         throws ConfigurationException
    {
       return JBossSAMLAuthnResponseFactory.createResponseType(ID, issuerInfo, assertion);
    }
-   
+
    /**
     * Create a ResponseType
     * @param ID
@@ -244,8 +245,8 @@ public class SAML2Response
     * @return
     * @throws ConfigurationException
     */
-   public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion) 
-   throws ConfigurationException
+   public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)
+         throws ConfigurationException
    {
       return JBossSAMLAuthnResponseFactory.createResponseType(ID, issuerInfo, encryptedAssertion);
    }
@@ -257,10 +258,10 @@ public class SAML2Response
     * @throws ConfigurationException 
     * @throws IssueInstantMissingException 
     */
-   public void createTimedConditions(AssertionType assertion, long durationInMilis) 
-   throws ConfigurationException, IssueInstantMissingException  
+   public void createTimedConditions(AssertionType assertion, long durationInMilis) throws ConfigurationException,
+         IssueInstantMissingException
    {
-      AssertionUtil.createTimedConditions(assertion, durationInMilis); 
+      AssertionUtil.createTimedConditions(assertion, durationInMilis);
    }
 
    /**
@@ -268,15 +269,15 @@ public class SAML2Response
     * @param is
     * @return   
     * @throws ParsingException 
-    */ 
-   public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException  
+    */
+   public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException
    {
-      if(is == null)
-         throw new IllegalArgumentException( "inputstream is null" );
+      if (is == null)
+         throw new IllegalArgumentException("inputstream is null");
 
       SAMLParser samlParser = new SAMLParser();
-      return ( EncryptedAssertionType ) samlParser.parse(is);
- 
+      return (EncryptedAssertionType) samlParser.parse(is);
+
    }
 
    /**
@@ -284,11 +285,11 @@ public class SAML2Response
     * @param is
     * @return 
     * @throws ParsingException 
-    */ 
+    */
    public AssertionType getAssertionType(InputStream is) throws ParsingException
    {
-      if(is == null)
-         throw new IllegalArgumentException( "inputstream is null" );
+      if (is == null)
+         throw new IllegalArgumentException("inputstream is null");
 
       SAMLParser samlParser = new SAMLParser();
       return (AssertionType) samlParser.parse(is);
@@ -309,22 +310,21 @@ public class SAML2Response
     * @return
     * @throws ParsingException 
     * @throws ConfigurationException 
-    */ 
-   public ResponseType getResponseType(InputStream is) 
-   throws ParsingException, ConfigurationException, ProcessingException
+    */
+   public ResponseType getResponseType(InputStream is) throws ParsingException, ConfigurationException,
+         ProcessingException
    {
-      if(is == null)
+      if (is == null)
          throw new IllegalArgumentException("inputstream is null");
 
       Document samlResponseDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
-      ResponseType responseType = (ResponseType) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
+      ResponseType responseType = (ResponseType) samlParser.parse(DocumentUtil.getNodeAsStream(samlResponseDocument));
 
       samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
-      return responseType; 
+      return responseType;
    }
-
 
    /**
     * Read a {@code SAML2Object} from an input stream
@@ -333,18 +333,21 @@ public class SAML2Response
     * @throws ParsingException 
     * @throws ConfigurationException 
     * @throws ProcessingException 
-    */ 
-   public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException, ProcessingException
+    */
+   public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException,
+         ProcessingException
    {
-      if(is == null)
+      if (is == null)
          throw new IllegalArgumentException("inputstream is null");
 
-      Document samlResponseDocument = DocumentUtil.getDocument(is); 
+      Document samlResponseDocument = DocumentUtil.getDocument(is);
 
-      System.out.println( "RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
+      if (trace)
+         log.trace("RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
 
       SAMLParser samlParser = new SAMLParser();
-      SAML2Object responseType =  (SAML2Object) samlParser.parse( DocumentUtil.getNodeAsStream( samlResponseDocument ));
+      InputStream responseStream = DocumentUtil.getNodeAsStream(samlResponseDocument);
+      SAML2Object responseType = (SAML2Object) samlParser.parse(responseStream);
 
       samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
       return responseType;
@@ -357,16 +360,15 @@ public class SAML2Response
     * @return 
     * @throws ConfigurationException
     */
-   public Document convert(EncryptedElementType encryptedElementType) 
-   throws  ConfigurationException 
-   { 
-      if( encryptedElementType == null )
-         throw new IllegalArgumentException( "encryptedElementType is null ");
+   public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException
+   {
+      if (encryptedElementType == null)
+         throw new IllegalArgumentException("encryptedElementType is null ");
       Document doc = DocumentUtil.createDocument();
-      Node importedNode = doc.importNode( encryptedElementType.getEncryptedElement(), true );
+      Node importedNode = doc.importNode(encryptedElementType.getEncryptedElement(), true);
       doc.appendChild(importedNode);
 
-      return doc; 
+      return doc;
    }
 
    /**
@@ -376,25 +378,26 @@ public class SAML2Response
     * @throws ParsingException 
     * @throws ConfigurationException 
     * @throws ParserConfigurationException
-    */ 
-   public Document convert( StatusResponseType responseType) throws ProcessingException, ConfigurationException, ParsingException
+    */
+   public Document convert(StatusResponseType responseType) throws ProcessingException, ConfigurationException,
+         ParsingException
    {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(bos));
 
-      if( responseType instanceof ResponseType )
+      if (responseType instanceof ResponseType)
       {
          ResponseType response = (ResponseType) responseType;
          writer.write(response);
       }
       else
       {
-         writer.write(responseType, new QName( PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
+         writer.write(responseType, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
       }
 
       //System.out.println( new String( bos.toByteArray() ) );
-      return DocumentUtil.getDocument( new ByteArrayInputStream( bos.toByteArray() )); 
+      return DocumentUtil.getDocument(new ByteArrayInputStream(bos.toByteArray()));
    }
 
    /**
@@ -403,10 +406,10 @@ public class SAML2Response
     * @param os 
     * @throws ProcessingException 
     */
-   public void marshall(ResponseType responseType, OutputStream os) throws ProcessingException  
-   { 
-      SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter(os));
-      samlWriter.write(responseType); 
+   public void marshall(ResponseType responseType, OutputStream os) throws ProcessingException
+   {
+      SAMLResponseWriter samlWriter = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(os));
+      samlWriter.write(responseType);
    }
 
    /**
@@ -415,9 +418,9 @@ public class SAML2Response
     * @param writer
     * @throws ProcessingException  
     */
-   public void marshall(ResponseType responseType, Writer writer) throws ProcessingException 
+   public void marshall(ResponseType responseType, Writer writer) throws ProcessingException
    {
-      SAMLResponseWriter samlWriter = new SAMLResponseWriter( StaxUtil.getXMLStreamWriter( writer ));
+      SAMLResponseWriter samlWriter = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(writer));
       samlWriter.write(responseType);
    }
 }
