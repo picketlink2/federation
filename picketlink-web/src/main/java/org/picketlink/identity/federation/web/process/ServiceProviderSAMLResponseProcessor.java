@@ -48,8 +48,8 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.SAML2Object; 
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
@@ -63,9 +63,9 @@ import org.w3c.dom.Document;
  * @since Oct 27, 2009
  */
 public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBaseProcessor
-{ 
+{
    private boolean validateSignature = false;
-   
+
    /**
     * Construct
     * @param postBinding Whether it is the Post Binding
@@ -85,7 +85,6 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
       this.validateSignature = validateSignature;
    }
 
-
    /**
     * Process the message
     * @param samlResponse
@@ -98,75 +97,72 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
     * @throws ParsingException
     * @throws ConfigurationException
     */
-   public SAML2HandlerResponse process(String samlResponse, HTTPContext httpContext,
-         Set<SAML2Handler> handlers, 
-         Lock chainLock) 
-   throws ProcessingException, IOException, ParsingException, ConfigurationException
+   public SAML2HandlerResponse process(String samlResponse, HTTPContext httpContext, Set<SAML2Handler> handlers,
+         Lock chainLock) throws ProcessingException, IOException, ParsingException, ConfigurationException
    {
       SAML2Response saml2Response = new SAML2Response();
       SAMLDocumentHolder documentHolder = null;
       SAML2Object samlObject = null;
-      
-      if(this.postBinding)
-      {         
+
+      if (this.postBinding)
+      {
          //we got a logout request 
          //deal with SAML response from IDP
-         InputStream is = PostBindingUtil.base64DecodeAsStream(samlResponse); 
+         InputStream is = PostBindingUtil.base64DecodeAsStream(samlResponse);
 
          samlObject = saml2Response.getSAML2ObjectFromStream(is);
-         documentHolder = saml2Response.getSamlDocumentHolder(); 
+         documentHolder = saml2Response.getSamlDocumentHolder();
       }
       else
       {
          //deal with SAML response from IDP
-         InputStream base64DecodedResponse = RedirectBindingUtil.base64DeflateDecode(samlResponse); 
+         InputStream base64DecodedResponse = RedirectBindingUtil.base64DeflateDecode(samlResponse);
 
          samlObject = saml2Response.getSAML2ObjectFromStream(base64DecodedResponse);
          documentHolder = saml2Response.getSamlDocumentHolder();
       }
-      
-      if( this.validateSignature )
+
+      if (this.validateSignature)
          try
          {
-            if( ! this.verifySignature( documentHolder ) )
-              throw new ProcessingException( "Signature Validation failed" );
+            if (!this.verifySignature(documentHolder))
+               throw new ProcessingException("Signature Validation failed");
          }
          catch (IssuerNotTrustedException e)
          {
-            throw new ProcessingException( e );
+            throw new ProcessingException(e);
          }
-      
+
       //Create the request/response
-      SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext); 
-      SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
+      SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext);
+      SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
       SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
-      
+
       //Set some request options
-      if(spConfiguration != null)
+      if (spConfiguration != null)
       {
-         Map<String,Object> requestOptions = new HashMap<String,Object>();
+         Map<String, Object> requestOptions = new HashMap<String, Object>();
          requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-         if(keyManager != null)
+         if (keyManager != null)
          {
             String remoteHost = httpContext.getRequest().getRemoteAddr();
-            if(trace)
+            if (trace)
             {
-               log.trace("ServiceProviderSAMLResponseProcessor::Remote Host=" + remoteHost); 
+               log.trace("ServiceProviderSAMLResponseProcessor::Remote Host=" + remoteHost);
             }
-            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
-            requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey); 
-            requestOptions.put( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
+            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
+            requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+            requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
          }
 
          saml2HandlerRequest.setOptions(requestOptions);
       }
 
-      chainProcessor.callHandlerChain(samlObject, saml2HandlerRequest, 
-            saml2HandlerResponse, httpContext, chainLock);
-      
-      return saml2HandlerResponse; 
-   } 
+      chainProcessor.callHandlerChain(samlObject, saml2HandlerRequest, saml2HandlerResponse, httpContext, chainLock);
+
+      return saml2HandlerResponse;
+   }
 
    /**
     * Validate the signature of the IDP response
@@ -175,17 +171,17 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
     * @throws IssuerNotTrustedException
     */
    private boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
-   {  
-      if( keyManager == null )
-         throw new IllegalStateException( "Key Manager is null" );
+   {
+      if (keyManager == null)
+         throw new IllegalStateException("Key Manager is null");
       Document samlResponse = samlDocumentHolder.getSamlDocument();
-      ResponseType response = (ResponseType) samlDocumentHolder.getSamlObject();
-      
+      StatusResponseType response = (StatusResponseType) samlDocumentHolder.getSamlObject();
+
       String issuerID = response.getIssuer().getValue();
-      
-      if(issuerID == null)
+
+      if (issuerID == null)
          throw new IssuerNotTrustedException("Issue missing");
-      
+
       URL issuerURL;
       try
       {
@@ -195,30 +191,32 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
       {
          throw new IssuerNotTrustedException(e1);
       }
-      
+
       try
       {
          PublicKey publicKey = keyManager.getValidatingKey(issuerURL.getHost());
-         if(trace) log.trace("Going to verify signature in the saml response from IDP"); 
-         boolean sigResult =  XMLSignatureUtil.validate(samlResponse, publicKey);
-         if(trace) log.trace("Signature verification="+sigResult);
+         if (trace)
+            log.trace("Going to verify signature in the saml response from IDP");
+         boolean sigResult = XMLSignatureUtil.validate(samlResponse, publicKey);
+         if (trace)
+            log.trace("Signature verification=" + sigResult);
          return sigResult;
       }
       catch (TrustKeyConfigurationException e)
       {
-         log.error("Unable to verify signature",e);
+         log.error("Unable to verify signature", e);
       }
       catch (TrustKeyProcessingException e)
       {
-         log.error("Unable to verify signature",e);
+         log.error("Unable to verify signature", e);
       }
       catch (MarshalException e)
       {
-         log.error("Unable to verify signature",e);
+         log.error("Unable to verify signature", e);
       }
       catch (XMLSignatureException e)
       {
-         log.error("Unable to verify signature",e);
+         log.error("Unable to verify signature", e);
       }
       return false;
    }
