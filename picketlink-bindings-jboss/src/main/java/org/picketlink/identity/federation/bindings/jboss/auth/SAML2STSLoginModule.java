@@ -92,7 +92,7 @@ import org.w3c.dom.Element;
  * <pre>
  * serviceName=PicketLinkSTS
  * portName=PicketLinkSTSPort
- * endpointAddress=http://localhost:8080/picketlink-sts-1.0.0/PicketLinkSTS
+ * endpointAddress=http://localhost:8080/picketlink-sts/PicketLinkSTS
  * username=JBoss
  * password=JBoss
  * </pre>
@@ -202,13 +202,14 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          super.callbackHandler.handle(new Callback[]
          {callback});
          if (callback.getCredential() instanceof SamlCredential == false)
-            throw new IllegalArgumentException("Supplied credential is not a SAML credential");
+            throw new IllegalArgumentException("Supplied credential is not a SAML credential.We got "
+                  + callback.getCredential().getClass());
          this.credential = (SamlCredential) callback.getCredential();
          assertionElement = this.credential.getAssertionAsElement();
       }
       catch (Exception e)
       {
-         LoginException exception = new LoginException("Error handling callback" + e.getMessage());
+         LoginException exception = new LoginException("Error handling callback::" + e.getMessage());
          exception.initCause(e);
          throw exception;
       }
