@@ -20,6 +20,7 @@
      </web-resource-collection>
      <auth-constraint>
        <role-name>JBossAdmin</role-name>
+       <role-name>STSClient</role-name>
      </auth-constraint>
    </security-constraint>
 
@@ -30,6 +31,9 @@
 
    <security-role>
       <role-name>JBossAdmin</role-name>
+   </security-role>
+   <security-role>
+      <role-name>STSClient</role-name>
    </security-role>
 
 </web-app>
