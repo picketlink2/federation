@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
+
 import org.w3c.dom.Element;
 
 /**
@@ -28,8 +30,10 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class EncryptedElementType
+public class EncryptedElementType implements Serializable
 {
+   private static final long serialVersionUID = 1L;
+
    /**
     <complexType name="EncryptedElementType">
         <sequence>
@@ -38,18 +42,18 @@ public class EncryptedElementType
         </sequence>
     </complexType>
     */
-   
+
    protected Element encryptedElement;
 
    public EncryptedElementType()
-   {   
+   {
    }
-   
-   public EncryptedElementType( Element el)
+
+   public EncryptedElementType(Element el)
    {
       this.encryptedElement = el;
    }
-   
+
    public Element getEncryptedElement()
    {
       return encryptedElement;
@@ -58,5 +62,5 @@ public class EncryptedElementType
    public void setEncryptedElement(Element encryptedElement)
    {
       this.encryptedElement = encryptedElement;
-   } 
+   }
 }

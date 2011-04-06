@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.net.URI;
 
 /**
@@ -28,12 +29,14 @@ import java.net.URI;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class AuthnContextClassRefType implements URIType
+public class AuthnContextClassRefType implements URIType, Serializable
 {
-   private URI value;
+   private static final long serialVersionUID = 1L;
 
-   public AuthnContextClassRefType( URI value )
-   { 
+   private final URI value;
+
+   public AuthnContextClassRefType(URI value)
+   {
       this.value = value;
    }
 
@@ -75,5 +78,5 @@ public class AuthnContextClassRefType implements URIType
       else if (!value.equals(other.value))
          return false;
       return true;
-   }  
+   }
 }

@@ -21,13 +21,13 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-
 
 /**
  * <p>Java class for SubjectConfirmationDataType complex type.
@@ -52,17 +52,24 @@ import javax.xml.namespace.QName;
  * </pre>
  * 
  * 
- */ 
-public class SubjectConfirmationDataType 
-{  
-   protected XMLGregorianCalendar notBefore; 
-   protected XMLGregorianCalendar notOnOrAfter; 
-   protected String recipient; 
-   protected String inResponseTo; 
-   protected String address; 
-   private Map<QName, String> otherAttributes = new HashMap<QName, String>();
+ */
+public class SubjectConfirmationDataType implements Serializable
+{
+   private static final long serialVersionUID = 7695748370849965158L;
 
-   private Object anyType; 
+   protected XMLGregorianCalendar notBefore;
+
+   protected XMLGregorianCalendar notOnOrAfter;
+
+   protected String recipient;
+
+   protected String inResponseTo;
+
+   protected String address;
+
+   private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
+
+   private Object anyType;
 
    public Object getAnyType()
    {
@@ -82,7 +89,8 @@ public class SubjectConfirmationDataType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getNotBefore() {
+   public XMLGregorianCalendar getNotBefore()
+   {
       return notBefore;
    }
 
@@ -94,7 +102,8 @@ public class SubjectConfirmationDataType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setNotBefore(XMLGregorianCalendar value) {
+   public void setNotBefore(XMLGregorianCalendar value)
+   {
       this.notBefore = value;
    }
 
@@ -106,7 +115,8 @@ public class SubjectConfirmationDataType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getNotOnOrAfter() {
+   public XMLGregorianCalendar getNotOnOrAfter()
+   {
       return notOnOrAfter;
    }
 
@@ -118,7 +128,8 @@ public class SubjectConfirmationDataType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setNotOnOrAfter(XMLGregorianCalendar value) {
+   public void setNotOnOrAfter(XMLGregorianCalendar value)
+   {
       this.notOnOrAfter = value;
    }
 
@@ -130,7 +141,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public String getRecipient() {
+   public String getRecipient()
+   {
       return recipient;
    }
 
@@ -142,7 +154,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public void setRecipient(String value) {
+   public void setRecipient(String value)
+   {
       this.recipient = value;
    }
 
@@ -154,7 +167,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public String getInResponseTo() {
+   public String getInResponseTo()
+   {
       return inResponseTo;
    }
 
@@ -166,7 +180,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public void setInResponseTo(String value) {
+   public void setInResponseTo(String value)
+   {
       this.inResponseTo = value;
    }
 
@@ -178,7 +193,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public String getAddress() {
+   public String getAddress()
+   {
       return address;
    }
 
@@ -190,7 +206,8 @@ public class SubjectConfirmationDataType
     *     {@link String }
     *     
     */
-   public void setAddress(String value) {
+   public void setAddress(String value)
+   {
       this.address = value;
    }
 
@@ -204,9 +221,9 @@ public class SubjectConfirmationDataType
     * @return
     *     always non-null
     */
-   public Map<QName, String> getOtherAttributes() 
+   public Map<QName, String> getOtherAttributes()
    {
-      return Collections.unmodifiableMap( otherAttributes );
+      return Collections.unmodifiableMap(otherAttributes);
    }
 
    /**
@@ -214,17 +231,17 @@ public class SubjectConfirmationDataType
     * @param qname
     * @param str
     */
-   public void addOtherAttribute( QName qname, String str )
+   public void addOtherAttribute(QName qname, String str)
    {
-      otherAttributes.put(qname, str );
+      otherAttributes.put(qname, str);
    }
-   
+
    /**
     * Remove an other attribute
     * @param qname {@link QName} of the attribute to be removed
     */
-   public void removeOtherAttribute( QName qname )
+   public void removeOtherAttribute(QName qname)
    {
-      otherAttributes.remove( qname );
+      otherAttributes.remove(qname);
    }
 }

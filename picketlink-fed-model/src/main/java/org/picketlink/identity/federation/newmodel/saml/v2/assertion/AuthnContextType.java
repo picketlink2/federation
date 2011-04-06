@@ -21,14 +21,13 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-
 
 /**
  * <p>Java class for AuthnContextType complex type.
@@ -61,50 +60,52 @@ import java.util.Set;
  * </pre>
  * 
  * 
- */ 
-public class AuthnContextType 
-{  
-   private Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
+ */
+public class AuthnContextType implements Serializable
+{
+   private static final long serialVersionUID = 1L;
+
+   private final Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
 
    private AuthnContextTypeSequence sequence;
 
-   private Set<URIType> URITypes = new HashSet<URIType>();
+   private final Set<URIType> URITypes = new HashSet<URIType>();
 
    /**
     * Add an authenticating authority
     * @param aa {@link URI}
     */
-   public void addAuthenticatingAuthority( URI aa )
+   public void addAuthenticatingAuthority(URI aa)
    {
-      authenticatingAuthority.add( aa );
+      authenticatingAuthority.add(aa);
    }
 
    /**
     * Add Authenticating Authority
     * @param aas an array of {@link URI}
     */
-   public void addAuthenticatingAuthority( URI[] aas )
+   public void addAuthenticatingAuthority(URI[] aas)
    {
-      authenticatingAuthority.addAll( Arrays.asList( aas ) );
+      authenticatingAuthority.addAll(Arrays.asList(aas));
    }
 
    /**
     * Remove an authenticating authority
     * @param aa
     */
-   public void removeAuthenticatingAuthority( URI aa )
+   public void removeAuthenticatingAuthority(URI aa)
    {
-      authenticatingAuthority.remove( aa );
+      authenticatingAuthority.remove(aa);
    }
-   
+
    /**
     * Get a read only set of authenticating authority
     * @return
     */
    public Set<URI> getAuthenticatingAuthority()
    {
-      return Collections.unmodifiableSet( authenticatingAuthority );
-   }   
+      return Collections.unmodifiableSet(authenticatingAuthority);
+   }
 
    /**
     * Get the sequence
@@ -122,24 +123,24 @@ public class AuthnContextType
    public void setSequence(AuthnContextTypeSequence sequence)
    {
       this.sequence = sequence;
-   } 
+   }
 
    /**
     * Add an URI type
     * @param aa
     */
-   public void addURIType( URIType aa )
+   public void addURIType(URIType aa)
    {
-      URITypes.add( aa );
+      URITypes.add(aa);
    }
 
    /**
     * Add an array of URI Type
     * @param aas
     */
-   public void addURIType( URIType[] aas )
+   public void addURIType(URIType[] aas)
    {
-      URITypes.addAll( Arrays.asList( aas ) );
+      URITypes.addAll(Arrays.asList(aas));
    }
 
    /**
@@ -148,16 +149,16 @@ public class AuthnContextType
     */
    public Set<URIType> getURIType()
    {
-      return Collections.unmodifiableSet( URITypes );
+      return Collections.unmodifiableSet(URITypes);
    }
-   
+
    /**
     * Add an URI type
     * @param aa
     */
-   public void removeURIType( URIType aa )
+   public void removeURIType(URIType aa)
    {
-      URITypes.remove( aa );
+      URITypes.remove(aa);
    }
 
    /**
@@ -168,37 +169,41 @@ public class AuthnContextType
           <element ref="saml:AuthnContextDeclRef"/>
        </choice>
     </sequence>
-    */ 
+    */
    public class AuthnContextTypeSequence
    {
       private AuthnContextClassRefType classRef;
-      private Set<URIType> URITypes = new HashSet<URIType>();
+
+      private final Set<URIType> URITypes = new HashSet<URIType>();
+
       public AuthnContextClassRefType getClassRef()
       {
          return classRef;
       }
+
       public void setClassRef(AuthnContextClassRefType classRef)
       {
          this.classRef = classRef;
       }
-      public void addURIType( URIType aa )
+
+      public void addURIType(URIType aa)
       {
-         URITypes.add( aa );
-      }
-      
-      public void removeURIType( URIType aa )
-      {
-         URITypes.remove( aa );
+         URITypes.add(aa);
       }
 
-      public void addURIType( URIType[] aas )
+      public void removeURIType(URIType aa)
       {
-         URITypes.addAll( Arrays.asList( aas ) );
+         URITypes.remove(aa);
+      }
+
+      public void addURIType(URIType[] aas)
+      {
+         URITypes.addAll(Arrays.asList(aas));
       }
 
       public Set<URIType> getURIType()
       {
-         return Collections.unmodifiableSet( URITypes );
-      } 
+         return Collections.unmodifiableSet(URITypes);
+      }
    }
 }

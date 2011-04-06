@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,35 +45,36 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
-public class AudienceRestrictionType
-extends ConditionAbstractType
-{ 
+ */
+public class AudienceRestrictionType extends ConditionAbstractType implements Serializable
+{
+   private static final long serialVersionUID = 1L;
+
    protected List<URI> audience = new ArrayList<URI>();
 
    /**
     * Add an audience
     * @param audienceval
     */
-   public void addAudience( URI audienceval )
+   public void addAudience(URI audienceval)
    {
-      audience.add( audienceval ); 
+      audience.add(audienceval);
    }
-   
+
    /**
     * Remove an audience
     * @param audienceval
     */
-   public void removeAudience( URI audienceval )
+   public void removeAudience(URI audienceval)
    {
-      audience.remove( audienceval ); 
+      audience.remove(audienceval);
    }
 
    /**
     * Gets the value of the audience property.  
     */
-   public List<URI> getAudience() 
-   { 
-      return Collections.unmodifiableList( this.audience );
+   public List<URI> getAudience()
+   {
+      return Collections.unmodifiableList(this.audience);
    }
 }

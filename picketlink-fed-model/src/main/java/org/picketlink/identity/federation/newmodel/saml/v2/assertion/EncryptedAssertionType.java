@@ -29,19 +29,21 @@ import org.w3c.dom.Element;
  * @since Nov 24, 2010
  */
 public class EncryptedAssertionType extends EncryptedElementType
-{ 
+{
+   private static final long serialVersionUID = 1L;
+
    public EncryptedAssertionType()
    {
-      super(); 
+      super();
    }
 
    public EncryptedAssertionType(Element el)
    {
-      super(el); 
-   } 
-   
+      super(el);
+   }
+
    public String getID()
-   {   
+   {
       return null;
    }
 }

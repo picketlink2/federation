@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-
 /**
  * <p>Java class for SubjectType complex type.
  * 
@@ -54,14 +52,14 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
+ */
 public class SubjectType implements Serializable
-{ 
+{
    private static final long serialVersionUID = 1L;
 
    protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
-   protected STSubType subType; 
+   protected STSubType subType;
 
    /**
     * Get the {@link STSubType}
@@ -96,35 +94,38 @@ public class SubjectType implements Serializable
     */
    public List<SubjectConfirmationType> getConfirmation()
    {
-      return Collections.unmodifiableList( subjectConfirmation );
+      return Collections.unmodifiableList(subjectConfirmation);
    }
 
    /**
     * Add a subject confirmation
     * @param con
     */
-   public void addConfirmation( SubjectConfirmationType con )
+   public void addConfirmation(SubjectConfirmationType con)
    {
-      subjectConfirmation.add( con );
-   } 
+      subjectConfirmation.add(con);
+   }
+
    /**
     * Remove a subject confirmation
     * @param con
     */
-   public void removeConfirmation( SubjectConfirmationType con )
+   public void removeConfirmation(SubjectConfirmationType con)
    {
-      subjectConfirmation.remove( con );
-   } 
+      subjectConfirmation.remove(con);
+   }
 
-   public static class STSubType
+   public static class STSubType implements Serializable
    {
+      private static final long serialVersionUID = -4073731807610876524L;
+
       private BaseIDAbstractType baseID;
-      
+
       private EncryptedElementType encryptedID;
 
       protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
-      public void addBaseID( BaseIDAbstractType base )
+      public void addBaseID(BaseIDAbstractType base)
       {
          this.baseID = base;
       }
@@ -132,8 +133,8 @@ public class SubjectType implements Serializable
       public BaseIDAbstractType getBaseID()
       {
          return baseID;
-      }  
-      
+      }
+
       public EncryptedElementType getEncryptedID()
       {
          return encryptedID;
@@ -144,10 +145,10 @@ public class SubjectType implements Serializable
          this.encryptedID = encryptedID;
       }
 
-      public void addConfirmation( SubjectConfirmationType con )
+      public void addConfirmation(SubjectConfirmationType con)
       {
-         subjectConfirmation.add( con );
-      } 
+         subjectConfirmation.add(con);
+      }
 
       public int getCount()
       {
@@ -156,7 +157,7 @@ public class SubjectType implements Serializable
 
       public List<SubjectConfirmationType> getConfirmation()
       {
-         return Collections.unmodifiableList( subjectConfirmation );
+         return Collections.unmodifiableList(subjectConfirmation);
       }
-   } 
+   }
 }
