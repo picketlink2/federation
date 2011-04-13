@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -38,6 +40,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeTy
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -145,6 +149,29 @@ public class AssertionUtil
       conditionsType.setNotOnOrAfter(assertionValidityLength);
 
       assertion.setConditions(conditionsType);
+   }
+
+   /**
+    * Given an assertion element, validate the signature
+    * @param assertionElement
+    * @param publicKey the {@link PublicKey}
+    * @return
+    */
+   public static boolean isSignatureValid(Element assertionElement, PublicKey publicKey)
+   {
+      try
+      {
+         Document doc = DocumentUtil.createDocument();
+         Node n = doc.importNode(assertionElement, true);
+         doc.appendChild(n);
+
+         return XMLSignatureUtil.validate(doc, publicKey);
+      }
+      catch (Exception e)
+      {
+         log.error("Cannot validate signature of assertion", e);
+      }
+      return false;
    }
 
    /**
