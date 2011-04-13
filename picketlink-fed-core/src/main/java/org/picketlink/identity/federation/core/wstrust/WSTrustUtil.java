@@ -141,6 +141,20 @@ public class WSTrustUtil
    }
 
    /**
+    * Given an address, create the WS-Addressing issuer
+    * @param addressUri
+    * @return
+    */
+   public static EndpointReferenceType createIssuer(String addressUri)
+   {
+      AttributedURIType attributedURI = new AttributedURIType();
+      attributedURI.setValue(addressUri);
+      EndpointReferenceType endpointReference = new EndpointReferenceType();
+      endpointReference.setAddress(attributedURI);
+      return endpointReference;
+   }
+
+   /**
     * <p>
     * Parses the contents of the {@code AppliesTo} element and returns the address the uniquely identify the service
     * provider.
@@ -258,7 +272,7 @@ public class WSTrustUtil
     * @param entropy a reference to the {@code EntropyType} that contains the binary secret.
     * @return a {@code byte[]} containing the secret; {@code null} if the specified entropy doesn't contain
     * any secret.
-    */ 
+    */
    public static byte[] getBinarySecret(EntropyType entropy)
    {
       byte[] secret = null;
@@ -285,7 +299,7 @@ public class WSTrustUtil
    public static void persistSTSConfiguration(STSType stsConfiguration, OutputStream outputStream)
    {
       throw new RuntimeException();
-      
+
       /*String pkgName = "org.picketlink.identity.federation.core.config";
       Marshaller marshaller = JAXBUtil.getMarshaller(pkgName);
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
@@ -396,7 +410,7 @@ public class WSTrustUtil
                   secret.length * 8);
             Element encryptedKeyElement = XMLCipher.getInstance().martial(key);
             keyInfo = new KeyInfoType();
-            keyInfo.addContent( encryptedKeyElement );
+            keyInfo.addContent(encryptedKeyElement);
          }
          catch (Exception e)
          {
@@ -431,11 +445,11 @@ public class WSTrustUtil
          X509DataType x509 = new X509DataType();
          X509CertificateType cert = new X509CertificateType();
          cert.setEncodedCertificate(Base64.encodeBytes(encodedCert).getBytes());
-         x509.add( cert );
-         
+         x509.add(cert);
+
          // set the X509DataType in the KeyInfoType.
          keyInfo = new KeyInfoType();
-         keyInfo.addContent( x509 );
+         keyInfo.addContent(x509);
       }
       catch (Exception e)
       {
@@ -482,7 +496,7 @@ public class WSTrustUtil
          dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
          dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
          dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
-         
+
          KeyValueType keyValue = new KeyValueType();
          keyValue.getContent().add(dsaKeyValue);
          return keyValue;
@@ -490,18 +504,18 @@ public class WSTrustUtil
       else
          return null;
    }
-   
-   public static String getServiceNameFromAppliesTo( RequestSecurityToken requestSecurityToken )
+
+   public static String getServiceNameFromAppliesTo(RequestSecurityToken requestSecurityToken)
    {
       String serviceName = null;
-      if( requestSecurityToken != null )
+      if (requestSecurityToken != null)
       {
-         AppliesTo appliesTo = requestSecurityToken.getAppliesTo(); 
+         AppliesTo appliesTo = requestSecurityToken.getAppliesTo();
          if (appliesTo != null)
          {
             serviceName = WSTrustUtil.parseAppliesTo(appliesTo);
-         }  
+         }
       }
-      return serviceName; 
+      return serviceName;
    }
 }
