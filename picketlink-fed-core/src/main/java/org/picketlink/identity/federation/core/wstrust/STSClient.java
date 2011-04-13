@@ -57,18 +57,22 @@ import org.w3c.dom.NodeList;
  */
 public class STSClient
 {
-   private ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
+   private final ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
 
-   private String targetNS = "http://org.picketlink.trust/sts/";
+   private final String targetNS = "http://org.picketlink.trust/sts/";
+
+   private String wsaIssuerAddress;
+
+   private String wspAppliesTo;
 
    /**
     * Constructor
     * @see {@link #setDispatch(Dispatch)} for the setting of the {@link Dispatch} object
     */
    public STSClient()
-   {   
+   {
    }
-   
+
    /**
     * <p>
     * Constructor that creates the {@link Dispatch} for use.
@@ -84,6 +88,9 @@ public class STSClient
       QName service = new QName(targetNS, config.getServiceName());
       QName portName = new QName(targetNS, config.getPortName());
 
+      wsaIssuerAddress = config.getWsaIssuer();
+      wspAppliesTo = config.getWspAppliesTo();
+
       Service jaxwsService = Service.create(service);
       jaxwsService.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, config.getEndPointAddress());
       Dispatch<Source> dispatch = jaxwsService.createDispatch(portName, Source.class, Mode.PAYLOAD);
@@ -95,20 +102,20 @@ public class STSClient
          // add the username and password to the request context.
          reqContext.put(BindingProvider.USERNAME_PROPERTY, config.getUsername());
          reqContext.put(BindingProvider.PASSWORD_PROPERTY, config.getPassword());
-      } 
-      setDispatch(dispatch); 
+      }
+      setDispatch(dispatch);
    }
-   
+
    /**
     * Set the {@link Dispatch} object for use
     * @param dispatch
     */
-   public void setDispatch( Dispatch<Source> dispatch )
+   public void setDispatch(Dispatch<Source> dispatch)
    {
-      if( dispatch == null )
-         throw new IllegalArgumentException( "dispatch is null" );
-      
-      dispatchLocal.set( dispatch ); 
+      if (dispatch == null)
+         throw new IllegalArgumentException("dispatch is null");
+
+      dispatchLocal.set(dispatch);
    }
 
    /**
@@ -122,6 +129,15 @@ public class STSClient
       // create a custom token request message.
       RequestSecurityToken request = new RequestSecurityToken();
       setTokenType(tokenType, request);
+
+      if (wsaIssuerAddress != null)
+      {
+         request.setIssuer(WSTrustUtil.createIssuer(wsaIssuerAddress));
+      }
+      if (wspAppliesTo != null)
+      {
+         request.setAppliesTo(WSTrustUtil.createAppliesTo(wspAppliesTo));
+      }
       // send the token request to JBoss STS and get the response.
       return issueToken(request);
    }
@@ -232,7 +248,7 @@ public class STSClient
          request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
       if (request.getContext() == null)
          request.setContext("default-context");
-      
+
       validateDispatch();
       DOMSource requestSource = this.createSourceFromRequest(request);
       Source response = dispatchLocal.get().invoke(requestSource);
@@ -333,7 +349,7 @@ public class STSClient
 
       Node rstr = nodes.item(0);
 
-      return (Element) rstr.getFirstChild(); 
+      return (Element) rstr.getFirstChild();
    }
 
    /**
@@ -441,13 +457,13 @@ public class STSClient
          throw new WSTrustException("Error creating source from request: " + e.getMessage(), e);
       }
    }
-   
+
    /**
     * Validate that we have a {@code Dispatch} to work with
     */
    private void validateDispatch()
    {
-      if( getDispatch() == null )
-         throw new RuntimeException( "Dispatch has not been set" );
+      if (getDispatch() == null)
+         throw new RuntimeException("Dispatch has not been set");
    }
 }

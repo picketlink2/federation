@@ -69,6 +69,10 @@ public class STSClientConfig
 
    public static final String TOKEN_TYPE = "tokenType";
 
+   public static final String WSA_ISSUER = "wsaIssuer";
+
+   public static final String WSP_APPLIES_TO = "wspAppliesTo";
+
    private final String serviceName;
 
    private final String portName;
@@ -79,6 +83,10 @@ public class STSClientConfig
 
    private final String password;
 
+   private final String wsaIssuer;
+
+   private final String wspAppliesTo;
+
    private STSClientConfig(final Builder builder)
    {
       serviceName = builder.serviceName;
@@ -86,6 +94,8 @@ public class STSClientConfig
       endpointAddress = builder.endpointAddress;
       username = builder.username;
       password = builder.password;
+      wsaIssuer = builder.wsaIssuer;
+      wspAppliesTo = builder.wspAppliesTo;
    }
 
    public String getServiceName()
@@ -113,6 +123,16 @@ public class STSClientConfig
       return password;
    }
 
+   public String getWsaIssuer()
+   {
+      return wsaIssuer;
+   }
+
+   public String getWspAppliesTo()
+   {
+      return wspAppliesTo;
+   }
+
    public String toString()
    {
       return getClass().getSimpleName() + "[serviceName=" + serviceName + ", portName=" + portName
@@ -130,6 +150,10 @@ public class STSClientConfig
       private String username;
 
       private String password;
+
+      private String wsaIssuer;
+
+      private String wspAppliesTo;
 
       public Builder()
       {
@@ -167,6 +191,18 @@ public class STSClientConfig
       public Builder password(final String password)
       {
          this.password = password;
+         return this;
+      }
+
+      public Builder wsaIssuer(final String wsa)
+      {
+         this.wsaIssuer = wsa;
+         return this;
+      }
+
+      public Builder wspAppliesTo(final String wsp)
+      {
+         this.wspAppliesTo = wsp;
          return this;
       }
 
