@@ -22,7 +22,9 @@ package org.picketlink.identity.federation.core.wstrust.auth;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.security.acl.Group;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -154,12 +156,15 @@ import org.w3c.dom.Element;
  *  <p>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
  *  if the cache.invalidation option is configured.</p>
  * 
+ * <p>inject.callerprincipal: set it to true if you want to add a group principal called "CallerPrincipal" with the roles
+ * from the assertion, into the subject</p>
+ * 
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  * @author Anil.Saldhana@redhat.com
  */
 public abstract class AbstractSTSLoginModule implements LoginModule
 {
-   private Logger log = Logger.getLogger(AbstractSTSLoginModule.class);
+   private final Logger log = Logger.getLogger(AbstractSTSLoginModule.class);
 
    /**
     * Key used in share state map when LMs are stacked. 
@@ -181,7 +186,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     * file for WSTrustClient. 
     */
    public static final String STS_CONFIG_FILE = "configFile";
-   
+
    /**
     * Historically, JBoss has used the "Roles" as the group principal name in the subject
     * to represent the subject roles. Users can customize this name with this option.
@@ -232,14 +237,20 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     * Indicates whether the 'useOptionsCredentials' was configured.
     */
    protected boolean useOptionsCredentials;
-   
+
    /**
     * Name of the group principal. If unconfigured, will be "null"
     */
-   protected String groupPrincipalName = null; 
-   
+   protected String groupPrincipalName = null;
+
    protected boolean enableCacheInvalidation = false;
-   
+
+   /**
+    * Should a separate Group Principal called "CallerPrincipal" be injected into subject
+    * with the roles from the assertion?
+    */
+   protected boolean injectCallerPrincipalGroup = false;
+
    protected String securityDomain = null;
 
    /**
@@ -273,18 +284,24 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       final Boolean useOptionsCreds = Boolean.valueOf((String) options.get(OPTIONS_CREDENTIALS));
       if (useOptionsCreds != null)
          useOptionsCredentials = useOptionsCreds.booleanValue();
-      
-      final String gpPrincipalName = (String) options.get( GROUP_PRINCIPAL_NAME );
-      if( gpPrincipalName != null && gpPrincipalName.length() > 0 )
+
+      final String gpPrincipalName = (String) options.get(GROUP_PRINCIPAL_NAME);
+      if (gpPrincipalName != null && gpPrincipalName.length() > 0)
          groupPrincipalName = gpPrincipalName;
-      
-      String cacheInvalidation = (String) options.get( "cache.invalidation" );
-      if( cacheInvalidation != null && !cacheInvalidation.isEmpty() )
+
+      String cacheInvalidation = (String) options.get("cache.invalidation");
+      if (cacheInvalidation != null && !cacheInvalidation.isEmpty())
       {
-         enableCacheInvalidation = Boolean.parseBoolean( cacheInvalidation );
-         securityDomain = (String) options.get( SecurityConstants.SECURITY_DOMAIN_OPTION );
-         if( securityDomain == null || securityDomain.isEmpty() )
-            throw new RuntimeException( "Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION );
+         enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
+         securityDomain = (String) options.get(SecurityConstants.SECURITY_DOMAIN_OPTION);
+         if (securityDomain == null || securityDomain.isEmpty())
+            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
+      }
+
+      String callerPrincipalGroup = (String) options.get("inject.callerprincipal");
+      if (callerPrincipalGroup != null && !callerPrincipalGroup.isEmpty())
+      {
+         this.injectCallerPrincipalGroup = Boolean.parseBoolean(callerPrincipalGroup);
       }
    }
 
@@ -398,10 +415,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       }
    }
 
-   @SuppressWarnings({"rawtypes", "unchecked"})
+   @SuppressWarnings(
+   {"rawtypes", "unchecked"})
    private void setPasswordStackingCredentials(final Builder builder)
    {
-      final Map sharedState = (Map) this.sharedState;
+      final Map sharedState = this.sharedState;
       sharedState.put("javax.security.auth.login.name", builder.getUsername());
       sharedState.put("javax.security.auth.login.password", builder.getPassword());
    }
@@ -485,7 +503,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       this.samlToken = samlToken;
    }
 
-   @SuppressWarnings({"unchecked", "rawtypes"})
+   @SuppressWarnings(
+   {"unchecked", "rawtypes"})
    protected void setSharedToken(final Object token)
    {
       if (sharedState == null)
@@ -497,7 +516,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
        * without bypassing generics. 
        */
       // Cast the shartState to a raw map
-      final Map state = (Map) sharedState;
+      final Map state = sharedState;
       // Put the Token into the shared state map
       state.put(SHARED_TOKEN, token);
    }
@@ -593,33 +612,35 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       Map<String, Object> contextMap = new HashMap<String, Object>();
       contextMap.put(SHARED_TOKEN, this.samlToken);
 
+      AssertionType assertion = null;
+      try
+      {
+         assertion = SAMLUtil.fromElement(samlToken);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+
       if (principalMappingContext != null)
       {
          principalMappingContext.performMapping(contextMap, null);
          Principal principal = principalMappingContext.getMappingResult().getMappedObject();
          subject.getPrincipals().add(principal);
-         
+
          //If the user has configured cache invalidation of subject based on saml token expiry
-         if( enableCacheInvalidation )
+         if (enableCacheInvalidation)
          {
             TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
-            AssertionType assertion = null;
-            try
+
+            XMLGregorianCalendar expiry = AssertionUtil.getExpiration(assertion);
+            if (expiry != null)
             {
-               assertion = SAMLUtil.fromElement( samlToken );
+               cacheExpiry.register(securityDomain, expiry.toGregorianCalendar().getTime(), principal);
             }
-            catch ( Exception e)
-            {
-               throw new RuntimeException( e );
-            } 
-            XMLGregorianCalendar expiry = AssertionUtil.getExpiration( assertion );
-            if( expiry != null )
-            {
-               cacheExpiry.register( securityDomain, expiry.toGregorianCalendar().getTime() , principal );
-            } 
             else
             {
-               log.warn( "SAML Assertion has been found to have no expiration: ID = " + assertion.getID() );
+               log.warn("SAML Assertion has been found to have no expiration: ID = " + assertion.getID());
             }
          }
       }
@@ -628,23 +649,34 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       {
          roleMappingContext.performMapping(contextMap, null);
          RoleGroup group = roleMappingContext.getMappingResult().getMappedObject();
-         
+
          SimpleGroup rolePrincipal = null;
-         
-         if( groupPrincipalName != null )
+
+         if (groupPrincipalName != null)
          {
-            rolePrincipal = new SimpleGroup( groupPrincipalName );
+            rolePrincipal = new SimpleGroup(groupPrincipalName);
          }
          else
          {
-            rolePrincipal= new SimpleGroup( group.getRoleName() ); 
+            rolePrincipal = new SimpleGroup(group.getRoleName());
          }
-         
+
          for (Role role : group.getRoles())
          {
             rolePrincipal.addMember(new SimplePrincipal(role.getRoleName()));
          }
          subject.getPrincipals().add(rolePrincipal);
+      }
+
+      if (injectCallerPrincipalGroup)
+      {
+         Group callerPrincipal = new SimpleGroup("CallerPrincipal");
+         List<String> roles = AssertionUtil.getRoles(assertion, null);
+         for (String role : roles)
+         {
+            callerPrincipal.addMember(new SimplePrincipal(role));
+         }
+         subject.getPrincipals().add(callerPrincipal);
       }
    }
 
