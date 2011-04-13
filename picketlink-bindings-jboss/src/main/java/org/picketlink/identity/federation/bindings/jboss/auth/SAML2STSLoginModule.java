@@ -21,14 +21,20 @@
  */
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
+import java.security.KeyStore;
 import java.security.Principal;
+import java.security.PublicKey;
 import java.security.acl.Group;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -37,9 +43,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
 
+import org.jboss.logging.Logger;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+import org.jboss.security.plugins.JaasSecurityDomain;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
@@ -49,6 +57,7 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
@@ -79,6 +88,7 @@ import org.w3c.dom.Element;
  *  if the cache.invalidation option is configured.
  *  </ul>
  *  <ul>groupPrincipalName: if you do not want the Roles in the subject to be "Roles", then set it to a different value</ul>
+ *  <ul>localValidation: if you want to validate the assertion locally for signature and expiry</ul>
  * </li>
  * </p>
  * <p>
@@ -110,6 +120,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("unchecked")
 public class SAML2STSLoginModule extends AbstractServerLoginModule
 {
+   protected static Logger log = Logger.getLogger(SAML2STSLoginModule.class);
+
+   protected boolean trace = log.isTraceEnabled();
 
    protected String stsConfigurationFile;
 
@@ -124,6 +137,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    protected String securityDomain = null;
 
    protected String groupName = "Roles";
+
+   protected boolean localValidation = false;
+
+   protected String localValidationSecurityDomain;
 
    protected Map<String, Object> options = new HashMap<String, Object>();
 
@@ -154,6 +171,13 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       if (StringUtil.isNotNull(groupNameStr))
       {
          groupName = groupNameStr.trim();
+      }
+
+      String localValidationStr = (String) options.get("localValidation");
+      if (StringUtil.isNotNull(localValidationStr))
+      {
+         localValidation = Boolean.parseBoolean(localValidationStr);
+         localValidationSecurityDomain = (String) options.get("localValidationSecurityDomain");
       }
    }
 
@@ -214,20 +238,43 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          throw exception;
       }
 
-      // send the assertion to the STS for validation. 
-      STSClient client = this.getSTSClient();
-      try
+      if (localValidation)
       {
-         boolean isValid = client.validateToken(assertionElement);
-         // if the STS says the assertion is invalid, throw an exception to signal that authentication has failed.
-         if (isValid == false)
-            throw new LoginException("Supplied assertion was considered invalid by the STS");
+         try
+         {
+            boolean isValid = localValidation(assertionElement);
+            if (isValid)
+            {
+               if (trace)
+               {
+                  log.trace("Local Validation passed.");
+               }
+            }
+         }
+         catch (Exception e)
+         {
+            LoginException le = new LoginException();
+            le.initCause(e);
+            throw le;
+         }
       }
-      catch (WSTrustException we)
+      else
       {
-         LoginException exception = new LoginException("Failed to validate assertion using STS: " + we.getMessage());
-         exception.initCause(we);
-         throw exception;
+         // send the assertion to the STS for validation. 
+         STSClient client = this.getSTSClient();
+         try
+         {
+            boolean isValid = client.validateToken(assertionElement);
+            // if the STS says the assertion is invalid, throw an exception to signal that authentication has failed.
+            if (isValid == false)
+               throw new LoginException("Supplied assertion was considered invalid by the STS");
+         }
+         catch (WSTrustException we)
+         {
+            LoginException exception = new LoginException("Failed to validate assertion using STS: " + we.getMessage());
+            exception.initCause(we);
+            throw exception;
+         }
       }
 
       // if the assertion is valid, create a principal containing the assertion subject.
@@ -376,5 +423,57 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             dispatch.getRequestContext().put(entry.getKey(), entry.getValue());
       }
       return client;
+   }
+
+   protected boolean localValidation(Element assertionElement) throws Exception
+   {
+      try
+      {
+         Context ctx = new InitialContext();
+         JaasSecurityDomain sd = (JaasSecurityDomain) ctx.lookup(localValidationSecurityDomain);
+         KeyStore ts = sd.getTrustStore();
+
+         if (ts == null)
+         {
+            throw new LoginException("null truststore for " + sd.getName());
+         }
+
+         String alias = sd.getKeyStoreAlias();
+
+         if (alias == null)
+         {
+            throw new LoginException("null KeyStoreAlias for " + sd.getName() + "; set 'KeyStoreAlias' in '"
+                  + sd.getName() + "' security domain configuration");
+         }
+
+         Certificate cert = ts.getCertificate(alias);
+
+         if (cert == null)
+         {
+            throw new LoginException("no certificate found for alias '" + alias + "' in the '" + sd.getName()
+                  + "' security domain");
+         }
+
+         PublicKey publicKey = cert.getPublicKey();
+
+         boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
+         if (!sigValid)
+         {
+            throw new LoginException(WSTrustConstants.STATUS_CODE_INVALID + " invalid SAML V2.0 assertion signature");
+         }
+
+         AssertionType assertion = SAMLUtil.fromElement(assertionElement);
+
+         if (AssertionUtil.hasExpired(assertion))
+         {
+            throw new LoginException(WSTrustConstants.STATUS_CODE_INVALID
+                  + "::assertion expired or used before its lifetime period");
+         }
+      }
+      catch (NamingException e)
+      {
+         throw new LoginException(e.toString());
+      }
+      return true;
    }
 }
