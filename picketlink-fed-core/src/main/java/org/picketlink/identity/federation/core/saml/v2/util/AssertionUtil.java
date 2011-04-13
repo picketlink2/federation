@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
@@ -28,9 +32,13 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.w3c.dom.Node;
 
 /**
  * Utility to deal with assertions
@@ -38,10 +46,11 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
  * @since Jun 3, 2009
  */
 public class AssertionUtil
-{ 
+{
    private static Logger log = Logger.getLogger(AssertionUtil.class);
+
    private static boolean trace = log.isTraceEnabled();
-   
+
    /**
     * Create an assertion
     * @param id
@@ -57,13 +66,13 @@ public class AssertionUtil
       }
       catch (ConfigurationException e)
       {
-         throw new RuntimeException( e );
+         throw new RuntimeException(e);
       }
-      AssertionType assertion =  new AssertionType( id, issueInstant, JBossSAMLConstants.VERSION_2_0.get() ); 
-      assertion.setIssuer( issuer );
-      return assertion; 
+      AssertionType assertion = new AssertionType(id, issueInstant, JBossSAMLConstants.VERSION_2_0.get());
+      assertion.setIssuer(issuer);
+      return assertion;
    }
-   
+
    /**
     * Create an attribute type
     * @param name Name of the attribute
@@ -71,22 +80,21 @@ public class AssertionUtil
     * @param attributeValues an object array of attribute values
     * @return
     */
-   public static AttributeType createAttribute(String name, String nameFormat,
-         Object... attributeValues)
-   { 
-      AttributeType att = new AttributeType( name ); 
+   public static AttributeType createAttribute(String name, String nameFormat, Object... attributeValues)
+   {
+      AttributeType att = new AttributeType(name);
       att.setNameFormat(nameFormat);
-      if(attributeValues != null && attributeValues.length > 0)
+      if (attributeValues != null && attributeValues.length > 0)
       {
-         for(Object attributeValue:attributeValues)
+         for (Object attributeValue : attributeValues)
          {
             att.addAttributeValue(attributeValue);
-         } 
+         }
       }
- 
+
       return att;
    }
-   
+
    /**
     * <p>
     * Add validity conditions to the SAML2 Assertion
@@ -100,20 +108,20 @@ public class AssertionUtil
     * @throws ConfigurationException 
     * @throws IssueInstantMissingException 
     */
-   public static void createTimedConditions(AssertionType assertion, long durationInMilis) 
-   throws ConfigurationException, IssueInstantMissingException  
+   public static void createTimedConditions(AssertionType assertion, long durationInMilis)
+         throws ConfigurationException, IssueInstantMissingException
    {
       XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
-      if(issueInstant == null)
+      if (issueInstant == null)
          throw new IssueInstantMissingException("assertion does not have issue instant");
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis);
       ConditionsType conditionsType = new ConditionsType();
       conditionsType.setNotBefore(issueInstant);
       conditionsType.setNotOnOrAfter(assertionValidityLength);
-      
-      assertion.setConditions(conditionsType); 
+
+      assertion.setConditions(conditionsType);
    }
-   
+
    /**
     * Add validity conditions to the SAML2 Assertion
     * @param assertion
@@ -121,24 +129,24 @@ public class AssertionUtil
     * @throws ConfigurationException 
     * @throws IssueInstantMissingException 
     */
-   public static void createTimedConditions(AssertionType assertion, long durationInMilis, long clockSkew ) 
-   throws ConfigurationException, IssueInstantMissingException  
+   public static void createTimedConditions(AssertionType assertion, long durationInMilis, long clockSkew)
+         throws ConfigurationException, IssueInstantMissingException
    {
       XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
-      if(issueInstant == null)
+      if (issueInstant == null)
          throw new IssueInstantMissingException("assertion does not have issue instant");
-      XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add( issueInstant, durationInMilis + clockSkew );
-      
+      XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis + clockSkew);
+
       ConditionsType conditionsType = new ConditionsType();
-      
-      XMLGregorianCalendar beforeInstant = XMLTimeUtil.subtract(issueInstant, clockSkew );
-      
-      conditionsType.setNotBefore( beforeInstant );
+
+      XMLGregorianCalendar beforeInstant = XMLTimeUtil.subtract(issueInstant, clockSkew);
+
+      conditionsType.setNotBefore(beforeInstant);
       conditionsType.setNotOnOrAfter(assertionValidityLength);
-      
-      assertion.setConditions(conditionsType); 
+
+      assertion.setConditions(conditionsType);
    }
-   
+
    /**
     * Check whether the assertion has expired
     * @param assertion
@@ -148,41 +156,90 @@ public class AssertionUtil
    public static boolean hasExpired(AssertionType assertion) throws ConfigurationException
    {
       boolean expiry = false;
-      
+
       //Check for validity of assertion
       ConditionsType conditionsType = assertion.getConditions();
-      if(conditionsType != null)
+      if (conditionsType != null)
       {
          XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
          XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
          XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
-         if(trace) log.trace("Now="+now.toXMLFormat() + " ::notBefore="+notBefore.toXMLFormat() 
-               + "::notOnOrAfter="+notOnOrAfter);
-         expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter); 
-         if( expiry )
+         if (trace)
+            log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
+                  + notOnOrAfter);
+         expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
+         if (expiry)
          {
-            log.info( "Assertion has expired with id=" + assertion.getID() );
+            log.info("Assertion has expired with id=" + assertion.getID());
          }
       }
-      
+
       //TODO: if conditions do not exist, assume the assertion to be everlasting?
-      return expiry; 
-   } 
-   
+      return expiry;
+   }
+
    /**
     * Extract the expiration time from an {@link AssertionType}
     * @param assertion
     * @return
     */
-   public static XMLGregorianCalendar getExpiration( AssertionType assertion )
+   public static XMLGregorianCalendar getExpiration(AssertionType assertion)
    {
       XMLGregorianCalendar expiry = null;
-      
+
       ConditionsType conditionsType = assertion.getConditions();
-      if(conditionsType != null)
+      if (conditionsType != null)
       {
          expiry = conditionsType.getNotOnOrAfter();
       }
-      return expiry; 
+      return expiry;
+   }
+
+   /**
+    * Given an assertion, return the list of roles it may have
+    * @param assertion The {@link AssertionType} 
+    * @param roleKeys a list of string values representing the role keys. The list can be null.
+    * @return
+    */
+   public static List<String> getRoles(AssertionType assertion, List<String> roleKeys)
+   {
+      List<String> roles = new ArrayList<String>();
+      Set<StatementAbstractType> statements = assertion.getStatements();
+      for (StatementAbstractType statement : statements)
+      {
+         if (statement instanceof AttributeStatementType)
+         {
+            AttributeStatementType attributeStatement = (AttributeStatementType) statement;
+            List<ASTChoiceType> attList = attributeStatement.getAttributes();
+            for (ASTChoiceType obj : attList)
+            {
+               AttributeType attr = obj.getAttribute();
+               if (roleKeys != null && roleKeys.size() > 0)
+               {
+                  if (!roleKeys.contains(attr.getName()))
+                     continue;
+               }
+               List<Object> attributeValues = attr.getAttributeValue();
+               if (attributeValues != null)
+               {
+                  for (Object attrValue : attributeValues)
+                  {
+                     if (attrValue instanceof String)
+                     {
+                        roles.add((String) attrValue);
+                     }
+                     else if (attrValue instanceof Node)
+                     {
+                        Node roleNode = (Node) attrValue;
+                        roles.add(roleNode.getFirstChild().getNodeValue());
+                     }
+                     else
+                        throw new RuntimeException("Unknown role object type : " + attrValue);
+                  }
+               }
+            }
+         }
+      }
+      return roles;
    }
 }
