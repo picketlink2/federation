@@ -51,6 +51,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -65,6 +66,10 @@ import org.w3c.dom.Node;
  */
 public class TransformerUtil
 {
+   private static Logger log = Logger.getLogger(TransformerUtil.class);
+
+   private static final boolean trace = log.isTraceEnabled();
+
    /**
     * Get the Default Transformer
     * @return
@@ -98,11 +103,11 @@ public class TransformerUtil
     * @return
     * @throws ConfigurationException
     */
-   public static Transformer getStaxSourceToDomResultTransformer() throws ConfigurationException 
+   public static Transformer getStaxSourceToDomResultTransformer() throws ConfigurationException
    {
-      return new PicketLinkStaxToDOMTransformer();  
+      return new PicketLinkStaxToDOMTransformer();
    }
-   
+
    /**
     * Use the transformer to transform
     * @param transformer
@@ -110,31 +115,31 @@ public class TransformerUtil
     * @param result
     * @throws ParsingException
     */
-   public static void transform( Transformer transformer, StAXSource stax, DOMResult result ) throws ParsingException
+   public static void transform(Transformer transformer, StAXSource stax, DOMResult result) throws ParsingException
    {
       try
       {
-         transformer.transform( stax,  result );
+         transformer.transform(stax, result);
       }
       catch (TransformerException e)
       {
-         throw new ParsingException( e );
-      } 
+         throw new ParsingException(e);
+      }
    }
-   
-   public static void transform( JAXBContext context, JAXBElement<?> jaxb, Result result ) throws ParsingException
+
+   public static void transform(JAXBContext context, JAXBElement<?> jaxb, Result result) throws ParsingException
    {
       try
       {
          Transformer transformer = getTransformer();
-         JAXBSource jaxbSource = new JAXBSource(context, jaxb );
+         JAXBSource jaxbSource = new JAXBSource(context, jaxb);
 
-         transformer.transform( jaxbSource , result );
+         transformer.transform(jaxbSource, result);
       }
-      catch ( Exception e ) 
+      catch (Exception e)
       {
-         throw new ParsingException( e );
-      }      
+         throw new ParsingException(e);
+      }
    }
 
    /**
@@ -143,21 +148,21 @@ public class TransformerUtil
     * @author anil 
     */
    private static class PicketLinkStaxToDOMTransformer extends Transformer
-   { 
+   {
       @Override
       public void transform(Source xmlSource, Result outputTarget) throws TransformerException
       {
-         if( !( xmlSource instanceof StAXSource ))
-            throw new IllegalArgumentException( "xmlSource should be a stax source" ); 
-         if( outputTarget instanceof DOMResult == false )
-            throw new IllegalArgumentException( "outputTarget should be a dom result" );
+         if (!(xmlSource instanceof StAXSource))
+            throw new IllegalArgumentException("xmlSource should be a stax source");
+         if (outputTarget instanceof DOMResult == false)
+            throw new IllegalArgumentException("outputTarget should be a dom result");
 
          String rootTag = null;
 
          StAXSource staxSource = (StAXSource) xmlSource;
          XMLEventReader xmlEventReader = staxSource.getXMLEventReader();
-         if( xmlEventReader == null )
-            throw new TransformerException( "The StaxSource is expected to be created using XMLEventReader" );
+         if (xmlEventReader == null)
+            throw new TransformerException("The StaxSource is expected to be created using XMLEventReader");
 
          DOMResult domResult = (DOMResult) outputTarget;
          Document doc = (Document) domResult.getNode();
@@ -167,69 +172,69 @@ public class TransformerUtil
          try
          {
             XMLEvent xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
-            if( xmlEvent instanceof StartElement == false )
-               throw new TransformerException( "Expected StartElement " );
+            if (xmlEvent instanceof StartElement == false)
+               throw new TransformerException("Expected StartElement ");
 
             StartElement rootElement = (StartElement) xmlEvent;
-            rootTag = StaxParserUtil.getStartElementName( rootElement ); 
-            Element docRoot = handleStartElement(xmlEventReader, rootElement, new CustomHolder(doc, false) );
-            Node parent = (Element) doc.importNode(docRoot, true);
-            doc.appendChild( parent );
+            rootTag = StaxParserUtil.getStartElementName(rootElement);
+            Element docRoot = handleStartElement(xmlEventReader, rootElement, new CustomHolder(doc, false));
+            Node parent = doc.importNode(docRoot, true);
+            doc.appendChild(parent);
 
-            stack.push(parent); 
+            stack.push(parent);
 
-            while( xmlEventReader.hasNext() )
+            while (xmlEventReader.hasNext())
             {
                xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
                int type = xmlEvent.getEventType();
-               switch( type )
+               switch (type)
                {
-                  case XMLEvent.START_ELEMENT:
+                  case XMLEvent.START_ELEMENT :
                      StartElement startElement = (StartElement) xmlEvent;
                      CustomHolder holder = new CustomHolder(doc, false);
-                     Element docStartElement = handleStartElement(xmlEventReader, startElement, holder  );
+                     Element docStartElement = handleStartElement(xmlEventReader, startElement, holder);
                      Node el = doc.importNode(docStartElement, true);
 
                      Node top = null;
-                     
-                     if( !stack.isEmpty())
+
+                     if (!stack.isEmpty())
                      {
-                        top = stack.peek(); 
+                        top = stack.peek();
                      }
 
-                     if( !holder.encounteredTextNode )
+                     if (!holder.encounteredTextNode)
                      {
-                        stack.push(el);  
+                        stack.push(el);
                      }
 
-                     if( top == null )
+                     if (top == null)
                         doc.appendChild(el);
                      else
-                        top.appendChild( el );  
+                        top.appendChild(el);
                      break;
-                  case XMLEvent.END_ELEMENT:
+                  case XMLEvent.END_ELEMENT :
                      EndElement endElement = (EndElement) xmlEvent;
-                     String endTag = StaxParserUtil.getEndElementName( endElement );
-                     if( rootTag.equals( endTag ))
+                     String endTag = StaxParserUtil.getEndElementName(endElement);
+                     if (rootTag.equals(endTag))
                         return; //We are done with the dom parsing
                      else
                      {
-                        if( !stack.isEmpty() )
-                           stack.pop(); 
-                     } 
+                        if (!stack.isEmpty())
+                           stack.pop();
+                     }
                      break;
                }
             }
          }
          catch (ParsingException e)
          {
-            throw new TransformerException( e );
+            throw new TransformerException(e);
          }
       }
 
       @Override
       public void setParameter(String name, Object value)
-      { 
+      {
       }
 
       @Override
@@ -240,89 +245,94 @@ public class TransformerUtil
 
       @Override
       public void clearParameters()
-      { 
+      {
       }
 
       @Override
       public void setURIResolver(URIResolver resolver)
-      { 
+      {
       }
 
       @Override
       public URIResolver getURIResolver()
-      { 
+      {
          return null;
       }
 
       @Override
       public void setOutputProperties(Properties oformat)
-      { 
+      {
       }
 
       @Override
       public Properties getOutputProperties()
-      { 
+      {
          return null;
       }
 
       @Override
       public void setOutputProperty(String name, String value) throws IllegalArgumentException
-      { 
+      {
       }
 
       @Override
       public String getOutputProperty(String name) throws IllegalArgumentException
-      { 
+      {
          return null;
       }
 
       @Override
       public void setErrorListener(ErrorListener listener) throws IllegalArgumentException
-      { 
+      {
       }
 
       @Override
       public ErrorListener getErrorListener()
-      { 
+      {
          return null;
-      } 
+      }
 
-      private Element handleStartElement( XMLEventReader xmlEventReader, StartElement startElement,CustomHolder holder) throws ParsingException
-      { 
-         Document doc = holder.doc; 
-         
+      private Element handleStartElement(XMLEventReader xmlEventReader, StartElement startElement, CustomHolder holder)
+            throws ParsingException
+      {
+         Document doc = holder.doc;
+
          QName elementName = startElement.getName();
          String ns = elementName.getNamespaceURI();
          String prefix = elementName.getPrefix();
          String localPart = elementName.getLocalPart();
 
-         String qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart ; 
-         Element el = doc.createElementNS( ns, qual );  
-         
-         if( StringUtil.isNotNull( prefix ))
+         String qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart;
+         Element el = doc.createElementNS(ns, qual);
+
+         if (StringUtil.isNotNull(prefix))
          {
-            el.setPrefix( prefix );
+            el.setPrefix(prefix);
          }
 
          //Look for attributes
          @SuppressWarnings("unchecked")
          Iterator<Attribute> attrs = startElement.getAttributes();
-         while( attrs != null && attrs.hasNext() )
+         while (attrs != null && attrs.hasNext())
          {
             Attribute attr = attrs.next();
             QName attrName = attr.getName();
             ns = attrName.getNamespaceURI();
             prefix = attrName.getPrefix();
             localPart = attrName.getLocalPart();
-            qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart ;
+            qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart;
 
-            doc.createAttributeNS( ns, qual );
-            el.setAttributeNS( ns, qual , attr.getValue() );
-         } 
+            if (trace)
+            {
+               log.trace("Creating an Attribute Namespace=" + ns + ":" + qual);
+            }
+            doc.createAttributeNS(ns, qual);
+            el.setAttributeNS(ns, qual, attr.getValue());
+         }
 
          // look for namespaces
          @SuppressWarnings("unchecked")
-         Iterator<Namespace> namespaces = startElement.getNamespaces(); 
+         Iterator<Namespace> namespaces = startElement.getNamespaces();
          while (namespaces != null && namespaces.hasNext())
          {
             Namespace namespace = namespaces.next();
@@ -331,52 +341,57 @@ public class TransformerUtil
             prefix = name.getPrefix();
             if (prefix != null && prefix != "")
                qual = (localPart != null && localPart != "") ? prefix + ":" + localPart : prefix;
-            
+
+            if (trace)
+            {
+               log.trace("Set Attribute Namespace=" + name.getNamespaceURI() + ":" + qual);
+            }
             el.setAttributeNS(name.getNamespaceURI(), qual, namespace.getNamespaceURI());
          }
 
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);
-         if( nextEvent instanceof Comment )
+         if (nextEvent instanceof Comment)
          {
             Comment commentEvent = (Comment) nextEvent;
-            Node commentNode = doc.createComment( commentEvent.getText() );
+            Node commentNode = doc.createComment(commentEvent.getText());
             commentNode = doc.importNode(commentNode, true);
-            el.appendChild(commentNode); 
+            el.appendChild(commentNode);
          }
-         else if( nextEvent.getEventType() == XMLEvent.CHARACTERS )
-         {  
-            Characters characterEvent = (Characters) nextEvent; 
+         else if (nextEvent.getEventType() == XMLEvent.CHARACTERS)
+         {
+            Characters characterEvent = (Characters) nextEvent;
             String trimmedData = characterEvent.getData().trim();
-            
-            if( trimmedData != null && trimmedData.length() > 0 )
+
+            if (trimmedData != null && trimmedData.length() > 0)
             {
                holder.encounteredTextNode = true;
                try
                {
-                  String text = StaxParserUtil.getElementText(xmlEventReader); 
+                  String text = StaxParserUtil.getElementText(xmlEventReader);
 
-                  Node textNode = doc.createTextNode( text );
+                  Node textNode = doc.createTextNode(text);
                   textNode = doc.importNode(textNode, true);
-                  el.appendChild( textNode ); 
+                  el.appendChild(textNode);
                }
-               catch( Exception e )
+               catch (Exception e)
                {
                   Location location = characterEvent.getLocation();
-                  throw new ParsingException( " Location:" + location.toString(), e ); 
+                  throw new ParsingException(" Location:" + location.toString(), e);
                }
-            } 
-         }   
+            }
+         }
          return el;
       }
-      
+
       private class CustomHolder
       {
-         public Document doc; 
+         public Document doc;
+
          public boolean encounteredTextNode = false;
-         
-         public CustomHolder( Document document,  boolean bool )
+
+         public CustomHolder(Document document, boolean bool)
          {
-            this.doc = document; 
+            this.doc = document;
             this.encounteredTextNode = bool;
          }
       }
