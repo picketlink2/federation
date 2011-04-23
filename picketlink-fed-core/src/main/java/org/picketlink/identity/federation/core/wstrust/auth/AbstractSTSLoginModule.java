@@ -194,6 +194,31 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    public static final String GROUP_PRINCIPAL_NAME = "groupPrincipalName";
 
    /**
+    * Key to specify the end point address
+    */
+   public static final String ENDPOINT_ADDRESS = "endpointAddress";
+
+   /**
+    * Key to specify the port name
+    */
+   public static final String PORT_NAME = "portName";
+
+   /**
+    * Key to specify the service name
+    */
+   public static final String SERVICE_NAME = "serviceName";
+
+   /**
+    * Key to specify the username
+    */
+   public static final String USERNAME_KEY = "username";
+
+   /**
+    * Key to specify the password
+    */
+   public static final String PASSWORD_KEY = "password";
+
+   /**
     * The subject to be populated.
     */
    protected Subject subject;
@@ -318,7 +343,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    {
       try
       {
-         final Builder builder = new STSClientConfig.Builder(getRequiredOption(getOptions(), STS_CONFIG_FILE));
+         final Builder builder = createBuilder();
          if (useOptionsCredentials)
          {
             useCredentialsFromOptions(builder, options);
@@ -393,6 +418,15 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    {
       clearState();
       return true;
+   }
+
+   /**
+    * Subclasses can override and create a preconfigured builder
+    * @return
+    */
+   protected Builder createBuilder()
+   {
+      return new STSClientConfig.Builder(getRequiredOption(getOptions(), STS_CONFIG_FILE));
    }
 
    protected void useCredentialsFromCallback(final Builder builder) throws LoginException
