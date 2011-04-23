@@ -426,7 +426,18 @@ public abstract class AbstractSTSLoginModule implements LoginModule
     */
    protected Builder createBuilder()
    {
-      return new STSClientConfig.Builder(getRequiredOption(getOptions(), STS_CONFIG_FILE));
+      if (options.containsKey(STS_CONFIG_FILE))
+      {
+         return new STSClientConfig.Builder(getRequiredOption(getOptions(), STS_CONFIG_FILE));
+      }
+      else
+      {
+         Builder builder = new Builder();
+         builder.endpointAddress((String) options.get(ENDPOINT_ADDRESS));
+         builder.portName((String) options.get(PORT_NAME)).serviceName((String) options.get(SERVICE_NAME));
+         builder.username((String) options.get(USERNAME_KEY)).password((String) options.get(PASSWORD_KEY));
+         return builder;
+      }
    }
 
    protected void useCredentialsFromCallback(final Builder builder) throws LoginException
