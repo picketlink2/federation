@@ -256,6 +256,8 @@ public class STSClientConfig
             this.endpointAddress = properties.getProperty(ENDPOINT_ADDRESS);
             this.username = properties.getProperty(USERNAME);
             this.password = properties.getProperty(PASSWORD);
+            this.wsaIssuer = properties.getProperty(WSA_ISSUER);
+            this.wspAppliesTo = properties.getProperty(WSP_APPLIES_TO);
 
             if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
             {
