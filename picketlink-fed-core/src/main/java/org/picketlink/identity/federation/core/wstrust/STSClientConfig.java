@@ -326,7 +326,7 @@ public class STSClientConfig
          return new FileInputStream(file);
       }
       // Try it as a classpath resource ...
-      final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+      final ClassLoader threadClassLoader = SecurityActions.getContextClassLoader();
       if (threadClassLoader != null)
       {
          final InputStream is = threadClassLoader.getResourceAsStream(resource);
