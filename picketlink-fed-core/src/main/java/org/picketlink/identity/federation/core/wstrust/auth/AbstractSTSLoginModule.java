@@ -48,10 +48,12 @@ import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
@@ -436,6 +438,22 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          builder.endpointAddress((String) options.get(ENDPOINT_ADDRESS));
          builder.portName((String) options.get(PORT_NAME)).serviceName((String) options.get(SERVICE_NAME));
          builder.username((String) options.get(USERNAME_KEY)).password((String) options.get(PASSWORD_KEY));
+
+         String passwordString = (String) options.get(PASSWORD_KEY);
+         if (passwordString != null && passwordString.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
+         {
+            //password is masked
+            String salt = (String) options.get(PicketLinkFederationConstants.SALT);
+            int iterationCount = Integer.parseInt((String) options.get(PicketLinkFederationConstants.ITERATION_COUNT));
+            try
+            {
+               builder.password(StringUtil.decode(passwordString, salt, iterationCount));
+            }
+            catch (Exception e)
+            {
+               throw new RuntimeException("Unable to decode password:" + passwordString);
+            }
+         }
          return builder;
       }
    }
