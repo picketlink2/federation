@@ -59,30 +59,34 @@ import org.w3c.dom.Element;
  */
 public class STSIssuingLoginModule extends AbstractSTSLoginModule
 {
-    public static final String ENDPOINT_OPTION = "endpointURI";
-    public static final String TOKEN_TYPE_OPTION = "tokenType";
+   public static final String ENDPOINT_OPTION = "endpointURI";
 
-    private String endpointURI;
-    private String tokenType;
+   public static final String TOKEN_TYPE_OPTION = "tokenType";
 
-    @Override
-    public void initialize(final Subject subject, final CallbackHandler callbackHandler, final Map<String, ?> sharedState, final Map<String, ?> options)
-    {
-        super.initialize(subject, callbackHandler, sharedState, options);
-        
-        endpointURI = (String) options.get(ENDPOINT_OPTION);
-        tokenType = (String) options.get(TOKEN_TYPE_OPTION);
-    }
+   private String endpointURI;
 
-    /**
-     * This method will issue a token for the configured user. 
-     * 
-     * @return Element The issued element.
-     * @throws LoginException If an error occurs while trying to perform the authentication.
-     */
-    public Element invokeSTS(final STSClient stsClient) throws WSTrustException
-    {
-        return stsClient.issueToken(endpointURI, tokenType);
-    }
-    
+   private String tokenType;
+
+   @Override
+   public void initialize(final Subject subject, final CallbackHandler callbackHandler,
+         final Map<String, ?> sharedState, final Map<String, ?> options)
+   {
+      super.initialize(subject, callbackHandler, sharedState, options);
+
+      endpointURI = (String) options.get(ENDPOINT_OPTION);
+      if (endpointURI == null)
+         endpointURI = (String) options.get(ENDPOINT_ADDRESS); //base class
+      tokenType = (String) options.get(TOKEN_TYPE_OPTION);
+   }
+
+   /**
+    * This method will issue a token for the configured user. 
+    * 
+    * @return Element The issued element.
+    * @throws LoginException If an error occurs while trying to perform the authentication.
+    */
+   public Element invokeSTS(final STSClient stsClient) throws WSTrustException
+   {
+      return stsClient.issueToken(endpointURI, tokenType);
+   }
 }
