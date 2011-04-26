@@ -36,6 +36,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
@@ -217,7 +218,11 @@ public class STSClient
 
    private RequestSecurityToken setAppliesTo(String endpointURI, RequestSecurityToken rst)
    {
-      if (endpointURI != null)
+      if (StringUtil.isNotNull(wspAppliesTo))
+      {
+         rst.setAppliesTo(WSTrustUtil.createAppliesTo(endpointURI));
+      }
+      else if (endpointURI != null)
          rst.setAppliesTo(WSTrustUtil.createAppliesTo(endpointURI));
       return rst;
    }
