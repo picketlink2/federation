@@ -220,7 +220,7 @@ public class STSClient
    {
       if (StringUtil.isNotNull(wspAppliesTo))
       {
-         rst.setAppliesTo(WSTrustUtil.createAppliesTo(endpointURI));
+         rst.setAppliesTo(WSTrustUtil.createAppliesTo(wspAppliesTo));
       }
       else if (endpointURI != null)
          rst.setAppliesTo(WSTrustUtil.createAppliesTo(endpointURI));
