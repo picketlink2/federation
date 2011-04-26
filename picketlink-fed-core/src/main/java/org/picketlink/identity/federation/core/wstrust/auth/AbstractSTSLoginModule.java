@@ -168,6 +168,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule
 {
    private final Logger log = Logger.getLogger(AbstractSTSLoginModule.class);
 
+   private final boolean trace = log.isTraceEnabled();
+
    /**
     * Key used in share state map when LMs are stacked. 
     */
@@ -466,7 +468,26 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       {
          getCallbackHandler().handle(new Callback[]
          {nameCallback, passwordCallback});
-         builder.username(nameCallback.getName()).password(new String(passwordCallback.getPassword()));
+         String userNameStr = nameCallback.getName();
+         if (StringUtil.isNotNull(userNameStr))
+         {
+            builder.username(userNameStr);
+         }
+         else
+         {
+            if (trace)
+               log.trace("UserName from callback is null");
+         }
+         char[] passChars = passwordCallback.getPassword();
+         if (passChars != null)
+         {
+            builder.password(new String(passChars));
+         }
+         else
+         {
+            if (trace)
+               log.trace("Password from callback is null");
+         }
       }
       catch (final IOException e)
       {
