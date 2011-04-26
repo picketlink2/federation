@@ -250,7 +250,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    /**
     * The shared state map passed into this login modules initalize method.
     */
-   protected Map<String, ?> sharedState;
+   @SuppressWarnings("rawtypes")
+   protected Map sharedState;
 
    /**
     * Indicates whether password stacking option was configured.
