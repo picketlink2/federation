@@ -76,7 +76,7 @@ public class SAMLMetadataUtil
                {
                   Node certNode = nl.getFirstChild();
                   String certNodeValue = certNode.getNodeValue();
-                  cert = XMLSignatureUtil.getX509CertificateFromKeyInfoString( certNodeValue.trim() );
+                  cert = XMLSignatureUtil.getX509CertificateFromKeyInfoString( certNodeValue.replaceAll("\\s", ""));
                   break;
                }
             }
