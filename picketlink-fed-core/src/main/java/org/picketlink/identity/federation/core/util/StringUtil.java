@@ -104,6 +104,7 @@ public class StringUtil
             {
                int index = subString.indexOf("::");
                defaultValue = subString.substring(index + 2);
+               subString = subString.substring(0, index);
             }
             sysPropertyValue = SecurityActions.getSystemProperty(subString, defaultValue);
             if (sysPropertyValue.isEmpty())

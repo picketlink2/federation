@@ -62,6 +62,8 @@ public class SystemPropertyAsStringUnitTestCase
       assertEquals("test", StringUtil.getSystemPropertyAsString("test"));
       assertEquals("test/test", StringUtil.getSystemPropertyAsString("test/test"));
 
+      assertEquals("anil", StringUtil.getSystemPropertyAsString("${test::something}"));
+
       assertEquals("anil", StringUtil.getSystemPropertyAsString("${test}"));
       assertEquals("test/anil", StringUtil.getSystemPropertyAsString("test/${test}"));
 
