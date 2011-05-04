@@ -1,4 +1,4 @@
 <PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" ServerEnvironment="tomcat">
- <IdentityURL>http://localhost:8080/idp/</IdentityURL>
- <ServiceURL>http://localhost:8080/sales-post/</ServiceURL>
+ <IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
+ <ServiceURL>${sales-post.url::http://localhost:8080/sales-post/}</ServiceURL>
 </PicketLinkSP>
