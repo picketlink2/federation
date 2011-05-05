@@ -22,6 +22,7 @@
 
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,8 +82,9 @@ extends StatementAbstractType
       return Collections.unmodifiableList( this.attributes );
    }
 
-   public static class ASTChoiceType
+   public static class ASTChoiceType implements Serializable
    {
+      private static final long serialVersionUID = 1L;
       private AttributeType attribute;
       private EncryptedElementType encryptedAssertion;
 
