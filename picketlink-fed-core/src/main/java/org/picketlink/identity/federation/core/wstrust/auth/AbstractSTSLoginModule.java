@@ -447,7 +447,14 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          {
             //password is masked
             String salt = (String) options.get(PicketLinkFederationConstants.SALT);
-            int iterationCount = Integer.parseInt((String) options.get(PicketLinkFederationConstants.ITERATION_COUNT));
+            if (StringUtil.isNullOrEmpty(salt))
+               throw new RuntimeException("Salt is not configured as module option");
+
+            String iCount = (String) options.get(PicketLinkFederationConstants.ITERATION_COUNT);
+            if (StringUtil.isNullOrEmpty(iCount))
+               throw new RuntimeException("Iteration Count is not configured as module option");
+
+            int iterationCount = Integer.parseInt(iCount);
             try
             {
                builder.password(StringUtil.decode(passwordString, salt, iterationCount));
@@ -682,6 +689,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       }
    }
 
+   @SuppressWarnings("deprecation")
    protected void populateSubject()
    {
       MappingManager mappingManager = getMappingManager();
@@ -690,9 +698,25 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          return;
       }
 
-      MappingContext<Principal> principalMappingContext = mappingManager.getMappingContext(MappingType.PRINCIPAL
-            .toString());
-      MappingContext<RoleGroup> roleMappingContext = mappingManager.getMappingContext(MappingType.ROLE.toString());
+      MappingContext<Principal> principalMappingContext = null;
+      MappingContext<RoleGroup> roleMappingContext = null;
+      try
+      {
+         principalMappingContext = mappingManager.getMappingContext(MappingType.PRINCIPAL.toString());
+      }
+      catch (NoSuchMethodError nse)
+      {
+         principalMappingContext = mappingManager.getMappingContext(Principal.class);
+      }
+
+      try
+      {
+         roleMappingContext = mappingManager.getMappingContext(MappingType.ROLE.toString());
+      }
+      catch (NoSuchMethodError nse)
+      {
+         roleMappingContext = mappingManager.getMappingContext(RoleGroup.class);
+      }
 
       Map<String, Object> contextMap = new HashMap<String, Object>();
       contextMap.put(SHARED_TOKEN, this.samlToken);
