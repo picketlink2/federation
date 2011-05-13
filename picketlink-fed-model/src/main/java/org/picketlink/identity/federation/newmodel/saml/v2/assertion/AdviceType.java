@@ -22,6 +22,7 @@
 
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,8 +51,9 @@ import java.util.List;
  * 
  * 
  */ 
-public class AdviceType 
+public class AdviceType implements Serializable
 {  
+   private static final long serialVersionUID = 1L;
    protected List<Object> advices = new ArrayList<Object>();
 
    /**

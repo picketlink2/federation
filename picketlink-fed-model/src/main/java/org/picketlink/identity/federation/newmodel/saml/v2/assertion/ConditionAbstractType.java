@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
+
 
 /**
  * <p>Java class for ConditionAbstractType complex type.
@@ -38,6 +40,7 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  * 
  * 
  */ 
-public abstract class ConditionAbstractType 
+public abstract class ConditionAbstractType implements Serializable
 {
+   private static final long serialVersionUID = 1L;
 }

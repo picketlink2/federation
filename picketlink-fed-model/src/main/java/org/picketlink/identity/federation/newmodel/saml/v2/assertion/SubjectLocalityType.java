@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 
 /**
  * <p>Java class for SubjectLocalityType complex type.
@@ -39,57 +40,64 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  * </pre>
  * 
  * 
- */ 
-public class SubjectLocalityType 
-{ 
-    protected String address; 
-    protected String dnsName;
+ */
+public class SubjectLocalityType implements Serializable
+{
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * Gets the value of the address property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddress() {
-        return address;
-    }
+   protected String address;
 
-    /**
-     * Sets the value of the address property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddress(String value) {
-        this.address = value;
-    }
+   protected String dnsName;
 
-    /**
-     * Gets the value of the dnsName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDNSName() {
-        return dnsName;
-    }
+   /**
+    * Gets the value of the address property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getAddress()
+   {
+      return address;
+   }
 
-    /**
-     * Sets the value of the dnsName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDNSName(String value) {
-        this.dnsName = value;
-    } 
+   /**
+    * Sets the value of the address property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setAddress(String value)
+   {
+      this.address = value;
+   }
+
+   /**
+    * Gets the value of the dnsName property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getDNSName()
+   {
+      return dnsName;
+   }
+
+   /**
+    * Sets the value of the dnsName property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setDNSName(String value)
+   {
+      this.dnsName = value;
+   }
 }

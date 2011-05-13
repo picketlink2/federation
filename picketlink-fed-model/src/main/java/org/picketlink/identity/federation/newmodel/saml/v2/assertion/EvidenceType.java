@@ -22,6 +22,7 @@
 
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,8 +51,9 @@ import java.util.List;
  * 
  * 
  */ 
-public class EvidenceType 
+public class EvidenceType implements Serializable
 {
+   private static final long serialVersionUID = 1L;
    protected List<ChoiceType> evidences = new ArrayList<ChoiceType>();
 
    /**
@@ -81,8 +83,9 @@ public class EvidenceType
       return Collections.unmodifiableList( evidences );
    }
 
-   public static class ChoiceType
+   public static class ChoiceType implements Serializable
    {
+      private static final long serialVersionUID = 1L;
       private String AssertionIDRef;
       private URI AssertionURIRef;
       private AssertionType assertion;

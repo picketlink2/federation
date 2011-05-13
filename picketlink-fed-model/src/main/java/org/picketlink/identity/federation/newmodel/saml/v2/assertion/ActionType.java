@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
 
+import java.io.Serializable;
+
 
 /**
  * <p>Java class for ActionType complex type.
@@ -39,7 +41,9 @@ package org.picketlink.identity.federation.newmodel.saml.v2.assertion;
  * 
  * 
  */ 
-public class ActionType {
+public class ActionType implements Serializable {
+
+   private static final long serialVersionUID = 1L;
 
    protected String value; 
    protected String namespace;
