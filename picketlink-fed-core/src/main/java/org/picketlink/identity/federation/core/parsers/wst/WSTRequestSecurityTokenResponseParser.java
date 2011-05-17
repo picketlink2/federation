@@ -27,6 +27,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -52,13 +53,17 @@ import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 import org.w3c.dom.Element;
 
 /**
- * Parse the WS-Trust RequestSecurityToken
+ * Parse the WS-Trust RequestSecurityTokenResponse
  * 
  * @author Anil.Saldhana@redhat.com
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSupport
 {
+   protected Logger log = Logger.getLogger(WSTRequestSecurityTokenResponseParser.class);
+
+   protected boolean trace = log.isTraceEnabled();
+
    public static final String X509CERTIFICATE = "X509Certificate";
 
    public static final String KEYVALUE = "KeyValue";
@@ -92,7 +97,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
             if (endElementTag.equals(WSTrustConstants.RSTR))
                break;
             else
-               throw new RuntimeException( "Unknown End Element:" + endElementTag );
+               throw new RuntimeException("Unknown End Element:" + endElementTag);
          }
 
          try
@@ -216,7 +221,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                }
                responseToken.setEntropy(entropy);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY );
+               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY);
             }
             else if (tag.equals(WSTrustConstants.USE_KEY))
             {
@@ -275,7 +280,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                }
                responseToken.setRequestedProofToken(requestedProofToken);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(endElement,  WSTrustConstants.REQUESTED_PROOF_TOKEN );
+               StaxParserUtil.validate(endElement, WSTrustConstants.REQUESTED_PROOF_TOKEN);
             }
             else if (tag.equals(WSTrustConstants.REQUESTED_TOKEN))
             {
@@ -292,6 +297,10 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
             else
             {
                QName qname = subEvent.getName();
+               if (trace)
+               {
+                  log.trace("Looking for Parser for :" + qname);
+               }
                ParserNamespaceSupport parser = ParserController.get(qname);
                if (parser == null)
                   throw new RuntimeException("Cannot parse " + qname);
@@ -336,13 +345,13 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
          if (xmlEvent instanceof EndElement)
          {
             String endElementTag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
-            if ( endElementTag.equals(WSTrustConstants.STATUS))
+            if (endElementTag.equals(WSTrustConstants.STATUS))
             {
                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
-            } 
+            }
             else
-               throw new RuntimeException( "unknown end element:" + endElementTag );
+               throw new RuntimeException("unknown end element:" + endElementTag);
          }
          startElement = (StartElement) xmlEvent;
          String tag = StaxParserUtil.getStartElementName(startElement);
@@ -383,14 +392,14 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
          xmlEvent = StaxParserUtil.peek(xmlEventReader);
          if (xmlEvent instanceof EndElement)
          {
-            String endElementTag = StaxParserUtil.getEndElementName( (EndElement) xmlEvent );
-            if ( endElementTag.equals(WSTrustConstants.REQUESTED_TOKEN))
+            String endElementTag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
+            if (endElementTag.equals(WSTrustConstants.REQUESTED_TOKEN))
             {
                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
             }
             else
-               throw new RuntimeException( "unknown end element:" + endElementTag );
+               throw new RuntimeException("unknown end element:" + endElementTag);
          }
          Element tokenElement = StaxParserUtil.getDOMElement(xmlEventReader);
          requestedSecurityTokenType.setAny(tokenElement);

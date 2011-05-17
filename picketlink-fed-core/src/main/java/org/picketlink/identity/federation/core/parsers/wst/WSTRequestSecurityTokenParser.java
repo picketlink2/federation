@@ -31,6 +31,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -60,6 +61,10 @@ import org.w3c.dom.Element;
  */
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 {
+   protected Logger log = Logger.getLogger(WSTRequestSecurityTokenParser.class);
+
+   protected boolean trace = log.isTraceEnabled();
+
    public static final String X509CERTIFICATE = "X509Certificate";
 
    public static final String KEYVALUE = "KeyValue";
@@ -298,6 +303,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             else
             {
                QName qname = subEvent.getName();
+               if (trace)
+               {
+                  log.trace("Looking for Parser for :" + qname);
+               }
                ParserNamespaceSupport parser = ParserController.get(qname);
                if (parser == null)
                   throw new RuntimeException("Cannot parse " + qname);

@@ -39,27 +39,28 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  * @since Oct 18, 2010
  */
 public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
-{  
+{
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       OnBehalfOfType onBehalfType = new OnBehalfOfType();
-      StartElement startElement =  StaxParserUtil.peekNextStartElement( xmlEventReader ); 
-      String tag = StaxParserUtil.getStartElementName( startElement );
-      
-      if( tag.equals( WSTrustConstants.WSSE.USERNAME_TOKEN ) )
+      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+      String tag = StaxParserUtil.getStartElementName(startElement);
+
+      if (tag.equals(WSTrustConstants.WSSE.USERNAME_TOKEN))
       {
          WSSecurityParser wsseParser = new WSSecurityParser();
-         
-         UsernameTokenType userNameToken = (UsernameTokenType) wsseParser.parse( xmlEventReader );
-         onBehalfType.setAny( userNameToken ); 
+
+         UsernameTokenType userNameToken = (UsernameTokenType) wsseParser.parse(xmlEventReader);
+         onBehalfType.setAny(userNameToken);
       }
-       
+      else
+         throw new RuntimeException("Unknown tag:" + tag);
+
       return onBehalfType;
    }
-
 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
@@ -68,8 +69,7 @@ public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
    {
       String nsURI = qname.getNamespaceURI();
       String localPart = qname.getLocalPart();
-      
-      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-             && WSTrustConstants.ON_BEHALF_OF.equals( localPart );
-   } 
+
+      return WSTrustConstants.BASE_NAMESPACE.equals(nsURI) && WSTrustConstants.ON_BEHALF_OF.equals(localPart);
+   }
 }
