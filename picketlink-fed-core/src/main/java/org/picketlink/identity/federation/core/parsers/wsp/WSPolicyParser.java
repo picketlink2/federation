@@ -46,59 +46,59 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
  * @since Oct 14, 2010
  */
 public class WSPolicyParser extends AbstractParser
-{ 
+{
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
-      while( xmlEventReader.hasNext() )
+   {
+      while (xmlEventReader.hasNext())
       {
-         XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader ); 
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if( xmlEvent instanceof StartElement )
+         if (xmlEvent instanceof StartElement)
          {
             StartElement startElement = (StartElement) xmlEvent;
 
-            String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( WSPolicyConstants.APPLIES_TO ))
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equalsIgnoreCase(WSPolicyConstants.APPLIES_TO))
             {
                //Get the AppliesTo element
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-               
-               AppliesTo appliesTo = new AppliesTo(); 
-               
+
+               AppliesTo appliesTo = new AppliesTo();
+
                //Now we do not do anything to the applies to element.  We go further
                startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-               
+
                QName qname = startElement.getName();
-               ParserNamespaceSupport parser = ParserController.get( qname  );
-               if( parser == null )
-                  throw new RuntimeException( "Unable to parse:" + qname );
-               
-               Object parsedObject = parser.parse( xmlEventReader );
-               appliesTo.getAny().add( parsedObject );
-               
+               ParserNamespaceSupport parser = ParserController.get(qname);
+               if (parser == null)
+                  throw new RuntimeException("Unable to parse:" + qname);
+
+               Object parsedObject = parser.parse(xmlEventReader);
+               appliesTo.addAny(parsedObject);
+
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(endElement, WSPolicyConstants.APPLIES_TO );
+               StaxParserUtil.validate(endElement, WSPolicyConstants.APPLIES_TO);
                return appliesTo;
-            }  
+            }
          }
          else
          {
-            StaxParserUtil.getNextEvent(xmlEventReader); 
+            StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException( "WSPolicy Parsing has failed" );
+      throw new RuntimeException("WSPolicy Parsing has failed");
    }
-   
+
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
    public boolean supports(QName qname)
    {
-      String nsURI = qname.getNamespaceURI(); 
-      
-      return WSTrustConstants.WSP_NS.equals( nsURI );
+      String nsURI = qname.getNamespaceURI();
+
+      return WSTrustConstants.WSP_NS.equals(nsURI);
    }
 }

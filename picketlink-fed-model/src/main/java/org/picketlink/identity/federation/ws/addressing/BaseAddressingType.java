@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2011, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors. 
  *
@@ -19,54 +19,48 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.picketlink.identity.federation.ws.addressing;
 
-import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
- * <p>Java class for AttributedUnsignedLongType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="AttributedUnsignedLongType">
- *   &lt;simpleContent>
- *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>unsignedLong">
- *     &lt;/extension>
- *   &lt;/simpleContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * @author Anil.Saldhana@redhat.com
+ * @since May 17, 2011
  */
-public class AttributedUnsignedLongType extends BaseAddressingType
+public class BaseAddressingType
 {
-   protected BigInteger value;
+   protected final Map<QName, String> otherAttributes = new HashMap<QName, String>();
 
    /**
-    * Gets the value of the value property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link BigInteger }
-    *     
+    * Add an other attribute
+    * @param qname
+    * @param str
     */
-   public BigInteger getValue()
+   public void addOtherAttribute(QName qname, String str)
    {
-      return value;
+      otherAttributes.put(qname, str);
    }
 
    /**
-    * Sets the value of the value property.
+    * Gets a map that contains attributes that aren't bound to any typed property on this class.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link BigInteger }
-    *     
+    * <p>
+    * the map is keyed by the name of the attribute and 
+    * the value is the string value of the attribute.
+    * 
+    * the map returned by this method is live, and you can add new attribute
+    * by updating the map directly. Because of this design, there's no setter.
+    * 
+    * 
+    * @return
+    *     always non-null
     */
-   public void setValue(BigInteger value)
+   public Map<QName, String> getOtherAttributes()
    {
-      this.value = value;
+      return Collections.unmodifiableMap(otherAttributes);
    }
 }

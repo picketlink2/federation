@@ -135,7 +135,7 @@ public class WSTrustUtil
       EndpointReferenceType reference = new EndpointReferenceType();
       reference.setAddress(attributedURI);
       AppliesTo appliesTo = new AppliesTo();
-      appliesTo.getAny().add(reference);
+      appliesTo.addAny(reference);
 
       return appliesTo;
    }

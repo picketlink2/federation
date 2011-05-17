@@ -5,20 +5,11 @@
 // Generated on: 2008.12.17 at 12:32:20 PM CST 
 //
 
-
 package org.picketlink.identity.federation.ws.addressing;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.namespace.QName;
-
 
 /**
  * <p>Java class for ProblemActionType complex type.
@@ -41,84 +32,64 @@ import javax.xml.namespace.QName;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProblemActionType", propOrder = {
-    "action",
-    "soapAction"
-})
-public class ProblemActionType {
+@XmlType(name = "ProblemActionType", propOrder =
+{"action", "soapAction"})
+public class ProblemActionType extends BaseAddressingType
+{
 
-    @XmlElement(name = "Action")
-    protected AttributedURIType action;
-    @XmlElement(name = "SoapAction")
-    @XmlSchemaType(name = "anyURI")
-    protected String soapAction;
-    @XmlAnyAttribute
-    private Map<QName, String> otherAttributes = new HashMap<QName, String>();
+   protected AttributedURIType action;
 
-    /**
-     * Gets the value of the action property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link AttributedURIType }
-     *     
-     */
-    public AttributedURIType getAction() {
-        return action;
-    }
+   protected String soapAction;
 
-    /**
-     * Sets the value of the action property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link AttributedURIType }
-     *     
-     */
-    public void setAction(AttributedURIType value) {
-        this.action = value;
-    }
+   /**
+    * Gets the value of the action property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link AttributedURIType }
+    *     
+    */
+   public AttributedURIType getAction()
+   {
+      return action;
+   }
 
-    /**
-     * Gets the value of the soapAction property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSoapAction() {
-        return soapAction;
-    }
+   /**
+    * Sets the value of the action property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link AttributedURIType }
+    *     
+    */
+   public void setAction(AttributedURIType value)
+   {
+      this.action = value;
+   }
 
-    /**
-     * Sets the value of the soapAction property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSoapAction(String value) {
-        this.soapAction = value;
-    }
+   /**
+    * Gets the value of the soapAction property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getSoapAction()
+   {
+      return soapAction;
+   }
 
-    /**
-     * Gets a map that contains attributes that aren't bound to any typed property on this class.
-     * 
-     * <p>
-     * the map is keyed by the name of the attribute and 
-     * the value is the string value of the attribute.
-     * 
-     * the map returned by this method is live, and you can add new attribute
-     * by updating the map directly. Because of this design, there's no setter.
-     * 
-     * 
-     * @return
-     *     always non-null
-     */
-    public Map<QName, String> getOtherAttributes() {
-        return otherAttributes;
-    }
-
+   /**
+    * Sets the value of the soapAction property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setSoapAction(String value)
+   {
+      this.soapAction = value;
+   }
 }
