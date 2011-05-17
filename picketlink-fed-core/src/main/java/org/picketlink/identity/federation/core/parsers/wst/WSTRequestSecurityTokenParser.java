@@ -35,9 +35,12 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
+import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
@@ -56,68 +59,69 @@ import org.w3c.dom.Element;
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
-{  
+{
    public static final String X509CERTIFICATE = "X509Certificate";
+
    public static final String KEYVALUE = "KeyValue";
 
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
-      StartElement startElement =  StaxParserUtil.getNextStartElement( xmlEventReader ); 
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
       RequestSecurityToken requestToken = new RequestSecurityToken();
 
-      QName contextQName = new QName( "", WSTrustConstants.RST_CONTEXT );
-      Attribute contextAttribute = startElement.getAttributeByName( contextQName );
+      QName contextQName = new QName("", WSTrustConstants.RST_CONTEXT);
+      Attribute contextAttribute = startElement.getAttributeByName(contextQName);
       if (contextAttribute != null)
       {
          String contextValue = StaxParserUtil.getAttributeValue(contextAttribute);
          requestToken.setContext(contextValue);
       }
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
-         XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader );
-         if( xmlEvent == null )
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent == null)
             break;
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            xmlEvent = StaxParserUtil.getNextEvent( xmlEventReader );
+            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
             EndElement endElement = (EndElement) xmlEvent;
-            String endElementTag = StaxParserUtil.getEndElementName( endElement );
-            if( endElementTag.equals( WSTrustConstants.RST ) )
+            String endElementTag = StaxParserUtil.getEndElementName(endElement);
+            if (endElementTag.equals(WSTrustConstants.RST))
                break;
             else
-               throw new RuntimeException( "Unknown End Element:" + endElementTag );
+               throw new RuntimeException("Unknown End Element:" + endElementTag);
          }
 
          try
          {
-            StartElement subEvent = StaxParserUtil.peekNextStartElement( xmlEventReader );
-            if( subEvent == null )
+            StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (subEvent == null)
                break;
 
-            String tag = StaxParserUtil.getStartElementName( subEvent );
-            if( tag.equals( WSTrustConstants.REQUEST_TYPE ))
-            { 
-               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-
-               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                  throw new ParsingException( "request type is expected ahead" );
-
-               String value = StaxParserUtil.getElementText(xmlEventReader);
-               requestToken.setRequestType( new URI( value ));
-            }
-            else if( tag.equals( WSTrustConstants.TOKEN_TYPE  ))
+            String tag = StaxParserUtil.getStartElementName(subEvent);
+            if (tag.equals(WSTrustConstants.REQUEST_TYPE))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                  throw new ParsingException( "token type is expected ahead" );
+               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                  throw new ParsingException("request type is expected ahead");
 
                String value = StaxParserUtil.getElementText(xmlEventReader);
-               requestToken.setTokenType( new URI( value ));
+               requestToken.setRequestType(new URI(value));
+            }
+            else if (tag.equals(WSTrustConstants.TOKEN_TYPE))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                  throw new ParsingException("token type is expected ahead");
+
+               String value = StaxParserUtil.getElementText(xmlEventReader);
+               requestToken.setTokenType(new URI(value));
             }
             else if (tag.equals(WSTrustConstants.LIFETIME))
             {
@@ -150,145 +154,165 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                EndElement lifeTimeElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate(lifeTimeElement, WSTrustConstants.LIFETIME);
             }
-            else if( tag.equals( WSTrustConstants.CANCEL_TARGET ))
+            else if (tag.equals(WSTrustConstants.CANCEL_TARGET))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               StaxParserUtil.validate(subEvent, WSTrustConstants.CANCEL_TARGET );
+               StaxParserUtil.validate(subEvent, WSTrustConstants.CANCEL_TARGET);
                WSTCancelTargetParser wstCancelTargetParser = new WSTCancelTargetParser();
-               CancelTargetType cancelTarget = (CancelTargetType) wstCancelTargetParser.parse( xmlEventReader );
-               requestToken.setCancelTarget( cancelTarget ); 
+               CancelTargetType cancelTarget = (CancelTargetType) wstCancelTargetParser.parse(xmlEventReader);
+               requestToken.setCancelTarget(cancelTarget);
                EndElement cancelTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate( cancelTargetEndElement, WSTrustConstants.CANCEL_TARGET ) ; 
+               StaxParserUtil.validate(cancelTargetEndElement, WSTrustConstants.CANCEL_TARGET);
             }
-            else if( tag.equals( WSTrustConstants.VALIDATE_TARGET ))
+            else if (tag.equals(WSTrustConstants.VALIDATE_TARGET))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                WSTValidateTargetParser wstValidateTargetParser = new WSTValidateTargetParser();
-               ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse( xmlEventReader );
-               requestToken.setValidateTarget( validateTarget ); 
+               ValidateTargetType validateTarget = (ValidateTargetType) wstValidateTargetParser.parse(xmlEventReader);
+               requestToken.setValidateTarget(validateTarget);
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET ) ;
-            } 
-            else if( tag.equals( WSTrustConstants.RENEW_TARGET ))
+               StaxParserUtil.validate(validateTargetEndElement, WSTrustConstants.VALIDATE_TARGET);
+            }
+            else if (tag.equals(WSTrustConstants.RENEW_TARGET))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                WSTRenewTargetParser wstValidateTargetParser = new WSTRenewTargetParser();
-               RenewTargetType validateTarget = (RenewTargetType) wstValidateTargetParser.parse( xmlEventReader );
-               requestToken.setRenewTarget( validateTarget ); 
+               RenewTargetType validateTarget = (RenewTargetType) wstValidateTargetParser.parse(xmlEventReader);
+               requestToken.setRenewTarget(validateTarget);
                EndElement validateTargetEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate( validateTargetEndElement, WSTrustConstants.RENEW_TARGET ) ;
-            } 
-            else if( tag.equals( WSTrustConstants.ON_BEHALF_OF ))
+               StaxParserUtil.validate(validateTargetEndElement, WSTrustConstants.RENEW_TARGET);
+            }
+            else if (tag.equals(WSTrustConstants.ON_BEHALF_OF))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-               WSTrustOnBehalfOfParser wstOnBehalfOfParser = new WSTrustOnBehalfOfParser(); 
-               OnBehalfOfType onBehalfOf = (OnBehalfOfType) wstOnBehalfOfParser.parse(xmlEventReader); 
+               WSTrustOnBehalfOfParser wstOnBehalfOfParser = new WSTrustOnBehalfOfParser();
+               OnBehalfOfType onBehalfOf = (OnBehalfOfType) wstOnBehalfOfParser.parse(xmlEventReader);
                requestToken.setOnBehalfOf(onBehalfOf);
                EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate( onBehalfOfEndElement, WSTrustConstants.ON_BEHALF_OF ) ;
-            }  
-            else if( tag.equals( WSTrustConstants.KEY_TYPE ))
+               StaxParserUtil.validate(onBehalfOfEndElement, WSTrustConstants.ON_BEHALF_OF);
+            }
+            else if (tag.equals(WSTrustConstants.KEY_TYPE))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                  throw new ParsingException( "key type is expected ahead" );
+               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                  throw new ParsingException("key type is expected ahead");
 
                String keyType = StaxParserUtil.getElementText(xmlEventReader);
                try
                {
-                  URI keyTypeURI = new URI( keyType );
-                  requestToken.setKeyType( keyTypeURI );
+                  URI keyTypeURI = new URI(keyType);
+                  requestToken.setKeyType(keyTypeURI);
                }
-               catch( URISyntaxException e )
+               catch (URISyntaxException e)
                {
-                  throw new ParsingException( e );
-               }  
-            } 
-            else if( tag.equals( WSTrustConstants.KEY_SIZE ))
+                  throw new ParsingException(e);
+               }
+            }
+            else if (tag.equals(WSTrustConstants.KEY_SIZE))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                  throw new ParsingException( "key size is expected ahead" );
+               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                  throw new ParsingException("key size is expected ahead");
 
                String keySize = StaxParserUtil.getElementText(xmlEventReader);
                try
-               { 
-                  requestToken.setKeySize(Long.parseLong( keySize ));
-               }
-               catch( NumberFormatException e )
                {
-                  throw new ParsingException( e );
-               }  
-            } 
-            else if( tag.equals( WSTrustConstants.ENTROPY ))
+                  requestToken.setKeySize(Long.parseLong(keySize));
+               }
+               catch (NumberFormatException e)
+               {
+                  throw new ParsingException(e);
+               }
+            }
+            else if (tag.equals(WSTrustConstants.ENTROPY))
             {
-               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                EntropyType entropy = new EntropyType();
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
-               if( StaxParserUtil.matches(subEvent, WSTrustConstants.BINARY_SECRET ))
+               if (StaxParserUtil.matches(subEvent, WSTrustConstants.BINARY_SECRET))
                {
                   BinarySecretType binarySecret = new BinarySecretType();
-                  Attribute typeAttribute = subEvent.getAttributeByName( new QName( "", "Type" ));
-                  binarySecret.setType( StaxParserUtil.getAttributeValue( typeAttribute ));
+                  Attribute typeAttribute = subEvent.getAttributeByName(new QName("", "Type"));
+                  binarySecret.setType(StaxParserUtil.getAttributeValue(typeAttribute));
 
-                  if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                     throw new ParsingException( "binary secret value is expected ahead" );
+                  if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                     throw new ParsingException("binary secret value is expected ahead");
 
-                  binarySecret.setValue( StaxParserUtil.getElementText(xmlEventReader).getBytes() ); 
-                  entropy.getAny().add( binarySecret );
+                  binarySecret.setValue(StaxParserUtil.getElementText(xmlEventReader).getBytes());
+                  entropy.getAny().add(binarySecret);
                }
                requestToken.setEntropy(entropy);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY );
+               StaxParserUtil.validate(endElement, WSTrustConstants.ENTROPY);
             }
-            else if( tag.equals( WSTrustConstants.USE_KEY ))
+            else if (tag.equals(WSTrustConstants.ISSUER))
             {
-               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader); 
-               UseKeyType useKeyType = new UseKeyType();  
-               StaxParserUtil.validate( subEvent, WSTrustConstants.USE_KEY ) ;
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(subEvent, WSTrustConstants.ISSUER);
+
+               //Look for addressing
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(subEvent, WSAddressingConstants.ADDRESS);
+               String addressValue = StaxParserUtil.getElementText(xmlEventReader);
+
+               EndpointReferenceType endpointRef = new EndpointReferenceType();
+               AttributedURIType attrURI = new AttributedURIType();
+               attrURI.setValue(addressValue);
+               endpointRef.setAddress(new AttributedURIType());
+               requestToken.setIssuer(endpointRef);
+
+               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+               StaxParserUtil.validate(endElement, WSTrustConstants.ISSUER);
+            }
+            else if (tag.equals(WSTrustConstants.USE_KEY))
+            {
+               subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+               UseKeyType useKeyType = new UseKeyType();
+               StaxParserUtil.validate(subEvent, WSTrustConstants.USE_KEY);
 
                //We peek at the next start element as the stax source has to be in the START_ELEMENT mode
-               subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader); 
-               if( StaxParserUtil.matches(subEvent, X509CERTIFICATE ))
+               subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
+               if (StaxParserUtil.matches(subEvent, X509CERTIFICATE))
                {
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
                   //Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
 
-                  useKeyType.setAny( domElement );
-                  requestToken.setUseKey( useKeyType );   
-               } 
-               else if( StaxParserUtil.matches(subEvent, KEYVALUE ))
+                  useKeyType.setAny(domElement);
+                  requestToken.setUseKey(useKeyType);
+               }
+               else if (StaxParserUtil.matches(subEvent, KEYVALUE))
                {
                   //Element domElement = getKeyValueAsDomElement( subEvent, xmlEventReader );
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);//
-                  useKeyType.setAny( domElement );
-                  requestToken.setUseKey( useKeyType );   
+                  useKeyType.setAny(domElement);
+                  requestToken.setUseKey(useKeyType);
 
                   EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-                  StaxParserUtil.validate(endElement, WSTrustConstants.USE_KEY );
+                  StaxParserUtil.validate(endElement, WSTrustConstants.USE_KEY);
                }
-               else throw new RuntimeException( "unsupported " + StaxParserUtil.getStartElementName( subEvent ));  
-            }  
+               else
+                  throw new RuntimeException("unsupported " + StaxParserUtil.getStartElementName(subEvent));
+            }
             else
             {
                QName qname = subEvent.getName();
-               ParserNamespaceSupport parser = ParserController.get( qname );
-               if( parser == null )
-                  throw new RuntimeException( "Cannot parse " + qname ); 
+               ParserNamespaceSupport parser = ParserController.get(qname);
+               if (parser == null)
+                  throw new RuntimeException("Cannot parse " + qname);
 
-               Object parsedObject = parser.parse( xmlEventReader );
-               if( parsedObject instanceof AppliesTo )
+               Object parsedObject = parser.parse(xmlEventReader);
+               if (parsedObject instanceof AppliesTo)
                {
-                  requestToken.setAppliesTo( (AppliesTo) parsedObject );
+                  requestToken.setAppliesTo((AppliesTo) parsedObject);
                }
             }
-         } 
+         }
          catch (URISyntaxException e)
          {
-            throw new ParsingException( e );
-         }   
+            throw new ParsingException(e);
+         }
       }
 
       return requestToken;
@@ -298,11 +322,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
    public boolean supports(QName qname)
-   { 
+   {
       String nsURI = qname.getNamespaceURI();
       String localPart = qname.getLocalPart();
 
-      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-      && WSTrustConstants.RST.equals( localPart );
-   }  
+      return WSTrustConstants.BASE_NAMESPACE.equals(nsURI) && WSTrustConstants.RST.equals(localPart);
+   }
 }
