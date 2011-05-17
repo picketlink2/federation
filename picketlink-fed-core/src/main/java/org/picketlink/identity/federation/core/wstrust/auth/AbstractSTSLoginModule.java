@@ -223,6 +223,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    public static final String PASSWORD_KEY = "password";
 
    /**
+    * Key to specify whether this batch issue request
+    */
+   public static final String IS_BATCH = "isBatch";
+
+   /**
     * The subject to be populated.
     */
    protected Subject subject;
@@ -284,6 +289,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    protected String securityDomain = null;
 
    /**
+    * Value to indicate whether the RST is a batch request
+    */
+   protected boolean isBatch = false;
+
+   /**
     * Initialized this login module. Simple stores the passed in fields and
     * also validates the options.
     * 
@@ -332,6 +342,12 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       if (callerPrincipalGroup != null && !callerPrincipalGroup.isEmpty())
       {
          this.injectCallerPrincipalGroup = Boolean.parseBoolean(callerPrincipalGroup);
+      }
+
+      String batchIssueString = (String) options.get(IS_BATCH);
+      if (StringUtil.isNotNull(batchIssueString))
+      {
+         this.isBatch = Boolean.parseBoolean(batchIssueString);
       }
    }
 
@@ -441,6 +457,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          builder.endpointAddress((String) options.get(ENDPOINT_ADDRESS));
          builder.portName((String) options.get(PORT_NAME)).serviceName((String) options.get(SERVICE_NAME));
          builder.username((String) options.get(USERNAME_KEY)).password((String) options.get(PASSWORD_KEY));
+
+         builder.setBatch(isBatch);
 
          String passwordString = (String) options.get(PASSWORD_KEY);
          if (passwordString != null && passwordString.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))

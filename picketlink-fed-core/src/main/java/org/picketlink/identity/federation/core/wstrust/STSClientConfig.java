@@ -73,6 +73,8 @@ public class STSClientConfig
 
    public static final String WSP_APPLIES_TO = "wspAppliesTo";
 
+   public static final String IS_BATCH = "isBatch";
+
    private final String serviceName;
 
    private final String portName;
@@ -87,6 +89,8 @@ public class STSClientConfig
 
    private final String wspAppliesTo;
 
+   private boolean isBatch = false; //Is the RST a batch request?
+
    private STSClientConfig(final Builder builder)
    {
       serviceName = builder.serviceName;
@@ -94,6 +98,7 @@ public class STSClientConfig
       endpointAddress = builder.endpointAddress;
       username = builder.username;
       password = builder.password;
+      isBatch = builder.isBatch;
       wsaIssuer = builder.wsaIssuer;
       wspAppliesTo = builder.wspAppliesTo;
    }
@@ -133,6 +138,11 @@ public class STSClientConfig
       return wspAppliesTo;
    }
 
+   public boolean isBatch()
+   {
+      return isBatch;
+   }
+
    public String toString()
    {
       return getClass().getSimpleName() + "[serviceName=" + serviceName + ", portName=" + portName
@@ -154,6 +164,8 @@ public class STSClientConfig
       private String wsaIssuer;
 
       private String wspAppliesTo;
+
+      private boolean isBatch;
 
       public Builder()
       {
@@ -231,6 +243,16 @@ public class STSClientConfig
          return password;
       }
 
+      public boolean isBatch()
+      {
+         return isBatch;
+      }
+
+      public void setBatch(boolean isBatch)
+      {
+         this.isBatch = isBatch;
+      }
+
       public STSClientConfig build()
       {
          validate(this);
@@ -258,6 +280,8 @@ public class STSClientConfig
             this.password = properties.getProperty(PASSWORD);
             this.wsaIssuer = properties.getProperty(WSA_ISSUER);
             this.wspAppliesTo = properties.getProperty(WSP_APPLIES_TO);
+            String batchStr = properties.getProperty(IS_BATCH);
+            this.isBatch = StringUtil.isNotNull(batchStr) ? Boolean.parseBoolean(batchStr) : false;
 
             if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
             {

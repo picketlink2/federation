@@ -67,6 +67,11 @@ public class STSClient
    private String wspAppliesTo;
 
    /**
+    * Indicates whether the request is a batch request - will be read from the {@link STSClientConfig}
+    */
+   private boolean isBatch = false;
+
+   /**
     * Constructor
     * @see {@link #setDispatch(Dispatch)} for the setting of the {@link Dispatch} object
     */
@@ -88,6 +93,8 @@ public class STSClient
    {
       QName service = new QName(targetNS, config.getServiceName());
       QName portName = new QName(targetNS, config.getPortName());
+
+      isBatch = config.isBatch();
 
       wsaIssuerAddress = config.getWsaIssuer();
       wspAppliesTo = config.getWspAppliesTo();
@@ -156,6 +163,10 @@ public class STSClient
    public Element issueTokenForEndpoint(String endpointURI) throws WSTrustException
    {
       RequestSecurityToken request = new RequestSecurityToken();
+      if (wsaIssuerAddress != null)
+      {
+         request.setIssuer(WSTrustUtil.createIssuer(wsaIssuerAddress));
+      }
       setAppliesTo(endpointURI, request);
       return issueToken(request);
    }
@@ -180,6 +191,10 @@ public class STSClient
          throw new IllegalArgumentException("One of endpointURI or tokenType must be provided.");
 
       RequestSecurityToken request = new RequestSecurityToken();
+      if (wsaIssuerAddress != null)
+      {
+         request.setIssuer(WSTrustUtil.createIssuer(wsaIssuerAddress));
+      }
       setAppliesTo(endpointURI, request);
       setTokenType(tokenType, request);
       return issueToken(request);
@@ -210,6 +225,10 @@ public class STSClient
          throw new IllegalArgumentException("One of endpointURI or tokenType must be provided.");
 
       RequestSecurityToken request = new RequestSecurityToken();
+      if (wsaIssuerAddress != null)
+      {
+         request.setIssuer(WSTrustUtil.createIssuer(wsaIssuerAddress));
+      }
       setAppliesTo(endpointURI, request);
       setTokenType(tokenType, request);
       setOnBehalfOf(principal, request);
@@ -250,7 +269,13 @@ public class STSClient
    public Element issueToken(RequestSecurityToken request) throws WSTrustException
    {
       if (request.getRequestType() == null)
-         request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
+      {
+         if (isBatch)
+            request.setRequestType(URI.create(WSTrustConstants.BATCH_ISSUE_REQUEST));
+         else
+            request.setRequestType(URI.create(WSTrustConstants.ISSUE_REQUEST));
+      }
+
       if (request.getContext() == null)
          request.setContext("default-context");
 
