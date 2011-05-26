@@ -226,6 +226,9 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       {
          localValidation = Boolean.parseBoolean(localValidationStr);
          localValidationSecurityDomain = (String) options.get("localValidationSecurityDomain");
+
+         if (localValidationSecurityDomain.startsWith(SecurityConstants.JAAS_CONTEXT_ROOT) == false)
+            localValidationSecurityDomain = SecurityConstants.JAAS_CONTEXT_ROOT + "/" + localValidationSecurityDomain;
       }
    }
 
@@ -532,6 +535,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       try
       {
          Context ctx = new InitialContext();
+
          JaasSecurityDomain sd = (JaasSecurityDomain) ctx.lookup(localValidationSecurityDomain);
          KeyStore ts = sd.getTrustStore();
 
