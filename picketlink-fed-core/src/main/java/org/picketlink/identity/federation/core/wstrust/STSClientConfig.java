@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
@@ -55,6 +56,10 @@ import org.picketlink.identity.federation.core.util.StringUtil;
  */
 public class STSClientConfig
 {
+   protected static Logger log = Logger.getLogger(STSClientConfig.class);
+
+   protected static boolean trace = log.isTraceEnabled();
+
    public static final String DEFAULT_CONFIG_FILE = "sts-client.properties";
 
    public static final String SERVICE_NAME = "serviceName";
@@ -319,10 +324,34 @@ public class STSClientConfig
 
       private void validate(Builder builder)
       {
+         if (trace)
+         {
+            log.trace("Checkin ServiceName:");
+         }
          checkPropertyShowValue(serviceName, SERVICE_NAME);
+
+         if (trace)
+         {
+            log.trace("Checkin portName:");
+         }
          checkPropertyShowValue(portName, PORT_NAME);
+
+         if (trace)
+         {
+            log.trace("Checkin endpointAddress:");
+         }
          checkPropertyShowValue(endpointAddress, endpointAddress);
+
+         if (trace)
+         {
+            log.trace("Checkin username:");
+         }
          checkProperty(username, USERNAME);
+
+         if (trace)
+         {
+            log.trace("password portName:");
+         }
          checkProperty(password, PASSWORD);
       }
 

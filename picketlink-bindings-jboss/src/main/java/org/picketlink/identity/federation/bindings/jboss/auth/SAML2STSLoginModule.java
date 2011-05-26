@@ -26,6 +26,7 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.acl.Group;
 import java.security.cert.Certificate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,13 +44,14 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.jboss.security.plugins.JaasSecurityDomain;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
@@ -142,7 +144,47 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected String localValidationSecurityDomain;
 
+   /**
+    * Options that are computed by this login module.
+    * Few options are removed and the rest are set in the dispatch sts call
+    */
    protected Map<String, Object> options = new HashMap<String, Object>();
+
+   /**
+    * Original Options that are sent by the JDK JAAS Framework
+    */
+   protected Map<String, Object> rawOptions = new HashMap<String, Object>();
+
+   /**
+    * This is an option that should identify the configuration
+    * file for WSTrustClient. 
+    */
+   public static final String STS_CONFIG_FILE = "configFile";
+
+   /**
+    * Key to specify the end point address
+    */
+   public static final String ENDPOINT_ADDRESS = "endpointAddress";
+
+   /**
+    * Key to specify the port name
+    */
+   public static final String PORT_NAME = "portName";
+
+   /**
+    * Key to specify the service name
+    */
+   public static final String SERVICE_NAME = "serviceName";
+
+   /**
+    * Key to specify the username
+    */
+   public static final String USERNAME_KEY = "username";
+
+   /**
+    * Key to specify the password
+    */
+   public static final String PASSWORD_KEY = "password";
 
    /*
     * (non-Javadoc)
@@ -154,6 +196,12 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
    {
       super.initialize(subject, callbackHandler, sharedState, options);
       this.options.putAll(options);
+      this.rawOptions.putAll(options);
+
+      if (trace)
+      {
+         log.trace(options);
+      }
       // save the config file and cache validation options, removing them from the map - all remaining properties will
       // be set in the request context of the Dispatch instance used to send requests to the STS.
       this.stsConfigurationFile = (String) this.options.remove("configFile");
@@ -240,6 +288,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
       if (localValidation)
       {
+         if (trace)
+         {
+            log.trace("Local Validation is being Performed");
+         }
          try
          {
             boolean isValid = localValidation(assertionElement);
@@ -260,6 +312,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       }
       else
       {
+         if (trace)
+         {
+            log.trace("Local Validation is disabled. Verifying with STS");
+         }
          // send the assertion to the STS for validation. 
          STSClient client = this.getSTSClient();
          try
@@ -297,7 +353,13 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
                   XMLGregorianCalendar expiry = AssertionUtil.getExpiration(assertion);
                   if (expiry != null)
                   {
-                     cacheExpiry.register(securityDomain, expiry.toGregorianCalendar().getTime(), principal);
+                     Date expiryDate = expiry.toGregorianCalendar().getTime();
+                     if (trace)
+                     {
+                        log.trace("Creating Cache Entry for JBoss at [" + new Date()
+                              + " ] , with expiration set to SAML expiry=" + expiryDate);
+                     }
+                     cacheExpiry.register(securityDomain, expiryDate, principal);
                   }
                   else
                   {
@@ -412,8 +474,48 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
     */
    protected STSClient getSTSClient()
    {
-      Builder builder = new Builder(this.stsConfigurationFile);
-      STSClient client = new STSClient(builder.build());
+      /*Builder builder = new Builder(this.stsConfigurationFile);
+      STSClient client = new STSClient(builder.build());*/
+
+      Builder builder = null;
+      STSClient client = null;
+      if (rawOptions.containsKey(STS_CONFIG_FILE))
+      {
+         builder = new Builder(this.stsConfigurationFile);
+         client = new STSClient(builder.build());
+      }
+      else
+      {
+         builder = new Builder();
+         builder.endpointAddress((String) rawOptions.get(ENDPOINT_ADDRESS));
+         builder.portName((String) rawOptions.get(PORT_NAME)).serviceName((String) rawOptions.get(SERVICE_NAME));
+         builder.username((String) rawOptions.get(USERNAME_KEY)).password((String) rawOptions.get(PASSWORD_KEY));
+
+         String passwordString = (String) rawOptions.get(PASSWORD_KEY);
+         if (passwordString != null && passwordString.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX))
+         {
+            //password is masked
+            String salt = (String) rawOptions.get(PicketLinkFederationConstants.SALT);
+            if (StringUtil.isNullOrEmpty(salt))
+               throw new RuntimeException("Salt is not configured as module option");
+
+            String iCount = (String) rawOptions.get(PicketLinkFederationConstants.ITERATION_COUNT);
+            if (StringUtil.isNullOrEmpty(iCount))
+               throw new RuntimeException("Iteration Count is not configured as module option");
+
+            int iterationCount = Integer.parseInt(iCount);
+            try
+            {
+               builder.password(StringUtil.decode(passwordString, salt, iterationCount));
+            }
+            catch (Exception e)
+            {
+               throw new RuntimeException("Unable to decode password:" + passwordString);
+            }
+         }
+         client = new STSClient(builder.build());
+      }
+
       // if the login module options map still contains any properties, assume they are for configuring the connection
       // to the STS and set them in the Dispatch request context.
       if (!this.options.isEmpty())
