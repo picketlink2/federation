@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import java.io.ByteArrayOutputStream;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
@@ -54,6 +58,20 @@ public class AssertionUtil
    private static Logger log = Logger.getLogger(AssertionUtil.class);
 
    private static boolean trace = log.isTraceEnabled();
+
+   /**
+    * Given {@code AssertionType}, convert it into a String
+    * @param assertion
+    * @return
+    * @throws ProcessingException
+    */
+   public static String asString(AssertionType assertion) throws ProcessingException
+   {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      return new String(baos.toByteArray());
+   }
 
    /**
     * Create an assertion
