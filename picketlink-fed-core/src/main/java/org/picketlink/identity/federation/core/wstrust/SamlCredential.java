@@ -50,111 +50,111 @@ import org.w3c.dom.Element;
  */
 public final class SamlCredential implements Serializable
 {
-    private static final long serialVersionUID = -8496414959425288835L;
-    
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-    
-    private String assertion;
+   private static final long serialVersionUID = -8496414959425288835L;
 
-    public SamlCredential(final Element assertion) 
-    {
-        if (assertion == null)
-            throw new IllegalArgumentException("assertion Element must not be null");
-        
-        this.assertion = SamlCredential.assertionToString(assertion);
-    }
+   private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
-    public SamlCredential(final String assertion)
-    {
-        if (StringUtil.isNullOrEmpty(assertion))
-            throw new IllegalArgumentException("assertion String must not be null or empty");
-        
-        this.assertion = assertion;
-    }
+   private final String assertion;
 
-    public String getAssertionAsString()
-    {
-        return assertion;
-    }
-    
-    public Element getAssertionAsElement() throws ProcessingException
-    {
-        return SamlCredential.assertionToElement(assertion);
-    }
-    
-	@Override
-    public boolean equals(final Object obj)
-    {
-        if (this == obj)
-            return true;
-        
-        if (!(obj instanceof SamlCredential))
-            return false;
-        
-        final SamlCredential that = (SamlCredential) obj;
-        return this.assertion.equals(that.assertion);
-    }
-    
-    @Override
-    public int hashCode()
-    {
-        int result = 17;
-        result = 31 * result + assertion.hashCode();
-        return result;
-    }
-    
-    @Override
-    public String toString()
-    {
-        return "SamlCredential[" + assertion + "]";
-    }
-    
-    public static Element assertionToElement(final String assertion) throws ProcessingException
-    {
-        try
-        {
-	        Document document = DocumentUtil.getDocument(assertion);
-	        return (Element) document.getFirstChild();
-        }
-        catch (final ConfigurationException e)
-        {
-            throw new ProcessingException(e);
-        }
-        catch (final ParsingException e)
-        {
-            throw new ProcessingException(e);
-        }
-    }
-    
-    public static String assertionToString(final Element assertion) 
-    {
-        if (assertion == null)
-            throw new IllegalArgumentException("assertion Element must not be null");
-        
-        try
-        {
-            final Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            
-            final Source source = new DOMSource(assertion);
-            final StringWriter writer = new StringWriter();
-            final Result result = new StreamResult(writer);
+   public SamlCredential(final Element assertion)
+   {
+      if (assertion == null)
+         throw new IllegalArgumentException("assertion Element must not be null");
 
-            transformer.transform(source, result);
+      this.assertion = SamlCredential.assertionToString(assertion);
+   }
 
-            return writer.toString();
-        }
-        catch (final TransformerConfigurationException e)
-        {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-        catch (final TransformerFactoryConfigurationError e)
-        {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-        catch (final TransformerException e)
-        {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
+   public SamlCredential(final String assertion)
+   {
+      if (StringUtil.isNullOrEmpty(assertion))
+         throw new IllegalArgumentException("assertion String must not be null or empty");
+
+      this.assertion = assertion;
+   }
+
+   public String getAssertionAsString()
+   {
+      return assertion;
+   }
+
+   public Element getAssertionAsElement() throws ProcessingException
+   {
+      return SamlCredential.assertionToElement(assertion);
+   }
+
+   @Override
+   public boolean equals(final Object obj)
+   {
+      if (this == obj)
+         return true;
+
+      if (!(obj instanceof SamlCredential))
+         return false;
+
+      final SamlCredential that = (SamlCredential) obj;
+      return this.assertion.equals(that.assertion);
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = 17;
+      result = 31 * result + assertion.hashCode();
+      return result;
+   }
+
+   @Override
+   public String toString()
+   {
+      return "SamlCredential[" + assertion + "]";
+   }
+
+   public static Element assertionToElement(final String assertion) throws ProcessingException
+   {
+      try
+      {
+         Document document = DocumentUtil.getDocument(assertion);
+         return (Element) document.getFirstChild();
+      }
+      catch (final ConfigurationException e)
+      {
+         throw new ProcessingException(e);
+      }
+      catch (final ParsingException e)
+      {
+         throw new ProcessingException(e);
+      }
+   }
+
+   public static String assertionToString(final Element assertion)
+   {
+      if (assertion == null)
+         throw new IllegalArgumentException("assertion Element must not be null");
+
+      try
+      {
+         final Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
+         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+
+         final Source source = new DOMSource(assertion);
+         final StringWriter writer = new StringWriter();
+         final Result result = new StreamResult(writer);
+
+         transformer.transform(source, result);
+
+         return writer.toString();
+      }
+      catch (final TransformerConfigurationException e)
+      {
+         throw new IllegalStateException(e.getMessage(), e);
+      }
+      catch (final TransformerFactoryConfigurationError e)
+      {
+         throw new IllegalStateException(e.getMessage(), e);
+      }
+      catch (final TransformerException e)
+      {
+         throw new IllegalStateException(e.getMessage(), e);
+      }
+   }
 }
