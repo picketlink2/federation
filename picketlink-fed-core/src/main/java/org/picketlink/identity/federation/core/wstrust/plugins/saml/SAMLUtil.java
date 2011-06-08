@@ -27,8 +27,7 @@ import java.io.ByteArrayOutputStream;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -67,25 +66,14 @@ public class SAMLUtil
     * @throws Exception
     *            if an error occurs while marshaling the assertion.
     */
-   public static Element toElement( AssertionType assertion ) throws Exception
+   public static Element toElement(AssertionType assertion) throws Exception
    {
-      /*Document document = DocumentUtil.createDocument();
-      DOMResult result = new DOMResult(document);
-      */
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos)); 
-      writer.write( assertion ); 
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      Document document = DocumentUtil.getDocument( bis ); //throws exceptions
-      /*Marshaller marshaller = JAXBUtil.getMarshaller("org.picketlink.identity.federation.saml.v2.assertion");
-      marshaller.marshal(new ObjectFactory().createAssertion(assertion), result);
-*/
-      // normalize the document to remove unused namespaces.
-      // DOMConfiguration docConfig = document.getDomConfig(); 
-      // docConfig.setParameter("namespaces", Boolean.TRUE); 
-      // docConfig.setParameter("namespace-declarations", Boolean.FALSE); 
-      // document.normalizeDocument();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      Document document = DocumentUtil.getDocument(bis);
 
       return document.getDocumentElement();
    }
@@ -101,25 +89,12 @@ public class SAMLUtil
     * @throws ConfigurationException 
     * @throws ProcessingException 
     * @throws ParsingException 
-    */ 
-   public static AssertionType fromElement(Element assertionElement) throws ProcessingException, ConfigurationException, ParsingException
+    */
+   public static AssertionType fromElement(Element assertionElement) throws ProcessingException,
+         ConfigurationException, ParsingException
    {
-      String assertionAsString = DocumentUtil.getDOMElementAsString(assertionElement);
-      
-      SAMLAssertionParser assertionParser = new SAMLAssertionParser();
-      return (AssertionType) assertionParser.parse( StaxParserUtil.getXMLEventReader( new ByteArrayInputStream( assertionAsString.getBytes() )));
-      
-      
-      /*Unmarshaller unmarshaller = JAXBUtil.getUnmarshaller("org.picketlink.identity.federation.saml.v2.assertion");
-      Object object = unmarshaller.unmarshal(assertionElement);
-      if (object instanceof AssertionType)
-         return (AssertionType) object;
-      else if (object instanceof JAXBElement)
-      {
-         JAXBElement<?> element = (JAXBElement<?>) object;
-         if (element.getDeclaredType().equals(AssertionType.class))
-            return (AssertionType) element.getValue();
-      }
-      throw new IllegalArgumentException("Supplied document does not contain a SAMLV2.0 Assertion");*/
+      SAMLParser samlParser = new SAMLParser();
+      AssertionType assertion = (AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(assertionElement));
+      return assertion;
    }
 }
