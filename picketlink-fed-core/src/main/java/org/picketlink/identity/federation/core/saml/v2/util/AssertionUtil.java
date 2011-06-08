@@ -44,6 +44,8 @@ import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeTy
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -93,6 +95,23 @@ public class AssertionUtil
       AssertionType assertion = new AssertionType(id, issueInstant, JBossSAMLConstants.VERSION_2_0.get());
       assertion.setIssuer(issuer);
       return assertion;
+   }
+
+   /**
+    * Given a user name, create a {@code SubjectType}
+    * that can then be inserted into an assertion
+    * @param userName
+    * @return
+    */
+   public static SubjectType createAssertionSubject(String userName)
+   {
+      SubjectType assertionSubject = new SubjectType();
+      STSubType subType = new STSubType();
+      NameIDType anil = new NameIDType();
+      anil.setValue(userName);
+      subType.addBaseID(anil);
+      assertionSubject.setSubType(subType);
+      return assertionSubject;
    }
 
    /**
