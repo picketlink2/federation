@@ -134,7 +134,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected String securityDomain = null;
 
-   protected String groupName = "Roles";
+   protected String groupName = SecurityConstants.ROLES_IDENTIFIER;
 
    protected boolean localValidation = false;
 
@@ -182,6 +182,9 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
     */
    public static final String PASSWORD_KEY = "password";
 
+   //A variable used by the unit test to pass local validation
+   private boolean localTestingOnly = false;
+
    /*
     * (non-Javadoc)
     * @see org.jboss.security.auth.spi.AbstractServerLoginModule#initialize(javax.security.auth.Subject, javax.security.auth.callback.CallbackHandler, java.util.Map, java.util.Map)
@@ -225,6 +228,12 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
          if (localValidationSecurityDomain.startsWith(SecurityConstants.JAAS_CONTEXT_ROOT) == false)
             localValidationSecurityDomain = SecurityConstants.JAAS_CONTEXT_ROOT + "/" + localValidationSecurityDomain;
+
+         String localTestingOnlyStr = (String) options.get("localTestingOnly");
+         if (StringUtil.isNotNull(localTestingOnlyStr))
+         {
+            localTestingOnly = Boolean.valueOf(localTestingOnlyStr);
+         }
       }
    }
 
@@ -490,10 +499,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected boolean localValidation(Element assertionElement) throws Exception
    {
-      if (StringUtil.isNotNull(SecurityActions.getSystemProperty("PL_TEST"))) //Local testing
-      {
+      //For unit tests
+      if (localTestingOnly)
          return true;
-      }
+
       try
       {
          Context ctx = new InitialContext();

@@ -65,7 +65,6 @@ public class SAML2STSLoginModuleUnitTestCase
    @Before
    public void setup()
    {
-      System.setProperty("PL_TEST", "true");
       System.setProperty("java.security.debug", "true");
 
       Configuration.setConfiguration(new Configuration()
@@ -79,6 +78,7 @@ public class SAML2STSLoginModuleUnitTestCase
             options.put("configFile", "sts-client.properties");
             options.put("localValidation", "true");
             options.put("localValidationSecurityDomain", "someSD");
+            options.put("localTestingOnly", "true");
 
             AppConfigurationEntry a2 = new AppConfigurationEntry(SAML2STSLoginModule.class.getName(),
                   LoginModuleControlFlag.REQUIRED, options);
