@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -35,7 +36,7 @@ import org.jboss.security.SecurityContextFactory;
  * @version $Revision: 1 $
  */
 class SecurityActions
-{ 
+{
    static SecurityContext createSecurityContext() throws PrivilegedActionException
    {
       return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()
@@ -43,6 +44,17 @@ class SecurityActions
          public SecurityContext run() throws Exception
          {
             return SecurityContextFactory.createSecurityContext("CLIENT");
+         }
+      });
+   }
+
+   static String getSystemProperty(final String key)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<String>()
+      {
+         public String run()
+         {
+            return System.getProperty(key);
          }
       });
    }

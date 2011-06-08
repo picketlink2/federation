@@ -26,12 +26,11 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.acl.Group;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -46,6 +45,7 @@ import javax.xml.ws.Dispatch;
 
 import org.apache.log4j.Logger;
 import org.jboss.security.SecurityConstants;
+import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.jboss.security.plugins.JaasSecurityDomain;
@@ -63,12 +63,8 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
 import org.w3c.dom.Element;
 
@@ -419,56 +415,18 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          }
       }
 
-      // check the assertion statements and look for role attributes.
-      AttributeStatementType attributeStatement = this.getAttributeStatement(this.assertion);
-      if (attributeStatement != null)
-      {
-         Set<Principal> roles = new HashSet<Principal>();
-         List<ASTChoiceType> attributeList = attributeStatement.getAttributes();
-         for (ASTChoiceType obj : attributeList)
-         {
-            AttributeType attribute = obj.getAttribute();
-            if (attribute != null)
-            {
-               // if this is a role attribute, get its values and add them to the role set.
-               if (attribute.getName().equals("role"))
-               {
-                  for (Object value : attribute.getAttributeValue())
-                     roles.add(new PicketLinkPrincipal((String) value));
-               }
-            }
-         }
-         Group rolesGroup = new PicketLinkGroup(groupName);
-         for (Principal role : roles)
-            rolesGroup.addMember(role);
-         return new Group[]
-         {rolesGroup};
-      }
-      return new Group[0];
-   }
+      List<String> roleKeys = new ArrayList<String>();
+      roleKeys.add("Role");
 
-   /**
-    * <p>
-    * Checks if the specified SAML assertion contains a {@code AttributeStatementType} and returns this type when it
-    * is available.
-    * </p>
-    * 
-    * @param assertion a reference to the {@code AssertionType} that may contain an {@code AttributeStatementType}.
-    * @return the assertion's {@code AttributeStatementType}, or {@code null} if no such type can be found in the SAML
-    * assertion.
-    */
-   private AttributeStatementType getAttributeStatement(AssertionType assertion)
-   {
-      Set<StatementAbstractType> statementList = assertion.getStatements();
-      if (statementList.size() != 0)
+      Group rolesGroup = new PicketLinkGroup(groupName);
+      List<String> roles = AssertionUtil.getRoles(assertion, roleKeys);
+      for (String role : roles)
       {
-         for (StatementAbstractType statement : statementList)
-         {
-            if (statement instanceof AttributeStatementType)
-               return (AttributeStatementType) statement;
-         }
+         rolesGroup.addMember(new SimplePrincipal(role));
       }
-      return null;
+
+      return new Group[]
+      {rolesGroup};
    }
 
    /**
@@ -532,6 +490,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected boolean localValidation(Element assertionElement) throws Exception
    {
+      if (StringUtil.isNotNull(SecurityActions.getSystemProperty("PL_TEST"))) //Local testing
+      {
+         return true;
+      }
       try
       {
          Context ctx = new InitialContext();
