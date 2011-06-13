@@ -39,8 +39,6 @@
 		<module>idp-sig-no-val</module>
 		<module>idp-standalone</module>
 		<module>metadata</module>
-		<module>openid-provider</module>
-		<module>openid-consumer</module>
 		<module>picketlink-sts</module>
 		<module>pdp</module>
                 <!--

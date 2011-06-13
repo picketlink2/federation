@@ -50,16 +50,6 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
-      <source>${basedir}/../openid-consumer/target/openid-consumer.war</source>
-      <outputDirectory>picketlink</outputDirectory>
-      <fileMode>0444</fileMode>
-    </file>
-    <file>
-      <source>${basedir}/../openid-provider/target/openid-provider.war</source>
-      <outputDirectory>picketlink</outputDirectory>
-      <fileMode>0444</fileMode>
-    </file>
-    <file>
       <source>${basedir}/../pdp/target/pdp.war</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
