@@ -154,6 +154,22 @@ public class StatementUtil
       return attrStatement;
    }
 
+   /**
+    * Given an attribute type and a value, create {@link AttributeStatementType}
+    * @param key attribute type
+    * @param value attribute value
+    * @return
+    */
+   public static AttributeStatementType createAttributeStatement(String key, String value)
+   {
+      AttributeStatementType attrStatement = new AttributeStatementType();
+      AttributeType attr = new AttributeType(key);
+      attr.addAttributeValue(value);
+      attrStatement.addAttribute(new ASTChoiceType(attr));
+
+      return attrStatement;
+   }
+
    private static AttributeType getX500Attribute(String name)
    {
       AttributeType att = new AttributeType(name);
