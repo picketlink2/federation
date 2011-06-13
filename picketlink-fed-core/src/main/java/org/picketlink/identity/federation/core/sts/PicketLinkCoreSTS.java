@@ -308,14 +308,40 @@ public class PicketLinkCoreSTS
          if (configurationFile.exists())
             configurationFileURL = configurationFile.toURI().toURL();
          else
+         {
             // if not configuration file was found in the user home, check the context classloader.
-            configurationFileURL = SecurityActions.getContextClassLoader().getResource(fileName);
+            ClassLoader tccl = SecurityActions.getContextClassLoader();
+            configurationFileURL = tccl.getResource(fileName);
+         }
 
          // if no configuration file was found, log a warn message and use default configuration values.
          if (configurationFileURL == null)
          {
-            logger.warn(fileName + " configuration file not found. Using default configuration values");
-            return new PicketLinkSTSConfiguration();
+            logger.warn(fileName + " configuration file not found using TCCL");
+            ClassLoader clazzLoader = SecurityActions.getClassLoader(getClass());
+            configurationFileURL = clazzLoader.getResource(fileName);
+         }
+
+         // if no configuration file was found, log a warn message and use default configuration values.
+         if (configurationFileURL == null)
+         {
+            logger.warn(fileName + " configuration file not found using classloader");
+            try
+            {
+               configurationFileURL = new URL(fileName);
+            }
+            catch (Exception e)
+            {
+               return new PicketLinkSTSConfiguration();
+            }
+            finally
+            {
+               if (configurationFileURL == null)
+               {
+                  logger.warn(fileName + " configuration file not found using URL. Using default configuration values");
+                  return new PicketLinkSTSConfiguration();
+               }
+            }
          }
 
          InputStream stream = configurationFileURL.openStream();
