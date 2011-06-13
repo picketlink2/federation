@@ -27,9 +27,9 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
- 
+
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
  * Simple Role Generator that looks
@@ -42,14 +42,14 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 public class DefaultRoleGenerator implements RoleGenerator
 {
    private static Properties props = new Properties();
-   
+
    static
    {
       try
       {
          ClassLoader tcl = SecurityActions.getContextClassLoader();
          InputStream is = tcl.getResourceAsStream("roles.properties");
-         if(is == null)
+         if (is == null)
             throw new RuntimeException("roles.properties not found");
          props.load(is);
       }
@@ -62,13 +62,11 @@ public class DefaultRoleGenerator implements RoleGenerator
    public List<String> generateRoles(Principal principal)
    {
       List<String> roles = new ArrayList<String>();
-      
-      String csv = (String) props.get(principal.getName()); 
-      //lets break the roles string
-      StringTokenizer st = new StringTokenizer(csv,",");
-      while(st != null && st.hasMoreTokens())
+
+      String csv = (String) props.get(principal.getName());
+      if (StringUtil.isNotNull(csv))
       {
-         roles.add(st.nextToken());
+         roles.addAll(StringUtil.tokenize(csv));
       }
       return roles;
    }

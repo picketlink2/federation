@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -242,13 +241,9 @@ public class IDPServlet extends HttpServlet
 
       //Get a list of attributes we are interested in
       String attribList = config.getInitParameter(GeneralConstants.ATTRIBUTE_KEYS);
-      if (attribList != null && !"".equals(attribList))
+      if (StringUtil.isNotNull(attribList))
       {
-         StringTokenizer st = new StringTokenizer(attribList, ",");
-         while (st != null && st.hasMoreTokens())
-         {
-            this.attributeKeys.add(st.nextToken());
-         }
+         this.attributeKeys.addAll(StringUtil.tokenize(attribList));
       }
 
       //The Identity Server on the servlet context gets set

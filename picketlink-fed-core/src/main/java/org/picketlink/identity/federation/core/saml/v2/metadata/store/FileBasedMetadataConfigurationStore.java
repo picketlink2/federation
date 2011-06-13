@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityD
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
@@ -61,127 +62,124 @@ import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescrip
 public class FileBasedMetadataConfigurationStore implements IMetadataConfigurationStore
 {
    private static Logger log = Logger.getLogger(FileBasedMetadataConfigurationStore.class);
-   private boolean trace = log.isTraceEnabled(); 
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    private String userHome = null;
-   
+
    private String baseDirectory = null;
-   
+
    public FileBasedMetadataConfigurationStore()
    {
       bootstrap();
    }
-   
+
    /**
     * @see {@code IMetadataConfigurationStore#bootstrap()}
     */
    public void bootstrap()
-   {  
+   {
       userHome = SecurityActions.getSystemProperty("user.home");
-      if(userHome == null)
+      if (userHome == null)
          throw new RuntimeException("user.home system property not set");
-      
-      StringBuilder builder = new StringBuilder( userHome );
-      builder.append( PicketLinkFederationConstants.FILE_STORE_DIRECTORY );
+
+      StringBuilder builder = new StringBuilder(userHome);
+      builder.append(PicketLinkFederationConstants.FILE_STORE_DIRECTORY);
       baseDirectory = builder.toString();
-      
-      File plStore = new File( baseDirectory );
-      if(plStore.exists() == false)
+
+      File plStore = new File(baseDirectory);
+      if (plStore.exists() == false)
       {
-         if(trace)
+         if (trace)
             log.trace(plStore.getPath() + " does not exist. Hence creating.");
          plStore.mkdir();
       }
    }
-   
+
    /**
     * @see IMetadataConfigurationStore#getIdentityProviderID()
     */
    public Set<String> getIdentityProviderID()
-   { 
+   {
       Set<String> identityProviders = new HashSet<String>();
-      
+
       Properties idp = new Properties();
-      
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( PicketLinkFederationConstants.IDP_PROPERTIES );
-      
-      File identityProviderFile = new File( builder.toString() );
-      if( identityProviderFile.exists() )
+
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append(PicketLinkFederationConstants.IDP_PROPERTIES);
+
+      File identityProviderFile = new File(builder.toString());
+      if (identityProviderFile.exists())
       {
          try
          {
-            idp.load( new FileInputStream( identityProviderFile  ));
+            idp.load(new FileInputStream(identityProviderFile));
             String listOfIDP = (String) idp.get("IDP");
-            
-            //Comma separated list
-            StringTokenizer st = new StringTokenizer( listOfIDP, ",");
-            while( st.hasMoreTokens() )
+            if (StringUtil.isNotNull(listOfIDP))
             {
-               String token = st.nextToken();
-               identityProviders.add( token );
+               identityProviders.addAll(StringUtil.tokenize(listOfIDP));
             }
          }
          catch (Exception e)
          {
-            log.error( "Exception loading the identity providers:", e );
-         } 
-      } 
+            log.error("Exception loading the identity providers:", e);
+         }
+      }
       return identityProviders;
    }
-   
+
    /**
     * @see IMetadataConfigurationStore#getServiceProviderID()
     */
    public Set<String> getServiceProviderID()
-   { 
+   {
       Set<String> serviceProviders = new HashSet<String>();
-      
-      Properties sp = new Properties();  
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( PicketLinkFederationConstants.SP_PROPERTIES );
-      
-      File serviceProviderFile = new File( builder.toString() ); 
-       
-      if( serviceProviderFile.exists() )
+
+      Properties sp = new Properties();
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append(PicketLinkFederationConstants.SP_PROPERTIES);
+
+      File serviceProviderFile = new File(builder.toString());
+
+      if (serviceProviderFile.exists())
       {
          try
          {
-            sp.load( new FileInputStream( serviceProviderFile  ));
+            sp.load(new FileInputStream(serviceProviderFile));
             String listOfSP = (String) sp.get("SP");
-            
+
             //Comma separated list
-            StringTokenizer st = new StringTokenizer( listOfSP, "," );
-            while( st.hasMoreTokens() )
+            StringTokenizer st = new StringTokenizer(listOfSP, ",");
+            while (st.hasMoreTokens())
             {
                String token = st.nextToken();
-               serviceProviders.add( token );
+               serviceProviders.add(token);
             }
          }
          catch (Exception e)
          {
-            log.error( "Exception loading the service providers:", e );
-         } 
-      } 
+            log.error("Exception loading the service providers:", e);
+         }
+      }
       return serviceProviders;
    }
-   
+
    /** 
     * @see IMetadataConfigurationStore#load(String)
-    */ 
+    */
    public EntityDescriptorType load(String id) throws IOException
    {
       File persistedFile = validateIdAndReturnMDFile(id);
-      
-      
+
       SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
       try
       {
-         return (EntityDescriptorType) parser.parse( StaxParserUtil.getXMLEventReader( new FileInputStream( persistedFile )) );
+         return (EntityDescriptorType) parser.parse(StaxParserUtil
+               .getXMLEventReader(new FileInputStream(persistedFile)));
       }
       catch (ParsingException e)
       {
-         throw new RuntimeException( e );
+         throw new RuntimeException(e);
       }
    }
 
@@ -189,52 +187,53 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     * @see IMetadataConfigurationStore#persist(EntityDescriptorType, String)
     */
    public void persist(EntityDescriptorType entity, String id) throws IOException
-   {  
+   {
       File persistedFile = validateIdAndReturnMDFile(id);
-      
+
       try
       {
-         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter( new FileOutputStream( persistedFile ));
-         SAMLMetadataWriter writer = new SAMLMetadataWriter( streamWriter );
-         
+         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter(new FileOutputStream(persistedFile));
+         SAMLMetadataWriter writer = new SAMLMetadataWriter(streamWriter);
+
          writer.writeEntityDescriptor(entity);
       }
       catch (ProcessingException e)
       {
-         throw new RuntimeException( e );
-      } 
-      if(trace) log.trace("Persisted into " + persistedFile.getPath());
-      
+         throw new RuntimeException(e);
+      }
+      if (trace)
+         log.trace("Persisted into " + persistedFile.getPath());
+
       //Process the EDT
       List<EDTChoiceType> edtChoiceTypeList = entity.getChoiceType();
-      for( EDTChoiceType edtChoiceType : edtChoiceTypeList )
+      for (EDTChoiceType edtChoiceType : edtChoiceTypeList)
       {
          List<EDTDescriptorChoiceType> edtDescriptorChoiceTypeList = edtChoiceType.getDescriptors();
-         for( EDTDescriptorChoiceType edtDesc : edtDescriptorChoiceTypeList )
+         for (EDTDescriptorChoiceType edtDesc : edtDescriptorChoiceTypeList)
          {
             IDPSSODescriptorType idpSSO = edtDesc.getIdpDescriptor();
-            if( idpSSO != null )
+            if (idpSSO != null)
             {
                addIdentityProvider(id);
             }
             SPSSODescriptorType spSSO = edtDesc.getSpDescriptor();
-            if( spSSO != null )
+            if (spSSO != null)
             {
                addServiceProvider(id);
             }
-         } 
-      } 
+         }
+      }
    }
 
    /**
     * @see IMetadataConfigurationStore#delete(String)
     */
-   public void delete(String id) 
+   public void delete(String id)
    {
       File persistedFile = validateIdAndReturnMDFile(id);
-      
-      if(persistedFile.exists())
-         persistedFile.delete(); 
+
+      if (persistedFile.exists())
+         persistedFile.delete();
    }
 
    /**
@@ -243,7 +242,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     * @see IMetadataConfigurationStore#loadTrustedProviders(String)
     */
    @SuppressWarnings("unchecked")
-   public Map<String, String> loadTrustedProviders(String id) throws IOException, ClassNotFoundException 
+   public Map<String, String> loadTrustedProviders(String id) throws IOException, ClassNotFoundException
    {
       File trustedFile = validateIdAndReturnTrustedProvidersFile(id);
       ObjectInputStream ois = null;
@@ -251,150 +250,149 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       {
          ois = new ObjectInputStream(new FileInputStream(trustedFile));
          Map<String, String> trustedMap = (Map<String, String>) ois.readObject();
-         return trustedMap; 
+         return trustedMap;
       }
       finally
       {
-         if(ois != null)
+         if (ois != null)
             ois.close();
-      } 
+      }
    }
 
    /**
     * @throws IOException   
     * @see IMetadataConfigurationStore#persistTrustedProviders(Map)
     */
-   public void persistTrustedProviders(String id, Map<String, String> trusted) 
-   throws IOException 
-   {  
+   public void persistTrustedProviders(String id, Map<String, String> trusted) throws IOException
+   {
       File trustedFile = validateIdAndReturnTrustedProvidersFile(id);
       ObjectOutputStream oos = null;
 
       try
       {
          oos = new ObjectOutputStream(new FileOutputStream(trustedFile));
-         oos.writeObject(trusted); 
+         oos.writeObject(trusted);
       }
       finally
       {
-         if(oos != null)
+         if (oos != null)
             oos.close();
       }
-      if(trace) log.trace("Persisted trusted map into "+ trustedFile.getPath());
+      if (trace)
+         log.trace("Persisted trusted map into " + trustedFile.getPath());
    }
-   
+
    /**
     * @see IMetadataConfigurationStore#deleteTrustedProviders(String)
     */
-   public void deleteTrustedProviders(String id) 
+   public void deleteTrustedProviders(String id)
    {
       File persistedFile = validateIdAndReturnTrustedProvidersFile(id);
-      
-      if(persistedFile.exists())
-         persistedFile.delete();  
+
+      if (persistedFile.exists())
+         persistedFile.delete();
    }
-   
+
    private File validateIdAndReturnMDFile(String id)
    {
       String serializationExtension = PicketLinkFederationConstants.SERIALIZATION_EXTENSION;
-      
-      if(id == null)
+
+      if (id == null)
          throw new IllegalArgumentException("id is null");
-      if( !id.endsWith( serializationExtension ))
+      if (!id.endsWith(serializationExtension))
          id += serializationExtension;
-      
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( "/").append( id );
-      
-      return new File( builder.toString() ); 
+
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append("/").append(id);
+
+      return new File(builder.toString());
    }
-   
+
    private File validateIdAndReturnTrustedProvidersFile(String id)
    {
-      if(id == null)
+      if (id == null)
          throw new IllegalArgumentException("id is null");
-      
-      id += "-trusted" + PicketLinkFederationConstants.SERIALIZATION_EXTENSION; 
 
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( "/").append( id );
-      
-      return new File( builder.toString() ); 
+      id += "-trusted" + PicketLinkFederationConstants.SERIALIZATION_EXTENSION;
+
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append("/").append(id);
+
+      return new File(builder.toString());
    }
-   
-   private void addServiceProvider( String id )
-   {  
-      Properties sp = new Properties(); 
 
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( PicketLinkFederationConstants.SP_PROPERTIES );
-      
-      File serviceProviderFile = new File( builder.toString() ); 
-       
+   private void addServiceProvider(String id)
+   {
+      Properties sp = new Properties();
+
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append(PicketLinkFederationConstants.SP_PROPERTIES);
+
+      File serviceProviderFile = new File(builder.toString());
+
       try
       {
-         if( serviceProviderFile.exists() == false )
+         if (serviceProviderFile.exists() == false)
             serviceProviderFile.createNewFile();
-         
-            sp.load( new FileInputStream( serviceProviderFile  ));
-            String listOfSP = (String) sp.get("SP");
-            if( listOfSP == null )
-            {
-               listOfSP = id; 
-            }
-            else
-            {
-               listOfSP += "," + id; 
-            } 
-            sp.put( "SP", listOfSP );
-            
-            sp.store( new FileWriter( serviceProviderFile ), ""); 
+
+         sp.load(new FileInputStream(serviceProviderFile));
+         String listOfSP = (String) sp.get("SP");
+         if (listOfSP == null)
+         {
+            listOfSP = id;
+         }
+         else
+         {
+            listOfSP += "," + id;
+         }
+         sp.put("SP", listOfSP);
+
+         sp.store(new FileWriter(serviceProviderFile), "");
       }
       catch (Exception e)
       {
-          log.error( "Exception loading the service providers:", e );
-      }   
+         log.error("Exception loading the service providers:", e);
+      }
    }
-   
-   private void addIdentityProvider( String id )
-   {  
-      Properties idp = new Properties(); 
 
-      StringBuilder builder = new StringBuilder( baseDirectory );
-      builder.append( PicketLinkFederationConstants.IDP_PROPERTIES );
-      
-      File idpProviderFile = new File( builder.toString() ); 
-       
+   private void addIdentityProvider(String id)
+   {
+      Properties idp = new Properties();
+
+      StringBuilder builder = new StringBuilder(baseDirectory);
+      builder.append(PicketLinkFederationConstants.IDP_PROPERTIES);
+
+      File idpProviderFile = new File(builder.toString());
+
       try
       {
-         if( idpProviderFile.exists() == false )
+         if (idpProviderFile.exists() == false)
             idpProviderFile.createNewFile();
-         
-            idp.load( new FileInputStream( idpProviderFile  ));
-            String listOfIDP = (String) idp.get("IDP");
-            if( listOfIDP == null )
-            {
-               listOfIDP = id; 
-            }
-            else
-            {
-               listOfIDP += "," + id; 
-            } 
-            idp.put( "IDP", listOfIDP );
-            
-            idp.store( new FileWriter( idpProviderFile ), ""); 
+
+         idp.load(new FileInputStream(idpProviderFile));
+         String listOfIDP = (String) idp.get("IDP");
+         if (listOfIDP == null)
+         {
+            listOfIDP = id;
+         }
+         else
+         {
+            listOfIDP += "," + id;
+         }
+         idp.put("IDP", listOfIDP);
+
+         idp.store(new FileWriter(idpProviderFile), "");
       }
       catch (Exception e)
       {
-          log.error( "Exception loading the identity providers:", e );
-      }   
+         log.error("Exception loading the identity providers:", e);
+      }
    }
-
 
    /**
     * @see {@code IMetadataConfigurationStore#cleanup()}
     */
    public void cleanup()
-   { 
-   } 
+   {
+   }
 }

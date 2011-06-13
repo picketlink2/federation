@@ -437,7 +437,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       }
 
       List<String> roleKeys = new ArrayList<String>();
-      roleKeys.addAll(StringUtil.tokenize(roleKey));
+      if (StringUtil.isNotNull(roleKey))
+      {
+         roleKeys.addAll(StringUtil.tokenize(roleKey));
+      }
 
       String groupName = SecurityConstants.ROLES_IDENTIFIER;
       Group rolesGroup = new PicketLinkGroup(groupName);

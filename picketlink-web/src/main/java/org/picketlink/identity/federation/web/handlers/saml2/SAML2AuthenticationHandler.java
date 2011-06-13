@@ -542,7 +542,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if (handlerConfig.containsKey(ROLE_KEY))
          {
             String roleKey = (String) handlerConfig.getParameter(ROLE_KEY);
-            roleKeys.addAll(StringUtil.tokenize(roleKey));
+            if (StringUtil.isNotNull(roleKey))
+            {
+               roleKeys.addAll(StringUtil.tokenize(roleKey));
+            }
          }
 
          List<ASTChoiceType> attList = attributeStatement.getAttributes();
