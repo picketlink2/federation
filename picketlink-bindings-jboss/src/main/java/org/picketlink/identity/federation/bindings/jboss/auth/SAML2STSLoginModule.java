@@ -51,7 +51,9 @@ import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.jboss.security.plugins.JaasSecurityDomain;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
@@ -85,7 +87,7 @@ import org.w3c.dom.Element;
  *  <ul>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
  *  if the cache.invalidation option is configured.
  *  </ul>
- *  <ul>groupPrincipalName: if you do not want the Roles in the subject to be "Roles", then set it to a different value</ul>
+ *  <ul>roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles</ul>
  *  <ul>localValidation: if you want to validate the assertion locally for signature and expiry</ul>
  * </li>
  * </p>
@@ -134,11 +136,11 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
    protected String securityDomain = null;
 
-   protected String groupName = SecurityConstants.ROLES_IDENTIFIER;
-
    protected boolean localValidation = false;
 
    protected String localValidationSecurityDomain;
+
+   protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
    /**
     * Options that are computed by this login module.
@@ -214,10 +216,10 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
       }
 
-      String groupNameStr = (String) options.get("groupPrincipalName");
-      if (StringUtil.isNotNull(groupNameStr))
+      String roleKeyStr = (String) options.get("roleKey");
+      if (StringUtil.isNotNull(roleKeyStr))
       {
-         groupName = groupNameStr.trim();
+         roleKey = roleKeyStr.trim();
       }
 
       String localValidationStr = (String) options.get("localValidation");
@@ -423,10 +425,21 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             throw le;
          }
       }
+      if (trace)
+      {
+         try
+         {
+            log.trace("Assertion from where roles will be sought=" + AssertionUtil.asString(assertion));
+         }
+         catch (ProcessingException ignore)
+         {
+         }
+      }
 
       List<String> roleKeys = new ArrayList<String>();
-      roleKeys.add("Role");
+      roleKeys.addAll(StringUtil.tokenize(roleKey));
 
+      String groupName = SecurityConstants.ROLES_IDENTIFIER;
       Group rolesGroup = new PicketLinkGroup(groupName);
       List<String> roles = AssertionUtil.getRoles(assertion, roleKeys);
       for (String role : roles)

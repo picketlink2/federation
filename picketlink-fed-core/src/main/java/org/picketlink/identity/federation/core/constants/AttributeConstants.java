@@ -29,4 +29,7 @@ package org.picketlink.identity.federation.core.constants;
 public interface AttributeConstants
 {
    String ROLES = "roles";
+
+   /** Default identifier in the saml2 attribute statements to indicate role **/
+   String ROLE_IDENTIFIER_ASSERTION = "Role";
 }

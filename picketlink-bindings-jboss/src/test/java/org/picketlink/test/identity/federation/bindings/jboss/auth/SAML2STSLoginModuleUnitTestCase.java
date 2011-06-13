@@ -79,6 +79,7 @@ public class SAML2STSLoginModuleUnitTestCase
             options.put("localValidation", "true");
             options.put("localValidationSecurityDomain", "someSD");
             options.put("localTestingOnly", "true");
+            options.put("roleKey", "Role,SomeAttrib");
 
             AppConfigurationEntry a2 = new AppConfigurationEntry(SAML2STSLoginModule.class.getName(),
                   LoginModuleControlFlag.REQUIRED, options);
@@ -101,6 +102,8 @@ public class SAML2STSLoginModuleUnitTestCase
          roles.add("test1");
          roles.add("test2");
          assertion.addStatement(StatementUtil.createAttributeStatement(roles));
+         assertion.addStatement(StatementUtil.createAttributeStatement("SomeAttrib", "testX"));
+
          try
          {
             SamlCredential cred = new SamlCredential(AssertionUtil.asString(assertion));
@@ -129,6 +132,6 @@ public class SAML2STSLoginModuleUnitTestCase
       Group gp = groups.iterator().next();
       assertTrue(gp.isMember(new SimplePrincipal("test1")));
       assertTrue(gp.isMember(new SimplePrincipal("test2")));
+      assertTrue(gp.isMember(new SimplePrincipal("testX")));
    }
-
 }
