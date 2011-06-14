@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.wstrust.auth;
 import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
+import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
@@ -150,8 +152,8 @@ import org.w3c.dom.Element;
  * 
  * <h3>Additional Configuration</h3>
  * <p>
- * groupPrincipalName: If you want the group principal in the subject representing the subject roles to have a name that is different
- *                     from "Roles".
+ * roleKey: By default, the saml attributes with key "Role" are assumed to represent user roles. You can configure a comma
+ * separated list of string values to represent the attribute names for user roles.
  * </p>
  * 
  * <p>cache.invalidation:  set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.</p>
@@ -192,10 +194,9 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    public static final String STS_CONFIG_FILE = "configFile";
 
    /**
-    * Historically, JBoss has used the "Roles" as the group principal name in the subject
-    * to represent the subject roles. Users can customize this name with this option.
+    * Attribute names indicating the user roles
     */
-   public static final String GROUP_PRINCIPAL_NAME = "groupPrincipalName";
+   public static final String ROLE_KEY = "roleKey";
 
    /**
     * Key to specify the end point address
@@ -274,9 +275,9 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    protected boolean useOptionsCredentials;
 
    /**
-    * Name of the group principal. If unconfigured, will be "null"
+    * Name of the saml attribute representing roles. Can be csv
     */
-   protected String groupPrincipalName = null;
+   protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
    protected boolean enableCacheInvalidation = false;
 
@@ -325,9 +326,9 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       if (useOptionsCreds != null)
          useOptionsCredentials = useOptionsCreds.booleanValue();
 
-      final String gpPrincipalName = (String) options.get(GROUP_PRINCIPAL_NAME);
-      if (gpPrincipalName != null && gpPrincipalName.length() > 0)
-         groupPrincipalName = gpPrincipalName;
+      final String roleKeyStr = (String) options.get(ROLE_KEY);
+      if (roleKeyStr != null && roleKeyStr.length() > 0)
+         roleKey = roleKeyStr;
 
       String cacheInvalidation = (String) options.get("cache.invalidation");
       if (cacheInvalidation != null && !cacheInvalidation.isEmpty())
@@ -777,22 +778,27 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          roleMappingContext.performMapping(contextMap, null);
          RoleGroup group = roleMappingContext.getMappingResult().getMappedObject();
 
-         SimpleGroup rolePrincipal = null;
-
-         if (groupPrincipalName != null)
-         {
-            rolePrincipal = new SimpleGroup(groupPrincipalName);
-         }
-         else
-         {
-            rolePrincipal = new SimpleGroup(group.getRoleName());
-         }
+         SimpleGroup rolePrincipal = new SimpleGroup(group.getRoleName());
 
          for (Role role : group.getRoles())
          {
             rolePrincipal.addMember(new SimplePrincipal(role.getRoleName()));
          }
          subject.getPrincipals().add(rolePrincipal);
+      }
+      else
+      {
+         List<String> roleKeys = new ArrayList<String>();
+         roleKeys.addAll(StringUtil.tokenize(roleKey));
+
+         List<String> roles = AssertionUtil.getRoles(assertion, roleKeys);
+
+         SimpleGroup group = new SimpleGroup(SecurityConstants.ROLES_IDENTIFIER);
+         for (String role : roles)
+         {
+            group.addMember(new SimplePrincipal(role));
+         }
+         subject.getPrincipals().add(group);
       }
 
       if (injectCallerPrincipalGroup)
