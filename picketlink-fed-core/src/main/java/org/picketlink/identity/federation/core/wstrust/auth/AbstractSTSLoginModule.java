@@ -792,13 +792,15 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          roleKeys.addAll(StringUtil.tokenize(roleKey));
 
          List<String> roles = AssertionUtil.getRoles(assertion, roleKeys);
-
-         SimpleGroup group = new SimpleGroup(SecurityConstants.ROLES_IDENTIFIER);
-         for (String role : roles)
+         if (roles.size() > 0)
          {
-            group.addMember(new SimplePrincipal(role));
+            SimpleGroup group = new SimpleGroup(SecurityConstants.ROLES_IDENTIFIER);
+            for (String role : roles)
+            {
+               group.addMember(new SimplePrincipal(role));
+            }
+            subject.getPrincipals().add(group);
          }
-         subject.getPrincipals().add(group);
       }
 
       if (injectCallerPrincipalGroup)
