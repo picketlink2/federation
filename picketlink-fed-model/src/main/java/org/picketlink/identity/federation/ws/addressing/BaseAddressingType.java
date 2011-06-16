@@ -45,6 +45,11 @@ public class BaseAddressingType
       otherAttributes.put(qname, str);
    }
 
+   public void addOtherAttributes(Map<QName, String> otherMap)
+   {
+      otherAttributes.putAll(otherMap);
+   }
+
    /**
     * Gets a map that contains attributes that aren't bound to any typed property on this class.
     * 

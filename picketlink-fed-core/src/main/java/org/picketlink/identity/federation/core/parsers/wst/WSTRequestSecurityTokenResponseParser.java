@@ -217,7 +217,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                      throw new ParsingException("binary secret value is expected ahead");
 
                   binarySecret.setValue(StaxParserUtil.getElementText(xmlEventReader).getBytes());
-                  entropy.getAny().add(binarySecret);
+                  entropy.addAny(binarySecret);
                }
                responseToken.setEntropy(entropy);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
@@ -236,13 +236,13 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
                   // Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
 
-                  useKeyType.setAny(domElement);
+                  useKeyType.add(domElement);
                   responseToken.setUseKey(useKeyType);
                }
                else if (StaxParserUtil.matches(subEvent, KEYVALUE))
                {
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
-                  useKeyType.setAny(domElement);
+                  useKeyType.add(domElement);
                   responseToken.setUseKey(useKeyType);
                }
                else
@@ -268,7 +268,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                      throw new ParsingException("binary secret value is expected ahead");
 
                   binarySecret.setValue(StaxParserUtil.getElementText(xmlEventReader).getBytes());
-                  requestedProofToken.setAny(binarySecret);
+                  requestedProofToken.add(binarySecret);
                }
                else if (StaxParserUtil.matches(subEvent, WSTrustConstants.COMPUTED_KEY))
                {
@@ -276,7 +276,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                   if (!StaxParserUtil.hasTextAhead(xmlEventReader))
                      throw new ParsingException("computed key algorithm is expected ahead");
                   computedKey.setAlgorithm(StaxParserUtil.getElementText(xmlEventReader));
-                  requestedProofToken.setAny(computedKey);
+                  requestedProofToken.add(computedKey);
                }
                responseToken.setRequestedProofToken(requestedProofToken);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
@@ -402,7 +402,7 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                throw new RuntimeException("unknown end element:" + endElementTag);
          }
          Element tokenElement = StaxParserUtil.getDOMElement(xmlEventReader);
-         requestedSecurityTokenType.setAny(tokenElement);
+         requestedSecurityTokenType.add(tokenElement);
       }
 
       return requestedSecurityTokenType;

@@ -39,21 +39,20 @@ import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
  */
 public class WSTrustValidateSamlTestCase
 {
-   @Test 
+   @Test
    public void testWST_ValidateSaml() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-validate-saml.xml" );
-      
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken rst1 = (RequestSecurityToken) parser.parse( configStream );  
-      assertEquals( "validatecontext", rst1.getContext() );
-      assertEquals( WSTrustConstants.VALIDATE_REQUEST, rst1.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString() ); 
-      
-      ValidateTargetType validateTarget = rst1.getValidateTarget();
-      AssertionType assertion = (AssertionType) validateTarget.getAny();
-      assertEquals( "ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID() );
-   }
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-validate-saml.xml");
 
+      WSTrustParser parser = new WSTrustParser();
+      RequestSecurityToken rst1 = (RequestSecurityToken) parser.parse(configStream);
+      assertEquals("validatecontext", rst1.getContext());
+      assertEquals(WSTrustConstants.VALIDATE_REQUEST, rst1.getRequestType().toASCIIString());
+      assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
+
+      ValidateTargetType validateTarget = rst1.getValidateTarget();
+      AssertionType assertion = (AssertionType) validateTarget.getAny().get(0);
+      assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
+   }
 }

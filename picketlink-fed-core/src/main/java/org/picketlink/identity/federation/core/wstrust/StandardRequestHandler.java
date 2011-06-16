@@ -22,6 +22,7 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -67,7 +68,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 {
    private static Logger log = Logger.getLogger(StandardRequestHandler.class);
 
-   private boolean trace = log.isTraceEnabled();
+   private final boolean trace = log.isTraceEnabled();
 
    private static long KEY_SIZE = 128;
 
@@ -102,17 +103,17 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (appliesTo != null)
       {
          String serviceName = WSTrustUtil.parseAppliesTo(appliesTo);
-         
+
          if (serviceName != null)
          {
-           String tokenTypeFromServiceName = configuration.getTokenTypeForService(serviceName);
-           
-           if( request.getTokenType() == null && tokenTypeFromServiceName != null )
-              request.setTokenType(URI.create( tokenTypeFromServiceName ));
+            String tokenTypeFromServiceName = configuration.getTokenTypeForService(serviceName);
 
-           providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
-           
-           // provider = this.configuration.getProviderForService(serviceName);
+            if (request.getTokenType() == null && tokenTypeFromServiceName != null)
+               request.setTokenType(URI.create(tokenTypeFromServiceName));
+
+            providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
+
+            // provider = this.configuration.getProviderForService(serviceName);
             /*if (provider != null)
             {
                request.setTokenType(URI.create(this.configuration.getTokenTypeForService(serviceName)));
@@ -130,118 +131,119 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       if (provider != null)
       {*/
-         // create the request context and delegate token generation to the provider.
-         WSTrustRequestContext requestContext = new WSTrustRequestContext(request, callerPrincipal);
-         requestContext.setTokenIssuer(this.configuration.getSTSName());
-         if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0)
+      // create the request context and delegate token generation to the provider.
+      WSTrustRequestContext requestContext = new WSTrustRequestContext(request, callerPrincipal);
+      requestContext.setTokenIssuer(this.configuration.getSTSName());
+      if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0)
+      {
+         // if no lifetime has been specified, use the configured timeout value.
+         if (log.isDebugEnabled())
+            log.debug("Lifetime has not been specified. Using the default timeout value.");
+         request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
+      }
+      requestContext.setServiceProviderPublicKey(providerPublicKey);
+
+      // process the claims if needed.
+      if (request.getClaims() != null)
+      {
+         ClaimsType claims = request.getClaims();
+         ClaimsProcessor processor = this.configuration.getClaimsProcessor(claims.getDialect());
+         // if there is a processor, process the claims and set the resulting attributes in the context.
+         if (processor != null)
+            requestContext.setClaimedAttributes(processor.processClaims(claims, callerPrincipal));
+         else if (log.isDebugEnabled())
+            log.debug("Claims have been specified in the request but no processor was found for dialect "
+                  + claims.getDialect());
+      }
+
+      // get the OnBehalfOf principal, if one has been specified.
+      if (request.getOnBehalfOf() != null)
+      {
+         Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
+         requestContext.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
+      }
+
+      // get the key type and size from the request, setting default values if not specified.
+      URI keyType = request.getKeyType();
+      if (keyType == null)
+      {
+         if (log.isDebugEnabled())
+            log.debug("No key type could be found in the request. Using the default BEARER type.");
+         keyType = URI.create(WSTrustConstants.KEY_TYPE_BEARER);
+         request.setKeyType(keyType);
+      }
+      long keySize = request.getKeySize();
+      if (keySize == 0)
+      {
+         if (log.isDebugEnabled())
+            log.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
+         keySize = KEY_SIZE;
+         request.setKeySize(keySize);
+      }
+
+      // get the key wrap algorithm.
+      URI keyWrapAlgo = request.getKeyWrapAlgorithm();
+
+      // create proof-of-possession token and server entropy (if needed).
+      RequestedProofTokenType requestedProofToken = null;
+      EntropyType serverEntropy = null;
+
+      if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equalsIgnoreCase(keyType.toString()))
+      {
+         // symmetric key case: if client entropy is found, compute a key. If not, generate a new key.
+         requestedProofToken = new RequestedProofTokenType();
+
+         byte[] serverSecret = WSTrustUtil.createRandomSecret((int) keySize / 8);
+         BinarySecretType serverBinarySecret = new BinarySecretType();
+         serverBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
+         serverBinarySecret.setValue(Base64.encodeBytes(serverSecret).getBytes());
+
+         byte[] clientSecret = null;
+         EntropyType clientEntropy = request.getEntropy();
+         if (clientEntropy != null)
          {
-            // if no lifetime has been specified, use the configured timeout value.
-            if (log.isDebugEnabled())
-               log.debug("Lifetime has not been specified. Using the default timeout value.");
-            request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
+            clientSecret = Base64.decode(new String(WSTrustUtil.getBinarySecret(clientEntropy)));
+            serverEntropy = new EntropyType();
+            serverEntropy.addAny(serverBinarySecret);
          }
-         requestContext.setServiceProviderPublicKey(providerPublicKey);
 
-         // process the claims if needed.
-         if (request.getClaims() != null)
+         if (clientSecret != null && clientSecret.length != 0)
          {
-            ClaimsType claims = request.getClaims();
-            ClaimsProcessor processor = this.configuration.getClaimsProcessor(claims.getDialect());
-            // if there is a processor, process the claims and set the resulting attributes in the context.
-            if (processor != null)
-               requestContext.setClaimedAttributes(processor.processClaims(claims, callerPrincipal));
-            else if (log.isDebugEnabled())
-               log.debug("Claims have been specified in the request but no processor was found for dialect "
-                     + claims.getDialect());
-         }
-
-         // get the OnBehalfOf principal, if one has been specified.
-         if (request.getOnBehalfOf() != null)
-         {
-            Principal onBehalfOfPrincipal = WSTrustUtil.getOnBehalfOfPrincipal(request.getOnBehalfOf());
-            requestContext.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
-         }
-
-         // get the key type and size from the request, setting default values if not specified.
-         URI keyType = request.getKeyType();
-         if (keyType == null)
-         {
-            if (log.isDebugEnabled())
-               log.debug("No key type could be found in the request. Using the default BEARER type.");
-            keyType = URI.create(WSTrustConstants.KEY_TYPE_BEARER);
-            request.setKeyType(keyType);
-         }
-         long keySize = request.getKeySize();
-         if (keySize == 0)
-         {
-            if (log.isDebugEnabled())
-               log.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
-            keySize = KEY_SIZE;
-            request.setKeySize(keySize);
-         }
-
-         // get the key wrap algorithm.
-         URI keyWrapAlgo = request.getKeyWrapAlgorithm();
-
-         // create proof-of-possession token and server entropy (if needed).
-         RequestedProofTokenType requestedProofToken = null;
-         EntropyType serverEntropy = null;
-
-         if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equalsIgnoreCase(keyType.toString()))
-         {
-            // symmetric key case: if client entropy is found, compute a key. If not, generate a new key.
-            requestedProofToken = new RequestedProofTokenType();
-            
-            byte[] serverSecret = WSTrustUtil.createRandomSecret((int) keySize / 8);
-            BinarySecretType serverBinarySecret = new BinarySecretType();
-            serverBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
-            serverBinarySecret.setValue(Base64.encodeBytes(serverSecret).getBytes());
-
-            byte[] clientSecret = null;
-            EntropyType clientEntropy = request.getEntropy();
-            if (clientEntropy != null)
+            // client secret has been specified - combine it with the sts secret.
+            requestedProofToken.add(new ComputedKeyType(WSTrustConstants.CK_PSHA1));
+            byte[] combinedSecret = null;
+            try
             {
-               clientSecret = Base64.decode(new String(WSTrustUtil.getBinarySecret(clientEntropy)));
-               serverEntropy = new EntropyType();
-               serverEntropy.getAny().add(serverBinarySecret);
+               combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
+                     .getBytes();
             }
-
-            if (clientSecret != null && clientSecret.length != 0)
+            catch (Exception e)
             {
-               // client secret has been specified - combine it with the sts secret.
-               requestedProofToken.setAny(new ComputedKeyType(WSTrustConstants.CK_PSHA1));
-               byte[] combinedSecret = null;
-               try
-               {
-                  combinedSecret = Base64
-                        .encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8)).getBytes();
-               }
-               catch (Exception e)
-               {
-                  throw new WSTrustException("Error generating combined secret key", e);
-               }
-               requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey,
-                     keyWrapAlgo));
+               throw new WSTrustException("Error generating combined secret key", e);
             }
-            else
-            {
-               // client secret has not been specified - use the sts secret only.
-               requestedProofToken.setAny(serverBinarySecret);
-               requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(),
-                     providerPublicKey, keyWrapAlgo));
-            }
+            requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo));
          }
-         else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString()))
+         else
          {
-            // try to locate the client cert in the keystore using the caller principal as the alias.
-            Certificate certificate = this.configuration.getCertificate(callerPrincipal.getName());
-            if (certificate != null)
-               requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(certificate));
-            // if no certificate was found in the keystore, check the UseKey contents.
-            else if (request.getUseKey() != null)
+            // client secret has not been specified - use the sts secret only.
+            requestedProofToken.add(serverBinarySecret);
+            requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(),
+                  providerPublicKey, keyWrapAlgo));
+         }
+      }
+      else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString()))
+      {
+         // try to locate the client cert in the keystore using the caller principal as the alias.
+         Certificate certificate = this.configuration.getCertificate(callerPrincipal.getName());
+         if (certificate != null)
+            requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(certificate));
+         // if no certificate was found in the keystore, check the UseKey contents.
+         else if (request.getUseKey() != null)
+         {
+            UseKeyType useKeyType = request.getUseKey();
+            List<Object> theList = useKeyType.getAny();
+            for (Object value : theList)
             {
-               UseKeyType useKeyType = request.getUseKey();
-               Object value = useKeyType.getAny();
                if (value instanceof Element)
                {
                   String elementName = ((Element) value).getLocalName();
@@ -249,69 +251,85 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                   if (elementName.equals("X509Certificate"))
                   {
                      X509DataType data = new X509DataType();
-                     data.add( value );
+                     data.add(value);
                      value = data;
                   }
                   KeyInfoType keyInfo = new KeyInfoType();
-                  keyInfo.addContent( value );
+                  keyInfo.addContent(value);
                   requestContext.setProofTokenInfo(keyInfo);
                }
             }
-            else
-               throw new WSTrustException("Unable to locate client public key");
+            /*Object value = useKeyType.getAny();
+            if (value instanceof Element)
+            {
+               String elementName = ((Element) value).getLocalName();
+               // if the specified key is a X509 certificate we must insert it into a X509Data element.
+               if (elementName.equals("X509Certificate"))
+               {
+                  X509DataType data = new X509DataType();
+                  data.add(value);
+                  value = data;
+               }
+               KeyInfoType keyInfo = new KeyInfoType();
+               keyInfo.addContent(value);
+               requestContext.setProofTokenInfo(keyInfo);
+            }*/
          }
+         else
+            throw new WSTrustException("Unable to locate client public key");
+      }
 
-         // issue the security token using the constructed context.
-         try
-         {
-            if( request.getTokenType() != null )
-               requestContext.setTokenType( request.getTokenType().toString() );
-            PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-            sts.initialize(configuration);
-            sts.issueToken(requestContext);
-            //provider.issueToken(requestContext);
-         }
-         catch (ProcessingException e)
-         {
-            throw new WSTrustException(e.getMessage(), e);
-         }
+      // issue the security token using the constructed context.
+      try
+      {
+         if (request.getTokenType() != null)
+            requestContext.setTokenType(request.getTokenType().toString());
+         PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+         sts.initialize(configuration);
+         sts.issueToken(requestContext);
+         //provider.issueToken(requestContext);
+      }
+      catch (ProcessingException e)
+      {
+         throw new WSTrustException(e.getMessage(), e);
+      }
 
-         if (requestContext.getSecurityToken() == null)
-            //throw new WSTrustException("Token issued by provider " + provider.getClass().getName() + " is null");
-            throw new WSTrustException("Token issued by STS is null");
+      if (requestContext.getSecurityToken() == null)
+         //throw new WSTrustException("Token issued by provider " + provider.getClass().getName() + " is null");
+         throw new WSTrustException("Token issued by STS is null");
 
-         // construct the ws-trust security token response.
-         RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
+      // construct the ws-trust security token response.
+      RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
 
-         SecurityToken contextSecurityToken = requestContext.getSecurityToken();
-         if( contextSecurityToken == null )
-            throw new WSTrustException( "Security Token from context is null" );
-         
-         requestedSecurityToken.setAny( contextSecurityToken.getTokenValue());
+      SecurityToken contextSecurityToken = requestContext.getSecurityToken();
+      if (contextSecurityToken == null)
+         throw new WSTrustException("Security Token from context is null");
 
-         RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
-         if (request.getContext() != null)
-            response.setContext(request.getContext());
+      requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
-         response.setTokenType(request.getTokenType());
-         response.setLifetime(request.getLifetime());
-         response.setAppliesTo(appliesTo);
-         response.setKeySize(keySize);
-         response.setKeyType(keyType);
-         response.setRequestedSecurityToken(requestedSecurityToken);
+      RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
+      if (request.getContext() != null)
+         response.setContext(request.getContext());
 
-         if (requestedProofToken != null)
-            response.setRequestedProofToken(requestedProofToken);
-         if (serverEntropy != null)
-            response.setEntropy(serverEntropy);
+      response.setTokenType(request.getTokenType());
+      response.setLifetime(request.getLifetime());
+      response.setAppliesTo(appliesTo);
+      response.setKeySize(keySize);
+      response.setKeyType(keyType);
+      response.setRequestedSecurityToken(requestedSecurityToken);
 
-         // set the attached and unattached references.
-         if (requestContext.getAttachedReference() != null)
-            response.setRequestedAttachedReference(requestContext.getAttachedReference());
-         if (requestContext.getUnattachedReference() != null)
-            response.setRequestedUnattachedReference(requestContext.getUnattachedReference());
+      if (requestedProofToken != null)
+         response.setRequestedProofToken(requestedProofToken);
+      if (serverEntropy != null)
+         response.setEntropy(serverEntropy);
 
-         return response;
+      // set the attached and unattached references.
+      if (requestContext.getAttachedReference() != null)
+         response.setRequestedAttachedReference(requestContext.getAttachedReference());
+      if (requestContext.getUnattachedReference() != null)
+         response.setRequestedUnattachedReference(requestContext.getUnattachedReference());
+
+      return response;
       /*}
       else
          throw new WSTrustException("Unable to find a token provider for the token request");*/
@@ -384,12 +402,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
       try
-      { 
-         if( securityToken != null )
+      {
+         if (securityToken != null)
          {
-            String ns = securityToken.getNamespaceURI(); 
+            String ns = securityToken.getNamespaceURI();
 
-            context.setQName( new QName( ns, securityToken.getLocalName() ));  
+            context.setQName(new QName(ns, securityToken.getLocalName()));
          }
          PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
          sts.initialize(configuration);
@@ -404,9 +422,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       // create the WS-Trust response with the renewed token.
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
       SecurityToken contextSecurityToken = context.getSecurityToken();
-      if( contextSecurityToken == null )
-         throw new WSTrustException( "Security Token from context is null" );
-      requestedSecurityToken.setAny(contextSecurityToken.getTokenValue());
+      if (contextSecurityToken == null)
+         throw new WSTrustException("Security Token from context is null");
+      requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
       RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
       if (request.getContext() != null)
@@ -503,12 +521,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          if (trace)
             log.trace("Delegating token validation to token provider");
          try
-         { 
-            if( securityToken != null )
-               context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+         {
+            if (securityToken != null)
+               context.setQName(new QName(securityToken.getNamespaceURI(), securityToken.getLocalName()));
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
             sts.initialize(configuration);
-            sts.validateToken( context );
+            sts.validateToken(context);
             //provider.validateToken(context);
          }
          catch (ProcessingException e)
@@ -560,12 +578,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          context.setOnBehalfOfPrincipal(onBehalfOfPrincipal);
       }
       try
-      { 
-         if( securityToken != null )
-            context.setQName( new QName( securityToken.getNamespaceURI(), securityToken.getLocalName() ));
+      {
+         if (securityToken != null)
+            context.setQName(new QName(securityToken.getNamespaceURI(), securityToken.getLocalName()));
          PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
          sts.initialize(configuration);
-         sts.cancelToken( context );
+         sts.cancelToken(context);
          //provider.cancelToken(context);
       }
       catch (ProcessingException e)

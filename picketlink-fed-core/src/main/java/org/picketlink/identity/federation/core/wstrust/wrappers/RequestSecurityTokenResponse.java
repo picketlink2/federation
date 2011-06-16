@@ -41,7 +41,6 @@ import org.picketlink.identity.federation.ws.trust.DelegateToType;
 import org.picketlink.identity.federation.ws.trust.EncryptionType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
-import org.picketlink.identity.federation.ws.trust.ObjectFactory;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.trust.ProofEncryptionType;
 import org.picketlink.identity.federation.ws.trust.RenewingType;
@@ -178,8 +177,6 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
    private final List<Object> extensionElements = new ArrayList<Object>();
 
-   private final ObjectFactory factory = new ObjectFactory();
-
    /**
     * <p>
     * Creates an instance of {@code RequestSecurityTokenResponse}.
@@ -196,7 +193,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
     * </p>
     * 
     * @param delegate the JAXB {@code RequestSecurityTokenResponseType} that represents a WS-Trust response.
-    */ 
+    */
    public RequestSecurityTokenResponse(RequestSecurityTokenResponseType delegate)
    {
       this.delegate = delegate;
@@ -316,7 +313,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setTokenType(URI tokenType)
    {
       this.tokenType = tokenType;
-      this.delegate.getAny().add(this.factory.createTokenType(tokenType.toString()));
+      this.delegate.addAny(tokenType.toString());
 
    }
 
@@ -342,7 +339,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestType(URI requestType)
    {
       this.requestType = requestType;
-      this.delegate.getAny().add(this.factory.createRequestType(requestType.toString()));
+      this.delegate.addAny(requestType.toString());
    }
 
    /**
@@ -367,7 +364,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestedSecurityToken(RequestedSecurityTokenType requestedSecurityToken)
    {
       this.requestedSecurityToken = requestedSecurityToken;
-      this.delegate.getAny().add(this.factory.createRequestedSecurityToken(requestedSecurityToken));
+      this.delegate.addAny(requestedSecurityToken);
    }
 
    /**
@@ -392,7 +389,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setAppliesTo(AppliesTo appliesTo)
    {
       this.appliesTo = appliesTo;
-      this.delegate.getAny().add(appliesTo);
+      this.delegate.addAny(appliesTo);
    }
 
    /**
@@ -419,7 +416,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestedAttachedReference(RequestedReferenceType requestedAttachedReference)
    {
       this.requestedAttachedReference = requestedAttachedReference;
-      this.delegate.getAny().add(this.factory.createRequestedAttachedReference(requestedAttachedReference));
+      this.delegate.addAny(requestedAttachedReference);
    }
 
    /**
@@ -446,7 +443,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestedUnattachedReference(RequestedReferenceType requestedUnattachedReference)
    {
       this.requestedUnattachedReference = requestedUnattachedReference;
-      this.delegate.getAny().add(this.factory.createRequestedUnattachedReference(requestedUnattachedReference));
+      this.delegate.addAny(requestedUnattachedReference);
    }
 
    /**
@@ -471,7 +468,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestedProofToken(RequestedProofTokenType requestedProofToken)
    {
       this.requestedProofToken = requestedProofToken;
-      this.delegate.getAny().add(this.factory.createRequestedProofToken(requestedProofToken));
+      this.delegate.addAny(requestedProofToken);
    }
 
    /**
@@ -500,7 +497,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRequestedTokenCancelled(RequestedTokenCancelledType requestedTokenCancelled)
    {
       this.requestedTokenCancelled = requestedTokenCancelled;
-      this.delegate.getAny().add(this.factory.createRequestedTokenCancelled(requestedTokenCancelled));
+      this.delegate.addAny(requestedTokenCancelled);
    }
 
    /**
@@ -525,7 +522,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setEntropy(EntropyType entropy)
    {
       this.entropy = entropy;
-      this.delegate.getAny().add(this.factory.createEntropy(entropy));
+      this.delegate.addAny(entropy);
    }
 
    /**
@@ -550,7 +547,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setLifetime(Lifetime lifetime)
    {
       this.lifetime = lifetime;
-      this.delegate.getAny().add(this.factory.createLifetime(lifetime.getDelegate()));
+      this.delegate.addAny(lifetime.getDelegate());
    }
 
    /**
@@ -575,7 +572,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setStatus(StatusType status)
    {
       this.status = status;
-      this.delegate.getAny().add(this.factory.createStatus(status));
+      this.delegate.addAny(status);
    }
 
    /**
@@ -600,7 +597,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setAllowPostDating(AllowPostdatingType allowPostDating)
    {
       this.allowPostDating = allowPostDating;
-      this.delegate.getAny().add(this.factory.createAllowPostdating(allowPostDating));
+      this.delegate.addAny(allowPostDating);
    }
 
    /**
@@ -625,7 +622,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setRenewing(RenewingType renewing)
    {
       this.renewing = renewing;
-      this.delegate.getAny().add(this.factory.createRenewing(renewing));
+      this.delegate.addAny(renewing);
    }
 
    /**
@@ -651,7 +648,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setOnBehalfOf(OnBehalfOfType onBehalfOf)
    {
       this.onBehalfOf = onBehalfOf;
-      this.delegate.getAny().add(this.factory.createOnBehalfOf(onBehalfOf));
+      this.delegate.addAny(onBehalfOf);
    }
 
    /**
@@ -678,7 +675,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setIssuer(EndpointReferenceType issuer)
    {
       this.issuer = issuer;
-      this.delegate.getAny().add(this.factory.createIssuer(issuer));
+      this.delegate.addAny(issuer);
    }
 
    /**
@@ -703,7 +700,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setAuthenticationType(URI authenticationType)
    {
       this.authenticationType = authenticationType;
-      this.delegate.getAny().add(this.factory.createAuthenticationType(authenticationType.toString()));
+      this.delegate.addAny(authenticationType.toString());
    }
 
    /**
@@ -728,7 +725,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setAuthenticator(AuthenticatorType authenticator)
    {
       this.authenticator = authenticator;
-      this.delegate.getAny().add(this.factory.createAuthenticator(authenticator));
+      this.delegate.addAny(authenticator);
    }
 
    /**
@@ -753,7 +750,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setKeyType(URI keyType)
    {
       this.keyType = keyType;
-      this.delegate.getAny().add(this.factory.createKeyType(keyType.toString()));
+      this.delegate.addAny(keyType.toString());
    }
 
    /**
@@ -778,7 +775,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setKeySize(long keySize)
    {
       this.keySize = keySize;
-      this.delegate.getAny().add(this.factory.createKeySize(keySize));
+      this.delegate.addAny(keySize);
    }
 
    /**
@@ -803,7 +800,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setSignatureAlgorithm(URI signatureAlgorithm)
    {
       this.signatureAlgorithm = signatureAlgorithm;
-      this.delegate.getAny().add(this.factory.createSignatureAlgorithm(signatureAlgorithm.toString()));
+      this.delegate.addAny(signatureAlgorithm.toString());
    }
 
    /**
@@ -830,7 +827,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setEncryption(EncryptionType encryption)
    {
       this.encryption = encryption;
-      this.delegate.getAny().add(this.factory.createEncryption(encryption));
+      this.delegate.addAny(encryption);
    }
 
    /**
@@ -855,7 +852,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setEncryptionAlgorithm(URI encryptionAlgorithm)
    {
       this.encryptionAlgorithm = encryptionAlgorithm;
-      this.delegate.getAny().add(this.factory.createEncryptionAlgorithm(encryptionAlgorithm.toString()));
+      this.delegate.addAny(encryptionAlgorithm.toString());
    }
 
    /**
@@ -880,7 +877,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setCanonicalizationAlgorithm(URI canonicalizationAlgorithm)
    {
       this.canonicalizationAlgorithm = canonicalizationAlgorithm;
-      this.delegate.getAny().add(this.factory.createCanonicalizationAlgorithm(canonicalizationAlgorithm.toString()));
+      this.delegate.addAny(canonicalizationAlgorithm.toString());
    }
 
    /**
@@ -907,7 +904,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setProofEncryption(ProofEncryptionType proofEncryption)
    {
       this.proofEncryption = proofEncryption;
-      this.delegate.getAny().add(this.factory.createProofEncryption(proofEncryption));
+      this.delegate.addAny(proofEncryption);
    }
 
    /**
@@ -932,7 +929,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setUseKey(UseKeyType useKey)
    {
       this.useKey = useKey;
-      this.delegate.getAny().add(this.factory.createUseKey(useKey));
+      this.delegate.addAny(useKey);
    }
 
    /**
@@ -957,7 +954,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setSignWith(URI signWith)
    {
       this.signWith = signWith;
-      this.delegate.getAny().add(this.factory.createSignatureAlgorithm(signWith.toString()));
+      this.delegate.addAny(signWith.toString());
    }
 
    /**
@@ -982,7 +979,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setEncryptWith(URI encryptWith)
    {
       this.encryptWith = encryptWith;
-      this.delegate.getAny().add(this.factory.createEncryptWith(encryptWith.toString()));
+      this.delegate.addAny(encryptWith.toString());
    }
 
    /**
@@ -1007,7 +1004,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setDelegateTo(DelegateToType delegateTo)
    {
       this.delegateTo = delegateTo;
-      this.delegate.getAny().add(this.factory.createDelegateTo(delegateTo));
+      this.delegate.addAny(delegateTo);
    }
 
    /**
@@ -1036,7 +1033,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setForwardable(boolean forwardable)
    {
       this.forwardable = forwardable;
-      this.delegate.getAny().add(this.factory.createForwardable(forwardable));
+      this.delegate.addAny(forwardable);
    }
 
    /**
@@ -1063,7 +1060,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setDelegatable(boolean delegatable)
    {
       this.delegatable = delegatable;
-      this.delegate.getAny().add(this.factory.createDelegatable(delegatable));
+      this.delegate.addAny(delegatable);
    }
 
    /**
@@ -1090,7 +1087,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setPolicy(Policy policy)
    {
       this.policy = policy;
-      this.delegate.getAny().add(policy);
+      this.delegate.addAny(policy);
    }
 
    /**
@@ -1115,7 +1112,7 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
    public void setPolicyReference(PolicyReference policyReference)
    {
       this.policyReference = policyReference;
-      this.delegate.getAny().add(policyReference);
+      this.delegate.addAny(policyReference);
    }
 
    /**

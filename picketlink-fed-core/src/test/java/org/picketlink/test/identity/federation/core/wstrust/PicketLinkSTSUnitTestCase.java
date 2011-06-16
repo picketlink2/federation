@@ -17,6 +17,13 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -42,8 +49,8 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -108,7 +115,7 @@ import org.w3c.dom.Element;
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class PicketLinkSTSUnitTestCase extends TestCase
+public class PicketLinkSTSUnitTestCase
 {
 
    private TestSTS tokenService;
@@ -118,10 +125,9 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * 
     * @see junit.framework.TestCase#setUp()
     */
-   @Override
-   protected void setUp() throws Exception
+   @Before
+   public void setUp() throws Exception
    {
-      super.setUp();
       // for testing purposes we can instantiate the TestSTS as a regular POJO.
       this.tokenService = new TestSTS();
       TestContext context = new TestContext();
@@ -166,6 +172,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testSTSConfiguration() throws Exception
    {
       // make the STS read the configuration file.
@@ -203,31 +210,32 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNull(config.getProviderForService("http://invalid.service/service"));
 
       String family = SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
-      
+
       // check the token element and namespace -> token provider mapping.
-      provider = config.getProviderForTokenElementNS(family, new QName( "http://www.tokens.org", "SpecialToken" ) );
+      provider = config.getProviderForTokenElementNS(family, new QName("http://www.tokens.org", "SpecialToken"));
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
-      provider = config.getProviderForTokenElementNS(family, new QName( JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ASSERTION.get() ));
+      provider = config.getProviderForTokenElementNS(family, new QName(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+            JBossSAMLConstants.ASSERTION.get()));
       assertNotNull("Unexpected null token provider", provider);
       assertTrue("Unexpected token provider type", provider instanceof SAML20TokenProvider);
-      assertNull(config.getProviderForTokenElementNS( family, new QName( "InvalidNamespace", "SpecialToken" )) );
+      assertNull(config.getProviderForTokenElementNS(family, new QName("InvalidNamespace", "SpecialToken")));
 
       // check the service provider -> token type mapping.
-      assertEquals("Invalid token type for service provider 1", "http://www.tokens.org/SpecialToken", config
-            .getTokenTypeForService("http://services.testcorp.org/provider1"));
-      assertEquals("Invalid token type for service provider 2", SAMLUtil.SAML2_TOKEN_TYPE, config
-            .getTokenTypeForService("http://services.testcorp.org/provider2"));
+      assertEquals("Invalid token type for service provider 1", "http://www.tokens.org/SpecialToken",
+            config.getTokenTypeForService("http://services.testcorp.org/provider1"));
+      assertEquals("Invalid token type for service provider 2", SAMLUtil.SAML2_TOKEN_TYPE,
+            config.getTokenTypeForService("http://services.testcorp.org/provider2"));
       assertNull(config.getTokenTypeForService("http://invalid.service/service"));
 
       // check the keystore configuration.
       assertNotNull("Invalid null STS key pair", config.getSTSKeyPair());
       assertNotNull("Invalid null STS public key", config.getSTSKeyPair().getPublic());
       assertNotNull("Invalid null STS private key", config.getSTSKeyPair().getPrivate());
-      assertNotNull("Invalid null validating key for service provider 1", config
-            .getServiceProviderPublicKey("http://services.testcorp.org/provider1"));
-      assertNotNull("Invalid null validating key for service provider 2", config
-            .getServiceProviderPublicKey("http://services.testcorp.org/provider2"));
+      assertNotNull("Invalid null validating key for service provider 1",
+            config.getServiceProviderPublicKey("http://services.testcorp.org/provider1"));
+      assertNotNull("Invalid null validating key for service provider 2",
+            config.getServiceProviderPublicKey("http://services.testcorp.org/provider2"));
    }
 
    /**
@@ -247,6 +255,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeCustom() throws Exception
    {
       // create a simple token request, asking for a "special" test token.
@@ -300,6 +309,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20() throws Exception
    {
       // create a simple token request, asking for a SAMLv2.0 token.
@@ -325,6 +335,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeCustomAppliesTo() throws Exception
    {
       // create a simple token request, this time using the applies to get to the token type.
@@ -351,6 +362,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20AppliesTo() throws Exception
    {
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
@@ -387,6 +399,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20OnBehalfOf() throws Exception
    {
       // create a simple token request, asking for a SAMLv2.0 token.
@@ -416,6 +429,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20WithSTSGeneratedSymmetricKey() throws Exception
    {
       // create a simple token request, asking for a SAMLv2.0 token.
@@ -435,8 +449,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation()
-            .get(0);
+      SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       // check if the response contains the STS-generated key.
@@ -444,8 +457,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       RequestedProofTokenType proofToken = response.getRequestedProofToken();
       assertNotNull("Unexpected null proof token", proofToken);
-      assertTrue(proofToken.getAny() instanceof BinarySecretType);
-      BinarySecretType serverBinarySecret = (BinarySecretType) proofToken.getAny();
+      assertTrue(proofToken.getAny().get(0) instanceof BinarySecretType);
+      BinarySecretType serverBinarySecret = (BinarySecretType) proofToken.getAny().get(0);
       assertNotNull("Unexpected null secret", serverBinarySecret.getValue());
       // default key size is 128 bits (16 bytes).
       byte[] encodedSecret = serverBinarySecret.getValue();
@@ -463,6 +476,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20WithCombinedSymmetricKey() throws Exception
    {
       // create a 64-bit random client secret.
@@ -473,7 +487,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // set the client secret in the client entropy.
       EntropyType clientEntropy = new EntropyType();
-      clientEntropy.getAny().add(clientBinarySecret);
+      clientEntropy.addAny(clientBinarySecret);
 
       // create a token request specifying the key type, key size, and client entropy.
       RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
@@ -492,16 +506,15 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation()
-            .get(0);
+      SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
 
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       RequestedProofTokenType proofToken = response.getRequestedProofToken();
       assertNotNull("Unexpected null proof token", proofToken);
-      assertTrue(proofToken.getAny() instanceof ComputedKeyType);
-      ComputedKeyType computedKey = (ComputedKeyType) proofToken.getAny();
+      assertTrue(proofToken.getAny().get(0) instanceof ComputedKeyType);
+      ComputedKeyType computedKey = (ComputedKeyType) proofToken.getAny().get(0);
       assertEquals("Unexpected computed key algorithm", WSTrustConstants.CK_PSHA1, computedKey.getAlgorithm());
 
       // server entropy must have been included in the response to allow reconstruction of the computed key.
@@ -525,6 +538,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20WithCertificate() throws Exception
    {
       // create a simple token request.
@@ -535,7 +549,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // include a UseKey section that specifies the certificate in the request.
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
       UseKeyType useKey = new UseKeyType();
-      useKey.setAny(Base64.encodeBytes(certificate.getEncoded()).getBytes());
+      useKey.add(Base64.encodeBytes(certificate.getEncoded()).getBytes());
       request.setUseKey(useKey);
 
       // invoke the token service.
@@ -547,8 +561,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation()
-            .get(0);
+      SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, false);
    }
 
@@ -561,6 +574,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20WithPublicKey() throws Exception
    {
       // create a simple token request.
@@ -572,7 +586,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
       KeyValueType keyValue = WSTrustUtil.createKeyValue(certificate.getPublicKey());
       UseKeyType useKey = new UseKeyType();
-      useKey.setAny(keyValue);
+      useKey.add(keyValue);
       request.setUseKey(useKey);
 
       // invoke the token service.
@@ -585,8 +599,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
             SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
       // validate the holder of key contents.
-      SubjectConfirmationType subjConfirmation = (SubjectConfirmationType) assertion.getSubject().getConfirmation()
-            .get(0);
+      SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
       this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, true);
    }
 
@@ -599,6 +612,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20Validate() throws Exception
    {
       // create a simple token request.
@@ -617,17 +631,18 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
-            .getAny();
+            .getAny().get(0);
 
       // now construct a WS-Trust validate request with the generated assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, WSTrustConstants.STATUS_TYPE,
             null);
       ValidateTargetType validateTarget = new ValidateTargetType();
-      validateTarget.setAny(assertion);
+      validateTarget.add(assertion);
       request.setValidateTarget(validateTarget);
 
       // invoke the token service.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
+      System.out.println(DocumentUtil.getNodeAsString(DocumentUtil.getNodeFromSource(responseMessage)));
       baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the response contents.
@@ -645,8 +660,10 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       // now let's temper the SAML assertion and try to validate it again.
       assertion.getFirstChild().getFirstChild().setNodeValue("Tempered Issuer");
-      request.getValidateTarget().setAny(assertion);
-      responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
+      request.getValidateTarget().add(assertion);
+      Source theRequest = this.createSourceFromRequest(request);
+      System.out.println("ANIL::" + DocumentUtil.asString((Document) DocumentUtil.getNodeFromSource(theRequest)));
+      responseMessage = this.tokenService.invoke(theRequest);
       collection = (RequestSecurityTokenResponseCollection) parser.parse(DocumentUtil
             .getSourceAsStream(responseMessage));
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
@@ -668,6 +685,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20Renew() throws Exception
    {
       // create a simple token request, using applies-to to identify the token type.
@@ -686,12 +704,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0)
-            .getRequestedSecurityToken().getAny();
+            .getRequestedSecurityToken().getAny().get(0);
 
       // now construct a WS-Trust renew request with the generated assertion.
       request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, SAMLUtil.SAML2_TOKEN_TYPE, null);
       RenewTargetType renewTarget = new RenewTargetType();
-      renewTarget.setAny(assertionElement);
+      renewTarget.add(assertionElement);
       request.setRenewTarget(renewTarget);
 
       // invoke the token service.
@@ -702,19 +720,21 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       this.validateSAMLAssertionResponse(baseResponse, "renewcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element renewedAssertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0)
-            .getRequestedSecurityToken().getAny();
+            .getRequestedSecurityToken().getAny().get(0);
 
       // compare the assertions, checking if the lifetime has been updated.
       AssertionType originalAssertion = SAMLUtil.fromElement(assertionElement);
       AssertionType renewedAssertion = SAMLUtil.fromElement(renewedAssertionElement);
 
       // assertions should have different ids and lifetimes.
-      assertFalse("Renewed assertion should have a unique id", originalAssertion.getID().equals(
-            renewedAssertion.getID()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotBefore().compare(
-            renewedAssertion.getConditions().getNotBefore()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotOnOrAfter().compare(
-            renewedAssertion.getConditions().getNotOnOrAfter()));
+      assertFalse("Renewed assertion should have a unique id",
+            originalAssertion.getID().equals(renewedAssertion.getID()));
+      assertEquals(DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotBefore().compare(renewedAssertion.getConditions().getNotBefore()));
+      assertEquals(
+            DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotOnOrAfter()
+                  .compare(renewedAssertion.getConditions().getNotOnOrAfter()));
    }
 
    /**
@@ -726,6 +746,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeSAML20Cancel() throws Exception
    {
       // create a simple token request.
@@ -744,12 +765,12 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
       RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
       Element assertion = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
-            .getAny();
+            .getAny().get(0);
 
       // now construct a WS-Trust cancel request with the generated assertion.
       request = this.createRequest("cancelcontext", WSTrustConstants.CANCEL_REQUEST, null, null);
       CancelTargetType cancelTarget = new CancelTargetType();
-      cancelTarget.setAny(assertion);
+      cancelTarget.add(assertion);
       request.setCancelTarget(cancelTarget);
 
       // invoke the token service.
@@ -763,13 +784,13 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       assertEquals("Unexpected response context", "cancelcontext", response.getContext());
-      assertNotNull("Cancel response should contain a RequestedTokenCancelled element", response
-            .getRequestedTokenCancelled());
+      assertNotNull("Cancel response should contain a RequestedTokenCancelled element",
+            response.getRequestedTokenCancelled());
 
       // try to validate the canceled assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, null, null);
       ValidateTargetType validateTarget = new ValidateTargetType();
-      validateTarget.setAny(assertion);
+      validateTarget.add(assertion);
       request.setValidateTarget(validateTarget);
 
       // the response should contain a status indicating that the token is not valid.
@@ -789,7 +810,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       // now try to renew the canceled assertion.
       request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, null, null);
       RenewTargetType renewTarget = new RenewTargetType();
-      renewTarget.setAny(assertion);
+      renewTarget.add(assertion);
       request.setRenewTarget(renewTarget);
 
       // we should receive an exception when renewing the token.
@@ -815,6 +836,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvokeUnknownTokenType() throws Exception
    {
       // create a simple token request, asking for an "unknown" test token.
@@ -832,7 +854,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       catch (WebServiceException we)
       {
          assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException); 
+         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
       }
    }
 
@@ -844,6 +866,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvalidIssueRequests() throws Exception
    {
       // lets create an issue request that container neither an applies-to nor a token type.
@@ -890,6 +913,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvalidRenewRequests() throws Exception
    {
       // first create a request that doesn't have a renew target element.
@@ -926,7 +950,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       }
 
       // a request to renew an unknown token (i.e. there's no provider can handle the token) should also fail.
-      request.getRenewTarget().setAny(this.createUnknownToken());
+      request.getRenewTarget().add(this.createUnknownToken());
       requestMessage = this.createSourceFromRequest(request);
       try
       {
@@ -950,6 +974,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvalidValidateRequests() throws Exception
    {
       // first create a request that doesn't have a validate target element.
@@ -986,18 +1011,18 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       }
 
       // a request to validate an unknown token (i.e. there's no provider can handle the token) should also fail.
-      request.getValidateTarget().setAny(this.createUnknownToken());
+      request.getValidateTarget().add(this.createUnknownToken());
       requestMessage = this.createSourceFromRequest(request);
       try
       {
          this.tokenService.invoke(requestMessage);
          Source responseMessage = this.tokenService.invoke(requestMessage);
          RequestSecurityTokenResponseCollection baseResponseColl = (RequestSecurityTokenResponseCollection) new WSTrustParser()
-               .parse(DocumentUtil.getSourceAsStream(responseMessage)); 
-         
+               .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
          RequestSecurityTokenResponse response = baseResponseColl.getRequestSecurityTokenResponses().get(0);
          StatusType status = response.getStatus();
-         assertTrue( status.getCode().equals( WSTrustConstants.STATUS_CODE_INVALID ));
+         assertTrue(status.getCode().equals(WSTrustConstants.STATUS_CODE_INVALID));
          //fail("An exception should have been raised by the security token service");
       }
       catch (WebServiceException we)
@@ -1017,6 +1042,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
     * @throws Exception
     *            if an error occurs while running the test.
     */
+   @Test
    public void testInvalidCancelRequests() throws Exception
    {
       // first create a request that doesn't have a cancel target element.
@@ -1053,7 +1079,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       }
 
       // a request to cancel an unknown token (i.e. there's no provider can handle the token) should also fail.
-      request.getCancelTarget().setAny(this.createUnknownToken());
+      request.getCancelTarget().add(this.createUnknownToken());
       requestMessage = this.createSourceFromRequest(request);
       try
       {
@@ -1064,8 +1090,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       {
          assertNotNull("Unexpected null cause", we.getCause());
          assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause().getCause()
-               .getMessage());
+         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause()
+               .getCause().getMessage());
       }
    }
 
@@ -1099,14 +1125,14 @@ public class PicketLinkSTSUnitTestCase extends TestCase
 
       RequestedSecurityTokenType requestedToken = response.getRequestedSecurityToken();
       assertNotNull("Unexpected null requested security token", requestedToken);
-      Object token = requestedToken.getAny();
+      Object token = requestedToken.getAny().get(0);
       assertNotNull("Unexpected null token", token);
       assertTrue("Unexpected token class", token instanceof Element);
-      Element element = (Element) requestedToken.getAny();
+      Element element = (Element) requestedToken.getAny().get(0);
       assertEquals("Unexpected root element name", "SpecialToken", element.getLocalName());
       assertEquals("Unexpected namespace value", "http://www.tokens.org", element.getNamespaceURI());
-      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken", element
-            .getAttribute("TokenType"));
+      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken",
+            element.getAttribute("TokenType"));
       element = (Element) element.getFirstChild();
       assertEquals("Unexpected child element name", "SpecialTokenValue", element.getLocalName());
       assertEquals("Unexpected token value", "Principal:jduke", element.getFirstChild().getNodeValue());
@@ -1165,7 +1191,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertNotNull("Unexpected null requested security token", requestedToken);
 
       // unmarshall the SAMLV2.0 assertion.
-      Element assertionElement = (Element) requestedToken.getAny();
+      Element assertionElement = (Element) requestedToken.getAny().get(0);
       System.out.println(DocumentUtil.getNodeAsString(assertionElement));
       AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
@@ -1186,7 +1212,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id value", principal, nameID.getValue());
 
-      SubjectConfirmationType subjType = (SubjectConfirmationType) subject.getConfirmation().get(0);
+      SubjectConfirmationType subjType = subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", confirmationMethod, subjType.getMethod());
 
       // validate the assertion conditions.
@@ -1229,8 +1255,8 @@ public class PicketLinkSTSUnitTestCase extends TestCase
       if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equals(keyType))
       {
          Element encKeyElement = (Element) keyInfo.getContent().get(0);
-         assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY, encKeyElement
-               .getLocalName());
+         assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY,
+               encKeyElement.getLocalName());
       }
       // if the key is public, KeyInfo should either contain an encoded certificate or an encoded public key.
       else if (WSTrustConstants.KEY_TYPE_PUBLIC.equals(keyType))
@@ -1256,8 +1282,7 @@ public class PicketLinkSTSUnitTestCase extends TestCase
          else
          {
             X509DataType x509Data = (X509DataType) keyInfo.getContent().get(0);
-            assertEquals("Unexpected X509 data content size", 1, x509Data
-                  .getDataObjects().size());
+            assertEquals("Unexpected X509 data content size", 1, x509Data.getDataObjects().size());
             Object content = x509Data.getDataObjects().get(0);
             assertTrue("Unexpected X509 data content type", content instanceof X509CertificateType);
             byte[] encodedCertificate = ((X509CertificateType) content).getEncodedCertificate();

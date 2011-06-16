@@ -50,33 +50,33 @@ public class WSTrustIssuePublicCertificateTestCase
    public void testPublicCert() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-issue-public-certificate.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-public-certificate.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = ( RequestSecurityToken ) parser.parse( configStream );   
-       
-      assertEquals( "testcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() ); 
-      
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+
+      assertEquals("testcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+
       AppliesTo appliesTo = requestToken.getAppliesTo();
       EndpointReferenceType endpoint = (EndpointReferenceType) appliesTo.getAny().get(0);
-      assertEquals( "http://services.testcorp.org/provider2", endpoint.getAddress().getValue() );
-      
-      
-      assertEquals( "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey", requestToken.getKeyType().toASCIIString() );
-      
+      assertEquals("http://services.testcorp.org/provider2", endpoint.getAddress().getValue());
+
+      assertEquals("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey", requestToken.getKeyType()
+            .toASCIIString());
+
       UseKeyType useKeyType = requestToken.getUseKey();
-      Element certEl = (Element) useKeyType.getAny(); 
-      
-      assertEquals( "ds:" + WSTRequestSecurityTokenParser.X509CERTIFICATE, certEl.getTagName() );
-      
+      Element certEl = (Element) useKeyType.getAny().get(0);
+
+      assertEquals("ds:" + WSTRequestSecurityTokenParser.X509CERTIFICATE, certEl.getTagName());
+
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken ); 
+      rstWriter.write(requestToken);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+      System.out.println(new String(baos.toByteArray()));
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
    }
 }

@@ -45,30 +45,30 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {  
+   {
       CancelTargetType cancelTarget = new CancelTargetType();
-      StartElement startElement =  StaxParserUtil.peekNextStartElement( xmlEventReader );
+      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
       // null start element indicates that the token to be canceled hasn't been specified.
       if (startElement == null)
       {
          throw new ParsingException("Unable to parse cancel token request: security token is null");
       }
-      String tag = StaxParserUtil.getStartElementName( startElement );
-      
-      if( tag.equals( JBossSAMLConstants.ASSERTION.get() ) )
+      String tag = StaxParserUtil.getStartElementName(startElement);
+
+      if (tag.equals(JBossSAMLConstants.ASSERTION.get()))
       {
          SAMLParser assertionParser = new SAMLParser();
-         AssertionType assertion = (AssertionType) assertionParser.parse( xmlEventReader );
-         cancelTarget.setAny( assertion );
+         AssertionType assertion = (AssertionType) assertionParser.parse(xmlEventReader);
+         cancelTarget.add(assertion);
       }
       else
       {
          // this is an unknown type - parse using the transformer.
          try
-         { 
-            cancelTarget.setAny( StaxParserUtil.getDOMElement(xmlEventReader) );
+         {
+            cancelTarget.add(StaxParserUtil.getDOMElement(xmlEventReader));
          }
-         catch(Exception e)
+         catch (Exception e)
          {
             throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
          }
@@ -80,11 +80,10 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
     * @see {@link ParserNamespaceSupport#supports(QName)}
     */
    public boolean supports(QName qname)
-   { 
+   {
       String nsURI = qname.getNamespaceURI();
       String localPart = qname.getLocalPart();
-      
-      return WSTrustConstants.BASE_NAMESPACE.equals( nsURI )
-             && WSTrustConstants.CANCEL_TARGET.equals( localPart );
-   } 
+
+      return WSTrustConstants.BASE_NAMESPACE.equals(nsURI) && WSTrustConstants.CANCEL_TARGET.equals(localPart);
+   }
 }

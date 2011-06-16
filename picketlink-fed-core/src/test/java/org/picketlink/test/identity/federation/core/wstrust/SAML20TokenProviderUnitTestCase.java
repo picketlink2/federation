@@ -144,7 +144,7 @@ public class SAML20TokenProviderUnitTestCase
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
 
-      SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
+      SubjectConfirmationType confirmation = subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_BEARER_URI, confirmation.getMethod());
 
       // validate the attached token reference created by the SAML provider.
@@ -203,15 +203,15 @@ public class SAML20TokenProviderUnitTestCase
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
 
-      SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
+      SubjectConfirmationType confirmation = subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_HOLDER_OF_KEY_URI, confirmation.getMethod());
 
       SubjectConfirmationDataType confirmData = confirmation.getSubjectConfirmationData();
       KeyInfoType keyInfo = (KeyInfoType) confirmData.getAnyType();
       assertEquals("Unexpected key info content size", 1, keyInfo.getContent().size());
       Element encKeyElement = (Element) keyInfo.getContent().get(0);
-      assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY, encKeyElement
-            .getLocalName());
+      assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY,
+            encKeyElement.getLocalName());
 
       // Now let's set an asymmetric proof of possession token in the context.
       Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
@@ -227,7 +227,7 @@ public class SAML20TokenProviderUnitTestCase
       nameID = (NameIDType) subject.getSubType().getBaseID();
       assertEquals("Unexpected name id qualifier", "urn:picketlink:identity-federation", nameID.getNameQualifier());
       assertEquals("Unexpected name id", "sguilhen", nameID.getValue());
-      confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
+      confirmation = subject.getConfirmation().get(0);
       assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_HOLDER_OF_KEY_URI, confirmation.getMethod());
 
       /*
@@ -241,8 +241,7 @@ public class SAML20TokenProviderUnitTestCase
 
       // key info should contain a X509Data section with the encoded certificate.
       X509DataType x509Data = (X509DataType) keyInfo.getContent().get(0);
-      assertEquals("Unexpected X509 data content size", 1, x509Data.getDataObjects()
-            .size());
+      assertEquals("Unexpected X509 data content size", 1, x509Data.getDataObjects().size());
       X509CertificateType cert = (X509CertificateType) x509Data.getDataObjects().get(0);
 
       // certificate should have been encoded to Base64, so we need to decode it first.
@@ -346,7 +345,7 @@ public class SAML20TokenProviderUnitTestCase
       request.setRequestType(URI.create(WSTrustConstants.VALIDATE_REQUEST));
       request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
       ValidateTargetType validateTarget = new ValidateTargetType();
-      validateTarget.setAny(assertion);
+      validateTarget.add(assertion);
       request.setValidateTarget(validateTarget);
       // we need to set the request document in the request object for the test.
       DOMSource requestSource = (DOMSource) this.createSourceFromRequest(request);

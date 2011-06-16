@@ -19,11 +19,15 @@ package org.picketlink.identity.federation.core.wstrust;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.annotation.Resource;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -40,6 +44,8 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants.WSSE;
 import org.picketlink.identity.federation.core.wstrust.wrappers.BaseRequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
@@ -47,6 +53,9 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustResponseWriter;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -56,8 +65,8 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
-@ServiceMode(value = Service.Mode.PAYLOAD)
-public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
+@ServiceMode(value = Service.Mode.MESSAGE)
+public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenService
 {
    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
 
@@ -77,6 +86,108 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
    protected WebServiceContext context;
 
    protected STSConfiguration config;
+
+   //If the SOAP Message contained a wsse:binaryToken, all the providers can have access to it
+   public static ThreadLocal<BinaryToken> binaryToken = new InheritableThreadLocal<BinaryToken>();
+
+   public static class BinaryToken
+   {
+      public Node token;
+   }
+
+   public SOAPMessage invoke(SOAPMessage request)
+   {
+      String valueType = null;
+      //Check headers
+      try
+      {
+         SOAPHeader soapHeader = request.getSOAPHeader();
+         Node binaryToken = getBinaryToken(soapHeader);
+         if (binaryToken != null)
+         {
+            NamedNodeMap namedNodeMap = binaryToken.getAttributes();
+            int length = namedNodeMap != null ? namedNodeMap.getLength() : 0;
+            for (int i = 0; i < length; i++)
+            {
+               Node nodeValueType = namedNodeMap.getNamedItem(WSSE.VALUE_TYPE);
+               if (nodeValueType != null)
+               {
+                  valueType = nodeValueType.getNodeValue();
+                  break;
+               }
+            }
+         }
+      }
+      catch (SOAPException e)
+      {
+         throw new WebServiceException(e);
+      }
+      Document document;
+      BaseRequestSecurityToken baseRequest;
+      try
+      {
+         Node payLoad = request.getSOAPBody().getFirstChild();
+         document = DocumentUtil.createDocument();
+         payLoad = document.importNode(payLoad, true);
+         document.appendChild(payLoad);
+
+         WSTrustParser parser = new WSTrustParser();
+
+         baseRequest = (BaseRequestSecurityToken) parser.parse(DocumentUtil.getNodeAsStream(document));
+      }
+      catch (Exception e)
+      {
+         throw new WebServiceException(e);
+      }
+
+      if (baseRequest instanceof RequestSecurityToken)
+      {
+         RequestSecurityToken req = (RequestSecurityToken) baseRequest;
+         req.setRSTDocument(document);
+         if (valueType != null)
+         {
+            req.setBinaryValueType(URI.create(valueType));
+         }
+         Source theResponse = this.handleTokenRequest(req);
+         return convert(theResponse);
+      }
+      else if (baseRequest instanceof RequestSecurityTokenCollection)
+      {
+         return convert(this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest));
+      }
+      else
+         throw new WebServiceException("Invalid security token request");
+   }
+
+   private SOAPMessage convert(Source theResponse)
+   {
+      try
+      {
+         SOAPMessage response = SOAPUtil.create();
+         Document theResponseDoc = (Document) DocumentUtil.getNodeFromSource(theResponse);
+         response.getSOAPBody().addDocument(theResponseDoc);
+         return response;
+      }
+      catch (Exception e)
+      {
+         throw new WebServiceException(e);
+      }
+   }
+
+   private Node getBinaryToken(SOAPHeader soapHeader)
+   {
+      NodeList children = soapHeader.getChildNodes();
+      int length = children != null ? children.getLength() : 0;
+      for (int i = 0; i < length; i++)
+      {
+         Node child = children.item(i);
+         if (child.getNodeName().contains(WSSE.BINARY_SECURITY_TOKEN))
+         {
+            return child;
+         }
+      }
+      return null;
+   }
 
    /*
     * (non-Javadoc)
@@ -250,4 +361,5 @@ public class PicketLinkSTS implements Provider<Source>// SecurityTokenService
          throw new ConfigurationException("Error parsing the configuration file:[" + configurationFileURL + "]", e);
       }
    }
+
 }

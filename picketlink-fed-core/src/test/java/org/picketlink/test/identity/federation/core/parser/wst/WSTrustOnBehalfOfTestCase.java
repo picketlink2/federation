@@ -22,10 +22,12 @@
 package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
@@ -47,26 +49,28 @@ public class WSTrustOnBehalfOfTestCase
    public void testOnBehalfOfParsing() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-issue-onbehalfof.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-onbehalfof.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = ( RequestSecurityToken ) parser.parse( configStream );   
-       
-      assertEquals( "testcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() ); 
-      
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+
+      assertEquals("testcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+
       OnBehalfOfType onBehalfOf = requestToken.getOnBehalfOf();
-      UsernameTokenType userNameToken = (UsernameTokenType) onBehalfOf.getAny();
-      assertEquals( "id", userNameToken.getId() );
-      assertEquals( "anotherduke", userNameToken.getUsername().getValue() );
-      
+      List<Object> theList = onBehalfOf.getAny();
+      assertNotNull(theList);
+      UsernameTokenType userNameToken = (UsernameTokenType) theList.get(0);
+      assertEquals("id", userNameToken.getId());
+      assertEquals("anotherduke", userNameToken.getUsername().getValue());
+
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken); 
+      rstWriter.write(requestToken);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
-   } 
+      System.out.println(new String(baos.toByteArray()));
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+   }
 }

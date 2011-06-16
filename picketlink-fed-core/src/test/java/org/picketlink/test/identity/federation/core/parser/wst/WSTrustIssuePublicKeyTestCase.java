@@ -63,7 +63,7 @@ public class WSTrustIssuePublicKeyTestCase
             .toASCIIString());
 
       UseKeyType useKeyType = requestToken.getUseKey();
-      Element certEl = (Element) useKeyType.getAny();
+      Element certEl = (Element) useKeyType.getAny().get(0);
 
       assertEquals("ds:" + WSTRequestSecurityTokenParser.KEYVALUE, certEl.getTagName());
 

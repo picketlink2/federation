@@ -51,54 +51,54 @@ import org.picketlink.identity.federation.ws.trust.CancelTargetType;
  */
 public class WSTrustCancelTargetSamlTestCase
 {
-   @Test 
+   @Test
    public void testWST_CancelTargetSaml() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-cancel-saml.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-cancel-saml.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse( configStream );
-      assertEquals( "cancelcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.CANCEL_REQUEST, requestToken.getRequestType().toASCIIString() );
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+      assertEquals("cancelcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.CANCEL_REQUEST, requestToken.getRequestType().toASCIIString());
 
       CancelTargetType cancelTarget = requestToken.getCancelTarget();
-      
-      AssertionType assertion = (AssertionType) cancelTarget.getAny();
-      validateAssertion( assertion ); 
-      
+
+      AssertionType assertion = (AssertionType) cancelTarget.getAny().get(0);
+      validateAssertion(assertion);
+
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken ); 
+      rstWriter.write(requestToken);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+      System.out.println(new String(baos.toByteArray()));
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
    }
-   
-   private void validateAssertion( AssertionType assertion ) throws Exception
+
+   private void validateAssertion(AssertionType assertion) throws Exception
    {
-      DatatypeFactory dtf = DatatypeFactory.newInstance(); 
-      
-      assertNotNull( assertion );
-      
-      assertEquals( "ID_cb1eadf5-50a6-4fdf-96bc-412514f52882", assertion.getID() );
-      assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.603Z" ), assertion.getIssueInstant() );
+      DatatypeFactory dtf = DatatypeFactory.newInstance();
+
+      assertNotNull(assertion);
+
+      assertEquals("ID_cb1eadf5-50a6-4fdf-96bc-412514f52882", assertion.getID());
+      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), assertion.getIssueInstant());
       //Issuer
-      assertEquals( "Test STS", assertion.getIssuer().getValue() );
-      
+      assertEquals("Test STS", assertion.getIssuer().getValue());
+
       //Subject
       SubjectType subject = assertion.getSubject();
-      
+
       NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
-      
-      assertEquals( "jduke", subjectNameID.getValue() );
-      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
-      
+
+      assertEquals("jduke", subjectNameID.getValue());
+      assertEquals("urn:picketlink:identity-federation", subjectNameID.getNameQualifier());
+
       SubjectConfirmationType subjectConfirmationType = subject.getConfirmation().get(0);
-      assertEquals( JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod() );
-      
+      assertEquals(JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod());
+
       /*List<JAXBElement<?>> content = subject.getContent(); 
       
       int size = content.size();
@@ -122,10 +122,10 @@ public class WSTrustCancelTargetSamlTestCase
             assertEquals( JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod() );
          }
       } */
-      
+
       //Conditions
-      ConditionsType conditions =  assertion.getConditions();
-      assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T19:13:37.603Z" ) , conditions.getNotBefore() );
-      assertEquals( dtf.newXMLGregorianCalendar( "2010-09-30T21:13:37.603Z" ) , conditions.getNotOnOrAfter() ); 
+      ConditionsType conditions = assertion.getConditions();
+      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), conditions.getNotBefore());
+      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T21:13:37.603Z"), conditions.getNotOnOrAfter());
    }
 }

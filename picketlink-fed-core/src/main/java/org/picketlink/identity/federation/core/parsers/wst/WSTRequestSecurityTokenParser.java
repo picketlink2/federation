@@ -246,7 +246,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                      throw new ParsingException("binary secret value is expected ahead");
 
                   binarySecret.setValue(StaxParserUtil.getElementText(xmlEventReader).getBytes());
-                  entropy.getAny().add(binarySecret);
+                  entropy.addAny(binarySecret);
                }
                requestToken.setEntropy(entropy);
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
@@ -284,14 +284,14 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
                   //Element domElement = getX509CertificateAsDomElement( subEvent, xmlEventReader );
 
-                  useKeyType.setAny(domElement);
+                  useKeyType.add(domElement);
                   requestToken.setUseKey(useKeyType);
                }
                else if (StaxParserUtil.matches(subEvent, KEYVALUE))
                {
                   //Element domElement = getKeyValueAsDomElement( subEvent, xmlEventReader );
                   Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);//
-                  useKeyType.setAny(domElement);
+                  useKeyType.add(domElement);
                   requestToken.setUseKey(useKeyType);
 
                   EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);

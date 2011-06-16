@@ -91,10 +91,10 @@ public class RequestSecurityTokenCollection implements BaseRequestSecurityToken
     */
    public void addRequestSecurityToken(RequestSecurityToken request)
    {
-      this.delegate.getRequestSecurityToken().add(request.getDelegate());
+      this.delegate.add(request.getDelegate());
       this.requestSecurityTokens.add(request);
    }
- 
+
    /**
     * <p>
     * Removes the specified {@code RequestSecurityToken} object from the collection of token requests.
@@ -104,10 +104,10 @@ public class RequestSecurityTokenCollection implements BaseRequestSecurityToken
     */
    public void removeRequestSecurityToken(RequestSecurityToken request)
    {
-      this.delegate.getRequestSecurityToken().remove(request.getDelegate());
+      this.delegate.remove(request.getDelegate());
       this.requestSecurityTokens.remove(request);
    }
-   
+
    /**
     * <p>
     * Obtains a reference to the {@code RequestSecurityTokenCollectionType} delegate.

@@ -337,7 +337,7 @@ public class STSClient
       request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
       request.setRequestType(URI.create(WSTrustConstants.RENEW_REQUEST));
       RenewTargetType renewTarget = new RenewTargetType();
-      renewTarget.setAny(token);
+      renewTarget.add(token);
       request.setRenewTarget(renewTarget);
 
       // send the token request to JBoss STS and get the response.
@@ -397,7 +397,7 @@ public class STSClient
       request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
       request.setRequestType(URI.create(WSTrustConstants.VALIDATE_REQUEST));
       ValidateTargetType validateTarget = new ValidateTargetType();
-      validateTarget.setAny(token);
+      validateTarget.add(token);
       request.setValidateTarget(validateTarget);
 
       DOMSource requestSource = this.createSourceFromRequest(request);
@@ -441,7 +441,7 @@ public class STSClient
       RequestSecurityToken request = new RequestSecurityToken();
       request.setRequestType(URI.create(WSTrustConstants.CANCEL_REQUEST));
       CancelTargetType cancelTarget = new CancelTargetType();
-      cancelTarget.setAny(securityToken);
+      cancelTarget.add(securityToken);
       request.setCancelTarget(cancelTarget);
       request.setContext("context");
 

@@ -54,7 +54,7 @@ public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
          WSSecurityParser wsseParser = new WSSecurityParser();
 
          UsernameTokenType userNameToken = (UsernameTokenType) wsseParser.parse(xmlEventReader);
-         onBehalfType.setAny(userNameToken);
+         onBehalfType.add(userNameToken);
       }
       else
          throw new RuntimeException("Unknown tag:" + tag);

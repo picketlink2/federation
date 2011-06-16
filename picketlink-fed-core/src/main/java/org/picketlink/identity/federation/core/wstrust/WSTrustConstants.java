@@ -205,7 +205,12 @@ public interface WSTrustConstants
 
       String PREFIX_11 = "wsse11";
 
+      //http://www.ws-i.org/Profiles/KerberosTokenProfile-1.0.html#Kerberos_Security_Token_URI
+      String KERBEROS = "http://docs.oasis-open.org/wss/2005/xx/oasis-2005xx-wss-kerberos-token-profile-1.1#GSS_Kerberosv5_AP_REQ";
+
       String SECURITY_TOKEN_REFERENCE = "SecurityTokenReference";
+
+      String BINARY_SECURITY_TOKEN = "BinarySecurityToken";
 
       String USERNAME_TOKEN = "UsernameToken";
 

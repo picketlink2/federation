@@ -39,7 +39,7 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWrit
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;  
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
@@ -61,8 +61,8 @@ import org.w3c.dom.Element;
  */
 public class WSTrustRSTWriter
 {
-   private XMLStreamWriter writer;
-   
+   private final XMLStreamWriter writer;
+
    /**
     * <p>
     * Creates a {@code WSTrustRSTWriter} that writes {@code RequestSecurityToken} instances to the specified
@@ -103,63 +103,63 @@ public class WSTrustRSTWriter
    {
       this.writer = writer;
    }
-   
+
    /**
     * Write the {@code RequestSecurityTokenCollection} into the {@code OutputStream}
     * @param requestTokenCollection
     * @param out
     * @throws ProcessingException
     */
-   public void write( RequestSecurityTokenCollection requestTokenCollection) throws ProcessingException
+   public void write(RequestSecurityTokenCollection requestTokenCollection) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, RST_COLLECTION, BASE_NAMESPACE);   
-      StaxUtil.writeNameSpace( writer, PREFIX, BASE_NAMESPACE );
-      
+      StaxUtil.writeStartElement(writer, PREFIX, RST_COLLECTION, BASE_NAMESPACE);
+      StaxUtil.writeNameSpace(writer, PREFIX, BASE_NAMESPACE);
+
       List<RequestSecurityToken> tokenList = requestTokenCollection.getRequestSecurityTokens();
-      if( tokenList == null )
-         throw new ProcessingException( "RST list is null" );
-      
-      for( RequestSecurityToken token: tokenList )
+      if (tokenList == null)
+         throw new ProcessingException("RST list is null");
+
+      for (RequestSecurityToken token : tokenList)
       {
          write(token);
       }
 
-      StaxUtil.writeEndElement( writer ); 
-      StaxUtil.flush( writer );
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write the {@code RequestSecurityToken} into the {@code OutputStream}
     * @param requestToken
     * @param out
     * @throws ProcessingException
     */
-   public void write( RequestSecurityToken requestToken ) throws ProcessingException
+   public void write(RequestSecurityToken requestToken) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, RST, BASE_NAMESPACE);   
-      StaxUtil.writeNameSpace( writer, PREFIX, BASE_NAMESPACE );
+      StaxUtil.writeStartElement(writer, PREFIX, RST, BASE_NAMESPACE);
+      StaxUtil.writeNameSpace(writer, PREFIX, BASE_NAMESPACE);
       String context = requestToken.getContext();
-      StaxUtil.writeAttribute( writer,  RST_CONTEXT, context );
-      
+      StaxUtil.writeAttribute(writer, RST_CONTEXT, context);
+
       URI requestType = requestToken.getRequestType();
-      if( requestType != null )
+      if (requestType != null)
       {
-         writeRequestType( writer, requestType );
+         writeRequestType(writer, requestType);
       }
-      
+
       URI tokenType = requestToken.getTokenType();
-      if( tokenType != null )
+      if (tokenType != null)
       {
-         writeTokenType( writer, tokenType );
+         writeTokenType(writer, tokenType);
       }
       //Deal with AppliesTo
       AppliesTo appliesTo = requestToken.getAppliesTo();
-      if( appliesTo != null )
+      if (appliesTo != null)
       {
          WSPolicyWriter wsPolicyWriter = new WSPolicyWriter(this.writer);
-         wsPolicyWriter.write( appliesTo ); 
+         wsPolicyWriter.write(appliesTo);
       }
-      
+
       long keySize = requestToken.getKeySize();
       if (keySize != 0)
       {
@@ -167,52 +167,52 @@ public class WSTrustRSTWriter
          StaxUtil.writeCharacters(writer, Long.toString(keySize));
          StaxUtil.writeEndElement(writer);
       }
-      
+
       URI keyType = requestToken.getKeyType();
-      if( keyType != null )
+      if (keyType != null)
       {
-         StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.KEY_TYPE, BASE_NAMESPACE);   
-         StaxUtil.writeCharacters(writer,  keyType.toString() ); 
-         StaxUtil.writeEndElement( writer ); 
+         StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.KEY_TYPE, BASE_NAMESPACE);
+         StaxUtil.writeCharacters(writer, keyType.toString());
+         StaxUtil.writeEndElement(writer);
       }
       EntropyType entropy = requestToken.getEntropy();
-      if( entropy != null )
+      if (entropy != null)
       {
-         writeEntropyType(entropy); 
+         writeEntropyType(entropy);
       }
-      
+
       UseKeyType useKeyType = requestToken.getUseKey();
-      if( useKeyType != null )
+      if (useKeyType != null)
       {
          writeUseKeyType(useKeyType);
       }
-      
+
       OnBehalfOfType onBehalfOf = requestToken.getOnBehalfOf();
-      if( onBehalfOf != null )
-      { 
-         writeOnBehalfOfType(onBehalfOf); 
-      }
-      
-      ValidateTargetType validateTarget = requestToken.getValidateTarget();
-      if( validateTarget != null )
+      if (onBehalfOf != null)
       {
-         writeValidateTargetType(validateTarget); 
+         writeOnBehalfOfType(onBehalfOf);
       }
-      
+
+      ValidateTargetType validateTarget = requestToken.getValidateTarget();
+      if (validateTarget != null)
+      {
+         writeValidateTargetType(validateTarget);
+      }
+
       CancelTargetType cancelTarget = requestToken.getCancelTarget();
-      if( cancelTarget != null )
+      if (cancelTarget != null)
       {
          writeCancelTargetType(cancelTarget);
       }
-      
+
       RenewTargetType renewTarget = requestToken.getRenewTarget();
       if (renewTarget != null)
       {
          writeRenewTargetType(renewTarget);
       }
-      
-      StaxUtil.writeEndElement( writer ); 
-      StaxUtil.flush( writer );
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
 
    /**
@@ -222,21 +222,21 @@ public class WSTrustRSTWriter
     */
    private void writeEntropyType(EntropyType entropy) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.ENTROPY, BASE_NAMESPACE);   
-      
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.ENTROPY, BASE_NAMESPACE);
+
       List<Object> entropyList = entropy.getAny();
-      if( entropyList != null )
+      if (entropyList != null)
       {
-         for( Object entropyObj: entropyList )
+         for (Object entropyObj : entropyList)
          {
-            if( entropyObj instanceof BinarySecretType )
+            if (entropyObj instanceof BinarySecretType)
             {
                BinarySecretType binarySecret = (BinarySecretType) entropyObj;
-               writeBinarySecretType( writer, binarySecret );
+               writeBinarySecretType(writer, binarySecret);
             }
          }
       }
-      StaxUtil.writeEndElement( writer );
+      StaxUtil.writeEndElement(writer);
    }
 
    /**
@@ -246,9 +246,33 @@ public class WSTrustRSTWriter
     */
    private void writeUseKeyType(UseKeyType useKeyType) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.USE_KEY, BASE_NAMESPACE);   
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.USE_KEY, BASE_NAMESPACE);
 
-      Object useKeyTypeValue = useKeyType.getAny();
+      List<Object> theList = useKeyType.getAny();
+      for (Object useKeyTypeValue : theList)
+      {
+         if (useKeyTypeValue instanceof Element)
+         {
+            Element domElement = (Element) useKeyTypeValue;
+            StaxUtil.writeDOMElement(writer, domElement);
+         }
+         else if (useKeyTypeValue instanceof byte[])
+         {
+            byte[] certificate = (byte[]) useKeyTypeValue;
+            StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.X509CERT,
+                  WSTrustConstants.DSIG_NS);
+            StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
+            StaxUtil.writeCharacters(writer, new String(certificate));
+            StaxUtil.writeEndElement(writer);
+         }
+         else if (useKeyTypeValue instanceof KeyValueType)
+         {
+            writeKeyValueType((KeyValueType) useKeyTypeValue);
+         }
+         else
+            throw new RuntimeException(" Unknown use key type:" + useKeyTypeValue.getClass().getName());
+      }
+      /*Object useKeyTypeValue = useKeyType.getAny();
       if( useKeyTypeValue instanceof Element )
       {
          Element domElement = (Element) useKeyTypeValue;
@@ -268,18 +292,19 @@ public class WSTrustRSTWriter
          writeKeyValueType((KeyValueType) useKeyTypeValue);
       }
       else
-         throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );
-      
+         throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );*/
+
       StaxUtil.writeEndElement(writer);
    }
 
    private void writeKeyValueType(KeyValueType type) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.XMLDSig.KEYVALUE, WSTrustConstants.DSIG_NS);
-      StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYVALUE,
+            WSTrustConstants.DSIG_NS);
+      StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
       if (type.getContent().size() == 0)
          throw new ProcessingException("KeyValueType must contain at least one value");
-      
+
       for (Object obj : type.getContent())
       {
          if (obj instanceof RSAKeyValueType)
@@ -290,24 +315,25 @@ public class WSTrustRSTWriter
       }
       StaxUtil.writeEndElement(writer);
    }
-   
+
    private void writeRSAKeyValueType(RSAKeyValueType type) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.RSA_KEYVALUE , WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.RSA_KEYVALUE, WSTrustConstants.DSIG_NS);
       // write the rsa key modulus.
       byte[] modulus = type.getModulus();
-      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.MODULUS , WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.MODULUS, WSTrustConstants.DSIG_NS);
       StaxUtil.writeCharacters(writer, new String(modulus));
       StaxUtil.writeEndElement(writer);
-      
+
       // write the rsa key exponent.
       byte[] exponent = type.getExponent();
-      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.EXPONENT , WSTrustConstants.DSIG_NS);
+      StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.EXPONENT, WSTrustConstants.DSIG_NS);
       StaxUtil.writeCharacters(writer, new String(exponent));
       StaxUtil.writeEndElement(writer);
-      
+
       StaxUtil.writeEndElement(writer);
    }
+
    /**
     * Write an {@code OnBehalfOfType} to stream
     * @param onBehalfOf
@@ -316,13 +342,13 @@ public class WSTrustRSTWriter
     */
    private void writeOnBehalfOfType(OnBehalfOfType onBehalfOf) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.ON_BEHALF_OF, BASE_NAMESPACE); 
-      StaxUtil.writeCharacters(writer, "" ); 
-      
-      UsernameTokenType usernameToken = (UsernameTokenType) onBehalfOf.getAny(); 
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.ON_BEHALF_OF, BASE_NAMESPACE);
+      StaxUtil.writeCharacters(writer, "");
+
+      UsernameTokenType usernameToken = (UsernameTokenType) onBehalfOf.getAny();
       WSSecurityWriter wsseWriter = new WSSecurityWriter(this.writer);
-      wsseWriter.write( usernameToken );
-      StaxUtil.writeEndElement( writer );
+      wsseWriter.write(usernameToken);
+      StaxUtil.writeEndElement(writer);
    }
 
    /**
@@ -333,9 +359,31 @@ public class WSTrustRSTWriter
     */
    private void writeValidateTargetType(ValidateTargetType validateTarget) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.VALIDATE_TARGET, BASE_NAMESPACE); 
-      
-      Object validateTargetObj = validateTarget.getAny();
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.VALIDATE_TARGET, BASE_NAMESPACE);
+
+      List<Object> theList = validateTarget.getAny();
+      if (theList.size() > 1)
+         throw new RuntimeException("Size of ValidateTarget > 1");
+      for (Object validateTargetObj : theList)
+      {
+         if (validateTargetObj != null)
+         {
+            if (validateTargetObj instanceof AssertionType)
+            {
+               AssertionType assertion = (AssertionType) validateTargetObj;
+               SAMLAssertionWriter samlAssertionWriter = new SAMLAssertionWriter(this.writer);
+               samlAssertionWriter.write(assertion);
+            }
+            else if (validateTargetObj instanceof Element)
+            {
+               StaxUtil.writeDOMElement(writer, (Element) validateTargetObj);
+            }
+            else
+               throw new ProcessingException("Unknown validate target type=" + validateTargetObj.getClass().getName());
+         }
+      }
+
+      /*Object validateTargetObj = validateTarget.getAny();
       if (validateTargetObj != null)
       {
          if (validateTargetObj instanceof AssertionType)
@@ -350,15 +398,34 @@ public class WSTrustRSTWriter
          }
          else
             throw new ProcessingException("Unknown validate target type=" + validateTargetObj.getClass().getName());
-      }
-      StaxUtil.writeEndElement( writer );
+      }*/
+      StaxUtil.writeEndElement(writer);
    }
 
    private void writeRenewTargetType(RenewTargetType renewTarget) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.RENEW_TARGET, BASE_NAMESPACE); 
-      
-      Object renewTargetObj = renewTarget.getAny();
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.RENEW_TARGET, BASE_NAMESPACE);
+
+      List<Object> theList = renewTarget.getAny();
+      for (Object renewTargetObj : theList)
+      {
+         if (renewTargetObj != null)
+         {
+            if (renewTargetObj instanceof AssertionType)
+            {
+               AssertionType assertion = (AssertionType) renewTargetObj;
+               SAMLAssertionWriter samlAssertionWriter = new SAMLAssertionWriter(this.writer);
+               samlAssertionWriter.write(assertion);
+            }
+            else if (renewTargetObj instanceof Element)
+            {
+               StaxUtil.writeDOMElement(writer, (Element) renewTargetObj);
+            }
+            else
+               throw new ProcessingException("Unknown renew target type=" + renewTargetObj.getClass().getName());
+         }
+      }
+      /*Object renewTargetObj = renewTarget.getAny();
       if (renewTargetObj != null)
       {
          if (renewTargetObj instanceof AssertionType)
@@ -373,8 +440,8 @@ public class WSTrustRSTWriter
          }
          else
             throw new ProcessingException("Unknown renew target type=" + renewTargetObj.getClass().getName());
-      }
-      StaxUtil.writeEndElement( writer );
+      }*/
+      StaxUtil.writeEndElement(writer);
    }
 
    /**
@@ -385,9 +452,28 @@ public class WSTrustRSTWriter
     */
    private void writeCancelTargetType(CancelTargetType cancelTarget) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.CANCEL_TARGET, BASE_NAMESPACE); 
-      
-      Object cancelTargetObj = cancelTarget.getAny();
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.CANCEL_TARGET, BASE_NAMESPACE);
+
+      List<Object> theList = cancelTarget.getAny();
+      for (Object cancelTargetObj : theList)
+      {
+         if (cancelTargetObj != null)
+         {
+            if (cancelTargetObj instanceof AssertionType)
+            {
+               AssertionType assertion = (AssertionType) cancelTargetObj;
+               SAMLAssertionWriter samlAssertionWriter = new SAMLAssertionWriter(this.writer);
+               samlAssertionWriter.write(assertion);
+            }
+            else if (cancelTargetObj instanceof Element)
+            {
+               StaxUtil.writeDOMElement(writer, (Element) cancelTargetObj);
+            }
+            else
+               throw new ProcessingException("Unknown cancel target type=" + cancelTargetObj.getClass().getName());
+         }
+      }
+      /*Object cancelTargetObj = cancelTarget.getAny();
       if (cancelTargetObj != null)
       {
          if (cancelTargetObj instanceof AssertionType)
@@ -402,48 +488,48 @@ public class WSTrustRSTWriter
          }
          else
             throw new ProcessingException("Unknown cancel target type=" + cancelTargetObj.getClass().getName());
-      }  
-      StaxUtil.writeEndElement( writer );
+      }*/
+      StaxUtil.writeEndElement(writer);
    }
-   
+
    /**
     * Write a {@code BinarySecretType} to stream
     * @param writer
     * @param binarySecret
     * @throws ProcessingException
     */
-   private void writeBinarySecretType( XMLStreamWriter writer, BinarySecretType binarySecret ) throws ProcessingException
+   private void writeBinarySecretType(XMLStreamWriter writer, BinarySecretType binarySecret) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.BINARY_SECRET, BASE_NAMESPACE );
-      String type = binarySecret.getType(); 
-      StaxUtil.writeAttribute(writer, WSTrustConstants.TYPE, type );
-      StaxUtil.writeCharacters(writer,  new String( binarySecret.getValue() ) );
-      StaxUtil.writeEndElement(writer); 
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.BINARY_SECRET, BASE_NAMESPACE);
+      String type = binarySecret.getType();
+      StaxUtil.writeAttribute(writer, WSTrustConstants.TYPE, type);
+      StaxUtil.writeCharacters(writer, new String(binarySecret.getValue()));
+      StaxUtil.writeEndElement(writer);
    }
-    
+
    /**
     * Write a Request Type
     * @param writer
     * @param uri
     * @throws ProcessingException
     */
-   private void writeRequestType( XMLStreamWriter writer , URI uri ) throws ProcessingException
+   private void writeRequestType(XMLStreamWriter writer, URI uri) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.REQUEST_TYPE, BASE_NAMESPACE );
-      StaxUtil.writeCharacters(writer, uri.toASCIIString() );
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.REQUEST_TYPE, BASE_NAMESPACE);
+      StaxUtil.writeCharacters(writer, uri.toASCIIString());
       StaxUtil.writeEndElement(writer);
    }
-   
+
    /**
     * Write Token Type
     * @param writer
     * @param uri
     * @throws ProcessingException
     */
-   private void writeTokenType( XMLStreamWriter writer , URI uri ) throws ProcessingException
+   private void writeTokenType(XMLStreamWriter writer, URI uri) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PREFIX, WSTrustConstants.TOKEN_TYPE, BASE_NAMESPACE );
-      StaxUtil.writeCharacters(writer, uri.toASCIIString() );
+      StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.TOKEN_TYPE, BASE_NAMESPACE);
+      StaxUtil.writeCharacters(writer, uri.toASCIIString());
       StaxUtil.writeEndElement(writer);
    }
 }

@@ -92,7 +92,7 @@ public class RequestSecurityTokenResponseCollection implements BaseRequestSecuri
     */
    public void addRequestSecurityTokenResponse(RequestSecurityTokenResponse response)
    {
-      this.delegate.getRequestSecurityTokenResponse().add(response.getDelegate());
+      this.delegate.add(response.getDelegate());
       this.requestSecurityTokenResponses.add(response);
    }
 
@@ -105,7 +105,7 @@ public class RequestSecurityTokenResponseCollection implements BaseRequestSecuri
     */
    public void removeRequestSecurityTokenResponse(RequestSecurityTokenResponse response)
    {
-      this.delegate.getRequestSecurityTokenResponse().remove(response.getDelegate());
+      this.delegate.remove(response.getDelegate());
       this.requestSecurityTokenResponses.remove(response);
    }
 

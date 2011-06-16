@@ -19,27 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.ws.trust;
+package org.picketlink.identity.federation.core.util;
+
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 
 /**
- * <p>Java class for EncryptionType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="EncryptionType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * Utility class dealing with SAAJ
+ * @author Anil.Saldhana@redhat.com
+ * @since Jun 16, 2011
  */
-public class EncryptionType extends SimpleAnyType
+public class SOAPUtil
 {
+   public static SOAPMessage create() throws SOAPException
+   {
+      MessageFactory messageFactory = MessageFactory.newInstance();
+
+      SOAPMessage soapMessage = messageFactory.createMessage();
+      return soapMessage;
+   }
+
 }

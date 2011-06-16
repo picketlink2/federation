@@ -57,16 +57,16 @@ public class WSTRenewTargetParser implements ParserNamespaceSupport
       {
          SAMLParser assertionParser = new SAMLParser();
          AssertionType assertion = (AssertionType) assertionParser.parse(xmlEventReader);
-         renewTargetType.setAny(assertion);
+         renewTargetType.add(assertion);
       }
       else
       {
          // this is an unknown type - parse using the transformer.
          try
-         { 
-            renewTargetType.setAny( StaxParserUtil.getDOMElement(xmlEventReader) );
+         {
+            renewTargetType.add(StaxParserUtil.getDOMElement(xmlEventReader));
          }
-         catch(Exception e)
+         catch (Exception e)
          {
             throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
          }

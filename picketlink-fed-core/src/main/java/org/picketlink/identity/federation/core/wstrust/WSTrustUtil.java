@@ -32,6 +32,7 @@ import java.security.cert.Certificate;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Mac;
@@ -112,8 +113,8 @@ public class WSTrustUtil
          Map<QName, String> attributes)
    {
       SecurityTokenReferenceType securityTokenReference = new SecurityTokenReferenceType();
-      securityTokenReference.getAny().add(keyIdentifier);
-      securityTokenReference.getOtherAttributes().putAll(attributes);
+      securityTokenReference.addAny(keyIdentifier);
+      securityTokenReference.addOtherAttributes(attributes);
       RequestedReferenceType reference = new RequestedReferenceType();
       reference.setSecurityTokenReference(securityTokenReference);
 
@@ -215,7 +216,19 @@ public class WSTrustUtil
    {
       // if OnBehalfOfType contains a username token, return this username in the form of a principal.
       UsernameTokenType usernameToken = null;
-      Object content = onBehalfOf.getAny();
+      List<Object> theList = onBehalfOf.getAny();
+      for (Object content : theList)
+      {
+         if (content instanceof UsernameTokenType)
+            usernameToken = (UsernameTokenType) content;
+         else if (content instanceof JAXBElement)
+         {
+            JAXBElement<?> element = (JAXBElement<?>) content;
+            if (element.getName().getLocalPart().equalsIgnoreCase("UsernameToken"))
+               usernameToken = (UsernameTokenType) element.getValue();
+         }
+      }
+      /*Object content = onBehalfOf.getAny();
       if (content instanceof UsernameTokenType)
          usernameToken = (UsernameTokenType) content;
       else if (content instanceof JAXBElement)
@@ -223,7 +236,7 @@ public class WSTrustUtil
          JAXBElement<?> element = (JAXBElement<?>) content;
          if (element.getName().getLocalPart().equalsIgnoreCase("UsernameToken"))
             usernameToken = (UsernameTokenType) element.getValue();
-      }
+      }*/
       if (usernameToken != null && usernameToken.getUsername() != null)
       {
          final String username = usernameToken.getUsername().getValue();
@@ -260,7 +273,7 @@ public class WSTrustUtil
       usernameToken.setUsername(attrString);
       // create the OnBehalfOfType and set the UsernameTokenType.
       OnBehalfOfType onBehalfOf = new OnBehalfOfType();
-      onBehalfOf.setAny(usernameToken);
+      onBehalfOf.add(usernameToken);
       return onBehalfOf;
    }
 

@@ -49,13 +49,13 @@ public class AnyAddressingType extends BaseAddressingType
       return Collections.unmodifiableList(this.any);
    }
 
-   /**
-    * Add an any
-    * @param obj
-    */
-   public void addAny(Object obj)
+   public void addAny(Object t)
    {
-      this.any.add(obj);
+      this.any.add(t);
    }
 
+   public boolean removeAny(Object t)
+   {
+      return any.remove(t);
+   }
 }

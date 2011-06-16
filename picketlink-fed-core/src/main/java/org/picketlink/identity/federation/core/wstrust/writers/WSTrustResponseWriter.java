@@ -29,7 +29,7 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
-import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection; 
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
@@ -48,7 +48,7 @@ import org.w3c.dom.Element;
  */
 public class WSTrustResponseWriter
 {
-   private XMLStreamWriter writer;
+   private final XMLStreamWriter writer;
 
    /**
     * <p>
@@ -184,8 +184,8 @@ public class WSTrustResponseWriter
       {
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_TOKEN,
                WSTrustConstants.BASE_NAMESPACE);
-         Object securityToken = response.getRequestedSecurityToken().getAny();
-         if (securityToken != null)
+         List<Object> theList = response.getRequestedSecurityToken().getAny();
+         for (Object securityToken : theList)
          {
             if (securityToken instanceof AssertionType)
             {
@@ -200,6 +200,22 @@ public class WSTrustResponseWriter
             else
                throw new ProcessingException("Unknown security token type=" + securityToken.getClass().getName());
          }
+         /*Object securityToken = response.getRequestedSecurityToken().getAny();
+         if (securityToken != null)
+         {
+            if (securityToken instanceof AssertionType)
+            {
+               AssertionType assertion = (AssertionType) securityToken;
+               SAMLAssertionWriter samlAssertionWriter = new SAMLAssertionWriter(this.writer);
+               samlAssertionWriter.write(assertion);
+            }
+            else if (securityToken instanceof Element)
+            {
+               StaxUtil.writeDOMElement(this.writer, (Element) securityToken);
+            }
+            else
+               throw new ProcessingException("Unknown security token type=" + securityToken.getClass().getName());
+         }*/
          StaxUtil.writeEndElement(this.writer);
       }
 
@@ -217,29 +233,32 @@ public class WSTrustResponseWriter
       if (response.getRequestedProofToken() != null)
       {
          RequestedProofTokenType requestedProof = response.getRequestedProofToken();
-         Object content = requestedProof.getAny();
-         if (content == null)
-            throw new ProcessingException("RequestedProofToken context cannot be empty");
 
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_PROOF_TOKEN,
                WSTrustConstants.BASE_NAMESPACE);
-         if (content instanceof BinarySecretType)
+         List<Object> theList = requestedProof.getAny();
+         for (Object content : theList)
          {
-            BinarySecretType binarySecret = (BinarySecretType) content;
-            StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.BINARY_SECRET,
-                  WSTrustConstants.BASE_NAMESPACE);
-            StaxUtil.writeAttribute(this.writer, WSTrustConstants.TYPE, binarySecret.getType());
-            StaxUtil.writeCharacters(this.writer, new String(binarySecret.getValue()));
-            StaxUtil.writeEndElement(this.writer);
+            if (content instanceof BinarySecretType)
+            {
+               BinarySecretType binarySecret = (BinarySecretType) content;
+               StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.BINARY_SECRET,
+                     WSTrustConstants.BASE_NAMESPACE);
+               StaxUtil.writeAttribute(this.writer, WSTrustConstants.TYPE, binarySecret.getType());
+               StaxUtil.writeCharacters(this.writer, new String(binarySecret.getValue()));
+               StaxUtil.writeEndElement(this.writer);
+            }
+            else if (content instanceof ComputedKeyType)
+            {
+               ComputedKeyType computedKey = (ComputedKeyType) content;
+               StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.COMPUTED_KEY,
+                     WSTrustConstants.BASE_NAMESPACE);
+               StaxUtil.writeCharacters(this.writer, computedKey.getAlgorithm());
+               StaxUtil.writeEndElement(this.writer);
+            }
+
          }
-         else if (content instanceof ComputedKeyType)
-         {
-            ComputedKeyType computedKey = (ComputedKeyType) content;
-            StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.COMPUTED_KEY,
-                  WSTrustConstants.BASE_NAMESPACE);
-            StaxUtil.writeCharacters(this.writer, computedKey.getAlgorithm());
-            StaxUtil.writeEndElement(this.writer);
-         }
+
          StaxUtil.writeEndElement(this.writer);
       }
 

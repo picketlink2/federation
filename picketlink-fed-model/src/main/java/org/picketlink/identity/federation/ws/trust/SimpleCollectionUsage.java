@@ -21,25 +21,25 @@
  */
 package org.picketlink.identity.federation.ws.trust;
 
+import java.util.Collection;
+
 /**
- * <p>Java class for EncryptionType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="EncryptionType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * A simple interface to add in methods for a {@link Collection}
+ * @author Anil.Saldhana@redhat.com
+ * @since Jun 16, 2011
  */
-public class EncryptionType extends SimpleAnyType
+public interface SimpleCollectionUsage<T>
 {
+   /**
+    * Add a {@link T} to the collection
+    * @param t
+    */
+   public void add(T t);
+
+   /**
+    * Remove a {@link T} from collection
+    * @param t
+    * @return
+    */
+   public boolean remove(T t);
 }

@@ -21,25 +21,42 @@
  */
 package org.picketlink.identity.federation.ws.trust;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.w3c.dom.Element;
+
 /**
- * <p>Java class for EncryptionType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType name="EncryptionType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * @author Anil.Saldhana@redhat.com
+ * @since Jun 16, 2011
  */
-public class EncryptionType extends SimpleAnyType
+public class SimpleAnyType implements SimpleCollectionUsage<Object>
 {
+   protected List<Object> any = new ArrayList<Object>();
+
+   /**
+    * Gets the value of the any property. 
+    * 
+    * <p>
+    * Objects of the following type(s) are allowed in the list
+    * {@link Object }
+    * {@link Element }
+    * 
+    */
+   public List<Object> getAny()
+   {
+      return Collections.unmodifiableList(this.any);
+   }
+
+   public void add(Object t)
+   {
+      this.any.add(t);
+   }
+
+   public boolean remove(Object t)
+   {
+      return any.remove(t);
+
+   }
 }

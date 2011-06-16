@@ -41,23 +41,23 @@ import org.picketlink.identity.federation.ws.trust.RenewTargetType;
  */
 public class WSTrustRenewTargetParsingTestCase
 {
-   @Test 
+   @Test
    public void testWST_RenewTarget() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-renew-saml.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-renew-saml.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse( configStream );  
-      assertEquals( "renewcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.RENEW_REQUEST , requestToken.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE , requestToken.getTokenType().toASCIIString() ); 
-      
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+      assertEquals("renewcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.RENEW_REQUEST, requestToken.getRequestType().toASCIIString());
+      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
+
       RenewTargetType renewTarget = requestToken.getRenewTarget();
-      AssertionType assertion = (AssertionType) renewTarget.getAny();
-      assertEquals( "ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID() );
-      assertEquals( "Test STS", assertion.getIssuer().getValue() );
+      AssertionType assertion = (AssertionType) renewTarget.getAny().get(0);
+      assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
+      assertEquals("Test STS", assertion.getIssuer().getValue());
       SubjectType subject = assertion.getSubject();
-      assertEquals( "jduke", ((NameIDType)subject.getSubType().getBaseID()).getValue());
-   } 
+      assertEquals("jduke", ((NameIDType) subject.getSubType().getBaseID()).getValue());
+   }
 }

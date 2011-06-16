@@ -51,40 +51,41 @@ public class WSTResponseAssertionHOKCertificateTestCase
    public void testWST_RSTR_Assertion() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-response-assertion-hok-certificate.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-assertion-hok-certificate.xml");
+
       WSTrustParser parser = new WSTrustParser();
       RequestSecurityTokenResponseCollection coll = (RequestSecurityTokenResponseCollection) parser.parse(configStream);
-      assertEquals(1, coll.getRequestSecurityTokenResponses().size() );
-      
-      RequestSecurityTokenResponse rstr = coll.getRequestSecurityTokenResponses().get(0);
-      
-      assertEquals( "testcontext", rstr.getContext() );
-      assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, rstr.getTokenType().toASCIIString() );
-      
-      assertEquals( XMLTimeUtil.parse( "2010-11-11T16:34:19.602Z" ), rstr.getLifetime().getCreated() );
-      assertEquals( XMLTimeUtil.parse( "2010-11-11T18:34:19.602Z" ), rstr.getLifetime().getExpires() );
-      
-      EndpointReferenceType endpoint = (EndpointReferenceType) rstr.getAppliesTo().getAny().get(0);
-      assertEquals( "http://services.testcorp.org/provider2", endpoint.getAddress().getValue()  );
-      
-      assertEquals( 128, rstr.getKeySize() );
-      assertEquals( WSTrustConstants.KEY_TYPE_PUBLIC, rstr.getKeyType().toASCIIString() );
-      
-      Element assertionElement = (Element) rstr.getRequestedSecurityToken().getAny();
-      String id = assertionElement.getAttribute("ID" );
+      assertEquals(1, coll.getRequestSecurityTokenResponses().size());
 
-      assertEquals( "ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", id ); 
-      
+      RequestSecurityTokenResponse rstr = coll.getRequestSecurityTokenResponses().get(0);
+
+      assertEquals("testcontext", rstr.getContext());
+      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, rstr.getTokenType().toASCIIString());
+
+      assertEquals(XMLTimeUtil.parse("2010-11-11T16:34:19.602Z"), rstr.getLifetime().getCreated());
+      assertEquals(XMLTimeUtil.parse("2010-11-11T18:34:19.602Z"), rstr.getLifetime().getExpires());
+
+      EndpointReferenceType endpoint = (EndpointReferenceType) rstr.getAppliesTo().getAny().get(0);
+      assertEquals("http://services.testcorp.org/provider2", endpoint.getAddress().getValue());
+
+      assertEquals(128, rstr.getKeySize());
+      assertEquals(WSTrustConstants.KEY_TYPE_PUBLIC, rstr.getKeyType().toASCIIString());
+
+      Element assertionElement = (Element) rstr.getRequestedSecurityToken().getAny().get(0);
+      String id = assertionElement.getAttribute("ID");
+
+      assertEquals("ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", id);
+
       RequestedReferenceType ref = rstr.getRequestedAttachedReference();
-      SecurityTokenReferenceType secRef =  ref.getSecurityTokenReference();
-      assertNotNull( secRef );
+      SecurityTokenReferenceType secRef = ref.getSecurityTokenReference();
+      assertNotNull(secRef);
       Map<QName, String> map = secRef.getOtherAttributes();
-      QName wsseTokenType =  new QName( WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE, WSTrustConstants.WSSE.PREFIX_11 );
-      assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, map.get(wsseTokenType) );
-      
+      QName wsseTokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE,
+            WSTrustConstants.WSSE.PREFIX_11);
+      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, map.get(wsseTokenType));
+
       KeyIdentifierType keyId = (KeyIdentifierType) secRef.getAny().get(0);
-      assertEquals( "#ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", keyId.getValue() );
-      assertEquals( WSTrustConstants.WSSE.KEY_IDENTIFIER_VALUETYPE_SAML, keyId.getValueType() );
+      assertEquals("#ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", keyId.getValue());
+      assertEquals(WSTrustConstants.WSSE.KEY_IDENTIFIER_VALUETYPE_SAML, keyId.getValueType());
    }
 }

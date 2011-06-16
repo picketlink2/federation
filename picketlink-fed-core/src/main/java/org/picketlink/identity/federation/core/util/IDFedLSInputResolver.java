@@ -36,61 +36,53 @@ import org.w3c.dom.ls.LSResourceResolver;
  */
 public class IDFedLSInputResolver implements LSResourceResolver
 {
-   private static Map<String, LSInput> lsmap = new HashMap<String,LSInput>(); 
-   
-   private static Map<String, String> schemaLocationMap = new HashMap<String,String>();
-   
+   private static Map<String, LSInput> lsmap = new HashMap<String, LSInput>();
+
+   private static Map<String, String> schemaLocationMap = new HashMap<String, String>();
+
    static
    {
       //SAML
       schemaLocationMap.put("saml-schema-assertion-2.0.xsd", "schema/saml/v2/saml-schema-assertion-2.0.xsd");
-      
+
       //WS-T
-      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512", 
-            "schema/wstrust/v1_3/ws-trust-1.3.xsd");
-      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", 
+      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512", "schema/wstrust/v1_3/ws-trust-1.3.xsd");
+      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
             "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", 
+      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
             "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-      schemaLocationMap.put("http://schemas.xmlsoap.org/ws/2004/09/policy", 
-            "schema/wstrust/v1_3/ws-policy.xsd");
-      schemaLocationMap.put("http://www.w3.org/2005/08/addressing", 
-            "schema/wstrust/v1_3/ws-addr.xsd");
-      
+      schemaLocationMap.put("http://schemas.xmlsoap.org/ws/2004/09/policy", "schema/wstrust/v1_3/ws-policy.xsd");
+      schemaLocationMap.put("http://www.w3.org/2005/08/addressing", "schema/wstrust/v1_3/ws-addr.xsd");
+
       //XML DSIG
-      schemaLocationMap.put("http://www.w3.org/2000/09/xmldsig#", 
+      schemaLocationMap.put("http://www.w3.org/2000/09/xmldsig#", "schema/w3c/xmldsig/xmldsig-core-schema.xsd");
+      schemaLocationMap.put("http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd",
             "schema/w3c/xmldsig/xmldsig-core-schema.xsd");
-      schemaLocationMap.put("http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd", 
-             "schema/w3c/xmldsig/xmldsig-core-schema.xsd");
-      
+
       //XML Enc
-      schemaLocationMap.put("http://www.w3.org/2001/04/xmlenc#",
-             "schema/w3c/xmlenc/xenc-schema.xsd");
+      schemaLocationMap.put("http://www.w3.org/2001/04/xmlenc#", "schema/w3c/xmlenc/xenc-schema.xsd");
       schemaLocationMap.put("http://www.w3.org/TR/2002/REC-xmlenc-core-20021210/xenc-schema.xsd",
-             "schema/w3c/xmlenc/xenc-schema.xsd"); 
-      
+            "schema/w3c/xmlenc/xenc-schema.xsd");
+
       //XML Schema/DTD
-      schemaLocationMap.put("datatypes.dtd",
-             "schema/w3c/xmlschema/datatypes.dtd");
-      schemaLocationMap.put("http://www.w3.org/2001/XMLSchema.dtd",
-             "schema/w3c/xmlschema/XMLSchema.dtd");
+      schemaLocationMap.put("datatypes.dtd", "schema/w3c/xmlschema/datatypes.dtd");
+      schemaLocationMap.put("http://www.w3.org/2001/XMLSchema.dtd", "schema/w3c/xmlschema/XMLSchema.dtd");
    }
-   
-   public LSInput resolveResource(String type, 
-         String namespaceURI, final String publicId, 
-         final String systemId, final String baseURI)
-   {   
+
+   public LSInput resolveResource(String type, String namespaceURI, final String publicId, final String systemId,
+         final String baseURI)
+   {
       LSInput lsi = lsmap.get(systemId);
-      if(lsi == null)
+      if (lsi == null)
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader(); 
+         ClassLoader tcl = SecurityActions.getContextClassLoader();
          String loc = schemaLocationMap.get(systemId);
-         if(loc == null)
+         if (loc == null)
             return null;
-         
-         final InputStream is = tcl.getResourceAsStream(loc); 
-         if(is == null)
-            System.out.println("inputstream is null for "+ loc);
+
+         final InputStream is = tcl.getResourceAsStream(loc);
+         if (is == null)
+            throw new RuntimeException("inputstream is null for " + loc);
          lsi = new LSInput()
          {
             public String getBaseURI()
@@ -104,17 +96,17 @@ public class IDFedLSInputResolver implements LSResourceResolver
             }
 
             public boolean getCertifiedText()
-            { 
+            {
                return false;
             }
 
             public Reader getCharacterStream()
-            { 
+            {
                return null;
             }
 
             public String getEncoding()
-            { 
+            {
                return null;
             }
 
@@ -124,7 +116,7 @@ public class IDFedLSInputResolver implements LSResourceResolver
             }
 
             public String getStringData()
-            { 
+            {
                return null;
             }
 
@@ -164,9 +156,9 @@ public class IDFedLSInputResolver implements LSResourceResolver
             public void setSystemId(String systemId)
             {
             }
-        };
+         };
 
-        lsmap.put(systemId, lsi);
+         lsmap.put(systemId, lsi);
       }
       return lsi;
    }
