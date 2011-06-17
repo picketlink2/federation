@@ -41,6 +41,8 @@ import java.util.Map;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -62,6 +64,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
@@ -642,7 +645,6 @@ public class PicketLinkSTSUnitTestCase
 
       // invoke the token service.
       responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
-      System.out.println(DocumentUtil.getNodeAsString(DocumentUtil.getNodeFromSource(responseMessage)));
       baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
 
       // validate the response contents.
@@ -662,7 +664,6 @@ public class PicketLinkSTSUnitTestCase
       assertion.getFirstChild().getFirstChild().setNodeValue("Tempered Issuer");
       request.getValidateTarget().add(assertion);
       Source theRequest = this.createSourceFromRequest(request);
-      System.out.println("ANIL::" + DocumentUtil.asString((Document) DocumentUtil.getNodeFromSource(theRequest)));
       responseMessage = this.tokenService.invoke(theRequest);
       collection = (RequestSecurityTokenResponseCollection) parser.parse(DocumentUtil
             .getSourceAsStream(responseMessage));
@@ -1192,7 +1193,6 @@ public class PicketLinkSTSUnitTestCase
 
       // unmarshall the SAMLV2.0 assertion.
       Element assertionElement = (Element) requestedToken.getAny().get(0);
-      System.out.println(DocumentUtil.getNodeAsString(assertionElement));
       AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
       // verify the contents of the unmarshalled assertion.
@@ -1399,6 +1399,21 @@ public class PicketLinkSTSUnitTestCase
       TestSTS(String configFileName)
       {
          this.configFileName = configFileName;
+      }
+
+      public Source invoke(Source source)
+      {
+         try
+         {
+            SOAPMessage request = SOAPUtil.create();
+            SOAPUtil.addData(source, request);
+            SOAPMessage response = super.invoke(request);
+            return new DOMSource(SOAPUtil.getSOAPData(response));
+         }
+         catch (SOAPException e)
+         {
+            throw new RuntimeException(e);
+         }
       }
 
       @Override
