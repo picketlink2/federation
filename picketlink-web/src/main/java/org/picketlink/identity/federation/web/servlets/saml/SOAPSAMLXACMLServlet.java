@@ -33,7 +33,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -51,6 +50,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
@@ -64,15 +64,17 @@ import org.w3c.dom.NodeList;
  * @since Jan 27, 2009
  */
 public class SOAPSAMLXACMLServlet extends HttpServlet
-{   
+{
    private static Logger log = Logger.getLogger(SOAPSAMLXACMLServlet.class);
-   private boolean trace = log.isTraceEnabled();
+
+   private final boolean trace = log.isTraceEnabled();
 
    private static final long serialVersionUID = 1L;
 
    private String policyConfigFileName = null;
 
    private String issuerId = null;
+
    private String issuer = null;
 
    boolean debug = false;
@@ -80,37 +82,37 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
    private transient PolicyDecisionPoint pdp = null;
 
    public void init(ServletConfig config) throws ServletException
-   {  
+   {
       issuerId = config.getInitParameter("issuerID");
-      if(issuerId == null)
+      if (issuerId == null)
          issuerId = "issue-id:1";
 
-      issuer = config.getInitParameter("issuer"); 
-      if(issuer == null)
+      issuer = config.getInitParameter("issuer");
+      if (issuer == null)
          issuer = "urn:jboss-identity";
 
       policyConfigFileName = config.getInitParameter("policyConfigFileName");
-      if(policyConfigFileName == null)
-         policyConfigFileName = "policyConfig.xml"; 
+      if (policyConfigFileName == null)
+         policyConfigFileName = "policyConfig.xml";
 
       String debugStr = config.getInitParameter("debug");
       try
       {
          debug = Boolean.parseBoolean(debugStr);
       }
-      catch(Exception ignore)
+      catch (Exception ignore)
       {
          debug = false;
       }
 
-      if(trace)
+      if (trace)
       {
          log.trace("Issuer=" + issuer + " :: issuerID=" + issuerId);
          log.trace("PolicyConfig File:" + policyConfigFileName);
-         log.trace("Debug="+debug); 
+         log.trace("Debug=" + debug);
       }
 
-      if(debug)
+      if (debug)
       {
          SecurityActions.setSystemProperty("jaxb.debug", "true");
       }
@@ -121,70 +123,69 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       }
       catch (PrivilegedActionException e)
       {
-         log("Exception loading PDP::",e);
+         log("Exception loading PDP::", e);
          throw new ServletException("Unable to load PDP");
       }
-      super.init(config);     
+      super.init(config);
    }
 
    @Override
    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
    {
       XACMLAuthzDecisionQueryType xacmlRequest = null;
-      MessageFactory messageFactory = null;
       SOAPMessage returnSOAPMessage = null;
       try
       {
          try
          {
-            messageFactory = MessageFactory.newInstance();
-            SOAPMessage soapMessage = messageFactory.createMessage( null, req.getInputStream() );
+            SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(req.getInputStream());
             SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
             SOAPBody soapBody = soapEnvelope.getBody();
             NodeList nl = soapBody.getChildNodes();
             Node node = null;
-            
+
             int length = nl != null ? nl.getLength() : 0;
-            for( int i = 0; i < length; i++ )
+            for (int i = 0; i < length; i++)
             {
-               Node n = nl.item(i); 
+               Node n = nl.item(i);
                String localName = n.getLocalName();
-               if( localName != null && ( localName.contains( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get() )
-                     || localName.contains( JBossSAMLConstants.REQUEST_ABSTRACT.get() )))
+               if (localName != null
+                     && (localName.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get()) || localName
+                           .contains(JBossSAMLConstants.REQUEST_ABSTRACT.get())))
                {
                   node = n;
                   break;
                }
             }
-            if( node == null )
-               throw new ServletException( "Did not find XACML query nodes" );
-            xacmlRequest = SOAPSAMLXACMLUtil.getXACMLQueryType( node );
+            if (node == null)
+               throw new ServletException("Did not find XACML query nodes");
+            xacmlRequest = SOAPSAMLXACMLUtil.getXACMLQueryType(node);
          }
          catch (SOAPException e)
-         { 
+         {
             e.printStackTrace();
-            throw new ServletException( e );
+            throw new ServletException(e);
          }
          catch (ParsingException e)
          {
-            throw new ServletException( e );
+            throw new ServletException(e);
          }
          catch (ConfigurationException e)
          {
-            throw new ServletException( e );
+            throw new ServletException(e);
          }
          catch (ProcessingException e)
          {
-            throw new ServletException( e );
+            throw new ServletException(e);
          }
 
          /*JAXBElement<RequestAbstractType> jaxbRequestType = null;
 
-      Envelope envelope = null;
-      XACMLAuthzDecisionQueryType xacmlRequest = null;
+         Envelope envelope = null;
+         XACMLAuthzDecisionQueryType xacmlRequest = null;
 
-      try
-      {
+         try
+         {
          Document inputDoc = DocumentUtil.getDocument(req.getInputStream());
          if(debug && trace)
             log.trace("Received SOAP:"+DocumentUtil.asString(inputDoc));
@@ -224,12 +225,11 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
 
           */
 
+         if (xacmlRequest == null)
+            throw new IOException("XACML Request not parsed");
 
-         if(xacmlRequest == null)
-            throw new IOException("XACML Request not parsed"); 
-         
-         org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType =
-                                                     SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlRequest);
+         org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType = SOAPSAMLXACMLUtil
+               .handleXACMLQuery(pdp, issuer, xacmlRequest);
 
          /*RequestType requestType = xacmlRequest.getRequest();
 
@@ -264,65 +264,65 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
                statements);
 
          org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType = saml2Response.createResponseType(ID, issuerInfo, assertion);
-*/
+         */
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
          XMLStreamWriter xmlStreamWriter = StaxUtil.getXMLStreamWriter(baos);
 
-         SAMLResponseWriter samlResponseWriter = new SAMLResponseWriter( xmlStreamWriter );
-         samlResponseWriter.write( samlResponseType );
-         Document responseDocument = DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() ));
+         SAMLResponseWriter samlResponseWriter = new SAMLResponseWriter(xmlStreamWriter);
+         samlResponseWriter.write(samlResponseType);
+         Document responseDocument = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
 
-         returnSOAPMessage =  messageFactory.createMessage();
+         returnSOAPMessage = SOAPUtil.create();
          SOAPBody returnSOAPBody = returnSOAPMessage.getSOAPBody();
-         returnSOAPBody.addDocument( responseDocument );
+         returnSOAPBody.addDocument(responseDocument);
 
          /*JAXBElement<?> jaxbResponse = JAXBElementMappingUtil.get();
 
          //Create a SOAP Envelope to hold the SAML response
          envelope = this.createEnvelope(jaxbResponse); */
       }
-      catch ( Exception e )
-      { 
+      catch (Exception e)
+      {
          e.printStackTrace();
          String id = IDGenerator.create();
-         log.error(id + "::Exception:", e); 
+         log.error(id + "::Exception:", e);
          try
          {
-            returnSOAPMessage = SOAPSAMLXACMLUtil.createFault( "Server Error" );
+            returnSOAPMessage = SOAPUtil.createFault("Server Error");
          }
          catch (SOAPException e1)
-         { 
+         {
          }
          //envelope = this.createEnvelope(this.createFault("Server Error. Reference::" + id));
-      } 
+      }
       finally
       {
          resp.setContentType("text/xml;charset=utf-8");;
-         OutputStream os = resp.getOutputStream(); 
+         OutputStream os = resp.getOutputStream();
          try
          {
-            if( returnSOAPMessage == null )
-               throw new RuntimeException( "SOAPMessage for return is null" );
-            returnSOAPMessage.writeTo( os );
+            if (returnSOAPMessage == null)
+               throw new RuntimeException("SOAPMessage for return is null");
+            returnSOAPMessage.writeTo(os);
             /*if(envelope == null)
                throw new IllegalStateException("SOAPEnvelope is null");
             JAXBElement<?> jaxbEnvelope = JAXBElementMappingUtil.get(envelope);
             Marshaller marshaller = JAXBUtil.getMarshaller(SOAPSAMLXACMLUtil.getPackage());
             marshaller.marshal(jaxbEnvelope, os);  */
          }
-         catch ( Exception e )
+         catch (Exception e)
          {
-            log("marshalling exception",e);
-         }  
-      } 
-   } 
+            log("marshalling exception", e);
+         }
+      }
+   }
 
    private PolicyDecisionPoint getPDP() throws PrivilegedActionException
    {
       ClassLoader tcl = SecurityActions.getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(this.policyConfigFileName);
-      if(is == null)
-         throw new IllegalStateException(policyConfigFileName  + " could not be located");
-      return new JBossPDP(is); 
-   }  
+      if (is == null)
+         throw new IllegalStateException(policyConfigFileName + " could not be located");
+      return new JBossPDP(is);
+   }
 }

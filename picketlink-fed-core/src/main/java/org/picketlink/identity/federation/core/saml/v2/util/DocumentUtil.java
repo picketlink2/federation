@@ -268,7 +268,7 @@ public class DocumentUtil
 
       return sw.toString();
    }
-   
+
    /**
     * <p>Get an element from the document given its {@link QName} </p>
     * <p>First an attempt to get the element based on its namespace is made, failing which
@@ -277,16 +277,16 @@ public class DocumentUtil
     * @param elementQName
     * @return
     */
-   public static Element getElement( Document doc, QName elementQName )
+   public static Element getElement(Document doc, QName elementQName)
    {
-      NodeList nl = doc.getElementsByTagNameNS( elementQName.getNamespaceURI(), elementQName.getLocalPart() );
-      if( nl.getLength() == 0 )
+      NodeList nl = doc.getElementsByTagNameNS(elementQName.getNamespaceURI(), elementQName.getLocalPart());
+      if (nl.getLength() == 0)
       {
-         nl = doc.getElementsByTagNameNS( "*", elementQName.getLocalPart() ); 
-         if( nl.getLength() == 0 )
-            nl = doc.getElementsByTagName( elementQName.getPrefix() + ":" + elementQName.getLocalPart() ); 
-         if( nl.getLength() == 0 )
-            return null; 
+         nl = doc.getElementsByTagNameNS("*", elementQName.getLocalPart());
+         if (nl.getLength() == 0)
+            nl = doc.getElementsByTagName(elementQName.getPrefix() + ":" + elementQName.getLocalPart());
+         if (nl.getLength() == 0)
+            return null;
       }
       return (Element) nl.item(0);
    }
@@ -310,7 +310,7 @@ public class DocumentUtil
     * @throws ConfigurationException
     * @throws ProcessingException
     */
-   public static InputStream getSourceAsStream(Source source) throws ConfigurationException, ProcessingException 
+   public static InputStream getSourceAsStream(Source source) throws ConfigurationException, ProcessingException
    {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       Result streamResult = new StreamResult(baos);
@@ -327,7 +327,7 @@ public class DocumentUtil
 
       return new ByteArrayInputStream(baos.toByteArray());
    }
-   
+
    /**
     * Stream a DOM Node as a String
     * @param node
@@ -460,6 +460,21 @@ public class DocumentUtil
       }
    }
 
+   public static Document getDocumentFromSource(Source source) throws ProcessingException, ConfigurationException
+   {
+      try
+      {
+         Transformer transformer = TransformerUtil.getTransformer();
+         DOMResult result = new DOMResult();
+         transformer.transform(source, result);
+         return (Document) result.getNode();
+      }
+      catch (TransformerException te)
+      {
+         throw new ProcessingException(te);
+      }
+   }
+
    private static void visit(Node node, int level)
    {
       // Visit each child
@@ -485,5 +500,5 @@ public class DocumentUtil
       factory.setNamespaceAware(true);
       factory.setXIncludeAware(true);
       return factory;
-   }  
+   }
 }

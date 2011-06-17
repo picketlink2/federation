@@ -20,30 +20,30 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.junit.Assert.*;
+import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static javax.xml.ws.handler.soap.SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY;
 
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
-import org.picketlink.identity.federation.core.wstrust.handlers.STSSaml20Handler;
-import org.picketlink.identity.federation.core.wstrust.handlers.STSSecurityHandler;
 import org.w3c.dom.Element;
 
 /**
@@ -63,174 +63,178 @@ import org.w3c.dom.Element;
  */
 public class STSSaml20HandlerTestCase
 {
-    private SOAPMessageContext soapMessageContext;
-    private SOAPMessage soapMessage;
-    private STSClient wsTrustClient;
-    private STSSaml20Handler samlHandler;
-    
-    @Test
-    public void handleMessageValidToken() throws Exception
-    {
-        when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(true);
-        
-        final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
-        addSecurityAssertionElement(securityHeader);
-        
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
-        when(soapMessageContext.getMessage()).thenReturn(soapMessage);
-        
-        boolean result = samlHandler.handleMessage(soapMessageContext);
-        assertTrue(result);
-    }
-    
-    @Test
-    public void handleMessageInValidToken() throws Exception
-    {
-        when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(false);
-        
-        final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
-        addSecurityAssertionElement(securityHeader);
+   private SOAPMessageContext soapMessageContext;
 
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
-        when(soapMessageContext.getMessage()).thenReturn(soapMessage);
-        try
-        {
-            samlHandler.handleMessage(soapMessageContext);
-            fail("handleMessage should have thrown an exception");
-        }
-        catch (final Exception e)
-        {
-            assertTrue (e instanceof SOAPFaultException);
-            assertSoapFaultString(e, "The security token could not be authenticated or authorized");
-        }
-    }
-    
-    @Test
-    public void handleMessageMissingSecurityToken() throws Exception
-    {
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
-        when(soapMessageContext.getMessage()).thenReturn(soapMessage);
-        try
-        {
-            samlHandler.handleMessage(soapMessageContext);
-            fail("handleMessage should have thrown a exception!");
-        }
-        catch (final Exception e)
-        {
-            assertTrue (e instanceof SOAPFaultException);
-            assertSoapFaultString(e,  "No security token could be found in the SOAP Header");
-        }
-    }
+   private SOAPMessage soapMessage;
 
-    @Test
-    public void handleMessageInvalidSecurityToken() throws Exception
-    {
-        when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(false);
-        
-        final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
-        addSecurityAssertionElement(securityHeader);
-        
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
-        when(soapMessageContext.getMessage()).thenReturn(soapMessage);
-        try
-        {
-            samlHandler.handleMessage(soapMessageContext);
-            fail("handleMessage should have thrown a exception!");
-        }
-        catch (final Exception e)
-        {
-            assertTrue (e instanceof SOAPFaultException);
-            assertSoapFaultString(e, "The security token could not be authenticated or authorized");
-        }
-    }
+   private STSClient wsTrustClient;
 
-    @Test
-    public void usernamePasswordFromSOAPMessageContext() throws Exception
-    {
-        when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(true);
-        
-        final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
-        addSecurityAssertionElement(securityHeader);
-        
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
-        when(soapMessageContext.getMessage()).thenReturn(soapMessage);
-        
-        when(soapMessageContext.get(STSSecurityHandler.USERNAME_MSG_CONTEXT_PROPERTY)).thenReturn("Fletch");
-        when(soapMessageContext.get(STSSecurityHandler.PASSWORD_MSG_CONTEXT_PROPERTY)).thenReturn("letmein");
-        
-        samlHandler.handleMessage(soapMessageContext);
-        
-        assertEquals("Fletch", samlHandler.getConfigBuilder().getUsername());
-        assertEquals("letmein", samlHandler.getConfigBuilder().getPassword());
-    }
-    
-    @Test
-    public void handleMessageOutbound() 
-    {
-        when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(true);
-        assertTrue(new STSSaml20Handler().handleMessage(soapMessageContext));
-    }
+   private STSSaml20Handler samlHandler;
 
-    @Before
-    public void setUp()
-    {
-        // Create a Mock for WSTrustClient.
-        wsTrustClient = mock(STSClient.class);
-        
-        samlHandler = new FakeSamlHandler(wsTrustClient);
-        samlHandler.setConfigFile("wstrust/auth/jboss-sts-client.properties");
-        // Simulate the WS Engine calling @PostConstruct.
-        samlHandler.parseSTSConfig();
-        
-        soapMessageContext = mock(SOAPMessageContext.class);
-        
-        try
-        {
-            soapMessage = MessageFactory.newInstance().createMessage();
-        }
-        catch (SOAPException e)
-        {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-    }
-    
-    private SOAPHeaderElement addSecurityHeader(final SOAPHeader soapHeader) throws SOAPException
-    {
-        final QName securityQName = samlHandler.getSecurityElementQName();
-        final SOAPHeaderElement securityHeader = soapHeader.addHeaderElement(new QName(securityQName.getNamespaceURI(), securityQName.getLocalPart(), "wsse"));
-        soapHeader.addChildElement(securityHeader);
-        return securityHeader;
-    }
+   @Test
+   public void handleMessageValidToken() throws Exception
+   {
+      when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(true);
 
-    private SOAPElement addSecurityAssertionElement(final SOAPHeaderElement securityHeader) throws SOAPException
-    {
-        final QName tokenElementQName = this.samlHandler.getTokenElementQName();
-        final SOAPElement tokenElement = securityHeader.addChildElement(new QName(tokenElementQName.getNamespaceURI(), tokenElementQName.getLocalPart(), "saml"));
-        return securityHeader.addChildElement(tokenElement);
-    }
+      final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
+      addSecurityAssertionElement(securityHeader);
 
-    private void assertSoapFaultString(final Exception e, final String str)
-    {
-        SOAPFaultException soapFaultException = (SOAPFaultException) e;
-        SOAPFault fault = soapFaultException.getFault();
-        assertEquals(str, fault.getFaultString());
-    }
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+      when(soapMessageContext.getMessage()).thenReturn(soapMessage);
 
-    private class FakeSamlHandler extends STSSaml20Handler
-    {
-        private final STSClient stsClient;
+      boolean result = samlHandler.handleMessage(soapMessageContext);
+      assertTrue(result);
+   }
 
-        public FakeSamlHandler(final STSClient stsClient)
-        {
-            this.stsClient = stsClient;
-        }
+   @Test
+   public void handleMessageInValidToken() throws Exception
+   {
+      when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(false);
 
-        @Override
-        protected STSClient createSTSClient(Builder builder) throws ParsingException
-        {
-            return stsClient;
-        }
-    }
+      final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
+      addSecurityAssertionElement(securityHeader);
+
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+      when(soapMessageContext.getMessage()).thenReturn(soapMessage);
+      try
+      {
+         samlHandler.handleMessage(soapMessageContext);
+         fail("handleMessage should have thrown an exception");
+      }
+      catch (final Exception e)
+      {
+         assertTrue(e instanceof SOAPFaultException);
+         assertSoapFaultString(e, "The security token could not be authenticated or authorized");
+      }
+   }
+
+   @Test
+   public void handleMessageMissingSecurityToken() throws Exception
+   {
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+      when(soapMessageContext.getMessage()).thenReturn(soapMessage);
+      try
+      {
+         samlHandler.handleMessage(soapMessageContext);
+         fail("handleMessage should have thrown a exception!");
+      }
+      catch (final Exception e)
+      {
+         assertTrue(e instanceof SOAPFaultException);
+         assertSoapFaultString(e, "No security token could be found in the SOAP Header");
+      }
+   }
+
+   @Test
+   public void handleMessageInvalidSecurityToken() throws Exception
+   {
+      when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(false);
+
+      final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
+      addSecurityAssertionElement(securityHeader);
+
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+      when(soapMessageContext.getMessage()).thenReturn(soapMessage);
+      try
+      {
+         samlHandler.handleMessage(soapMessageContext);
+         fail("handleMessage should have thrown a exception!");
+      }
+      catch (final Exception e)
+      {
+         assertTrue(e instanceof SOAPFaultException);
+         assertSoapFaultString(e, "The security token could not be authenticated or authorized");
+      }
+   }
+
+   @Test
+   public void usernamePasswordFromSOAPMessageContext() throws Exception
+   {
+      when(wsTrustClient.validateToken((any(Element.class)))).thenReturn(true);
+
+      final SOAPHeaderElement securityHeader = addSecurityHeader(soapMessage.getSOAPHeader());
+      addSecurityAssertionElement(securityHeader);
+
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(false);
+      when(soapMessageContext.getMessage()).thenReturn(soapMessage);
+
+      when(soapMessageContext.get(STSSecurityHandler.USERNAME_MSG_CONTEXT_PROPERTY)).thenReturn("Fletch");
+      when(soapMessageContext.get(STSSecurityHandler.PASSWORD_MSG_CONTEXT_PROPERTY)).thenReturn("letmein");
+
+      samlHandler.handleMessage(soapMessageContext);
+
+      assertEquals("Fletch", samlHandler.getConfigBuilder().getUsername());
+      assertEquals("letmein", samlHandler.getConfigBuilder().getPassword());
+   }
+
+   @Test
+   public void handleMessageOutbound()
+   {
+      when(soapMessageContext.get(MESSAGE_OUTBOUND_PROPERTY)).thenReturn(true);
+      assertTrue(new STSSaml20Handler().handleMessage(soapMessageContext));
+   }
+
+   @Before
+   public void setUp()
+   {
+      // Create a Mock for WSTrustClient.
+      wsTrustClient = mock(STSClient.class);
+
+      samlHandler = new FakeSamlHandler(wsTrustClient);
+      samlHandler.setConfigFile("wstrust/auth/jboss-sts-client.properties");
+      // Simulate the WS Engine calling @PostConstruct.
+      samlHandler.parseSTSConfig();
+
+      soapMessageContext = mock(SOAPMessageContext.class);
+
+      try
+      {
+         soapMessage = SOAPUtil.create();
+      }
+      catch (SOAPException e)
+      {
+         e.printStackTrace();
+         fail(e.getMessage());
+      }
+   }
+
+   private SOAPHeaderElement addSecurityHeader(final SOAPHeader soapHeader) throws SOAPException
+   {
+      final QName securityQName = samlHandler.getSecurityElementQName();
+      final SOAPHeaderElement securityHeader = soapHeader.addHeaderElement(new QName(securityQName.getNamespaceURI(),
+            securityQName.getLocalPart(), "wsse"));
+      soapHeader.addChildElement(securityHeader);
+      return securityHeader;
+   }
+
+   private SOAPElement addSecurityAssertionElement(final SOAPHeaderElement securityHeader) throws SOAPException
+   {
+      final QName tokenElementQName = this.samlHandler.getTokenElementQName();
+      final SOAPElement tokenElement = securityHeader.addChildElement(new QName(tokenElementQName.getNamespaceURI(),
+            tokenElementQName.getLocalPart(), "saml"));
+      return securityHeader.addChildElement(tokenElement);
+   }
+
+   private void assertSoapFaultString(final Exception e, final String str)
+   {
+      SOAPFaultException soapFaultException = (SOAPFaultException) e;
+      SOAPFault fault = soapFaultException.getFault();
+      assertEquals(str, fault.getFaultString());
+   }
+
+   private class FakeSamlHandler extends STSSaml20Handler
+   {
+      private final STSClient stsClient;
+
+      public FakeSamlHandler(final STSClient stsClient)
+      {
+         this.stsClient = stsClient;
+      }
+
+      @Override
+      protected STSClient createSTSClient(Builder builder) throws ParsingException
+      {
+         return stsClient;
+      }
+   }
 }
-

@@ -21,9 +21,20 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
+
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.w3c.dom.Node;
 
 /**
  * Utility class dealing with SAAJ
@@ -40,4 +51,39 @@ public class SOAPUtil
       return soapMessage;
    }
 
+   public static SOAPMessage getSOAPMessage(InputStream is) throws IOException, SOAPException
+   {
+      MessageFactory messageFactory = MessageFactory.newInstance();
+      return messageFactory.createMessage(null, is);
+   }
+
+   public static SOAPMessage createFault(String message) throws SOAPException
+   {
+      MessageFactory messageFactory = MessageFactory.newInstance();
+      SOAPMessage msg = messageFactory.createMessage();
+      SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
+      SOAPBody body = envelope.getBody();
+      SOAPFault fault = body.addFault();
+      fault.setFaultCode("Server");
+      fault.setFaultActor("urn:picketlink");
+      fault.setFaultString(message);
+      return msg;
+   }
+
+   public static Node getSOAPData(SOAPMessage soapMessage) throws SOAPException
+   {
+      return soapMessage.getSOAPBody().getFirstChild();
+   }
+
+   public static void addData(Source data, SOAPMessage soapMessage) throws SOAPException
+   {
+      try
+      {
+         soapMessage.getSOAPBody().addDocument(DocumentUtil.getDocumentFromSource(data));
+      }
+      catch (GeneralSecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
 }
