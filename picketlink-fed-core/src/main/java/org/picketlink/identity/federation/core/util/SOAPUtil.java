@@ -34,7 +34,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 /**
  * Utility class dealing with SAAJ
@@ -43,6 +43,11 @@ import org.w3c.dom.Node;
  */
 public class SOAPUtil
 {
+   /**
+    * Create an empty {@link SOAPMessage}
+    * @return
+    * @throws SOAPException
+    */
    public static SOAPMessage create() throws SOAPException
    {
       MessageFactory messageFactory = MessageFactory.newInstance();
@@ -51,12 +56,25 @@ public class SOAPUtil
       return soapMessage;
    }
 
+   /**
+    * Given a stream of {@link SOAPMessage}, construct the {@link SOAPMessage}
+    * @param is
+    * @return
+    * @throws IOException
+    * @throws SOAPException
+    */
    public static SOAPMessage getSOAPMessage(InputStream is) throws IOException, SOAPException
    {
       MessageFactory messageFactory = MessageFactory.newInstance();
       return messageFactory.createMessage(null, is);
    }
 
+   /**
+    * Given a string message, create a {@link SOAPFault}
+    * @param message
+    * @return
+    * @throws SOAPException
+    */
    public static SOAPMessage createFault(String message) throws SOAPException
    {
       MessageFactory messageFactory = MessageFactory.newInstance();
@@ -70,11 +88,23 @@ public class SOAPUtil
       return msg;
    }
 
-   public static Node getSOAPData(SOAPMessage soapMessage) throws SOAPException
+   /**
+    * Given a {@link SOAPMessage}, get the content as a {@link Document}
+    * @param soapMessage
+    * @return
+    * @throws SOAPException
+    */
+   public static Document getSOAPData(SOAPMessage soapMessage) throws SOAPException
    {
-      return soapMessage.getSOAPBody().getFirstChild();
+      return soapMessage.getSOAPBody().extractContentAsDocument();
    }
 
+   /**
+    * Add content to {@link SOAPMessage}
+    * @param data
+    * @param soapMessage
+    * @throws SOAPException
+    */
    public static void addData(Source data, SOAPMessage soapMessage) throws SOAPException
    {
       try

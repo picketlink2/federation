@@ -122,18 +122,16 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
       {
          throw new WebServiceException(e);
       }
-      Document document;
+      Node payLoad;
       BaseRequestSecurityToken baseRequest;
       try
       {
-         Node payLoad = request.getSOAPBody().getFirstChild();
-         document = DocumentUtil.createDocument();
-         payLoad = document.importNode(payLoad, true);
-         document.appendChild(payLoad);
+         payLoad = SOAPUtil.getSOAPData(request);
 
          WSTrustParser parser = new WSTrustParser();
 
-         baseRequest = (BaseRequestSecurityToken) parser.parse(DocumentUtil.getNodeAsStream(document));
+         System.out.println(DocumentUtil.getNodeAsString(payLoad));
+         baseRequest = (BaseRequestSecurityToken) parser.parse(DocumentUtil.getNodeAsStream(payLoad));
       }
       catch (Exception e)
       {
@@ -143,7 +141,15 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
       if (baseRequest instanceof RequestSecurityToken)
       {
          RequestSecurityToken req = (RequestSecurityToken) baseRequest;
-         req.setRSTDocument(document);
+         try
+         {
+            req.setRSTDocument((Document) payLoad);
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+
          if (valueType != null)
          {
             req.setBinaryValueType(URI.create(valueType));
@@ -194,13 +200,14 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
     * 
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenService#invoke(javax.xml.transform.Source)
     */
-   public Source invoke(Source request)
+   /*public Source invoke(Source request)
    {
       BaseRequestSecurityToken baseRequest;
       Document document;
       try
       {
          document = (Document) DocumentUtil.getNodeFromSource(request);
+         System.out.println(DocumentUtil.asString(document));
          baseRequest = (BaseRequestSecurityToken) new WSTrustParser().parse(DocumentUtil.getSourceAsStream(request));
       }
       catch (Exception e)
@@ -218,7 +225,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          return this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest);
       else
          throw new WebServiceException("Invalid security token request");
-   }
+   }*/
 
    /**
     * <p>

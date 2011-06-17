@@ -40,7 +40,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
 
 import org.apache.log4j.Logger;
@@ -506,7 +506,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       // to the STS and set them in the Dispatch request context.
       if (!this.options.isEmpty())
       {
-         Dispatch<SOAPMessage> dispatch = client.getDispatch();
+         Dispatch<Source> dispatch = client.getDispatch();
          for (Map.Entry<String, ?> entry : this.options.entrySet())
             dispatch.getRequestContext().put(entry.getKey(), entry.getValue());
       }

@@ -25,8 +25,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMResult;
@@ -39,7 +37,6 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
@@ -62,7 +59,7 @@ import org.w3c.dom.NodeList;
  */
 public class STSClient
 {
-   private final ThreadLocal<Dispatch<SOAPMessage>> dispatchLocal = new InheritableThreadLocal<Dispatch<SOAPMessage>>();
+   private final ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
 
    private final String targetNS = "http://org.picketlink.trust/sts/";
 
@@ -105,7 +102,7 @@ public class STSClient
 
       Service jaxwsService = Service.create(service);
       jaxwsService.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, config.getEndPointAddress());
-      Dispatch<SOAPMessage> dispatch = jaxwsService.createDispatch(portName, SOAPMessage.class, Mode.MESSAGE);
+      Dispatch<Source> dispatch = jaxwsService.createDispatch(portName, Source.class, Mode.PAYLOAD);
 
       Map<String, Object> reqContext = dispatch.getRequestContext();
       String username = config.getUsername();
@@ -122,7 +119,7 @@ public class STSClient
     * Set the {@link Dispatch} object for use
     * @param dispatch
     */
-   public void setDispatch(Dispatch<SOAPMessage> dispatch)
+   public void setDispatch(Dispatch<Source> dispatch)
    {
       if (dispatch == null)
          throw new IllegalArgumentException("dispatch is null");
@@ -285,22 +282,13 @@ public class STSClient
 
       validateDispatch();
       DOMSource requestSource = this.createSourceFromRequest(request);
-      SOAPMessage requestMessage;
-      try
-      {
-         requestMessage = SOAPUtil.create();
-         SOAPUtil.addData(requestSource, requestMessage);
-      }
-      catch (SOAPException e1)
-      {
-         throw new WSTrustException("Unable to create SOAP Message:", e1);
-      }
-      SOAPMessage responseMessage = dispatchLocal.get().invoke(requestMessage);
+      Source response = dispatchLocal.get().invoke(requestSource);
 
       NodeList nodes;
       try
       {
-         Node documentNode = SOAPUtil.getSOAPData(responseMessage);
+         Node documentNode = DocumentUtil.getNodeFromSource(response);
+
          Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
                .getOwnerDocument();
 
@@ -331,6 +319,8 @@ public class STSClient
          throw new WSTrustException("NodeList is null");
 
       Node rstr = nodes.item(0);
+      if (rstr == null)
+         throw new WSTrustException("Have not found RSTR in the payload");
 
       return (Element) rstr.getFirstChild();
    }
@@ -356,12 +346,11 @@ public class STSClient
 
       // send the token request to JBoss STS and get the response.
       DOMSource requestSource = this.createSourceFromRequest(request);
-      SOAPMessage responseMessage = dispatchLocal.get().invoke(createSOAPMessage(requestSource));
-
+      Source response = dispatchLocal.get().invoke(requestSource);
       NodeList nodes;
       try
       {
-         Node documentNode = SOAPUtil.getSOAPData(responseMessage);
+         Node documentNode = DocumentUtil.getNodeFromSource(response);
          Document responseDoc = documentNode instanceof Document ? (Document) documentNode : documentNode
                .getOwnerDocument();
 
@@ -416,10 +405,10 @@ public class STSClient
 
       DOMSource requestSource = this.createSourceFromRequest(request);
 
-      SOAPMessage responseMessage = dispatchLocal.get().invoke(createSOAPMessage(requestSource));
+      Source response = dispatchLocal.get().invoke(requestSource);
       try
       {
-         InputStream stream = DocumentUtil.getNodeAsStream(SOAPUtil.getSOAPData(responseMessage));
+         InputStream stream = DocumentUtil.getNodeAsStream(DocumentUtil.getNodeFromSource(response));
          RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
                .parse(stream);
          RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
@@ -461,12 +450,11 @@ public class STSClient
       request.setContext("context");
 
       DOMSource requestSource = this.createSourceFromRequest(request);
-      SOAPMessage responseMessage = dispatchLocal.get().invoke(createSOAPMessage(requestSource));
-
+      Source response = dispatchLocal.get().invoke(requestSource);
       // get the WS-Trust response and check for presence of the RequestTokenCanceled element.
       try
       {
-         InputStream stream = DocumentUtil.getNodeAsStream(SOAPUtil.getSOAPData(responseMessage));
+         InputStream stream = DocumentUtil.getNodeAsStream(DocumentUtil.getNodeFromSource(response));
          RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
                .parse(stream);
          RequestSecurityTokenResponse tokenResponse = responseCollection.getRequestSecurityTokenResponses().get(0);
@@ -484,7 +472,7 @@ public class STSClient
     * Get the dispatch object
     * @return
     */
-   public Dispatch<SOAPMessage> getDispatch()
+   public Dispatch<Source> getDispatch()
    {
       return dispatchLocal.get();
    }
@@ -511,19 +499,5 @@ public class STSClient
    {
       if (getDispatch() == null)
          throw new RuntimeException("Dispatch has not been set");
-   }
-
-   private SOAPMessage createSOAPMessage(Source source)
-   {
-      try
-      {
-         SOAPMessage soap = SOAPUtil.create();
-         SOAPUtil.addData(source, soap);
-         return soap;
-      }
-      catch (SOAPException e)
-      {
-         throw new RuntimeException(e);
-      }
    }
 }
