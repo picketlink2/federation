@@ -32,15 +32,15 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestedAuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.w3c.dom.Element;
  
 

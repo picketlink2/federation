@@ -32,13 +32,13 @@ import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMeta
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
 import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.w3c.dom.Element;
 
 /**

@@ -13,11 +13,11 @@ import org.jboss.security.mapping.MappingResult;
 import org.picketlink.identity.federation.bindings.jboss.auth.SAML20TokenRoleAttributeProvider;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.w3c.dom.Element;
 
 /**

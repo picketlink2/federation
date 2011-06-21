@@ -93,18 +93,18 @@ import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
@@ -734,7 +734,7 @@ public class SPFilter implements Filter
       if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
          throw new SecurityException("IDP forbid the user");
 
-      List<org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType> assertions = responseType.getAssertions();
+      List<org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType> assertions = responseType.getAssertions();
       if(assertions.size() == 0)
          throw new IllegalStateException("No assertions in reply from IDP"); 
       

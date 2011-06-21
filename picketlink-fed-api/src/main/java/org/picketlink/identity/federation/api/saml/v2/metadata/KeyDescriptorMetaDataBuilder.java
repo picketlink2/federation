@@ -25,8 +25,8 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.math.BigInteger;
 
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyTypes;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType.EncryptionMethod;
 import org.w3c.dom.Element;

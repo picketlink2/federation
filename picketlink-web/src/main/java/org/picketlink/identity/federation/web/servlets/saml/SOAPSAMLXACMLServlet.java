@@ -52,7 +52,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -228,7 +228,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          if (xacmlRequest == null)
             throw new IOException("XACML Request not parsed");
 
-         org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType = SOAPSAMLXACMLUtil
+         org.picketlink.identity.federation.saml.v2.protocol.ResponseType samlResponseType = SOAPSAMLXACMLUtil
                .handleXACMLQuery(pdp, issuer, xacmlRequest);
 
          /*RequestType requestType = xacmlRequest.getRequest();

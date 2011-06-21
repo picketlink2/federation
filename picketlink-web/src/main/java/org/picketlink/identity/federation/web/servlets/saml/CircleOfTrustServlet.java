@@ -36,7 +36,7 @@ import javax.servlet.http.HttpSession;
 
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Circle of trust establishing servlet that accesses

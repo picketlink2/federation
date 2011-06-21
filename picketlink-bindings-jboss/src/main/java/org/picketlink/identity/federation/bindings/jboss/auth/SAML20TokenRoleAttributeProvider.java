@@ -10,9 +10,9 @@ import javax.security.auth.Subject;
 import org.apache.log4j.Logger;
 import org.jboss.security.SecurityContextAssociation;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenAttributeProvider;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 
 /**
  * <p>
