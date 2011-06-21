@@ -32,11 +32,11 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;

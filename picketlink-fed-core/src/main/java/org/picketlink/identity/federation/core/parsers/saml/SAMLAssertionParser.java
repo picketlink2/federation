@@ -44,14 +44,14 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.w3c.dom.Element;
 
 /**

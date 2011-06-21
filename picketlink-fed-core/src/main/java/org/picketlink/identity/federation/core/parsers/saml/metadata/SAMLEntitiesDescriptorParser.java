@@ -34,7 +34,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 
 /**
  * Parse the SAML Entities Descriptor

@@ -37,7 +37,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLRequestAbstractP
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Element;
 
 /**

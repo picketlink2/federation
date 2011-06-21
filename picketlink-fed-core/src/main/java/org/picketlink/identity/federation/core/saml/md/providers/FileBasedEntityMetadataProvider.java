@@ -28,7 +28,7 @@ import java.util.Map;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * A file based metadata provider that

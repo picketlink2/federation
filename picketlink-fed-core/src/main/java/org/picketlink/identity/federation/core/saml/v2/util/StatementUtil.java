@@ -34,13 +34,13 @@ import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextClassRefType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 
 /**
  * Deals with SAML2 Statements

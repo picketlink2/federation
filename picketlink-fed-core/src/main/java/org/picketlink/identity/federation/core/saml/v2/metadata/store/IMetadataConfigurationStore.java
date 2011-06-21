@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Configuration Store for the metadata

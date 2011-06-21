@@ -37,12 +37,12 @@ import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilder
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
 
 /**

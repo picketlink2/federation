@@ -130,7 +130,6 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
          WSTrustParser parser = new WSTrustParser();
 
-         System.out.println(DocumentUtil.getNodeAsString(payLoad));
          baseRequest = (BaseRequestSecurityToken) parser.parse(DocumentUtil.getNodeAsStream(payLoad));
       }
       catch (Exception e)

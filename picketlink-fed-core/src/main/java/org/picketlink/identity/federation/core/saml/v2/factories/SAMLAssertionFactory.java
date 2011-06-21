@@ -27,15 +27,15 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.KeyInfoConfirmationDataType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 
 /**

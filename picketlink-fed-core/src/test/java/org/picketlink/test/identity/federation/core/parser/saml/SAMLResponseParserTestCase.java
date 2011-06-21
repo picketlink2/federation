@@ -36,22 +36,22 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextDeclRefType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectLocalityType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclRefType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 
 /**
  * Validate the parsing of SAML2 Response

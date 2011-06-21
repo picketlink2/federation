@@ -31,7 +31,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

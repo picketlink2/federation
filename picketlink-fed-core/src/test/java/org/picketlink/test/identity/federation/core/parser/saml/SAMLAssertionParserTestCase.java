@@ -41,19 +41,19 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 
 /**
  * Test the parsing of saml assertions

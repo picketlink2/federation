@@ -33,11 +33,11 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants; 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestedAuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 
 /**
  * Parse the SAML2 AuthnRequest

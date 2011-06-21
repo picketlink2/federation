@@ -30,7 +30,7 @@ import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.w3c.dom.Document;
 
 /**

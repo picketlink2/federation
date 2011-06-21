@@ -31,8 +31,8 @@ import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Given an IDP metadata, construct {@link SPType}

@@ -46,11 +46,11 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 
 /**
  * File based metadata store that uses

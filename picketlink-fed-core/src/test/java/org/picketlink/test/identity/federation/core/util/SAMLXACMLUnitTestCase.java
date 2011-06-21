@@ -29,8 +29,8 @@ import java.io.InputStream;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 
 /**
  * Read a SAML-XACML request

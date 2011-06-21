@@ -23,7 +23,7 @@ package org.picketlink.identity.federation.core.saml.v2.holders;
 
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
 /**
  * Holds info about the issuer for saml messages creation

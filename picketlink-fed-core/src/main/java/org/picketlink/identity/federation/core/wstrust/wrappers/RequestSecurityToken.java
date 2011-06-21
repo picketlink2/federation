@@ -50,6 +50,7 @@ import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -166,15 +167,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
 
    private URI binaryValueType;
 
-   public URI getBinaryValueType()
-   {
-      return binaryValueType;
-   }
-
-   public void setBinaryValueType(URI binaryValueType)
-   {
-      this.binaryValueType = binaryValueType;
-   }
+   private Node binaryToken;
 
    /**
     * <p>
@@ -288,6 +281,34 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       this(delegate);
       this.rstDocument = rstDocument;
+   }
+
+   /**
+    * Get the Binary Value Type
+    * @return
+    */
+   public URI getBinaryValueType()
+   {
+      return binaryValueType;
+   }
+
+   public void setBinaryValueType(URI binaryValueType)
+   {
+      this.binaryValueType = binaryValueType;
+   }
+
+   /**
+    * Get the Binary Token from the SOAP Header
+    * @return
+    */
+   public Node getBinaryToken()
+   {
+      return binaryToken;
+   }
+
+   public void setBinaryToken(Node binaryToken)
+   {
+      this.binaryToken = binaryToken;
    }
 
    /**

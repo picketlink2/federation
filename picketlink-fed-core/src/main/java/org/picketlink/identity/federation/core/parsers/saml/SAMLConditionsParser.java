@@ -36,8 +36,8 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 
 /**
  * Parse the <conditions> in the saml assertion

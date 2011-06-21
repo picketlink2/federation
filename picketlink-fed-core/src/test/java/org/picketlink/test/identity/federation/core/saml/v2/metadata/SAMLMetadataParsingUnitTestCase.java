@@ -39,12 +39,12 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.ContactType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.ContactType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 
 /**
  * Unit test the SAML metadata parsing

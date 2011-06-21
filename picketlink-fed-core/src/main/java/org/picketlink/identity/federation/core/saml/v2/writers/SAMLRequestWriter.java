@@ -43,11 +43,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil; 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
 
 /**

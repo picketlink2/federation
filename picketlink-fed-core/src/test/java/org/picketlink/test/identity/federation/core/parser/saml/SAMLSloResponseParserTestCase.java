@@ -38,8 +38,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
  * Validate the parsing of SLO Response

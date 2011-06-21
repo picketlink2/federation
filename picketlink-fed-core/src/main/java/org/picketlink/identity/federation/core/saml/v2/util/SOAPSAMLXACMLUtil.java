@@ -46,11 +46,11 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.w3c.dom.Node;
 
 /**
@@ -94,7 +94,7 @@ public class SOAPSAMLXACMLUtil
    {
       XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlResponse));
       SAMLParser samlParser = new SAMLParser();
-      org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType response = (org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType) samlParser
+      org.picketlink.identity.federation.saml.v2.protocol.ResponseType response = (org.picketlink.identity.federation.saml.v2.protocol.ResponseType) samlParser
             .parse(xmlEventReader);
       List<RTChoiceType> choices = response.getAssertions();
       for (RTChoiceType rst : choices)
@@ -115,7 +115,7 @@ public class SOAPSAMLXACMLUtil
       throw new RuntimeException("Not found XACMLAuthzDecisionStatementType");
    }
 
-   public synchronized static org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType handleXACMLQuery(
+   public synchronized static org.picketlink.identity.federation.saml.v2.protocol.ResponseType handleXACMLQuery(
          PolicyDecisionPoint pdp, String issuer, XACMLAuthzDecisionQueryType xacmlRequest) throws ProcessingException,
          ConfigurationException
    {
@@ -153,7 +153,7 @@ public class SOAPSAMLXACMLUtil
       AssertionType assertion = SAMLAssertionFactory.createAssertion(ID, issuerInfo.getIssuer(),
             XMLTimeUtil.getIssueInstant(), null, null, statements);
 
-      org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType samlResponseType = JBossSAMLAuthnResponseFactory
+      org.picketlink.identity.federation.saml.v2.protocol.ResponseType samlResponseType = JBossSAMLAuthnResponseFactory
             .createResponseType(ID, issuerInfo, assertion);
 
       return samlResponseType;

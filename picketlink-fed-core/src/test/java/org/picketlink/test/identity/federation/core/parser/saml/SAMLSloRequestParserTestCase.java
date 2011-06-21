@@ -34,7 +34,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil; 
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
  * Validate the parsing of SLO (log out) Request

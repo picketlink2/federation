@@ -44,11 +44,11 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 
 /**
  * Utility for configuration
