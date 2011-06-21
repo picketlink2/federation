@@ -1,7 +1,7 @@
 package org.picketlink.identity.federation.saml.v2.profiles.sso.ecp;
 
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.IDPListType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.protocol.IDPListType;
  
 
 
