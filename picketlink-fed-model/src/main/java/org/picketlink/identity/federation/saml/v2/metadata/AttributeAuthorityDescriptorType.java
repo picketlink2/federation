@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -5,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-
 
 /**
  * <p>Java class for AttributeAuthorityDescriptorType complex type.
@@ -31,15 +51,18 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  * 
  */
 
-public class AttributeAuthorityDescriptorType
-extends RoleDescriptorType
-{ 
+public class AttributeAuthorityDescriptorType extends RoleDescriptorType
+{
    protected List<EndpointType> attributeService = new ArrayList<EndpointType>();
+
    protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
+
    protected List<String> nameIDFormat = new ArrayList<String>();
+
    protected List<String> attributeProfile = new ArrayList<String>();
+
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
-   
+
    public AttributeAuthorityDescriptorType(List<String> protocolSupport)
    {
       super(protocolSupport);
@@ -49,7 +72,7 @@ extends RoleDescriptorType
     * Add an attribute service
     * @param endpoint
     */
-   public void addAttributeService( EndpointType endpoint )
+   public void addAttributeService(EndpointType endpoint)
    {
       this.attributeService.add(endpoint);
    }
@@ -58,7 +81,7 @@ extends RoleDescriptorType
     * Add an assertion id request service
     * @param endpoint
     */
-   public void addAssertionIDRequestService( EndpointType endpoint )
+   public void addAssertionIDRequestService(EndpointType endpoint)
    {
       this.assertionIDRequestService.add(endpoint);
    }
@@ -67,7 +90,7 @@ extends RoleDescriptorType
     * Add a name id
     * @param str
     */
-   public void addNameIDFormat( String str )
+   public void addNameIDFormat(String str)
    {
       this.nameIDFormat.add(str);
    }
@@ -76,7 +99,7 @@ extends RoleDescriptorType
     * Add an attribute profile
     * @param str
     */
-   public void addAttributeProfile( String str )
+   public void addAttributeProfile(String str)
    {
       this.attributeProfile.add(str);
    }
@@ -85,25 +108,25 @@ extends RoleDescriptorType
     * Add an attribute
     * @param attribute
     */
-   public void addAttribute( AttributeType attribute )
+   public void addAttribute(AttributeType attribute)
    {
       this.attribute.add(attribute);
    }
-   
+
    /**
     * Remove an attribute service
     * @param endpoint
     */
-   public void removeAttributeService( EndpointType endpoint )
+   public void removeAttributeService(EndpointType endpoint)
    {
-      this.attributeService.remove( endpoint);
+      this.attributeService.remove(endpoint);
    }
 
    /**
     * Remove assertion id request service
     * @param endpoint
     */
-   public void removeAssertionIDRequestService( EndpointType endpoint )
+   public void removeAssertionIDRequestService(EndpointType endpoint)
    {
       this.assertionIDRequestService.remove(endpoint);
    }
@@ -112,7 +135,7 @@ extends RoleDescriptorType
     * Remove Name ID
     * @param str
     */
-   public void removeNameIDFormat( String str )
+   public void removeNameIDFormat(String str)
    {
       this.nameIDFormat.remove(str);
    }
@@ -121,7 +144,7 @@ extends RoleDescriptorType
     * Remove attribute profile
     * @param str
     */
-   public void removeAttributeProfile( String str )
+   public void removeAttributeProfile(String str)
    {
       this.attributeProfile.remove(str);
    }
@@ -130,7 +153,7 @@ extends RoleDescriptorType
     * Remove attribute
     * @param attribute
     */
-   public void removeAttribute( AttributeType attribute )
+   public void removeAttribute(AttributeType attribute)
    {
       this.attribute.remove(attribute);
    }
@@ -143,9 +166,9 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<EndpointType> getAttributeService() 
-   { 
-      return Collections.unmodifiableList( this.attributeService );
+   public List<EndpointType> getAttributeService()
+   {
+      return Collections.unmodifiableList(this.attributeService);
    }
 
    /**
@@ -157,9 +180,9 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<EndpointType> getAssertionIDRequestService() 
+   public List<EndpointType> getAssertionIDRequestService()
    {
-      return Collections.unmodifiableList( this.assertionIDRequestService );
+      return Collections.unmodifiableList(this.assertionIDRequestService);
    }
 
    /**
@@ -168,9 +191,9 @@ extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link String } 
     */
-   public List<String> getNameIDFormat() 
-   { 
-      return Collections.unmodifiableList( this.nameIDFormat );
+   public List<String> getNameIDFormat()
+   {
+      return Collections.unmodifiableList(this.nameIDFormat);
    }
 
    /**
@@ -181,9 +204,9 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<String> getAttributeProfile() 
+   public List<String> getAttributeProfile()
    {
-      return Collections.unmodifiableList( this.attributeProfile );
+      return Collections.unmodifiableList(this.attributeProfile);
    }
 
    /**
@@ -194,8 +217,8 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<AttributeType> getAttribute() 
-   { 
-      return Collections.unmodifiableList( this.attribute );
+   public List<AttributeType> getAttribute()
+   {
+      return Collections.unmodifiableList(this.attribute);
    }
 }

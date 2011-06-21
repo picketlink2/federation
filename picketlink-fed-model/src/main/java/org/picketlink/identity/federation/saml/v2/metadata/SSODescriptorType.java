@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for SSODescriptorType complex type.
@@ -29,22 +49,24 @@ import java.util.List;
  */
 public abstract class SSODescriptorType extends RoleDescriptorType
 {
-   protected List<IndexedEndpointType> artifactResolutionService = new ArrayList<IndexedEndpointType>(); 
-   protected List<EndpointType> singleLogoutService = new ArrayList<EndpointType>(); 
-   protected List<EndpointType> manageNameIDService = new ArrayList<EndpointType>(); 
-   protected List<String> nameIDFormat = new ArrayList<String>();
+   protected List<IndexedEndpointType> artifactResolutionService = new ArrayList<IndexedEndpointType>();
 
+   protected List<EndpointType> singleLogoutService = new ArrayList<EndpointType>();
+
+   protected List<EndpointType> manageNameIDService = new ArrayList<EndpointType>();
+
+   protected List<String> nameIDFormat = new ArrayList<String>();
 
    public SSODescriptorType(List<String> protocolSupport)
    {
-      super(protocolSupport); 
+      super(protocolSupport);
    }
 
    /**
     * Add SLO Service
     * @param endpt
     */
-   public void addSingleLogoutService( EndpointType endpt )
+   public void addSingleLogoutService(EndpointType endpt)
    {
       this.singleLogoutService.add(endpt);
    }
@@ -53,7 +75,7 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Add atrifact resolution service
     * @param i
     */
-   public void addArtifactResolutionService( IndexedEndpointType i )
+   public void addArtifactResolutionService(IndexedEndpointType i)
    {
       this.artifactResolutionService.add(i);
    }
@@ -62,7 +84,7 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Add manage name id service
     * @param end
     */
-   public void addManageNameIDService( EndpointType end )
+   public void addManageNameIDService(EndpointType end)
    {
       this.manageNameIDService.add(end);
    }
@@ -71,16 +93,16 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Add Name ID Format
     * @param s
     */
-   public void addNameIDFormat( String s )
+   public void addNameIDFormat(String s)
    {
       this.nameIDFormat.add(s);
    }
-   
+
    /**
     * remove SLO Service
     * @param endpt
     */
-   public void removeSingleLogoutService( EndpointType endpt )
+   public void removeSingleLogoutService(EndpointType endpt)
    {
       this.singleLogoutService.remove(endpt);
    }
@@ -89,7 +111,7 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * remove atrifact resolution service
     * @param i
     */
-   public void removeArtifactResolutionService( IndexedEndpointType i )
+   public void removeArtifactResolutionService(IndexedEndpointType i)
    {
       this.artifactResolutionService.remove(i);
    }
@@ -98,7 +120,7 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * remove manage name id service
     * @param end
     */
-   public void removeManageNameIDService( EndpointType end )
+   public void removeManageNameIDService(EndpointType end)
    {
       this.manageNameIDService.remove(end);
    }
@@ -107,7 +129,7 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * remove Name ID Format
     * @param s
     */
-   public void removeNameIDFormat( String s )
+   public void removeNameIDFormat(String s)
    {
       this.nameIDFormat.remove(s);
    }
@@ -118,9 +140,9 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link IndexedEndpointType }
     */
-   public List<IndexedEndpointType> getArtifactResolutionService() 
-   { 
-      return Collections.unmodifiableList( this.artifactResolutionService );
+   public List<IndexedEndpointType> getArtifactResolutionService()
+   {
+      return Collections.unmodifiableList(this.artifactResolutionService);
    }
 
    /**
@@ -129,9 +151,9 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getSingleLogoutService() 
+   public List<EndpointType> getSingleLogoutService()
    {
-      return Collections.unmodifiableList( this.singleLogoutService );
+      return Collections.unmodifiableList(this.singleLogoutService);
    }
 
    /**
@@ -140,9 +162,9 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getManageNameIDService() 
+   public List<EndpointType> getManageNameIDService()
    {
-      return Collections.unmodifiableList( this.manageNameIDService );
+      return Collections.unmodifiableList(this.manageNameIDService);
    }
 
    /**
@@ -153,8 +175,8 @@ public abstract class SSODescriptorType extends RoleDescriptorType
     * 
     * 
     */
-   public List<String> getNameIDFormat() 
+   public List<String> getNameIDFormat()
    {
-      return Collections.unmodifiableList( this.nameIDFormat );
-   } 
+      return Collections.unmodifiableList(this.nameIDFormat);
+   }
 }

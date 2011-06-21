@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for PDPDescriptorType complex type.
@@ -34,17 +54,16 @@ public class PDPDescriptorType extends RoleDescriptorType
 
    protected List<String> nameIDFormat = new ArrayList<String>();
 
-   
    public PDPDescriptorType(List<String> protocolSupport)
    {
-      super(protocolSupport); 
+      super(protocolSupport);
    }
 
    /**
     * Add authorization service
     * @param endpt
     */
-   public void addAuthZService( EndpointType endpt )
+   public void addAuthZService(EndpointType endpt)
    {
       this.authzService.add(endpt);
    }
@@ -53,7 +72,7 @@ public class PDPDescriptorType extends RoleDescriptorType
     * Add assertion id request service
     * @param endpt
     */
-   public void addAssertionIDRequestService( EndpointType endpt )
+   public void addAssertionIDRequestService(EndpointType endpt)
    {
       this.assertionIDRequestService.add(endpt);
    }
@@ -62,16 +81,16 @@ public class PDPDescriptorType extends RoleDescriptorType
     * Add Name ID Format
     * @param str
     */
-   public void addNameIDFormat( String str )
+   public void addNameIDFormat(String str)
    {
       this.nameIDFormat.add(str);
    }
-   
+
    /**
     * remove authorization service
     * @param endpt
     */
-   public void removeAuthZService( EndpointType endpt )
+   public void removeAuthZService(EndpointType endpt)
    {
       this.authzService.remove(endpt);
    }
@@ -80,7 +99,7 @@ public class PDPDescriptorType extends RoleDescriptorType
     * remove assertion id request service
     * @param endpt
     */
-   public void removeAssertionIDRequestService( EndpointType endpt )
+   public void removeAssertionIDRequestService(EndpointType endpt)
    {
       this.assertionIDRequestService.remove(endpt);
    }
@@ -89,7 +108,7 @@ public class PDPDescriptorType extends RoleDescriptorType
     * remove Name ID Format
     * @param str
     */
-   public void removeNameIDFormat( String str )
+   public void removeNameIDFormat(String str)
    {
       this.nameIDFormat.remove(str);
    }
@@ -100,9 +119,9 @@ public class PDPDescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getAuthzService() 
+   public List<EndpointType> getAuthzService()
    {
-      return Collections.unmodifiableList( this.authzService );
+      return Collections.unmodifiableList(this.authzService);
    }
 
    /**
@@ -112,9 +131,9 @@ public class PDPDescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getAssertionIDRequestService() 
+   public List<EndpointType> getAssertionIDRequestService()
    {
-      return Collections.unmodifiableList( this.assertionIDRequestService );
+      return Collections.unmodifiableList(this.assertionIDRequestService);
    }
 
    /**
@@ -123,8 +142,8 @@ public class PDPDescriptorType extends RoleDescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link String }
     */
-   public List<String> getNameIDFormat() 
+   public List<String> getNameIDFormat()
    {
-      return Collections.unmodifiableList( this.nameIDFormat );
+      return Collections.unmodifiableList(this.nameIDFormat);
    }
 }

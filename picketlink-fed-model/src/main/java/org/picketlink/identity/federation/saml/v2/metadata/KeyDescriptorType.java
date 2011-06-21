@@ -1,4 +1,24 @@
-
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -8,7 +28,6 @@ import java.util.List;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for KeyDescriptorType complex type.
@@ -30,10 +49,11 @@ import org.w3c.dom.Element;
  * </pre>
  * 
  * 
- */  
-public class KeyDescriptorType 
+ */
+public class KeyDescriptorType
 {
    protected Element keyInfo;
+
    protected List<EncryptionMethodType> encryptionMethod = new ArrayList<EncryptionMethodType>();
 
    protected KeyTypes use;
@@ -46,7 +66,8 @@ public class KeyDescriptorType
     *     {@link KeyInfoType }
     *     
     */
-   public Element getKeyInfo() {
+   public Element getKeyInfo()
+   {
       return keyInfo;
    }
 
@@ -58,7 +79,8 @@ public class KeyDescriptorType
     *     {@link KeyInfoType }
     *     
     */
-   public void setKeyInfo( Element value) {
+   public void setKeyInfo(Element value)
+   {
       this.keyInfo = value;
    }
 
@@ -66,18 +88,18 @@ public class KeyDescriptorType
     * Add encryption method type
     * @param e
     */
-   public void addEncryptionMethod( EncryptionMethodType e )
+   public void addEncryptionMethod(EncryptionMethodType e)
    {
-      this.encryptionMethod.add( e );
+      this.encryptionMethod.add(e);
    }
-   
+
    /**
     * Remove encryption method type
     * @param e
     */
-   public void removeEncryptionMethod( EncryptionMethodType e )
+   public void removeEncryptionMethod(EncryptionMethodType e)
    {
-      this.encryptionMethod.remove( e );
+      this.encryptionMethod.remove(e);
    }
 
    /**
@@ -88,9 +110,9 @@ public class KeyDescriptorType
     * 
     * 
     */
-   public List<EncryptionMethodType> getEncryptionMethod() 
+   public List<EncryptionMethodType> getEncryptionMethod()
    {
-      return Collections.unmodifiableList( this.encryptionMethod );
+      return Collections.unmodifiableList(this.encryptionMethod);
    }
 
    /**
@@ -101,7 +123,8 @@ public class KeyDescriptorType
     *     {@link KeyTypes }
     *     
     */
-   public KeyTypes getUse() {
+   public KeyTypes getUse()
+   {
       return use;
    }
 
@@ -113,7 +136,8 @@ public class KeyDescriptorType
     *     {@link KeyTypes }
     *     
     */
-   public void setUse(KeyTypes value) {
+   public void setUse(KeyTypes value)
+   {
       this.use = value;
    }
 }

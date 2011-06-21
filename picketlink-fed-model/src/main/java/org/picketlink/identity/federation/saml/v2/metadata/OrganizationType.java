@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for OrganizationType complex type.
@@ -32,6 +52,7 @@ public class OrganizationType extends TypeWithOtherAttributes
 {
 
    protected ExtensionsType extensions;
+
    protected List<LocalizedNameType> organizationName = new ArrayList<LocalizedNameType>();
 
    protected List<LocalizedNameType> organizationDisplayName = new ArrayList<LocalizedNameType>();
@@ -42,7 +63,7 @@ public class OrganizationType extends TypeWithOtherAttributes
     * Add an organization name
     * @param name
     */
-   public void addOrganizationName( LocalizedNameType name )
+   public void addOrganizationName(LocalizedNameType name)
    {
       this.organizationName.add(name);
    }
@@ -51,7 +72,7 @@ public class OrganizationType extends TypeWithOtherAttributes
     * Add organization display name
     * @param name
     */
-   public void addOrganizationDisplayName( LocalizedNameType name )
+   public void addOrganizationDisplayName(LocalizedNameType name)
    {
       this.organizationDisplayName.add(name);
    }
@@ -60,16 +81,16 @@ public class OrganizationType extends TypeWithOtherAttributes
     * Add organization url
     * @param uri
     */
-   public void addOrganizationURL( LocalizedURIType uri )
+   public void addOrganizationURL(LocalizedURIType uri)
    {
       this.organizationURL.add(uri);
    }
-   
+
    /**
     * remove an organization name
     * @param name
     */
-   public void removeOrganizationName( LocalizedNameType name )
+   public void removeOrganizationName(LocalizedNameType name)
    {
       this.organizationName.remove(name);
    }
@@ -78,7 +99,7 @@ public class OrganizationType extends TypeWithOtherAttributes
     * remove organization display name
     * @param name
     */
-   public void removeOrganizationDisplayName( LocalizedNameType name )
+   public void removeOrganizationDisplayName(LocalizedNameType name)
    {
       this.organizationDisplayName.remove(name);
    }
@@ -87,7 +108,7 @@ public class OrganizationType extends TypeWithOtherAttributes
     * remove organization url
     * @param uri
     */
-   public void removeOrganizationURL( LocalizedURIType uri )
+   public void removeOrganizationURL(LocalizedURIType uri)
    {
       this.organizationURL.remove(uri);
    }
@@ -100,7 +121,8 @@ public class OrganizationType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -112,7 +134,8 @@ public class OrganizationType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -124,9 +147,9 @@ public class OrganizationType extends TypeWithOtherAttributes
     * {@link LocalizedNameType }
     *  
     */
-   public List<LocalizedNameType> getOrganizationName() 
+   public List<LocalizedNameType> getOrganizationName()
    {
-      return Collections.unmodifiableList( this.organizationName );
+      return Collections.unmodifiableList(this.organizationName);
    }
 
    /**
@@ -138,9 +161,9 @@ public class OrganizationType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<LocalizedNameType> getOrganizationDisplayName() 
+   public List<LocalizedNameType> getOrganizationDisplayName()
    {
-      return Collections.unmodifiableList( this.organizationDisplayName );
+      return Collections.unmodifiableList(this.organizationDisplayName);
    }
 
    /**
@@ -148,8 +171,8 @@ public class OrganizationType extends TypeWithOtherAttributes
     * 
 
     */
-   public List<LocalizedURIType> getOrganizationURL() 
+   public List<LocalizedURIType> getOrganizationURL()
    {
-      return Collections.unmodifiableList( this.organizationURL );
+      return Collections.unmodifiableList(this.organizationURL);
    }
 }

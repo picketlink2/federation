@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for AuthnAuthorityDescriptorType complex type.
@@ -24,23 +44,24 @@ import java.util.List;
  * &lt;/complexType>
  * </pre> 
  */
-public class AuthnAuthorityDescriptorType
-extends RoleDescriptorType
+public class AuthnAuthorityDescriptorType extends RoleDescriptorType
 {
-   protected List<EndpointType> authnQueryService = new ArrayList<EndpointType>(); 
+   protected List<EndpointType> authnQueryService = new ArrayList<EndpointType>();
+
    protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
+
    protected List<String> nameIDFormat = new ArrayList<String>();
-   
+
    public AuthnAuthorityDescriptorType(List<String> protocolSupport)
    {
-      super(protocolSupport); 
+      super(protocolSupport);
    }
 
    /**
     * Add authn query service
     * @param endpoint
     */
-   public void addAuthnQueryService( EndpointType endpoint )
+   public void addAuthnQueryService(EndpointType endpoint)
    {
       this.authnQueryService.add(endpoint);
    }
@@ -49,7 +70,7 @@ extends RoleDescriptorType
     * Add assertion id request service
     * @param endpoint
     */
-   public void addAssertionIDRequestService( EndpointType endpoint )
+   public void addAssertionIDRequestService(EndpointType endpoint)
    {
       this.assertionIDRequestService.add(endpoint);
    }
@@ -58,16 +79,16 @@ extends RoleDescriptorType
     * Add name id format
     * @param str
     */
-   public void addNameIDFormat( String str )
+   public void addNameIDFormat(String str)
    {
       this.nameIDFormat.add(str);
    }
-   
+
    /**
     * Remove authn query service
     * @param endpoint
     */
-   public void removeAuthnQueryService( EndpointType endpoint )
+   public void removeAuthnQueryService(EndpointType endpoint)
    {
       this.authnQueryService.remove(endpoint);
    }
@@ -76,7 +97,7 @@ extends RoleDescriptorType
     * remove assertion id request service
     * @param endpoint
     */
-   public void removeAssertionIDRequestService( EndpointType endpoint )
+   public void removeAssertionIDRequestService(EndpointType endpoint)
    {
       this.assertionIDRequestService.remove(endpoint);
    }
@@ -85,7 +106,7 @@ extends RoleDescriptorType
     * remove name id format
     * @param str
     */
-   public void removeNameIDFormat( String str )
+   public void removeNameIDFormat(String str)
    {
       this.nameIDFormat.remove(str);
    }
@@ -98,9 +119,9 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<EndpointType> getAuthnQueryService() 
+   public List<EndpointType> getAuthnQueryService()
    {
-      return Collections.unmodifiableList( this.authnQueryService );
+      return Collections.unmodifiableList(this.authnQueryService);
    }
 
    /**
@@ -111,9 +132,9 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<EndpointType> getAssertionIDRequestService() 
+   public List<EndpointType> getAssertionIDRequestService()
    {
-      return Collections.unmodifiableList( this.assertionIDRequestService );
+      return Collections.unmodifiableList(this.assertionIDRequestService);
    }
 
    /**
@@ -124,8 +145,8 @@ extends RoleDescriptorType
     * 
     * 
     */
-   public List<String> getNameIDFormat() 
+   public List<String> getNameIDFormat()
    {
-      return Collections.unmodifiableList( this.nameIDFormat );
+      return Collections.unmodifiableList(this.nameIDFormat);
    }
 }

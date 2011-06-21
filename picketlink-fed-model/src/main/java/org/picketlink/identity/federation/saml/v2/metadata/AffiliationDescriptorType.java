@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -7,7 +28,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
-
 
 /**
  * <p>Java class for AffiliationDescriptorType complex type.
@@ -34,16 +54,23 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
  * </pre>
  * 
  * 
- */ 
+ */
 public class AffiliationDescriptorType extends TypeWithOtherAttributes
 {
    protected SignatureType signature;
+
    protected ExtensionsType extensions;
+
    protected List<String> affiliateMember;
+
    protected List<KeyDescriptorType> keyDescriptor;
+
    protected String affiliationOwnerID;
+
    protected XMLGregorianCalendar validUntil;
+
    protected Duration cacheDuration;
+
    protected String id;
 
    /**
@@ -54,7 +81,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public SignatureType getSignature() {
+   public SignatureType getSignature()
+   {
       return signature;
    }
 
@@ -66,7 +94,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public void setSignature(SignatureType value) {
+   public void setSignature(SignatureType value)
+   {
       this.signature = value;
    }
 
@@ -78,7 +107,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -90,7 +120,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -116,8 +147,10 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<String> getAffiliateMember() {
-      if (affiliateMember == null) {
+   public List<String> getAffiliateMember()
+   {
+      if (affiliateMember == null)
+      {
          affiliateMember = new ArrayList<String>();
       }
       return this.affiliateMember;
@@ -145,8 +178,10 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<KeyDescriptorType> getKeyDescriptor() {
-      if (keyDescriptor == null) {
+   public List<KeyDescriptorType> getKeyDescriptor()
+   {
+      if (keyDescriptor == null)
+      {
          keyDescriptor = new ArrayList<KeyDescriptorType>();
       }
       return this.keyDescriptor;
@@ -160,7 +195,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getAffiliationOwnerID() {
+   public String getAffiliationOwnerID()
+   {
       return affiliationOwnerID;
    }
 
@@ -172,7 +208,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setAffiliationOwnerID(String value) {
+   public void setAffiliationOwnerID(String value)
+   {
       this.affiliationOwnerID = value;
    }
 
@@ -184,7 +221,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getValidUntil() {
+   public XMLGregorianCalendar getValidUntil()
+   {
       return validUntil;
    }
 
@@ -196,7 +234,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setValidUntil(XMLGregorianCalendar value) {
+   public void setValidUntil(XMLGregorianCalendar value)
+   {
       this.validUntil = value;
    }
 
@@ -208,7 +247,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public Duration getCacheDuration() {
+   public Duration getCacheDuration()
+   {
       return cacheDuration;
    }
 
@@ -220,7 +260,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public void setCacheDuration(Duration value) {
+   public void setCacheDuration(Duration value)
+   {
       this.cacheDuration = value;
    }
 
@@ -232,7 +273,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getID() {
+   public String getID()
+   {
       return id;
    }
 
@@ -244,7 +286,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setID(String value) {
+   public void setID(String value)
+   {
       this.id = value;
    }
 }

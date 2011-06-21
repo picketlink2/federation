@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -8,7 +29,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
-
 
 /**
  * <p>Java class for RoleDescriptorType complex type.
@@ -37,61 +57,70 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
  * </pre>
  * 
  * 
- */ 
+ */
 public abstract class RoleDescriptorType extends TypeWithOtherAttributes
 {
    protected SignatureType signature;
+
    protected ExtensionsType extensions;
+
    protected List<KeyDescriptorType> keyDescriptor = new ArrayList<KeyDescriptorType>();
+
    protected OrganizationType organization;
+
    protected List<ContactType> contactPerson = new ArrayList<ContactType>();
+
    protected String id;
+
    protected XMLGregorianCalendar validUntil;
+
    protected Duration cacheDuration;
+
    protected List<String> protocolSupportEnumeration = new ArrayList<String>();
-   protected String errorURL; 
-   
-   public RoleDescriptorType( List<String> protocolSupport )
+
+   protected String errorURL;
+
+   public RoleDescriptorType(List<String> protocolSupport)
    {
-      protocolSupportEnumeration.addAll( protocolSupport );
+      protocolSupportEnumeration.addAll(protocolSupport);
    }
-   
+
    /**
     * Add key descriptor
     * @param keyD
     */
-   public void addKeyDescriptor( KeyDescriptorType keyD )
+   public void addKeyDescriptor(KeyDescriptorType keyD)
    {
       this.keyDescriptor.add(keyD);
    }
-   
+
    /**
     * Add contact 
     * @param contact
     */
-   public void addContactPerson( ContactType contact )
+   public void addContactPerson(ContactType contact)
    {
       this.contactPerson.add(contact);
    }
-   
+
    /**
     * remove key descriptor
     * @param keyD
     */
-   public void removeKeyDescriptor( KeyDescriptorType keyD )
+   public void removeKeyDescriptor(KeyDescriptorType keyD)
    {
       this.keyDescriptor.remove(keyD);
    }
-   
+
    /**
     * remove contact 
     * @param contact
     */
-   public void removeContactPerson( ContactType contact )
+   public void removeContactPerson(ContactType contact)
    {
       this.contactPerson.remove(contact);
    }
-     
+
    /**
     * Gets the value of the signature property.
     * 
@@ -100,7 +129,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public SignatureType getSignature() {
+   public SignatureType getSignature()
+   {
       return signature;
    }
 
@@ -112,7 +142,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public void setSignature(SignatureType value) {
+   public void setSignature(SignatureType value)
+   {
       this.signature = value;
    }
 
@@ -124,7 +155,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -136,7 +168,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -148,8 +181,9 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<KeyDescriptorType> getKeyDescriptor() { 
-      return Collections.unmodifiableList( this.keyDescriptor );
+   public List<KeyDescriptorType> getKeyDescriptor()
+   {
+      return Collections.unmodifiableList(this.keyDescriptor);
    }
 
    /**
@@ -160,7 +194,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link OrganizationType }
     *     
     */
-   public OrganizationType getOrganization() {
+   public OrganizationType getOrganization()
+   {
       return organization;
    }
 
@@ -172,7 +207,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link OrganizationType }
     *     
     */
-   public void setOrganization(OrganizationType value) {
+   public void setOrganization(OrganizationType value)
+   {
       this.organization = value;
    }
 
@@ -184,8 +220,9 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<ContactType> getContactPerson() { 
-      return Collections.unmodifiableList( this.contactPerson );
+   public List<ContactType> getContactPerson()
+   {
+      return Collections.unmodifiableList(this.contactPerson);
    }
 
    /**
@@ -196,7 +233,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getID() {
+   public String getID()
+   {
       return id;
    }
 
@@ -208,7 +246,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setID(String value) {
+   public void setID(String value)
+   {
       this.id = value;
    }
 
@@ -220,7 +259,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getValidUntil() {
+   public XMLGregorianCalendar getValidUntil()
+   {
       return validUntil;
    }
 
@@ -232,7 +272,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setValidUntil(XMLGregorianCalendar value) {
+   public void setValidUntil(XMLGregorianCalendar value)
+   {
       this.validUntil = value;
    }
 
@@ -244,7 +285,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public Duration getCacheDuration() {
+   public Duration getCacheDuration()
+   {
       return cacheDuration;
    }
 
@@ -256,7 +298,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public void setCacheDuration(Duration value) {
+   public void setCacheDuration(Duration value)
+   {
       this.cacheDuration = value;
    }
 
@@ -268,8 +311,9 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<String> getProtocolSupportEnumeration() { 
-      return Collections.unmodifiableList( this.protocolSupportEnumeration );
+   public List<String> getProtocolSupportEnumeration()
+   {
+      return Collections.unmodifiableList(this.protocolSupportEnumeration);
    }
 
    /**
@@ -280,7 +324,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getErrorURL() {
+   public String getErrorURL()
+   {
       return errorURL;
    }
 
@@ -292,7 +337,8 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setErrorURL(String value) {
+   public void setErrorURL(String value)
+   {
       this.errorURL = value;
-   } 
+   }
 }

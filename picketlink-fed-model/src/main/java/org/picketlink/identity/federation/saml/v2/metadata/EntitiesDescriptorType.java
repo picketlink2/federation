@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -8,7 +29,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for EntitiesDescriptorType complex type.
@@ -37,16 +57,21 @@ import org.w3c.dom.Element;
  * </pre>
  * 
  * 
- */ 
-public class EntitiesDescriptorType 
+ */
+public class EntitiesDescriptorType
 {
    protected Element signature;
+
    protected ExtensionsType extensions;
+
    protected List<Object> entityDescriptor = new ArrayList<Object>();
 
    protected XMLGregorianCalendar validUntil;
+
    protected Duration cacheDuration;
+
    protected String id;
+
    protected String name;
 
    /**
@@ -57,7 +82,7 @@ public class EntitiesDescriptorType
     *     {@link Element }
     *     
     */
-   public Element getSignature() 
+   public Element getSignature()
    {
       return signature;
    }
@@ -70,7 +95,7 @@ public class EntitiesDescriptorType
     *     {@link Element }
     *     
     */
-   public void setSignature(Element value) 
+   public void setSignature(Element value)
    {
       this.signature = value;
    }
@@ -83,7 +108,7 @@ public class EntitiesDescriptorType
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() 
+   public ExtensionsType getExtensions()
    {
       return extensions;
    }
@@ -96,7 +121,7 @@ public class EntitiesDescriptorType
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) 
+   public void setExtensions(ExtensionsType value)
    {
       this.extensions = value;
    }
@@ -105,20 +130,20 @@ public class EntitiesDescriptorType
     * Add an entity descriptor
     * @param obj
     */
-   public void addEntityDescriptor( Object obj )
+   public void addEntityDescriptor(Object obj)
    {
-      this.entityDescriptor.add( obj );
+      this.entityDescriptor.add(obj);
    }
-   
+
    /**
     * Remove an entity descriptor
     * @param obj
     */
-   public void removeEntityDescriptor( Object obj )
+   public void removeEntityDescriptor(Object obj)
    {
-      this.entityDescriptor.remove( obj );
+      this.entityDescriptor.remove(obj);
    }
-   
+
    /**
     * Gets the value of the entityDescriptorOrEntitiesDescriptor property.
     * <p>
@@ -128,9 +153,9 @@ public class EntitiesDescriptorType
     * 
     * 
     */
-   public List<Object> getEntityDescriptor() 
+   public List<Object> getEntityDescriptor()
    {
-      return Collections.unmodifiableList( this.entityDescriptor );
+      return Collections.unmodifiableList(this.entityDescriptor);
    }
 
    /**
@@ -141,7 +166,7 @@ public class EntitiesDescriptorType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getValidUntil() 
+   public XMLGregorianCalendar getValidUntil()
    {
       return validUntil;
    }
@@ -154,7 +179,7 @@ public class EntitiesDescriptorType
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setValidUntil(XMLGregorianCalendar value) 
+   public void setValidUntil(XMLGregorianCalendar value)
    {
       this.validUntil = value;
    }
@@ -167,7 +192,8 @@ public class EntitiesDescriptorType
     *     {@link Duration }
     *     
     */
-   public Duration getCacheDuration() {
+   public Duration getCacheDuration()
+   {
       return cacheDuration;
    }
 
@@ -179,7 +205,8 @@ public class EntitiesDescriptorType
     *     {@link Duration }
     *     
     */
-   public void setCacheDuration(Duration value) {
+   public void setCacheDuration(Duration value)
+   {
       this.cacheDuration = value;
    }
 
@@ -191,7 +218,8 @@ public class EntitiesDescriptorType
     *     {@link String }
     *     
     */
-   public String getID() {
+   public String getID()
+   {
       return id;
    }
 
@@ -203,7 +231,8 @@ public class EntitiesDescriptorType
     *     {@link String }
     *     
     */
-   public void setID(String value) {
+   public void setID(String value)
+   {
       this.id = value;
    }
 
@@ -215,7 +244,7 @@ public class EntitiesDescriptorType
     *     {@link String }
     *     
     */
-   public String getName() 
+   public String getName()
    {
       return name;
    }
@@ -228,7 +257,7 @@ public class EntitiesDescriptorType
     *     {@link String }
     *     
     */
-   public void setName(String value) 
+   public void setName(String value)
    {
       this.name = value;
    }

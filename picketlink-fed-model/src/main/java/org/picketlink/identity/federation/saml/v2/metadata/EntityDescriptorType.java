@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -8,7 +29,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for EntityDescriptorType complex type.
@@ -53,100 +73,114 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
    public static class EDTChoiceType
    {
       private List<EDTDescriptorChoiceType> descriptors = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
+
       private AffiliationDescriptorType affiliationDescriptor;
 
       public EDTChoiceType(List<EDTDescriptorChoiceType> descriptors)
       {
          this.descriptors = descriptors;
       }
+
       public EDTChoiceType(AffiliationDescriptorType affiliationDescriptor)
-      { 
+      {
          this.affiliationDescriptor = affiliationDescriptor;
       }
+
       public List<EDTDescriptorChoiceType> getDescriptors()
       {
-         return Collections.unmodifiableList( descriptors );
+         return Collections.unmodifiableList(descriptors);
       }
+
       public AffiliationDescriptorType getAffiliationDescriptor()
       {
          return affiliationDescriptor;
-      } 
-      
-      public static EDTChoiceType oneValue( EDTDescriptorChoiceType edt )
+      }
+
+      public static EDTChoiceType oneValue(EDTDescriptorChoiceType edt)
       {
          List<EDTDescriptorChoiceType> aList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
          aList.add(edt);
-         return new EDTChoiceType( aList );
+         return new EDTChoiceType(aList);
       }
    }
 
    public static class EDTDescriptorChoiceType
    {
       private RoleDescriptorType roleDescriptor;
+
       private IDPSSODescriptorType idpDescriptor;
+
       private SPSSODescriptorType spDescriptor;
+
       private AuthnAuthorityDescriptorType authnDescriptor;
+
       private AttributeAuthorityDescriptorType attribDescriptor;
+
       private PDPDescriptorType pdpDescriptor;
-      
+
       public EDTDescriptorChoiceType(AuthnAuthorityDescriptorType authnDescriptor)
       {
          this.authnDescriptor = authnDescriptor;
       }
-      
+
       public EDTDescriptorChoiceType(AttributeAuthorityDescriptorType attribDescriptor)
       {
          this.attribDescriptor = attribDescriptor;
       }
-      
+
       public EDTDescriptorChoiceType(PDPDescriptorType pdpDescriptor)
       {
          this.pdpDescriptor = pdpDescriptor;
       }
-      
-      public EDTDescriptorChoiceType( SSODescriptorType sso )
+
+      public EDTDescriptorChoiceType(SSODescriptorType sso)
       {
-         if(sso instanceof IDPSSODescriptorType )
+         if (sso instanceof IDPSSODescriptorType)
          {
             this.idpDescriptor = (IDPSSODescriptorType) sso;
          }
          else
             this.spDescriptor = (SPSSODescriptorType) sso;
       }
-      
+
       public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
-      {  
-          this.roleDescriptor = roleDescriptor;
+      {
+         this.roleDescriptor = roleDescriptor;
       }
-      
-      
+
       public RoleDescriptorType getRoleDescriptor()
       {
          return roleDescriptor;
       }
+
       public IDPSSODescriptorType getIdpDescriptor()
       {
          return idpDescriptor;
       }
+
       public SPSSODescriptorType getSpDescriptor()
       {
          return spDescriptor;
       }
+
       public AuthnAuthorityDescriptorType getAuthnDescriptor()
       {
          return authnDescriptor;
       }
+
       public AttributeAuthorityDescriptorType getAttribDescriptor()
       {
          return attribDescriptor;
       }
+
       public PDPDescriptorType getPdpDescriptor()
       {
          return pdpDescriptor;
-      }  
+      }
    }
 
    protected Element signature;
+
    protected ExtensionsType extensions;
 
    protected List<EDTChoiceType> choiceType = new ArrayList<EntityDescriptorType.EDTChoiceType>();
@@ -165,7 +199,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
 
    protected String id;
 
-   public EntityDescriptorType( String entityID )
+   public EntityDescriptorType(String entityID)
    {
       this.entityID = entityID;
    }
@@ -178,7 +212,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link Element }
     *     
     */
-   public Element getSignature() {
+   public Element getSignature()
+   {
       return signature;
    }
 
@@ -190,7 +225,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link Element }
     *     
     */
-   public void setSignature( Element value) {
+   public void setSignature(Element value)
+   {
       this.signature = value;
    }
 
@@ -202,7 +238,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -214,7 +251,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -224,7 +262,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     */
    public List<EDTChoiceType> getChoiceType()
    {
-      return Collections.unmodifiableList( choiceType );
+      return Collections.unmodifiableList(choiceType);
    }
 
    /**
@@ -233,16 +271,16 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     */
    public void addChoiceType(EDTChoiceType choiceType)
    {
-      this.choiceType.add( choiceType );
+      this.choiceType.add(choiceType);
    }
-   
+
    /**
     * Remove a choice type
     * @param choiceType
     */
    public void removeChoiceType(EDTChoiceType choiceType)
    {
-      this.choiceType.remove( choiceType );
+      this.choiceType.remove(choiceType);
    }
 
    /**
@@ -253,7 +291,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link OrganizationType }
     *     
     */
-   public OrganizationType getOrganization() {
+   public OrganizationType getOrganization()
+   {
       return organization;
    }
 
@@ -265,7 +304,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link OrganizationType }
     *     
     */
-   public void setOrganization(OrganizationType value) {
+   public void setOrganization(OrganizationType value)
+   {
       this.organization = value;
    }
 
@@ -273,16 +313,16 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     * Add a {@link ContactType} contact person
     * @param ct
     */
-   public void addContactPerson( ContactType ct )
+   public void addContactPerson(ContactType ct)
    {
       contactPerson.add(ct);
    }
-   
-   public void removeContactPerson( ContactType ct )
+
+   public void removeContactPerson(ContactType ct)
    {
       contactPerson.remove(ct);
    }
-   
+
    /**
     * Gets the value of the contactPerson property.
     * <p>
@@ -291,9 +331,9 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<ContactType> getContactPerson() 
+   public List<ContactType> getContactPerson()
    {
-      return Collections.unmodifiableList( this.contactPerson );
+      return Collections.unmodifiableList(this.contactPerson);
    }
 
    /**
@@ -318,9 +358,9 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<AdditionalMetadataLocationType> getAdditionalMetadataLocation() 
+   public List<AdditionalMetadataLocationType> getAdditionalMetadataLocation()
    {
-      return Collections.unmodifiableList( this.additionalMetadataLocation );
+      return Collections.unmodifiableList(this.additionalMetadataLocation);
    }
 
    /**
@@ -331,7 +371,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getEntityID() {
+   public String getEntityID()
+   {
       return entityID;
    }
 
@@ -343,7 +384,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public XMLGregorianCalendar getValidUntil() {
+   public XMLGregorianCalendar getValidUntil()
+   {
       return validUntil;
    }
 
@@ -355,7 +397,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link XMLGregorianCalendar }
     *     
     */
-   public void setValidUntil(XMLGregorianCalendar value) {
+   public void setValidUntil(XMLGregorianCalendar value)
+   {
       this.validUntil = value;
    }
 
@@ -367,7 +410,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public Duration getCacheDuration() {
+   public Duration getCacheDuration()
+   {
       return cacheDuration;
    }
 
@@ -379,7 +423,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link Duration }
     *     
     */
-   public void setCacheDuration(Duration value) {
+   public void setCacheDuration(Duration value)
+   {
       this.cacheDuration = value;
    }
 
@@ -391,7 +436,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getID() {
+   public String getID()
+   {
       return id;
    }
 
@@ -403,7 +449,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setID(String value) {
+   public void setID(String value)
+   {
       this.id = value;
-   } 
+   }
 }

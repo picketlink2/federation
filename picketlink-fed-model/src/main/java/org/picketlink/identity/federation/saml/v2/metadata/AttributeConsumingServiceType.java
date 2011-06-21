@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for AttributeConsumingServiceType complex type.
@@ -27,8 +47,8 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
-public class AttributeConsumingServiceType 
+ */
+public class AttributeConsumingServiceType
 {
    protected List<LocalizedNameType> serviceName = new ArrayList<LocalizedNameType>();
 
@@ -40,10 +60,8 @@ public class AttributeConsumingServiceType
 
    protected Boolean isDefault;
 
-
-
    public AttributeConsumingServiceType(int index)
-   { 
+   {
       this.index = index;
    }
 
@@ -55,9 +73,9 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public void addServiceName( LocalizedNameType service ) 
+   public void addServiceName(LocalizedNameType service)
    {
-      this.serviceName.add(service) ;
+      this.serviceName.add(service);
    }
 
    /**
@@ -68,7 +86,7 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public void addServiceDescription( LocalizedNameType desc ) 
+   public void addServiceDescription(LocalizedNameType desc)
    {
       this.serviceDescription.add(desc);
    }
@@ -80,11 +98,11 @@ public class AttributeConsumingServiceType
     * {@link RequestedAttributeType }
     * 
     */
-   public void addRequestedAttribute( RequestedAttributeType req ) 
+   public void addRequestedAttribute(RequestedAttributeType req)
    {
       this.requestedAttribute.add(req);
    }
-   
+
    /**
     * remove serviceName  
     * <p>
@@ -93,9 +111,9 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public void removeServiceName( LocalizedNameType service ) 
+   public void removeServiceName(LocalizedNameType service)
    {
-      this.serviceName.remove(service) ;
+      this.serviceName.remove(service);
    }
 
    /**
@@ -106,7 +124,7 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public void removeServiceDescription( LocalizedNameType desc ) 
+   public void removeServiceDescription(LocalizedNameType desc)
    {
       this.serviceDescription.remove(desc);
    }
@@ -118,12 +136,11 @@ public class AttributeConsumingServiceType
     * {@link RequestedAttributeType }
     * 
     */
-   public void removeRequestedAttribute( RequestedAttributeType req ) 
+   public void removeRequestedAttribute(RequestedAttributeType req)
    {
       this.requestedAttribute.remove(req);
    }
-   
-    
+
    /**
     * Gets the value of the serviceName property.
     * <p>
@@ -132,9 +149,9 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public List<LocalizedNameType> getServiceName() 
+   public List<LocalizedNameType> getServiceName()
    {
-      return Collections.unmodifiableList( this.serviceName );
+      return Collections.unmodifiableList(this.serviceName);
    }
 
    /**
@@ -145,9 +162,9 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public List<LocalizedNameType> getServiceDescription() 
+   public List<LocalizedNameType> getServiceDescription()
    {
-      return Collections.unmodifiableList( this.serviceDescription );
+      return Collections.unmodifiableList(this.serviceDescription);
    }
 
    /**
@@ -158,16 +175,16 @@ public class AttributeConsumingServiceType
     * 
     * 
     */
-   public List<RequestedAttributeType> getRequestedAttribute() 
+   public List<RequestedAttributeType> getRequestedAttribute()
    {
-      return Collections.unmodifiableList( this.requestedAttribute );
+      return Collections.unmodifiableList(this.requestedAttribute);
    }
 
    /**
     * Gets the value of the index property.
     * 
     */
-   public int getIndex() 
+   public int getIndex()
    {
       return index;
    }
@@ -180,7 +197,7 @@ public class AttributeConsumingServiceType
     *     {@link Boolean }
     *     
     */
-   public Boolean isIsDefault() 
+   public Boolean isIsDefault()
    {
       return isDefault;
    }
@@ -193,7 +210,7 @@ public class AttributeConsumingServiceType
     *     {@link Boolean }
     *     
     */
-   public void setIsDefault(Boolean value) 
+   public void setIsDefault(Boolean value)
    {
       this.isDefault = value;
    }

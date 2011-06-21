@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
@@ -5,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-
 
 /**
  * <p>Java class for IDPSSODescriptorType complex type.
@@ -31,31 +51,30 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  * 
  * 
  */
-public class IDPSSODescriptorType
-extends SSODescriptorType
-{ 
+public class IDPSSODescriptorType extends SSODescriptorType
+{
    protected List<EndpointType> singleSignOnService = new ArrayList<EndpointType>();
 
-   protected List<EndpointType> nameIDMappingService= new ArrayList<EndpointType>();
+   protected List<EndpointType> nameIDMappingService = new ArrayList<EndpointType>();
 
-   protected List<EndpointType> assertionIDRequestService= new ArrayList<EndpointType>();
+   protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
 
    protected List<String> attributeProfile = new ArrayList<String>();
 
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
 
-   protected Boolean wantAuthnRequestsSigned; 
+   protected Boolean wantAuthnRequestsSigned;
 
    public IDPSSODescriptorType(List<String> protocolSupport)
    {
-      super(protocolSupport); 
+      super(protocolSupport);
    }
 
    /**
     * Add a SSO service
     * @param endpt
     */
-   public void addSingleSignOnService( EndpointType endpt)
+   public void addSingleSignOnService(EndpointType endpt)
    {
       this.singleSignOnService.add(endpt);
    }
@@ -64,7 +83,7 @@ extends SSODescriptorType
     * Add name id mapping service
     * @param endpt
     */
-   public void addNameIDMappingService( EndpointType endpt )
+   public void addNameIDMappingService(EndpointType endpt)
    {
       this.nameIDMappingService.add(endpt);
    }
@@ -73,7 +92,7 @@ extends SSODescriptorType
     * Add assertion id request service
     * @param endpt
     */
-   public void addAssertionIDRequestService( EndpointType endpt )
+   public void addAssertionIDRequestService(EndpointType endpt)
    {
       this.assertionIDRequestService.add(endpt);
    }
@@ -82,26 +101,25 @@ extends SSODescriptorType
     * Add attribute profile
     * @param str
     */
-   public void addAttributeProfile( String str )
+   public void addAttributeProfile(String str)
    {
-      this.attributeProfile.add( str );
-   }  
+      this.attributeProfile.add(str);
+   }
 
    /**
     * Add attribute
     * @param att
     */
-   public void addAttribute( AttributeType att )
+   public void addAttribute(AttributeType att)
    {
       this.attribute.add(att);
-   } 
-   
-   
+   }
+
    /**
     * Remove a SSO service
     * @param endpt
     */
-   public void removeSingleSignOnService( EndpointType endpt)
+   public void removeSingleSignOnService(EndpointType endpt)
    {
       this.singleSignOnService.remove(endpt);
    }
@@ -110,7 +128,7 @@ extends SSODescriptorType
     * remove name id mapping service
     * @param endpt
     */
-   public void removeNameIDMappingService( EndpointType endpt )
+   public void removeNameIDMappingService(EndpointType endpt)
    {
       this.nameIDMappingService.remove(endpt);
    }
@@ -119,7 +137,7 @@ extends SSODescriptorType
     * remove assertion id request service
     * @param endpt
     */
-   public void removeAssertionIDRequestService( EndpointType endpt )
+   public void removeAssertionIDRequestService(EndpointType endpt)
    {
       this.assertionIDRequestService.remove(endpt);
    }
@@ -128,19 +146,19 @@ extends SSODescriptorType
     * Add attribute profile
     * @param str
     */
-   public void removeAttributeProfile( String str )
+   public void removeAttributeProfile(String str)
    {
-      this.attributeProfile.remove( str );
-   }  
+      this.attributeProfile.remove(str);
+   }
 
    /**
     * Add attribute
     * @param att
     */
-   public void removeAttribute( AttributeType att )
+   public void removeAttribute(AttributeType att)
    {
       this.attribute.remove(att);
-   } 
+   }
 
    /**
     * Gets the value of the singleSignOnService property.
@@ -148,9 +166,9 @@ extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getSingleSignOnService() 
+   public List<EndpointType> getSingleSignOnService()
    {
-      return Collections.unmodifiableList( this.singleSignOnService );
+      return Collections.unmodifiableList(this.singleSignOnService);
    }
 
    /**
@@ -160,9 +178,9 @@ extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getNameIDMappingService() 
+   public List<EndpointType> getNameIDMappingService()
    {
-      return Collections.unmodifiableList( this.nameIDMappingService );
+      return Collections.unmodifiableList(this.nameIDMappingService);
    }
 
    /**
@@ -171,9 +189,9 @@ extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link EndpointType }
     */
-   public List<EndpointType> getAssertionIDRequestService() 
+   public List<EndpointType> getAssertionIDRequestService()
    {
-      return Collections.unmodifiableList( this.assertionIDRequestService );
+      return Collections.unmodifiableList(this.assertionIDRequestService);
    }
 
    /**
@@ -190,9 +208,9 @@ extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link String }
     */
-   public List<String> getAttributeProfile() 
+   public List<String> getAttributeProfile()
    {
-      return Collections.unmodifiableList( this.attributeProfile );
+      return Collections.unmodifiableList(this.attributeProfile);
    }
 
    /**
@@ -204,9 +222,9 @@ extends SSODescriptorType
     * 
     * 
     */
-   public List<AttributeType> getAttribute() 
-   { 
-      return Collections.unmodifiableList( this.attribute );
+   public List<AttributeType> getAttribute()
+   {
+      return Collections.unmodifiableList(this.attribute);
    }
 
    /**
@@ -217,7 +235,7 @@ extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public Boolean isWantAuthnRequestsSigned() 
+   public Boolean isWantAuthnRequestsSigned()
    {
       return wantAuthnRequestsSigned;
    }
@@ -230,7 +248,7 @@ extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public void setWantAuthnRequestsSigned(Boolean value) 
+   public void setWantAuthnRequestsSigned(Boolean value)
    {
       this.wantAuthnRequestsSigned = value;
    }

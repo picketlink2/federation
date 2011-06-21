@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for SPSSODescriptorType complex type.
@@ -27,53 +47,55 @@ import java.util.List;
  * 
  * 
  */
-public class SPSSODescriptorType  extends SSODescriptorType
+public class SPSSODescriptorType extends SSODescriptorType
 {
    protected List<IndexedEndpointType> assertionConsumerService = new ArrayList<IndexedEndpointType>();
-   protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
-   protected Boolean authnRequestsSigned;
-   protected Boolean wantAssertionsSigned;
 
+   protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
+
+   protected Boolean authnRequestsSigned;
+
+   protected Boolean wantAssertionsSigned;
 
    public SPSSODescriptorType(List<String> protocolSupport)
    {
-      super(protocolSupport); 
+      super(protocolSupport);
    }
-   
+
    /**
     * Add an Assertion Consumer Service
     * @param assertionConsumer an endpoint of type {@link IndexedEndpointType}
     */
-   public void addAssertionConsumerService( IndexedEndpointType assertionConsumer )
+   public void addAssertionConsumerService(IndexedEndpointType assertionConsumer)
    {
-      this.assertionConsumerService.add( assertionConsumer );
+      this.assertionConsumerService.add(assertionConsumer);
    }
-   
+
    /**
     * Add an attribute consumer
     * @param attributeConsumer an instance of type {@link AttributeConsumingServiceType}
     */
-   public void addAttributeConsumerService( AttributeConsumingServiceType attributeConsumer )
+   public void addAttributeConsumerService(AttributeConsumingServiceType attributeConsumer)
    {
-      this.attributeConsumingService.add( attributeConsumer );
+      this.attributeConsumingService.add(attributeConsumer);
    }
-   
+
    /**
     * Remove an Assertion Consumer Service
     * @param assertionConsumer an endpoint of type {@link IndexedEndpointType}
     */
-   public void removeAssertionConsumerService( IndexedEndpointType assertionConsumer )
+   public void removeAssertionConsumerService(IndexedEndpointType assertionConsumer)
    {
-      this.assertionConsumerService.remove( assertionConsumer );
+      this.assertionConsumerService.remove(assertionConsumer);
    }
-   
+
    /**
     * Remove an attribute consumer
     * @param attributeConsumer an instance of type {@link AttributeConsumingServiceType}
     */
-   public void removeAttributeConsumerService( AttributeConsumingServiceType attributeConsumer )
+   public void removeAttributeConsumerService(AttributeConsumingServiceType attributeConsumer)
    {
-      this.attributeConsumingService.remove( attributeConsumer );
+      this.attributeConsumingService.remove(attributeConsumer);
    }
 
    /**
@@ -82,12 +104,10 @@ public class SPSSODescriptorType  extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link IndexedEndpointType }
     */
-   public List<IndexedEndpointType> getAssertionConsumerService() 
+   public List<IndexedEndpointType> getAssertionConsumerService()
    {
-      return Collections.unmodifiableList( this.assertionConsumerService );
+      return Collections.unmodifiableList(this.assertionConsumerService);
    }
-   
-   
 
    /**
     * Gets the value of the attributeConsumingService property.
@@ -95,9 +115,9 @@ public class SPSSODescriptorType  extends SSODescriptorType
     * Objects of the following type(s) are allowed in the list
     * {@link AttributeConsumingServiceType }
     */
-   public List<AttributeConsumingServiceType> getAttributeConsumingService() 
+   public List<AttributeConsumingServiceType> getAttributeConsumingService()
    {
-      return Collections.unmodifiableList( this.attributeConsumingService );
+      return Collections.unmodifiableList(this.attributeConsumingService);
    }
 
    /**
@@ -108,7 +128,8 @@ public class SPSSODescriptorType  extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public Boolean isAuthnRequestsSigned() {
+   public Boolean isAuthnRequestsSigned()
+   {
       return authnRequestsSigned;
    }
 
@@ -120,7 +141,8 @@ public class SPSSODescriptorType  extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public void setAuthnRequestsSigned(Boolean value) {
+   public void setAuthnRequestsSigned(Boolean value)
+   {
       this.authnRequestsSigned = value;
    }
 
@@ -132,7 +154,8 @@ public class SPSSODescriptorType  extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public Boolean isWantAssertionsSigned() {
+   public Boolean isWantAssertionsSigned()
+   {
       return wantAssertionsSigned;
    }
 
@@ -144,7 +167,8 @@ public class SPSSODescriptorType  extends SSODescriptorType
     *     {@link Boolean }
     *     
     */
-   public void setWantAssertionsSigned(Boolean value) {
+   public void setWantAssertionsSigned(Boolean value)
+   {
       this.wantAssertionsSigned = value;
    }
 }

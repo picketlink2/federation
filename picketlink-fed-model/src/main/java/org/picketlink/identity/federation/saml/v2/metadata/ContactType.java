@@ -1,9 +1,29 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 /**
  * <p>Java class for ContactType complex type.
@@ -29,21 +49,25 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
+ */
 public class ContactType extends TypeWithOtherAttributes
 {
    protected ExtensionsType extensions;
+
    protected String company;
+
    protected String givenName;
+
    protected String surName;
+
    protected List<String> emailAddress = new ArrayList<String>();
+
    protected List<String> telephoneNumber = new ArrayList<String>();
-   protected ContactTypeType contactType; 
 
-
+   protected ContactTypeType contactType;
 
    public ContactType(ContactTypeType contactType)
-   { 
+   {
       this.contactType = contactType;
    }
 
@@ -55,7 +79,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -67,7 +92,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -79,7 +105,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getCompany() {
+   public String getCompany()
+   {
       return company;
    }
 
@@ -91,7 +118,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setCompany(String value) {
+   public void setCompany(String value)
+   {
       this.company = value;
    }
 
@@ -103,7 +131,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getGivenName() {
+   public String getGivenName()
+   {
       return givenName;
    }
 
@@ -115,7 +144,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setGivenName(String value) {
+   public void setGivenName(String value)
+   {
       this.givenName = value;
    }
 
@@ -127,7 +157,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public String getSurName() {
+   public String getSurName()
+   {
       return surName;
    }
 
@@ -139,7 +170,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link String }
     *     
     */
-   public void setSurName(String value) {
+   public void setSurName(String value)
+   {
       this.surName = value;
    }
 
@@ -147,7 +179,7 @@ public class ContactType extends TypeWithOtherAttributes
     * Add an email address
     * @param email
     */
-   public void addEmailAddress( String email )
+   public void addEmailAddress(String email)
    {
       this.emailAddress.add(email);
    }
@@ -156,16 +188,16 @@ public class ContactType extends TypeWithOtherAttributes
     * remove a telephone
     * @param tel
     */
-   public void removeTelephone( String tel )
+   public void removeTelephone(String tel)
    {
       this.telephoneNumber.remove(tel);
    }
-   
+
    /**
     * remove an email address
     * @param email
     */
-   public void removeEmailAddress( String email )
+   public void removeEmailAddress(String email)
    {
       this.emailAddress.remove(email);
    }
@@ -174,7 +206,7 @@ public class ContactType extends TypeWithOtherAttributes
     * Add a telephone
     * @param tel
     */
-   public void addTelephone( String tel )
+   public void addTelephone(String tel)
    {
       this.telephoneNumber.add(tel);
    }
@@ -187,9 +219,9 @@ public class ContactType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<String> getEmailAddress() 
+   public List<String> getEmailAddress()
    {
-      return Collections.unmodifiableList( this.emailAddress );
+      return Collections.unmodifiableList(this.emailAddress);
    }
 
    /**
@@ -200,9 +232,9 @@ public class ContactType extends TypeWithOtherAttributes
     * 
     * 
     */
-   public List<String> getTelephoneNumber() 
+   public List<String> getTelephoneNumber()
    {
-      return Collections.unmodifiableList( this.telephoneNumber );
+      return Collections.unmodifiableList(this.telephoneNumber);
    }
 
    /**
@@ -213,7 +245,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link ContactTypeType }
     *     
     */
-   public ContactTypeType getContactType() {
+   public ContactTypeType getContactType()
+   {
       return contactType;
    }
 
@@ -225,7 +258,8 @@ public class ContactType extends TypeWithOtherAttributes
     *     {@link ContactTypeType }
     *     
     */
-   public void setContactType(ContactTypeType value) {
+   public void setContactType(ContactTypeType value)
+   {
       this.contactType = value;
-   } 
+   }
 }
