@@ -68,5 +68,7 @@ public interface SAML11Constants
 
    String NAMESPACE = "Namespace";
 
+   String PROTOCOL_11_NSURI = "urn:oasis:names:tc:SAML:1.0:protocol";
+
    String RESOURCE = "Resource";
 }

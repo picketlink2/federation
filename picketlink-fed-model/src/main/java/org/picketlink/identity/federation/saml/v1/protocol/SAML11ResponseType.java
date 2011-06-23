@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.federation.saml.common.CommonResponseType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 
 /**
@@ -46,7 +45,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11ResponseType extends CommonResponseType
+public class SAML11ResponseType extends SAML11ResponseAbstractType
 {
    private static final long serialVersionUID = 1L;
 

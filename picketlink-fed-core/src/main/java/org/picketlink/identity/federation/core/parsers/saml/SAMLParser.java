@@ -63,7 +63,8 @@ public class SAMLParser extends AbstractParser
 
             String elementName = StaxParserUtil.getStartElementName(startElement);
 
-            if (elementName.equalsIgnoreCase(JBossSAMLConstants.ASSERTION.get()))
+            if (elementName.equalsIgnoreCase(JBossSAMLConstants.ASSERTION.get())
+                  || elementName.equals(JBossSAMLConstants.ENCRYPTED_ASSERTION.get()))
             {
                if (nsURI.equals(SAML11Constants.ASSERTION_11_NSURI))
                {
@@ -97,7 +98,6 @@ public class SAMLParser extends AbstractParser
                SAMLResponseParser responseParser = new SAMLResponseParser();
                return responseParser.parse(xmlEventReader);
             }
-
             else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
                   && JBossSAMLConstants.REQUEST_ABSTRACT.get().equals(startElementName.getLocalPart()))
             {
@@ -124,10 +124,11 @@ public class SAMLParser extends AbstractParser
                SAMLEntitiesDescriptorParser entityDescriptorParser = new SAMLEntitiesDescriptorParser();
                return entityDescriptorParser.parse(xmlEventReader);
             }
-            else if (JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI))
+            else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
+                  && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart()))
             {
-               SAMLAssertionParser assertionParser = new SAMLAssertionParser();
-               return assertionParser.parse(xmlEventReader);
+               SAML11ResponseParser responseParser = new SAML11ResponseParser();
+               return responseParser.parse(xmlEventReader);
             }
             else
                throw new RuntimeException("Unknown Tag:" + elementName + "::location=" + startElement.getLocation());
