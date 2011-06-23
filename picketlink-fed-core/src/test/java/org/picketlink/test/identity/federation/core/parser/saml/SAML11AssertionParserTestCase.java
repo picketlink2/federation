@@ -44,6 +44,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstr
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
+import org.w3c.dom.Element;
 
 /**
  * Unit Test the parsing of SAML 1.1 assertion
@@ -235,5 +236,40 @@ public class SAML11AssertionParserTestCase
       subjConf = subject.getSubjectConfirmation();
       confirmationMethod = subjConf.getConfirmationMethod().get(0);
       assertEquals("urn:oasis:names:tc:SAML:1.0:cm:artifact", confirmationMethod.toString());
+   }
+
+   @Test
+   public void testSAML11AssertionWithKeyInfo() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml1/saml1-assertion-keyinfo.xml");
+
+      SAMLParser parser = new SAMLParser();
+      SAML11AssertionType assertion = (SAML11AssertionType) parser.parse(configStream);
+      assertNotNull(assertion);
+
+      //Validate assertion
+      assertEquals(1, assertion.getMajorVersion());
+      assertEquals(1, assertion.getMinorVersion());
+      assertEquals("s69f7e2599d4eb0c548782432bf", assertion.getID());
+      assertEquals("http://jboss.org/test", assertion.getIssuer());
+      assertEquals(XMLTimeUtil.parse("2006-05-24T05:52:32Z"), assertion.getIssueInstant());
+
+      List<SAML11StatementAbstractType> statements = assertion.getStatements();
+      assertEquals(1, statements.size());
+      SAML11AuthenticationStatementType authStat = (SAML11AuthenticationStatementType) statements.get(0);
+      assertEquals(XMLTimeUtil.parse("2006-05-24T05:52:30Z"), authStat.getAuthenticationInstant());
+      assertEquals("urn:picketlink:auth", authStat.getAuthenticationMethod().toString());
+      SAML11SubjectType subject = authStat.getSubject();
+      SAML11SubjectTypeChoice choice = subject.getChoice();
+      SAML11NameIdentifierType nameID = choice.getNameID();
+      assertEquals("anil", nameID.getValue());
+      SAML11SubjectConfirmationType subjConf = subject.getSubjectConfirmation();
+      URI confirmationMethod = subjConf.getConfirmationMethod().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:1.0:cm:holder-of-key", confirmationMethod.toString());
+      assertNotNull(subjConf.getKeyInfo());
+
+      Element sig = assertion.getSignature();
+      assertNotNull(sig);
    }
 }
