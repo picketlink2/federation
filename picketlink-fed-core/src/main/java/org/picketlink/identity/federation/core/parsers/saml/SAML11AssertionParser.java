@@ -21,9 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -32,12 +29,11 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.core.model.context.ResponseType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
@@ -47,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectStatementType;
@@ -187,6 +184,12 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
             SAML11AuthenticationStatementType authStat = SAMLParserUtil.parseAuthenticationStatement(xmlEventReader);
             assertion.add(authStat);
          }
+         else if (JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equalsIgnoreCase(tag))
+         {
+            SAML11AttributeStatementType attributeStatementType = SAML11ParserUtil
+                  .parseSAML11AttributeStatement(xmlEventReader);
+            assertion.add(attributeStatementType);
+         }
          /*else if (JBossSAMLConstants.AUTHN_STATEMENT.get().equalsIgnoreCase(tag))
          {
             AuthnStatementType authnStatementType = SAMLParserUtil.parseAuthnStatement(xmlEventReader);
@@ -229,7 +232,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
                throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
          }*/
          else
-            throw new RuntimeException("SAMLAssertionParser:: unknown: " + tag + "::location="
+            throw new RuntimeException("SAML11AssertionParser:: unknown: " + tag + "::location="
                   + peekedElement.getLocation());
       }
       return assertion;
@@ -250,6 +253,8 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
    private SAML11AssertionType parseBaseAttributes(StartElement nextElement) throws ParsingException
    {
       Attribute idAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.ASSERTIONID));
+      if (idAttribute == null)
+         throw new ParsingException("Required attribute AssertionID missing");
       String id = StaxParserUtil.getAttributeValue(idAttribute);
 
       Attribute majVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));
@@ -265,47 +270,5 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
       XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttribute));
 
       return new SAML11AssertionType(id, issueInstant);
-   }
-
-   @SuppressWarnings("unchecked")
-   private ResponseType getXACMLResponse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      Element xacmlResponse = StaxParserUtil.getDOMElement(xmlEventReader);
-      //xacml request
-      String xacmlPath = "org.jboss.security.xacml.core.model.context";
-      try
-      {
-         JAXBContext jaxb = JAXBContext.newInstance(xacmlPath);
-         Unmarshaller un = jaxb.createUnmarshaller();
-         un.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
-         JAXBElement<ResponseType> jaxbResponseType = (JAXBElement<ResponseType>) un.unmarshal(DocumentUtil
-               .getNodeAsStream(xacmlResponse));
-         return jaxbResponseType.getValue();
-      }
-      catch (Exception e)
-      {
-         throw new ParsingException(e);
-      }
-   }
-
-   @SuppressWarnings("unchecked")
-   private RequestType getXACMLRequest(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      Element xacmlRequest = StaxParserUtil.getDOMElement(xmlEventReader);
-      //xacml request
-      String xacmlPath = "org.jboss.security.xacml.core.model.context";
-      try
-      {
-         JAXBContext jaxb = JAXBContext.newInstance(xacmlPath);
-         Unmarshaller un = jaxb.createUnmarshaller();
-         un.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
-         JAXBElement<RequestType> jaxbRequestType = (JAXBElement<RequestType>) un.unmarshal(DocumentUtil
-               .getNodeAsStream(xacmlRequest));
-         return jaxbRequestType.getValue();
-      }
-      catch (Exception e)
-      {
-         throw new ParsingException(e);
-      }
    }
 }

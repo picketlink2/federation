@@ -42,6 +42,15 @@ public class SAML11SubjectStatementType extends SAML11StatementAbstractType
 
    protected SAML11SubjectType subject;
 
+   public SAML11SubjectStatementType()
+   {
+   }
+
+   public SAML11SubjectStatementType(SAML11SubjectType subject)
+   {
+      this.subject = subject;
+   }
+
    public SAML11SubjectType getSubject()
    {
       return subject;

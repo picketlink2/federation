@@ -46,19 +46,19 @@ public class SAML11AttributeStatementType extends SAML11SubjectStatementType
 
    protected List<SAML11AttributeType> attribute = new ArrayList<SAML11AttributeType>();
 
-   public void add(SAML11AttributeType statement)
+   public void add(SAML11AttributeType aAttribute)
    {
-      this.attribute.add(statement);
+      this.attribute.add(aAttribute);
    }
 
-   public void addAllStatements(List<SAML11AttributeType> statement)
+   public void addAllAttributes(List<SAML11AttributeType> attribList)
    {
-      this.attribute.addAll(statement);
+      this.attribute.addAll(attribList);
    }
 
-   public boolean remove(SAML11AttributeType statement)
+   public boolean remove(SAML11AttributeType anAttrib)
    {
-      return this.attribute.remove(statement);
+      return this.attribute.remove(anAttrib);
    }
 
    public List<SAML11AttributeType> get()

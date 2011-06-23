@@ -23,14 +23,18 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
@@ -76,5 +80,62 @@ public class SAML11AssertionParserTestCase
       SAML11SubjectConfirmationType subjectConfirm = subject.getSubjectConfirmation();
       URI confirmationMethod = subjectConfirm.getConfirmationMethod().get(0);
       assertEquals("urn:oasis:names:tc:SAML:1.0:cm:bearer", confirmationMethod.toString());
+   }
+
+   @Test
+   public void testSAML11AssertionWithAttributeStatements() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml1/saml1-assertion-attribstat.xml");
+
+      SAMLParser parser = new SAMLParser();
+      SAML11AssertionType assertion = (SAML11AssertionType) parser.parse(configStream);
+      assertNotNull(assertion);
+
+      //Validate assertion
+      assertEquals(1, assertion.getMajorVersion());
+      assertEquals(1, assertion.getMinorVersion());
+      assertEquals("buGxcG4gILg5NlocyLccDz6iXrUb", assertion.getID());
+      assertEquals("https://idp.example.org/saml", assertion.getIssuer());
+      assertEquals(XMLTimeUtil.parse("2002-06-19T17:05:37.795Z"), assertion.getIssueInstant());
+
+      SAML11ConditionsType conditions = assertion.getConditions();
+      assertEquals(XMLTimeUtil.parse("2002-06-19T17:05:37.795Z"), conditions.getNotBefore());
+      assertEquals(XMLTimeUtil.parse("2002-06-19T17:15:37.795Z"), conditions.getNotOnOrAfter());
+
+      SAML11AuthenticationStatementType stat = (SAML11AuthenticationStatementType) assertion.getStatements().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:1.0:am:password", stat.getAuthenticationMethod().toString());
+      assertEquals(XMLTimeUtil.parse("2002-06-19T17:08:37.795Z"), stat.getAuthenticationInstant());
+
+      SAML11SubjectType subject = stat.getSubject();
+      SAML11SubjectType.SAML11SubjectTypeChoice choice = subject.getChoice();
+      assertEquals("user@idp.example.org", choice.getNameID().getNameQualifier());
+      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress", choice.getNameID().getFormat().toString());
+
+      SAML11SubjectConfirmationType subjectConfirm = subject.getSubjectConfirmation();
+      URI confirmationMethod = subjectConfirm.getConfirmationMethod().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:1.0:cm:bearer", confirmationMethod.toString());
+
+      SAML11AttributeStatementType attribStat = (SAML11AttributeStatementType) assertion.getStatements().get(1);
+      assertNotNull(attribStat);
+      subject = attribStat.getSubject();
+
+      choice = subject.getChoice();
+      assertEquals("user@idp.example.org", choice.getNameID().getNameQualifier());
+      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress", choice.getNameID().getFormat().toString());
+
+      subjectConfirm = subject.getSubjectConfirmation();
+      confirmationMethod = subjectConfirm.getConfirmationMethod().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:1.0:cm:bearer", confirmationMethod.toString());
+
+      List<SAML11AttributeType> attribs = attribStat.get();
+      assertEquals(1, attribs.size());
+      SAML11AttributeType attrib = attribs.get(0);
+      assertEquals("urn:mace:dir:attribute-def:eduPersonAffiliation", attrib.getAttributeName());
+      assertEquals("urn:mace:shibboleth:1.0:attributeNamespace:uri", attrib.getAttributeNamespace().toString());
+
+      List<Object> attribValues = attrib.get();
+      assertTrue(attribValues.contains("member"));
+      assertTrue(attribValues.contains("student"));
    }
 }

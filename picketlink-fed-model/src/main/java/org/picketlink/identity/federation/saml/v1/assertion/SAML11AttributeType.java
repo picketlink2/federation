@@ -49,19 +49,19 @@ public class SAML11AttributeType extends SAML11AttributeDesignatorType
       super(attributeName, attributeNamespace);
    }
 
-   public void add(Object advice)
+   public void add(Object attribValue)
    {
-      this.attributeValues.add(advice);
+      this.attributeValues.add(attribValue);
    }
 
-   public void addAll(List<Object> advice)
+   public void addAll(List<Object> attribValueList)
    {
-      this.attributeValues.addAll(advice);
+      this.attributeValues.addAll(attribValueList);
    }
 
-   public boolean remove(Object advice)
+   public boolean remove(Object attribVal)
    {
-      return this.attributeValues.remove(advice);
+      return this.attributeValues.remove(attribVal);
    }
 
    public List<Object> get()

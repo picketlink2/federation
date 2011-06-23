@@ -31,6 +31,10 @@ public interface SAML11Constants
 
    String ASSERTION_11_NSURI = "urn:oasis:names:tc:SAML:1.0:assertion";
 
+   String ATTRIBUTE_NAME = "AttributeName";
+
+   String ATTRIBUTE_NAMESPACE = "AttributeNamespace";
+
    String AUTHENTICATION_INSTANT = "AuthenticationInstant";
 
    String AUTHENTICATION_METHOD = "AuthenticationMethod";
