@@ -350,13 +350,13 @@ public class IDPWebRequestUtil
       {
          if (trace)
             log.trace(e1);
-         responseType = saml2Response.createResponseType();
+         responseType = saml2Response.createResponseType(id);
       }
       catch (ProcessingException e)
       {
          if (trace)
             log.trace(e);
-         responseType = saml2Response.createResponseType();
+         responseType = saml2Response.createResponseType(id);
       }
 
       //Lets see how the response looks like 

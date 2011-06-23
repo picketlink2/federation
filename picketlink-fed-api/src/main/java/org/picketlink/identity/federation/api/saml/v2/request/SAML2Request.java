@@ -89,8 +89,7 @@ public class SAML2Request
    {
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
 
-      String version = JBossSAMLConstants.VERSION_2_0.get();
-      AuthnRequestType authnRequest = new AuthnRequestType(id, version, issueInstant);
+      AuthnRequestType authnRequest = new AuthnRequestType(id, issueInstant);
       authnRequest.setAssertionConsumerServiceURL(URI.create(assertionConsumerURL));
       authnRequest.setProtocolBinding(URI.create(JBossSAMLConstants.HTTP_POST_BINDING.get()));
       if (destination != null)
@@ -221,8 +220,7 @@ public class SAML2Request
     */
    public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException
    {
-      LogoutRequestType lrt = new LogoutRequestType(IDGenerator.create("ID_"), JBossSAMLConstants.VERSION_2_0.get(),
-            XMLTimeUtil.getIssueInstant());
+      LogoutRequestType lrt = new LogoutRequestType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
 
       //Create an issuer 
       NameIDType issuerNameID = new NameIDType();

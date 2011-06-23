@@ -87,8 +87,7 @@ public class SOAPSAMLXACML
       {
          String id = IDGenerator.create("ID_");
 
-         XACMLAuthzDecisionQueryType queryType = new XACMLAuthzDecisionQueryType(id,
-               JBossSAMLConstants.VERSION_2_0.get(), XMLTimeUtil.getIssueInstant());
+         XACMLAuthzDecisionQueryType queryType = new XACMLAuthzDecisionQueryType(id, XMLTimeUtil.getIssueInstant());
 
          queryType.setRequest(xacmlRequest);
 

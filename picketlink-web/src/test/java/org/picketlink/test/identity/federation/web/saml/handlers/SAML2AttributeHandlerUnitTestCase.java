@@ -35,7 +35,6 @@ import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
@@ -156,8 +155,7 @@ public class SAML2AttributeHandlerUnitTestCase
             SAML2Handler.HANDLER_TYPE.IDP);
       SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
 
-      AssertionType assertion = new AssertionType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant(),
-            JBossSAMLConstants.VERSION_2_0.get());
+      AssertionType assertion = new AssertionType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
 
       Map<String, Object> myattr = new HashMap<String, Object>();
       myattr.put("testKey", "hello");

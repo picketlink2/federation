@@ -218,9 +218,16 @@ public class SAML2Response
     * Create an empty response type
     * @return
     */
-   public ResponseType createResponseType()
+   public ResponseType createResponseType(String ID)
    {
-      return JBossSAMLAuthnResponseFactory.createResponseType();
+      try
+      {
+         return new ResponseType(ID, XMLTimeUtil.getIssueInstant());
+      }
+      catch (ConfigurationException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
    /**
