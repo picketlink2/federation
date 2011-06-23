@@ -25,11 +25,9 @@ import java.net.URI;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.picketlink.identity.federation.saml.common.CommonRequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
-import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for RequestAbstractType complex type.
@@ -56,26 +54,26 @@ import org.w3c.dom.Element;
  * </pre>
  * 
  * 
- */ 
-public abstract class RequestAbstractType implements SAML2Object 
+ */
+public abstract class RequestAbstractType extends CommonRequestAbstractType implements SAML2Object
 {
-   protected String id;
+   private static final long serialVersionUID = 1L;
 
-   protected NameIDType issuer; 
-   protected Element signature; 
+   protected NameIDType issuer;
+
    protected ExtensionsType extensions;
-   protected String version; 
-   protected XMLGregorianCalendar issueInstant; 
-   protected URI destination; 
+
+   protected String version = "2.0";
+
+   protected URI destination;
+
    protected String consent;
 
-   public RequestAbstractType( String id, String version, XMLGregorianCalendar instant )
+   public RequestAbstractType(String id, XMLGregorianCalendar instant)
    {
-      this.id = id;
-      this.version = version;
-      this.issueInstant = instant;
+      super(id, instant);
    }
-   
+
    /**
     * Gets the value of the issuer property.
     * 
@@ -84,7 +82,8 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link NameIDType }
     *     
     */
-   public NameIDType getIssuer() {
+   public NameIDType getIssuer()
+   {
       return issuer;
    }
 
@@ -96,32 +95,9 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link NameIDType }
     *     
     */
-   public void setIssuer(NameIDType value) {
+   public void setIssuer(NameIDType value)
+   {
       this.issuer = value;
-   }
-
-   /**
-    * Gets the value of the signature property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SignatureType }
-    *     
-    */
-   public Element getSignature() {
-      return signature;
-   }
-
-   /**
-    * Sets the value of the signature property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link SignatureType }
-    *     
-    */
-   public void setSignature(Element value) {
-      this.signature = value;
    }
 
    /**
@@ -132,7 +108,8 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -144,20 +121,9 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
-   }
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getID() {
-      return id;
    }
 
    /**
@@ -168,21 +134,10 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link String }
     *     
     */
-   public String getVersion() {
+   public String getVersion()
+   {
       return version;
-   } 
-
-   /**
-    * Gets the value of the issueInstant property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getIssueInstant() {
-      return issueInstant;
-   } 
+   }
 
    /**
     * Gets the value of the destination property.
@@ -192,7 +147,7 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link String }
     *     
     */
-   public URI getDestination() 
+   public URI getDestination()
    {
       return destination;
    }
@@ -205,7 +160,8 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link String }
     *     
     */
-   public void setDestination( URI value) {
+   public void setDestination(URI value)
+   {
       this.destination = value;
    }
 
@@ -217,7 +173,8 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link String }
     *     
     */
-   public String getConsent() {
+   public String getConsent()
+   {
       return consent;
    }
 
@@ -229,8 +186,8 @@ public abstract class RequestAbstractType implements SAML2Object
     *     {@link String }
     *     
     */
-   public void setConsent(String value) {
+   public void setConsent(String value)
+   {
       this.consent = value;
    }
-
 }

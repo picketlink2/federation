@@ -28,8 +28,6 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
- 
-
 
 /**
  * <p>Java class for AttributeQueryType complex type.
@@ -49,40 +47,41 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  * </pre>
  * 
  * 
- */ 
-public class AttributeQueryType
-extends SubjectQueryAbstractType
+ */
+public class AttributeQueryType extends SubjectQueryAbstractType
 {
+   private static final long serialVersionUID = 1L;
+
    protected List<AttributeType> attribute = new ArrayList<AttributeType>();
-  
-   public AttributeQueryType(String id, String version, XMLGregorianCalendar instant)
+
+   public AttributeQueryType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
     * Add an attribute
     * @param att
     */
-   public void add( AttributeType att )
+   public void add(AttributeType att)
    {
       this.attribute.add(att);
    }
-   
+
    /**
     * Remove an attribute
     * @param att
     */
-   public void remove( AttributeType att )
+   public void remove(AttributeType att)
    {
       this.attribute.remove(att);
    }
-   
+
    /**
     * Gets the value of the attribute property. 
     */
-   public List<AttributeType> getAttribute() 
+   public List<AttributeType> getAttribute()
    {
-      return Collections.unmodifiableList( this.attribute );
+      return Collections.unmodifiableList(this.attribute);
    }
 }

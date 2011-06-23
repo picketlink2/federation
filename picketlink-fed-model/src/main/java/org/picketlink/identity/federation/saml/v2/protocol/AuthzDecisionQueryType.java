@@ -24,13 +24,12 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List; 
+import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EvidenceType;
-
 
 /**
  * <p>Java class for AuthzDecisionQueryType complex type.
@@ -50,33 +49,36 @@ import org.picketlink.identity.federation.saml.v2.assertion.EvidenceType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre> 
- */ 
-public class AuthzDecisionQueryType
-extends SubjectQueryAbstractType
-{ 
-   protected List<ActionType> action = new ArrayList<ActionType> (); 
-   protected EvidenceType evidence; 
+ */
+public class AuthzDecisionQueryType extends SubjectQueryAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
+   protected List<ActionType> action = new ArrayList<ActionType>();
+
+   protected EvidenceType evidence;
+
    protected URI resource;
-    
-   public AuthzDecisionQueryType(String id, String version, XMLGregorianCalendar instant)
+
+   public AuthzDecisionQueryType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
     * Add an action
     * @param act
     */
-   public void addAction( ActionType act )
+   public void addAction(ActionType act)
    {
       this.action.add(act);
    }
-   
+
    /**
     * Remove an action
     * @param act
     */
-   public void removeAction( ActionType act )
+   public void removeAction(ActionType act)
    {
       this.action.remove(act);
    }
@@ -84,9 +86,9 @@ extends SubjectQueryAbstractType
    /**
     * Gets the value of the action property.  
     */
-   public List<ActionType> getAction() 
-   { 
-      return Collections.unmodifiableList( this.action );
+   public List<ActionType> getAction()
+   {
+      return Collections.unmodifiableList(this.action);
    }
 
    /**
@@ -97,7 +99,7 @@ extends SubjectQueryAbstractType
     *     {@link EvidenceType }
     *     
     */
-   public EvidenceType getEvidence() 
+   public EvidenceType getEvidence()
    {
       return evidence;
    }
@@ -110,7 +112,7 @@ extends SubjectQueryAbstractType
     *     {@link EvidenceType }
     *     
     */
-   public void setEvidence(EvidenceType value) 
+   public void setEvidence(EvidenceType value)
    {
       this.evidence = value;
    }
@@ -123,7 +125,7 @@ extends SubjectQueryAbstractType
     *     {@link String }
     *     
     */
-   public URI getResource() 
+   public URI getResource()
    {
       return resource;
    }
@@ -136,8 +138,8 @@ extends SubjectQueryAbstractType
     *     {@link String }
     *     
     */
-   public void setResource( URI value) 
+   public void setResource(URI value)
    {
       this.resource = value;
-   } 
+   }
 }

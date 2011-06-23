@@ -23,14 +23,13 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List; 
+import java.util.List;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
- 
-
 
 /**
  * <p>Java class for LogoutRequestType complex type.
@@ -57,21 +56,26 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  * </pre>
  * 
  * 
- */ 
-public class LogoutRequestType
-    extends RequestAbstractType
-{ 
-    protected BaseIDAbstractType baseID;
-    protected NameIDType nameID; 
-    protected EncryptedElementType encryptedID; 
-    protected List<String> sessionIndex = new ArrayList<String>(); 
-    protected String reason; 
-    protected XMLGregorianCalendar notOnOrAfter;
+ */
+public class LogoutRequestType extends RequestAbstractType
+{
+   private static final long serialVersionUID = 1L;
 
-    
-    public LogoutRequestType(String id, String version, XMLGregorianCalendar instant)
+   protected BaseIDAbstractType baseID;
+
+   protected NameIDType nameID;
+
+   protected EncryptedElementType encryptedID;
+
+   protected List<String> sessionIndex = new ArrayList<String>();
+
+   protected String reason;
+
+   protected XMLGregorianCalendar notOnOrAfter;
+
+   public LogoutRequestType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -82,143 +86,153 @@ public class LogoutRequestType
      *     {@link BaseIDAbstractType }
      *     
      */
-    public BaseIDAbstractType getBaseID() {
-        return baseID;
-    }
+   public BaseIDAbstractType getBaseID()
+   {
+      return baseID;
+   }
 
-    /**
-     * Sets the value of the baseID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BaseIDAbstractType }
-     *     
-     */
-    public void setBaseID(BaseIDAbstractType value) {
-        this.baseID = value;
-    }
+   /**
+    * Sets the value of the baseID property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link BaseIDAbstractType }
+    *     
+    */
+   public void setBaseID(BaseIDAbstractType value)
+   {
+      this.baseID = value;
+   }
 
-    /**
-     * Gets the value of the nameID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link NameIDType }
-     *     
-     */
-    public NameIDType getNameID() {
-        return nameID;
-    }
+   /**
+    * Gets the value of the nameID property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link NameIDType }
+    *     
+    */
+   public NameIDType getNameID()
+   {
+      return nameID;
+   }
 
-    /**
-     * Sets the value of the nameID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link NameIDType }
-     *     
-     */
-    public void setNameID(NameIDType value) {
-        this.nameID = value;
-    }
+   /**
+    * Sets the value of the nameID property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link NameIDType }
+    *     
+    */
+   public void setNameID(NameIDType value)
+   {
+      this.nameID = value;
+   }
 
-    /**
-     * Gets the value of the encryptedID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link EncryptedElementType }
-     *     
-     */
-    public EncryptedElementType getEncryptedID() {
-        return encryptedID;
-    }
+   /**
+    * Gets the value of the encryptedID property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link EncryptedElementType }
+    *     
+    */
+   public EncryptedElementType getEncryptedID()
+   {
+      return encryptedID;
+   }
 
-    /**
-     * Sets the value of the encryptedID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link EncryptedElementType }
-     *     
-     */
-    public void setEncryptedID(EncryptedElementType value) {
-        this.encryptedID = value;
-    }
-    
-    /**
-     * Add session index
-     * @param index
-     */
-    public void addSessionIndex( String index )
-    {
-       this.sessionIndex.add( index );
-    }
-    
-    /**
-     * Remove session index
-     * @param index
-     */
-    public void removeSessionIndex( String index )
-    {
-       this.sessionIndex.remove( index );
-    }
+   /**
+    * Sets the value of the encryptedID property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link EncryptedElementType }
+    *     
+    */
+   public void setEncryptedID(EncryptedElementType value)
+   {
+      this.encryptedID = value;
+   }
 
-    /**
-     * Gets the value of the sessionIndex property.
-     *  
-     */
-    public List<String> getSessionIndex() 
-    { 
-        return Collections.unmodifiableList( this.sessionIndex );
-    }
+   /**
+    * Add session index
+    * @param index
+    */
+   public void addSessionIndex(String index)
+   {
+      this.sessionIndex.add(index);
+   }
 
-    /**
-     * Gets the value of the reason property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getReason() {
-        return reason;
-    }
+   /**
+    * Remove session index
+    * @param index
+    */
+   public void removeSessionIndex(String index)
+   {
+      this.sessionIndex.remove(index);
+   }
 
-    /**
-     * Sets the value of the reason property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setReason(String value) {
-        this.reason = value;
-    }
+   /**
+    * Gets the value of the sessionIndex property.
+    *  
+    */
+   public List<String> getSessionIndex()
+   {
+      return Collections.unmodifiableList(this.sessionIndex);
+   }
 
-    /**
-     * Gets the value of the notOnOrAfter property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getNotOnOrAfter() {
-        return notOnOrAfter;
-    }
+   /**
+    * Gets the value of the reason property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link String }
+    *     
+    */
+   public String getReason()
+   {
+      return reason;
+   }
 
-    /**
-     * Sets the value of the notOnOrAfter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setNotOnOrAfter(XMLGregorianCalendar value) {
-        this.notOnOrAfter = value;
-    }
+   /**
+    * Sets the value of the reason property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link String }
+    *     
+    */
+   public void setReason(String value)
+   {
+      this.reason = value;
+   }
+
+   /**
+    * Gets the value of the notOnOrAfter property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public XMLGregorianCalendar getNotOnOrAfter()
+   {
+      return notOnOrAfter;
+   }
+
+   /**
+    * Sets the value of the notOnOrAfter property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link XMLGregorianCalendar }
+    *     
+    */
+   public void setNotOnOrAfter(XMLGregorianCalendar value)
+   {
+      this.notOnOrAfter = value;
+   }
 
 }

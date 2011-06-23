@@ -27,7 +27,6 @@ import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.policy.IdReferenceType;
 import org.jboss.security.xacml.core.model.policy.TargetType;
 
-
 /**
  * <p>Java class for XACMLPolicyQueryType complex type.
  * 
@@ -49,57 +48,67 @@ import org.jboss.security.xacml.core.model.policy.TargetType;
  * </pre>
  * 
  * 
- */ 
-public class XACMLPolicyQueryType
-extends RequestAbstractType
+ */
+public class XACMLPolicyQueryType extends RequestAbstractType
 {
+   private static final long serialVersionUID = 1L;
+
    public static class ChoiceType
    {
       private RequestType request;
+
       private TargetType target;
+
       private IdReferenceType policySetIDReference;
+
       private IdReferenceType policyIdReference;
+
       public RequestType getRequest()
       {
          return request;
       }
+
       public void setRequest(RequestType request)
       {
          this.request = request;
       }
+
       public TargetType getTarget()
       {
          return target;
       }
+
       public void setTarget(TargetType target)
       {
          this.target = target;
       }
+
       public IdReferenceType getPolicySetIDReference()
       {
          return policySetIDReference;
       }
+
       public void setPolicySetIDReference(IdReferenceType policySetIDReference)
       {
          this.policySetIDReference = policySetIDReference;
       }
+
       public IdReferenceType getPolicyIdReference()
       {
          return policyIdReference;
       }
+
       public void setPolicyIdReference(IdReferenceType policyIdReference)
       {
          this.policyIdReference = policyIdReference;
-      } 
+      }
    }
 
    protected ChoiceType choiceType;
 
-
-
-   public XACMLPolicyQueryType(String id, String version, XMLGregorianCalendar instant)
+   public XACMLPolicyQueryType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    public ChoiceType getChoiceType()

@@ -26,8 +26,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
- 
-
 
 /**
  * <p>Java class for NameIDMappingRequestType complex type.
@@ -52,19 +50,22 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  * </pre>
  * 
  * 
- */ 
-public class NameIDMappingRequestType
-extends RequestAbstractType
-{ 
-   protected BaseIDAbstractType baseID; 
-   protected NameIDType nameID; 
-   protected EncryptedElementType encryptedID; 
+ */
+public class NameIDMappingRequestType extends RequestAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
+   protected BaseIDAbstractType baseID;
+
+   protected NameIDType nameID;
+
+   protected EncryptedElementType encryptedID;
+
    protected NameIDPolicyType nameIDPolicy;
 
-   
-   public NameIDMappingRequestType(String id, String version, XMLGregorianCalendar instant)
+   public NameIDMappingRequestType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -75,7 +76,8 @@ extends RequestAbstractType
     *     {@link BaseIDAbstractType }
     *     
     */
-   public BaseIDAbstractType getBaseID() {
+   public BaseIDAbstractType getBaseID()
+   {
       return baseID;
    }
 
@@ -87,7 +89,8 @@ extends RequestAbstractType
     *     {@link BaseIDAbstractType }
     *     
     */
-   public void setBaseID(BaseIDAbstractType value) {
+   public void setBaseID(BaseIDAbstractType value)
+   {
       this.baseID = value;
    }
 
@@ -99,7 +102,8 @@ extends RequestAbstractType
     *     {@link NameIDType }
     *     
     */
-   public NameIDType getNameID() {
+   public NameIDType getNameID()
+   {
       return nameID;
    }
 
@@ -111,7 +115,8 @@ extends RequestAbstractType
     *     {@link NameIDType }
     *     
     */
-   public void setNameID(NameIDType value) {
+   public void setNameID(NameIDType value)
+   {
       this.nameID = value;
    }
 
@@ -123,7 +128,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public EncryptedElementType getEncryptedID() {
+   public EncryptedElementType getEncryptedID()
+   {
       return encryptedID;
    }
 
@@ -135,7 +141,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public void setEncryptedID(EncryptedElementType value) {
+   public void setEncryptedID(EncryptedElementType value)
+   {
       this.encryptedID = value;
    }
 
@@ -147,7 +154,8 @@ extends RequestAbstractType
     *     {@link NameIDPolicyType }
     *     
     */
-   public NameIDPolicyType getNameIDPolicy() {
+   public NameIDPolicyType getNameIDPolicy()
+   {
       return nameIDPolicy;
    }
 
@@ -159,7 +167,8 @@ extends RequestAbstractType
     *     {@link NameIDPolicyType }
     *     
     */
-   public void setNameIDPolicy(NameIDPolicyType value) {
+   public void setNameIDPolicy(NameIDPolicyType value)
+   {
       this.nameIDPolicy = value;
    }
 }

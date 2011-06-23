@@ -26,8 +26,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
-
-
 /**
  * <p>Java class for ManageNameIDRequestType complex type.
  * 
@@ -54,20 +52,24 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  * </pre>
  * 
  * 
- */ 
-public class ManageNameIDRequestType
-extends RequestAbstractType
-{ 
-   protected NameIDType nameID; 
-   protected EncryptedElementType encryptedID; 
-   protected String newID; 
-   protected EncryptedElementType newEncryptedID; 
+ */
+public class ManageNameIDRequestType extends RequestAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
+   protected NameIDType nameID;
+
+   protected EncryptedElementType encryptedID;
+
+   protected String newID;
+
+   protected EncryptedElementType newEncryptedID;
+
    protected TerminateType terminate;
 
-   
-   public ManageNameIDRequestType(String id, String version, XMLGregorianCalendar instant)
+   public ManageNameIDRequestType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -78,7 +80,8 @@ extends RequestAbstractType
     *     {@link NameIDType }
     *     
     */
-   public NameIDType getNameID() {
+   public NameIDType getNameID()
+   {
       return nameID;
    }
 
@@ -90,7 +93,8 @@ extends RequestAbstractType
     *     {@link NameIDType }
     *     
     */
-   public void setNameID(NameIDType value) {
+   public void setNameID(NameIDType value)
+   {
       this.nameID = value;
    }
 
@@ -102,7 +106,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public EncryptedElementType getEncryptedID() {
+   public EncryptedElementType getEncryptedID()
+   {
       return encryptedID;
    }
 
@@ -114,7 +119,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public void setEncryptedID(EncryptedElementType value) {
+   public void setEncryptedID(EncryptedElementType value)
+   {
       this.encryptedID = value;
    }
 
@@ -126,7 +132,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public String getNewID() {
+   public String getNewID()
+   {
       return newID;
    }
 
@@ -138,7 +145,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public void setNewID(String value) {
+   public void setNewID(String value)
+   {
       this.newID = value;
    }
 
@@ -150,7 +158,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public EncryptedElementType getNewEncryptedID() {
+   public EncryptedElementType getNewEncryptedID()
+   {
       return newEncryptedID;
    }
 
@@ -162,7 +171,8 @@ extends RequestAbstractType
     *     {@link EncryptedElementType }
     *     
     */
-   public void setNewEncryptedID(EncryptedElementType value) {
+   public void setNewEncryptedID(EncryptedElementType value)
+   {
       this.newEncryptedID = value;
    }
 
@@ -174,7 +184,8 @@ extends RequestAbstractType
     *     {@link TerminateType }
     *     
     */
-   public TerminateType getTerminate() {
+   public TerminateType getTerminate()
+   {
       return terminate;
    }
 
@@ -186,7 +197,8 @@ extends RequestAbstractType
     *     {@link TerminateType }
     *     
     */
-   public void setTerminate(TerminateType value) {
+   public void setTerminate(TerminateType value)
+   {
       this.terminate = value;
    }
 

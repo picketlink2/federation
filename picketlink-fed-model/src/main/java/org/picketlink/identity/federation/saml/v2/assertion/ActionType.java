@@ -21,8 +21,7 @@
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
 
-import java.io.Serializable;
-
+import org.picketlink.identity.federation.saml.common.CommonActionType;
 
 /**
  * <p>Java class for ActionType complex type.
@@ -40,59 +39,8 @@ import java.io.Serializable;
  * </pre>
  * 
  * 
- */ 
-public class ActionType implements Serializable {
-
+ */
+public class ActionType extends CommonActionType
+{
    private static final long serialVersionUID = 1L;
-
-   protected String value; 
-   protected String namespace;
-
-   /**
-    * Gets the value of the value property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getValue() {
-      return value;
-   }
-
-   /**
-    * Sets the value of the value property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValue(String value) {
-      this.value = value;
-   }
-
-   /**
-    * Gets the value of the namespace property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getNamespace() {
-      return namespace;
-   }
-
-   /**
-    * Sets the value of the namespace property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setNamespace(String value) {
-      this.namespace = value;
-   }
 }

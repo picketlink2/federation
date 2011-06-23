@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 
@@ -47,87 +49,105 @@ import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionTy
  * </pre>
  * 
  * 
- */ 
-public class ResponseType
-extends StatusResponseType
-{ 
+ */
+public class ResponseType extends StatusResponseType
+{
+   private static final long serialVersionUID = 1L;
+
    protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
+
+   public ResponseType(String id, XMLGregorianCalendar issueInstant)
+   {
+      super(id, issueInstant);
+   }
+
+   public ResponseType(StatusResponseType srt)
+   {
+      super(srt);
+   }
 
    /**
     * Add an assertion
     * @param choice
     */
-   public void addAssertion( RTChoiceType choice )
+   public void addAssertion(RTChoiceType choice)
    {
       assertions.add(choice);
    }
-   
+
    /**
     * Remove an assertion
     * @param choice
     */
-   public void removeAssertion( RTChoiceType choice )
+   public void removeAssertion(RTChoiceType choice)
    {
       assertions.remove(choice);
    }
-   
+
    /**
     * Replace the first assertion with the passed assertion
     * @param id id of the old assertion
     * @param newAssertion
     */
-   public void replaceAssertion( String id,  RTChoiceType newAssertion )
+   public void replaceAssertion(String id, RTChoiceType newAssertion)
    {
       int index = 0;
-      if( id != null && !id.isEmpty())
+      if (id != null && !id.isEmpty())
       {
-         for( RTChoiceType assertion : assertions )
+         for (RTChoiceType assertion : assertions)
          {
-            if( assertion.getID().equals(id) )
+            if (assertion.getID().equals(id))
             {
                break;
             }
             index++;
-         } 
+         }
       }
-      assertions.remove(index); 
+      assertions.remove(index);
       assertions.add(index, newAssertion);
    }
 
    /**
     * Gets a read only list of assertions
     */
-   public List<RTChoiceType> getAssertions() 
+   public List<RTChoiceType> getAssertions()
    {
-      return Collections.unmodifiableList( assertions );
+      return Collections.unmodifiableList(assertions);
    }
 
    public static class RTChoiceType
    {
       private AssertionType assertion;
+
       private EncryptedAssertionType encryptedAssertion;
+
       private String id;
+
       public RTChoiceType(AssertionType assertion)
-      { 
+      {
          this.assertion = assertion;
          this.id = assertion.getID();
       }
+
       public RTChoiceType(EncryptedAssertionType encryptedAssertion)
-      { 
+      {
          this.encryptedAssertion = encryptedAssertion;
-         
+
       }
+
       public AssertionType getAssertion()
       {
          return assertion;
       }
+
       public EncryptedAssertionType getEncryptedAssertion()
       {
          return encryptedAssertion;
-      } 
+      }
+
       public String getID()
       {
-         return id; 
+         return id;
       }
-   } 
+   }
 }

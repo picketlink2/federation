@@ -21,14 +21,14 @@
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
- 
+
+import org.picketlink.identity.federation.saml.common.CommonAssertionType;
 import org.w3c.dom.Element;
 
 /**
@@ -53,27 +53,23 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class AssertionType implements Serializable
-{ 
+public class AssertionType extends CommonAssertionType
+{
    private static final long serialVersionUID = 1L;
-
-   private String ID;
 
    private Element signature;
 
-   private XMLGregorianCalendar issueInstant;
-
-   private String version;
+   private final String version = "2.0";
 
    private AdviceType advice;
 
    private NameIDType issuer;
-   
+
    private SubjectType subject;
 
    private ConditionsType conditions;
 
-   private Set<StatementAbstractType> statements = new LinkedHashSet<StatementAbstractType>();
+   private final Set<StatementAbstractType> statements = new LinkedHashSet<StatementAbstractType>();
 
    /**
     * Create an assertion
@@ -81,27 +77,9 @@ public class AssertionType implements Serializable
     * @param issueInstant {@link XMLGregorianCalendar} issue instant (required)
     * @param version
     */
-   public AssertionType(String iD, XMLGregorianCalendar issueInstant, String version)
-   { 
-      if( iD == null )
-         throw new IllegalArgumentException( "iD is null" );
-      if( issueInstant == null )
-         throw new IllegalArgumentException( "issueInstant is null" );
-      if( version == null )
-         throw new IllegalArgumentException( "version is null" );
-      
-      this.ID = iD;
-      this.issueInstant = issueInstant;
-      this.version = version;
-   }
-
-   /**
-    * Get the assertion id
-    * @return {@link String}
-    */
-   public String getID()
+   public AssertionType(String iD, XMLGregorianCalendar issueInstant)
    {
-      return ID;
+      super(iD, issueInstant);
    }
 
    /**
@@ -125,22 +103,13 @@ public class AssertionType implements Serializable
    }
 
    /**
-    * Get the Issue Instant
-    * @return {@link XMLGregorianCalendar}
-    */
-   public XMLGregorianCalendar getIssueInstant()
-   {
-      return issueInstant;
-   }
-
-   /**
     * Get the version of SAML
     * @return {@link String}
     */
    public String getVersion()
    {
       return version;
-   }   
+   }
 
    /**
     * Get the advice
@@ -158,7 +127,7 @@ public class AssertionType implements Serializable
    public void setAdvice(AdviceType advice)
    {
       checkSTSPermission();
-      
+
       this.advice = advice;
    }
 
@@ -169,7 +138,7 @@ public class AssertionType implements Serializable
    public ConditionsType getConditions()
    {
       checkSTSPermission();
-      
+
       return conditions;
    }
 
@@ -180,7 +149,7 @@ public class AssertionType implements Serializable
    public void setConditions(ConditionsType conditions)
    {
       checkSTSPermission();
-      
+
       this.conditions = conditions;
    }
 
@@ -200,42 +169,43 @@ public class AssertionType implements Serializable
    public void setIssuer(NameIDType issuer)
    {
       checkSTSPermission();
-      
+
       this.issuer = issuer;
-   } 
+   }
 
    /**
     * Add a statement
     * @param statement {@link StatementAbstractType}
     */
-   public void addStatement( StatementAbstractType statement )
+   public void addStatement(StatementAbstractType statement)
    {
       checkSTSPermission();
-      
-      this.statements.add( statement );
+
+      this.statements.add(statement);
    }
+
    /**
     * Add a collection of statements
     * @param statement {@link Collection}
     */
-   public void addStatements( Collection<StatementAbstractType> statement )
+   public void addStatements(Collection<StatementAbstractType> statement)
    {
       checkSTSPermission();
-      
-      this.statements.addAll( statement );
+
+      this.statements.addAll(statement);
    }
 
    /**
     * Add a set of statements
     * @param statement {@link Collection}
     */
-   public void addStatements( Set<StatementAbstractType> statement )
+   public void addStatements(Set<StatementAbstractType> statement)
    {
       checkSTSPermission();
-      
-      this.statements.addAll( statement );
+
+      this.statements.addAll(statement);
    }
-   
+
    /**
     * Get a read only set of statements
     * @return {@link Set}
@@ -243,8 +213,8 @@ public class AssertionType implements Serializable
    public Set<StatementAbstractType> getStatements()
    {
       checkSTSPermission();
-      
-      return Collections.unmodifiableSet( statements );
+
+      return Collections.unmodifiableSet(statements);
    }
 
    /**
@@ -263,24 +233,23 @@ public class AssertionType implements Serializable
    public void setSignature(Element signature)
    {
       this.signature = signature;
-   } 
-   
+   }
+
    /**
     * Update the issue instant
     * @param xg
     */
-   public void updateIssueInstant( XMLGregorianCalendar xg )
+   public void updateIssueInstant(XMLGregorianCalendar xg)
    {
       checkSTSPermission();
-      
-      this.issueInstant = xg; 
+
+      this.issueInstant = xg;
    }
-   
 
    protected void checkSTSPermission()
    {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( new RuntimePermission( "org.picketlink.sts") );
+      if (sm != null)
+         sm.checkPermission(new RuntimePermission("org.picketlink.sts"));
    }
 }

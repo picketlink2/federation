@@ -25,7 +25,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 
-
 /**
  * <p>Java class for SubjectQueryAbstractType complex type.
  * 
@@ -44,23 +43,22 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
  * </pre>
  * 
  * 
- */ 
-public abstract class SubjectQueryAbstractType
-extends RequestAbstractType
-{ 
-   protected SubjectType subject; 
-    
-   public SubjectQueryAbstractType(String id, String version, XMLGregorianCalendar instant)
+ */
+public abstract class SubjectQueryAbstractType extends RequestAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
+   protected SubjectType subject;
+
+   public SubjectQueryAbstractType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    public void setSubject(SubjectType subject)
    {
       this.subject = subject;
    }
-
-
 
    /**
     * Gets the value of the subject property.
@@ -70,7 +68,7 @@ extends RequestAbstractType
     *     {@link SubjectType }
     *     
     */
-   public SubjectType getSubject() 
+   public SubjectType getSubject()
    {
       return subject;
    }

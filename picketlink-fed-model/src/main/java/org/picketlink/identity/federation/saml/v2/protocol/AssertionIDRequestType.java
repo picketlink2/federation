@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
  * <p>Java class for AssertionIDRequestType complex type.
  * 
@@ -46,41 +45,42 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * </pre>
  * 
  * 
- */ 
-public class AssertionIDRequestType
-extends RequestAbstractType
-{ 
+ */
+public class AssertionIDRequestType extends RequestAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
    protected List<String> assertionIDRef = new ArrayList<String>();
-    
-   public AssertionIDRequestType(String id, String version, XMLGregorianCalendar instant)
+
+   public AssertionIDRequestType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant);
+      super(id, instant);
    }
 
    /**
     * Add assertion id reference
     * @param id
     */
-   public void addAssertionIDRef( String id )
+   public void addAssertionIDRef(String id)
    {
-      assertionIDRef.add( id );
+      assertionIDRef.add(id);
    }
-   
+
    /**
     * remove assertion id reference
     * @param id
     */
-   public void removeAssertionIDRef( String id )
+   public void removeAssertionIDRef(String id)
    {
-      assertionIDRef.remove( id );
+      assertionIDRef.remove(id);
    }
 
    /**
     * Gets the value of the assertionIDRef property.
     *  
     */
-   public List<String> getAssertionIDRef() 
+   public List<String> getAssertionIDRef()
    {
-      return Collections.unmodifiableList( this.assertionIDRef );
+      return Collections.unmodifiableList(this.assertionIDRef);
    }
 }

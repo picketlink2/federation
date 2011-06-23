@@ -23,8 +23,6 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
-
 /**
  * <p>Java class for ArtifactResolveType complex type.
  * 
@@ -43,15 +41,16 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * </pre>
  * 
  * 
- */ 
-public class ArtifactResolveType
-extends RequestAbstractType
+ */
+public class ArtifactResolveType extends RequestAbstractType
 {
-   protected String artifact; 
+   private static final long serialVersionUID = 1L;
 
-   public ArtifactResolveType(String id, String version, XMLGregorianCalendar instant)
+   protected String artifact;
+
+   public ArtifactResolveType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -62,7 +61,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public String getArtifact() {
+   public String getArtifact()
+   {
       return artifact;
    }
 
@@ -74,7 +74,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public void setArtifact(String value) {
+   public void setArtifact(String value)
+   {
       this.artifact = value;
    }
 

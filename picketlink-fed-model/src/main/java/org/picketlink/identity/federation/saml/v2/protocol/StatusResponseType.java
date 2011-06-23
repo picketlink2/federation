@@ -23,10 +23,9 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.picketlink.identity.federation.saml.common.CommonResponseType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for StatusResponseType complex type.
@@ -55,19 +54,43 @@ import org.w3c.dom.Element;
  * </pre>
  * 
  * 
- */ 
-public class StatusResponseType implements SAML2Object 
+ */
+public class StatusResponseType extends CommonResponseType implements SAML2Object
 {
+   private static final long serialVersionUID = 1L;
+
    protected NameIDType issuer;
-   protected Element signature; 
-   protected ExtensionsType extensions; 
-   protected StatusType status; 
-   protected String id; 
-   protected String inResponseTo; 
-   protected String version; 
-   protected XMLGregorianCalendar issueInstant; 
-   protected String destination; 
+
+   protected ExtensionsType extensions;
+
+   protected StatusType status;
+
+   protected String id;
+
+   protected String version = "2.0";
+
+   protected XMLGregorianCalendar issueInstant;
+
+   protected String destination;
+
    protected String consent;
+
+   public StatusResponseType(String id, XMLGregorianCalendar issueInstant)
+   {
+      super(id, issueInstant);
+   }
+
+   public StatusResponseType(StatusResponseType srt)
+   {
+      this(srt.getID(), srt.getIssueInstant());
+      this.issuer = srt.getIssuer();
+      this.signature = srt.getSignature();
+      this.extensions = srt.getExtensions();
+      this.status = srt.getStatus();
+      this.inResponseTo = srt.getInResponseTo();
+      this.destination = srt.getDestination();
+      this.consent = srt.getConsent();
+   }
 
    /**
     * Gets the value of the issuer property.
@@ -77,7 +100,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link NameIDType }
     *     
     */
-   public NameIDType getIssuer() {
+   public NameIDType getIssuer()
+   {
       return issuer;
    }
 
@@ -89,32 +113,9 @@ public class StatusResponseType implements SAML2Object
     *     {@link NameIDType }
     *     
     */
-   public void setIssuer(NameIDType value) {
+   public void setIssuer(NameIDType value)
+   {
       this.issuer = value;
-   }
-
-   /**
-    * Gets the value of the signature property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SignatureType }
-    *     
-    */
-   public Element getSignature() {
-      return signature;
-   }
-
-   /**
-    * Sets the value of the signature property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link SignatureType }
-    *     
-    */
-   public void setSignature( Element value) {
-      this.signature = value;
    }
 
    /**
@@ -125,7 +126,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link ExtensionsType }
     *     
     */
-   public ExtensionsType getExtensions() {
+   public ExtensionsType getExtensions()
+   {
       return extensions;
    }
 
@@ -137,7 +139,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link ExtensionsType }
     *     
     */
-   public void setExtensions(ExtensionsType value) {
+   public void setExtensions(ExtensionsType value)
+   {
       this.extensions = value;
    }
 
@@ -149,7 +152,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link StatusType }
     *     
     */
-   public StatusType getStatus() {
+   public StatusType getStatus()
+   {
       return status;
    }
 
@@ -161,56 +165,9 @@ public class StatusResponseType implements SAML2Object
     *     {@link StatusType }
     *     
     */
-   public void setStatus(StatusType value) {
+   public void setStatus(StatusType value)
+   {
       this.status = value;
-   }
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getID() {
-      return id;
-   }
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setID(String value) {
-      this.id = value;
-   }
-
-   /**
-    * Gets the value of the inResponseTo property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getInResponseTo() {
-      return inResponseTo;
-   }
-
-   /**
-    * Sets the value of the inResponseTo property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setInResponseTo(String value) {
-      this.inResponseTo = value;
    }
 
    /**
@@ -221,44 +178,9 @@ public class StatusResponseType implements SAML2Object
     *     {@link String }
     *     
     */
-   public String getVersion() {
+   public String getVersion()
+   {
       return version;
-   }
-
-   /**
-    * Sets the value of the version property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setVersion(String value) {
-      this.version = value;
-   }
-
-   /**
-    * Gets the value of the issueInstant property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getIssueInstant() {
-      return issueInstant;
-   }
-
-   /**
-    * Sets the value of the issueInstant property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setIssueInstant(XMLGregorianCalendar value) {
-      this.issueInstant = value;
    }
 
    /**
@@ -269,7 +191,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link String }
     *     
     */
-   public String getDestination() {
+   public String getDestination()
+   {
       return destination;
    }
 
@@ -281,7 +204,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link String }
     *     
     */
-   public void setDestination(String value) {
+   public void setDestination(String value)
+   {
       this.destination = value;
    }
 
@@ -293,7 +217,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link String }
     *     
     */
-   public String getConsent() {
+   public String getConsent()
+   {
       return consent;
    }
 
@@ -305,8 +230,8 @@ public class StatusResponseType implements SAML2Object
     *     {@link String }
     *     
     */
-   public void setConsent(String value) {
+   public void setConsent(String value)
+   {
       this.consent = value;
    }
-
 }

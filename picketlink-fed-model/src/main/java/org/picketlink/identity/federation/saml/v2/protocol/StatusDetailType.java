@@ -21,10 +21,7 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.picketlink.identity.federation.saml.common.CommonStatusDetailType;
 
 /**
  * <p>Java class for StatusDetailType complex type.
@@ -44,34 +41,8 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
-public class StatusDetailType 
+ */
+public class StatusDetailType extends CommonStatusDetailType
 {
-   protected List<Object> any = new ArrayList<Object>();
-
-   /**
-    * Add status detail
-    * @param obj
-    */
-   public void addStatusDetail( Object obj )
-   {
-      this.any.add( obj );
-   }
-   
-   /**
-    * Remove status detail
-    * @param obj
-    */
-   public void removeStatusDetail( Object obj )
-   {
-      this.any.remove( obj );
-   }
-
-   /**
-    * Gets the value of the any property.  Read-Only list
-    */
-   public List<Object> getAny() 
-   {
-      return Collections.unmodifiableList( this.any );
-   } 
+   private static final long serialVersionUID = 1L;
 }

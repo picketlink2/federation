@@ -22,11 +22,7 @@
 
 package org.picketlink.identity.federation.saml.v2.assertion;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.picketlink.identity.federation.saml.common.CommonAdviceType;
 
 /**
  * <p>Java class for AdviceType complex type.
@@ -50,27 +46,8 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
-public class AdviceType implements Serializable
-{  
+ */
+public class AdviceType extends CommonAdviceType
+{
    private static final long serialVersionUID = 1L;
-   protected List<Object> advices = new ArrayList<Object>();
-
-   /**
-    * Add an advice
-    * @param obj
-    */
-   public void addAdvice( Object obj )
-   {
-      advices.add( obj );
-   }
-
-   /**
-    * Gets the advices. (Read only list)
-    * @return {@link List} read only 
-    */
-   public List<Object> getAdvices() 
-   { 
-      return Collections.unmodifiableList( advices );
-   } 
 }

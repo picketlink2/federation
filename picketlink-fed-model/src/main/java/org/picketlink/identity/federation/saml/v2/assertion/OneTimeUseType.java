@@ -20,7 +20,6 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
- 
 
 /**
  * <p>Java class for OneTimeUseType complex type.
@@ -37,8 +36,8 @@ package org.picketlink.identity.federation.saml.v2.assertion;
  * </pre>
  * 
  * 
- */ 
-public class OneTimeUseType
-    extends ConditionAbstractType
-{ 
+ */
+public class OneTimeUseType extends ConditionAbstractType
+{
+   private static final long serialVersionUID = 1L;
 }

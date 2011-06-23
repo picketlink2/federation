@@ -20,10 +20,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
- 
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.w3c.dom.Element;
-
 
 /**
  * <p>Java class for ArtifactResponseType complex type.
@@ -43,37 +43,44 @@ import org.w3c.dom.Element;
  * </pre>
  * 
  * 
- */ 
-public class ArtifactResponseType
-    extends StatusResponseType
+ */
+public class ArtifactResponseType extends StatusResponseType
 {
+   private static final long serialVersionUID = 1L;
 
-    protected Object any;
+   protected Object any;
 
-    /**
-     * Gets the value of the any property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Element }
-     *     {@link Object }
-     *     
-     */
-    public Object getAny() {
-        return any;
-    }
+   public ArtifactResponseType(String id, XMLGregorianCalendar issueInstant)
+   {
+      super(id, issueInstant);
+   }
 
-    /**
-     * Sets the value of the any property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Element }
-     *     {@link Object }
-     *     
-     */
-    public void setAny(Object value) {
-        this.any = value;
-    }
+   /**
+    * Gets the value of the any property.
+    * 
+    * @return
+    *     possible object is
+    *     {@link Element }
+    *     {@link Object }
+    *     
+    */
+   public Object getAny()
+   {
+      return any;
+   }
+
+   /**
+    * Sets the value of the any property.
+    * 
+    * @param value
+    *     allowed object is
+    *     {@link Element }
+    *     {@link Object }
+    *     
+    */
+   public void setAny(Object value)
+   {
+      this.any = value;
+   }
 
 }

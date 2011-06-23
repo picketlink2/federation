@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * <p>Java class for ProxyRestrictionType complex type.
  * 
@@ -47,10 +46,11 @@ import java.util.List;
  * </pre>
  * 
  * 
- */ 
-public class ProxyRestrictionType
-extends ConditionAbstractType
-{ 
+ */
+public class ProxyRestrictionType extends ConditionAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
    protected List<URI> audience = new ArrayList<URI>();
 
    protected BigInteger count;
@@ -59,27 +59,27 @@ extends ConditionAbstractType
     * Add an audience
     * @param a
     */
-   public void addAudience( URI a )
+   public void addAudience(URI a)
    {
-      this.audience.add( a );
+      this.audience.add(a);
    }
 
    /**
     * Gets the value of the audience property.
     *  
     */
-   public List<URI> getAudience() 
-   { 
-      return Collections.unmodifiableList( audience );
+   public List<URI> getAudience()
+   {
+      return Collections.unmodifiableList(audience);
    }
-   
+
    /**
     * Remove an audience
     * @param a
     */
-   public void removeAudience( URI a )
+   public void removeAudience(URI a)
    {
-      this.audience.remove( a );
+      this.audience.remove(a);
    }
 
    /**
@@ -90,7 +90,8 @@ extends ConditionAbstractType
     *     {@link BigInteger }
     *     
     */
-   public BigInteger getCount() {
+   public BigInteger getCount()
+   {
       return count;
    }
 
@@ -102,7 +103,8 @@ extends ConditionAbstractType
     *     {@link BigInteger }
     *     
     */
-   public void setCount(BigInteger value) {
+   public void setCount(BigInteger value)
+   {
       this.count = value;
    }
 }

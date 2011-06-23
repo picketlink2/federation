@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
@@ -44,11 +46,18 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  * 
  * 
  */
-public class NameIDMappingResponseType
-extends StatusResponseType
+public class NameIDMappingResponseType extends StatusResponseType
 {
-   protected NameIDType nameID; 
+   private static final long serialVersionUID = 1L;
+
+   protected NameIDType nameID;
+
    protected EncryptedElementType encryptedID;
+
+   public NameIDMappingResponseType(String id, XMLGregorianCalendar issueInstant)
+   {
+      super(id, issueInstant);
+   }
 
    /**
     * Gets the value of the nameID property.
@@ -58,7 +67,8 @@ extends StatusResponseType
     *     {@link NameIDType }
     *     
     */
-   public NameIDType getNameID() {
+   public NameIDType getNameID()
+   {
       return nameID;
    }
 
@@ -70,7 +80,8 @@ extends StatusResponseType
     *     {@link NameIDType }
     *     
     */
-   public void setNameID(NameIDType value) {
+   public void setNameID(NameIDType value)
+   {
       this.nameID = value;
    }
 
@@ -82,7 +93,8 @@ extends StatusResponseType
     *     {@link EncryptedElementType }
     *     
     */
-   public EncryptedElementType getEncryptedID() {
+   public EncryptedElementType getEncryptedID()
+   {
       return encryptedID;
    }
 
@@ -94,7 +106,8 @@ extends StatusResponseType
     *     {@link EncryptedElementType }
     *     
     */
-   public void setEncryptedID(EncryptedElementType value) {
+   public void setEncryptedID(EncryptedElementType value)
+   {
       this.encryptedID = value;
    }
 }

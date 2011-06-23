@@ -28,8 +28,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 
-
-
 /**
  * <p>Java class for AuthnRequestType complex type.
  * 
@@ -59,26 +57,38 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
  * </pre>
  * 
  * 
- */ 
-public class AuthnRequestType
-extends RequestAbstractType
+ */
+public class AuthnRequestType extends RequestAbstractType
 {
-   protected SubjectType subject; 
-   protected NameIDPolicyType nameIDPolicy; 
-   protected ConditionsType conditions; 
-   protected RequestedAuthnContextType requestedAuthnContext; 
-   protected ScopingType scoping; 
-   protected Boolean forceAuthn; 
-   protected Boolean isPassive; 
-   protected URI protocolBinding; 
-   protected Integer assertionConsumerServiceIndex; 
-   protected URI assertionConsumerServiceURL; 
-   protected Integer attributeConsumingServiceIndex; 
+   private static final long serialVersionUID = 1L;
+
+   protected SubjectType subject;
+
+   protected NameIDPolicyType nameIDPolicy;
+
+   protected ConditionsType conditions;
+
+   protected RequestedAuthnContextType requestedAuthnContext;
+
+   protected ScopingType scoping;
+
+   protected Boolean forceAuthn;
+
+   protected Boolean isPassive;
+
+   protected URI protocolBinding;
+
+   protected Integer assertionConsumerServiceIndex;
+
+   protected URI assertionConsumerServiceURL;
+
+   protected Integer attributeConsumingServiceIndex;
+
    protected String providerName;
 
-   public AuthnRequestType(String id, String version, XMLGregorianCalendar instant)
+   public AuthnRequestType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant);
+      super(id, instant);
    }
 
    /**
@@ -89,7 +99,8 @@ extends RequestAbstractType
     *     {@link SubjectType }
     *     
     */
-   public SubjectType getSubject() {
+   public SubjectType getSubject()
+   {
       return subject;
    }
 
@@ -101,7 +112,8 @@ extends RequestAbstractType
     *     {@link SubjectType }
     *     
     */
-   public void setSubject(SubjectType value) {
+   public void setSubject(SubjectType value)
+   {
       this.subject = value;
    }
 
@@ -113,7 +125,8 @@ extends RequestAbstractType
     *     {@link NameIDPolicyType }
     *     
     */
-   public NameIDPolicyType getNameIDPolicy() {
+   public NameIDPolicyType getNameIDPolicy()
+   {
       return nameIDPolicy;
    }
 
@@ -125,7 +138,8 @@ extends RequestAbstractType
     *     {@link NameIDPolicyType }
     *     
     */
-   public void setNameIDPolicy(NameIDPolicyType value) {
+   public void setNameIDPolicy(NameIDPolicyType value)
+   {
       this.nameIDPolicy = value;
    }
 
@@ -137,7 +151,8 @@ extends RequestAbstractType
     *     {@link ConditionsType }
     *     
     */
-   public ConditionsType getConditions() {
+   public ConditionsType getConditions()
+   {
       return conditions;
    }
 
@@ -149,7 +164,8 @@ extends RequestAbstractType
     *     {@link ConditionsType }
     *     
     */
-   public void setConditions(ConditionsType value) {
+   public void setConditions(ConditionsType value)
+   {
       this.conditions = value;
    }
 
@@ -161,7 +177,8 @@ extends RequestAbstractType
     *     {@link RequestedAuthnContextType }
     *     
     */
-   public RequestedAuthnContextType getRequestedAuthnContext() {
+   public RequestedAuthnContextType getRequestedAuthnContext()
+   {
       return requestedAuthnContext;
    }
 
@@ -173,7 +190,8 @@ extends RequestAbstractType
     *     {@link RequestedAuthnContextType }
     *     
     */
-   public void setRequestedAuthnContext(RequestedAuthnContextType value) {
+   public void setRequestedAuthnContext(RequestedAuthnContextType value)
+   {
       this.requestedAuthnContext = value;
    }
 
@@ -185,7 +203,8 @@ extends RequestAbstractType
     *     {@link ScopingType }
     *     
     */
-   public ScopingType getScoping() {
+   public ScopingType getScoping()
+   {
       return scoping;
    }
 
@@ -197,7 +216,8 @@ extends RequestAbstractType
     *     {@link ScopingType }
     *     
     */
-   public void setScoping(ScopingType value) {
+   public void setScoping(ScopingType value)
+   {
       this.scoping = value;
    }
 
@@ -209,7 +229,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public Boolean isForceAuthn() {
+   public Boolean isForceAuthn()
+   {
       return forceAuthn;
    }
 
@@ -221,7 +242,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public void setForceAuthn(Boolean value) {
+   public void setForceAuthn(Boolean value)
+   {
       this.forceAuthn = value;
    }
 
@@ -233,7 +255,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public Boolean isIsPassive() {
+   public Boolean isIsPassive()
+   {
       return isPassive;
    }
 
@@ -245,7 +268,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public void setIsPassive(Boolean value) {
+   public void setIsPassive(Boolean value)
+   {
       this.isPassive = value;
    }
 
@@ -257,7 +281,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public URI getProtocolBinding() {
+   public URI getProtocolBinding()
+   {
       return protocolBinding;
    }
 
@@ -269,7 +294,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public void setProtocolBinding( URI value) {
+   public void setProtocolBinding(URI value)
+   {
       this.protocolBinding = value;
    }
 
@@ -281,7 +307,8 @@ extends RequestAbstractType
     *     {@link Integer }
     *     
     */
-   public Integer getAssertionConsumerServiceIndex() {
+   public Integer getAssertionConsumerServiceIndex()
+   {
       return assertionConsumerServiceIndex;
    }
 
@@ -293,7 +320,8 @@ extends RequestAbstractType
     *     {@link Integer }
     *     
     */
-   public void setAssertionConsumerServiceIndex(Integer value) {
+   public void setAssertionConsumerServiceIndex(Integer value)
+   {
       this.assertionConsumerServiceIndex = value;
    }
 
@@ -305,7 +333,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public URI getAssertionConsumerServiceURL() {
+   public URI getAssertionConsumerServiceURL()
+   {
       return assertionConsumerServiceURL;
    }
 
@@ -317,7 +346,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public void setAssertionConsumerServiceURL( URI value) {
+   public void setAssertionConsumerServiceURL(URI value)
+   {
       this.assertionConsumerServiceURL = value;
    }
 
@@ -329,7 +359,8 @@ extends RequestAbstractType
     *     {@link Integer }
     *     
     */
-   public Integer getAttributeConsumingServiceIndex() {
+   public Integer getAttributeConsumingServiceIndex()
+   {
       return attributeConsumingServiceIndex;
    }
 
@@ -341,7 +372,8 @@ extends RequestAbstractType
     *     {@link Integer }
     *     
     */
-   public void setAttributeConsumingServiceIndex(Integer value) {
+   public void setAttributeConsumingServiceIndex(Integer value)
+   {
       this.attributeConsumingServiceIndex = value;
    }
 
@@ -353,7 +385,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public String getProviderName() {
+   public String getProviderName()
+   {
       return providerName;
    }
 
@@ -365,7 +398,8 @@ extends RequestAbstractType
     *     {@link String }
     *     
     */
-   public void setProviderName(String value) {
+   public void setProviderName(String value)
+   {
       this.providerName = value;
    }
 }

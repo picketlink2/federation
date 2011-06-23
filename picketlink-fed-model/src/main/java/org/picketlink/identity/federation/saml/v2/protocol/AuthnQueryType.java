@@ -23,7 +23,6 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
  * <p>Java class for AuthnQueryType complex type.
  * 
@@ -43,17 +42,18 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * </pre>
  * 
  * 
- */ 
-public class AuthnQueryType
-extends SubjectQueryAbstractType
-{ 
-   protected RequestedAuthnContextType requestedAuthnContext; 
+ */
+public class AuthnQueryType extends SubjectQueryAbstractType
+{
+   private static final long serialVersionUID = 1L;
+
+   protected RequestedAuthnContextType requestedAuthnContext;
+
    protected String sessionIndex;
 
-   
-   public AuthnQueryType(String id, String version, XMLGregorianCalendar instant)
+   public AuthnQueryType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -64,7 +64,8 @@ extends SubjectQueryAbstractType
     *     {@link RequestedAuthnContextType }
     *     
     */
-   public RequestedAuthnContextType getRequestedAuthnContext() {
+   public RequestedAuthnContextType getRequestedAuthnContext()
+   {
       return requestedAuthnContext;
    }
 
@@ -76,7 +77,8 @@ extends SubjectQueryAbstractType
     *     {@link RequestedAuthnContextType }
     *     
     */
-   public void setRequestedAuthnContext(RequestedAuthnContextType value) {
+   public void setRequestedAuthnContext(RequestedAuthnContextType value)
+   {
       this.requestedAuthnContext = value;
    }
 
@@ -88,7 +90,8 @@ extends SubjectQueryAbstractType
     *     {@link String }
     *     
     */
-   public String getSessionIndex() {
+   public String getSessionIndex()
+   {
       return sessionIndex;
    }
 
@@ -100,7 +103,8 @@ extends SubjectQueryAbstractType
     *     {@link String }
     *     
     */
-   public void setSessionIndex(String value) {
+   public void setSessionIndex(String value)
+   {
       this.sessionIndex = value;
    }
 }

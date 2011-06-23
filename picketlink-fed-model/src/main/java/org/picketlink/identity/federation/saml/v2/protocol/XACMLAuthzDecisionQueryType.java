@@ -25,7 +25,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.jboss.security.xacml.core.model.context.RequestType;
 
-
 /**
  * <p>Java class for XACMLAuthzDecisionQueryType complex type.
  * 
@@ -46,18 +45,20 @@ import org.jboss.security.xacml.core.model.context.RequestType;
  * </pre>
  * 
  * 
- */ 
-public class XACMLAuthzDecisionQueryType
-extends RequestAbstractType
+ */
+public class XACMLAuthzDecisionQueryType extends RequestAbstractType
 {
+   private static final long serialVersionUID = 1L;
+
    protected RequestType request;
+
    protected Boolean inputContextOnly;
+
    protected Boolean returnContext;
 
-
-   public XACMLAuthzDecisionQueryType(String id, String version, XMLGregorianCalendar instant)
+   public XACMLAuthzDecisionQueryType(String id, XMLGregorianCalendar instant)
    {
-      super(id, version, instant); 
+      super(id, instant);
    }
 
    /**
@@ -68,7 +69,8 @@ extends RequestAbstractType
     *     {@link RequestType }
     *     
     */
-   public RequestType getRequest() {
+   public RequestType getRequest()
+   {
       return request;
    }
 
@@ -80,7 +82,8 @@ extends RequestAbstractType
     *     {@link RequestType }
     *     
     */
-   public void setRequest(RequestType value) {
+   public void setRequest(RequestType value)
+   {
       this.request = value;
    }
 
@@ -92,10 +95,14 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public boolean isInputContextOnly() {
-      if (inputContextOnly == null) {
+   public boolean isInputContextOnly()
+   {
+      if (inputContextOnly == null)
+      {
          return false;
-      } else {
+      }
+      else
+      {
          return inputContextOnly;
       }
    }
@@ -108,7 +115,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public void setInputContextOnly(Boolean value) {
+   public void setInputContextOnly(Boolean value)
+   {
       this.inputContextOnly = value;
    }
 
@@ -120,10 +128,14 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public boolean isReturnContext() {
-      if (returnContext == null) {
+   public boolean isReturnContext()
+   {
+      if (returnContext == null)
+      {
          return false;
-      } else {
+      }
+      else
+      {
          return returnContext;
       }
    }
@@ -136,7 +148,8 @@ extends RequestAbstractType
     *     {@link Boolean }
     *     
     */
-   public void setReturnContext(Boolean value) {
+   public void setReturnContext(Boolean value)
+   {
       this.returnContext = value;
    }
 
