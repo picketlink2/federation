@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.parsers.saml;
 
 import java.net.URI;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -34,6 +35,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
@@ -51,22 +53,25 @@ public abstract class SAMLStatusResponseTypeParser
     * @param response
     * @throws ParsingException
     */
-   protected void parseBaseAttributes(StartElement startElement, StatusResponseType response) throws ParsingException
+   protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException
    {
       Attribute idAttr = startElement.getAttributeByName(new QName("ID"));
       if (idAttr == null)
          throw new RuntimeException("ID attribute is missing");
-      response.setID(StaxParserUtil.getAttributeValue(idAttr));
+      String id = StaxParserUtil.getAttributeValue(idAttr);
 
       Attribute version = startElement.getAttributeByName(new QName("Version"));
       if (version == null)
          throw new RuntimeException("Version attribute required in Response");
-      response.setVersion(StaxParserUtil.getAttributeValue(version));
+
+      StringUtil.match(JBossSAMLConstants.VERSION_2_0.get(), StaxParserUtil.getAttributeValue(version));
 
       Attribute issueInstant = startElement.getAttributeByName(new QName("IssueInstant"));
       if (issueInstant == null)
          throw new RuntimeException("IssueInstant attribute required in Response");
-      response.setIssueInstant(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant)));
+      XMLGregorianCalendar issueInstantVal = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant));
+
+      StatusResponseType response = new StatusResponseType(id, issueInstantVal);
 
       Attribute destination = startElement.getAttributeByName(new QName("Destination"));
       if (destination != null)
@@ -79,6 +84,7 @@ public abstract class SAMLStatusResponseTypeParser
       Attribute inResponseTo = startElement.getAttributeByName(new QName("InResponseTo"));
       if (inResponseTo != null)
          response.setInResponseTo(StaxParserUtil.getAttributeValue(inResponseTo));
+      return response;
    }
 
    /**

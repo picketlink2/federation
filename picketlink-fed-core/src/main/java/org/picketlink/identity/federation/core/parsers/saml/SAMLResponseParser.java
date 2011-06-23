@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionTy
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.w3c.dom.Element;
 
 /**
@@ -44,80 +45,79 @@ import org.w3c.dom.Element;
  * @since Nov 2, 2010
  */
 public class SAMLResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
-{ 
-   private String RESPONSE = JBossSAMLConstants.RESPONSE.get();
+{
+   private final String RESPONSE = JBossSAMLConstants.RESPONSE.get();
+
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, RESPONSE );
-      
-      ResponseType response = parseBaseAttributes(startElement); 
-      
-      while( xmlEventReader.hasNext() )
+      StaxParserUtil.validate(startElement, RESPONSE);
+
+      ResponseType response = (ResponseType) parseBaseAttributes(startElement);
+
+      while (xmlEventReader.hasNext())
       {
          //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
-         if( startElement == null )
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
             break;
-         String elementName = StaxParserUtil.getStartElementName( startElement );
-         
-         if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+         String elementName = StaxParserUtil.getStartElementName(startElement);
+
+         if (JBossSAMLConstants.ISSUER.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             NameIDType issuer = new NameIDType();
-            issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-            response.setIssuer( issuer );
+            issuer.setValue(StaxParserUtil.getElementText(xmlEventReader));
+            response.setIssuer(issuer);
          }
-         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
+         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get());
          }
-         else if( JBossSAMLConstants.ASSERTION.get().equals( elementName ))
+         else if (JBossSAMLConstants.ASSERTION.get().equals(elementName))
          {
-            SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
-            response.addAssertion( new RTChoiceType( (AssertionType) assertionParser.parse(xmlEventReader ) ));
+            SAMLAssertionParser assertionParser = new SAMLAssertionParser();
+            response.addAssertion(new RTChoiceType((AssertionType) assertionParser.parse(xmlEventReader)));
          }
-         else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
+         else if (JBossSAMLConstants.STATUS.get().equals(elementName))
          {
-            response.setStatus( parseStatus(xmlEventReader) ); 
+            response.setStatus(parseStatus(xmlEventReader));
          }
-         else if( JBossSAMLConstants.ENCRYPTED_ASSERTION.get().equals( elementName ))
+         else if (JBossSAMLConstants.ENCRYPTED_ASSERTION.get().equals(elementName))
          {
             Element encryptedAssertion = StaxParserUtil.getDOMElement(xmlEventReader);
-            response.addAssertion( new RTChoiceType( new EncryptedAssertionType(encryptedAssertion ) )); 
+            response.addAssertion(new RTChoiceType(new EncryptedAssertionType(encryptedAssertion)));
          }
          else
-            throw new RuntimeException( "Unknown tag=" + elementName  + "::location=" + startElement.getLocation()  );
+            throw new RuntimeException("Unknown tag=" + elementName + "::location=" + startElement.getLocation());
       }
-      
+
       return response;
    }
 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
-    */ 
+    */
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
-             && RESPONSE.equals( qname.getLocalPart() );
+      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI())
+            && RESPONSE.equals(qname.getLocalPart());
    }
-   
+
    /**
     * Parse the attributes at the response element
     * @param startElement
     * @return
     * @throws ConfigurationException
     */
-   private ResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
-   { 
-      ResponseType response = new ResponseType();
-      super.parseBaseAttributes( startElement, response ); 
-      
-      return response; 
-   }  
+   protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException
+   {
+      ResponseType response = new ResponseType(super.parseBaseAttributes(startElement));
+      return response;
+   }
 }

@@ -46,91 +46,94 @@ import org.w3c.dom.Element;
  * @since Dec 16, 2010
  */
 public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport
-{ 
-   public Object parse( XMLEventReader xmlEventReader ) throws ParsingException
+{
+   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       String tag = StaxParserUtil.getStartElementName(startElement);
-      if( tag.equals( JBossSAMLConstants.REQUEST_ABSTRACT.get() ))
+      if (tag.equals(JBossSAMLConstants.REQUEST_ABSTRACT.get()))
       {
          String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);
-         if( xsiTypeValue.contains( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get() ))
+         if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get()))
          {
-            return parseXACMLAuthzDecisionQuery( startElement, xmlEventReader ); 
+            return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
          }
-         else throw new RuntimeException( "Unknown xsi:type=" + xsiTypeValue ); 
+         else
+            throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
       }
-      else if( tag.equals( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get() ))
+      else if (tag.equals(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get()))
       {
          return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
       }
-      
-      throw new RuntimeException( "Parsing Failed: Unknown Tag=" + tag + "::location=" + startElement.getLocation() );
+
+      throw new RuntimeException("Parsing Failed: Unknown Tag=" + tag + "::location=" + startElement.getLocation());
    }
 
    public boolean supports(QName qname)
    {
       return false;
    }
-   
+
    @SuppressWarnings("unchecked")
-   private XACMLAuthzDecisionQueryType parseXACMLAuthzDecisionQuery( StartElement startElement,
-         XMLEventReader xmlEventReader ) throws ParsingException
+   private XACMLAuthzDecisionQueryType parseXACMLAuthzDecisionQuery(StartElement startElement,
+         XMLEventReader xmlEventReader) throws ParsingException
    {
-      super.parseRequiredAttributes( startElement );
-      
-      XACMLAuthzDecisionQueryType xacmlQuery = new XACMLAuthzDecisionQueryType(id, version, issueInstant );
-      super.parseBaseAttributes( startElement, xacmlQuery );
-      
-      String inputContextOnly = StaxParserUtil.getAttributeValue(startElement, JBossSAMLConstants.INPUT_CONTEXT_ONLY.get() );
-      if( inputContextOnly != null )
+      super.parseRequiredAttributes(startElement);
+
+      XACMLAuthzDecisionQueryType xacmlQuery = new XACMLAuthzDecisionQueryType(id, issueInstant);
+      super.parseBaseAttributes(startElement, xacmlQuery);
+
+      String inputContextOnly = StaxParserUtil.getAttributeValue(startElement,
+            JBossSAMLConstants.INPUT_CONTEXT_ONLY.get());
+      if (inputContextOnly != null)
       {
-         xacmlQuery.setInputContextOnly( Boolean.parseBoolean( inputContextOnly ));
+         xacmlQuery.setInputContextOnly(Boolean.parseBoolean(inputContextOnly));
       }
-      String returnContext = StaxParserUtil.getAttributeValue(startElement, JBossSAMLConstants.RETURN_CONTEXT.get() );
-      if( returnContext != null )
+      String returnContext = StaxParserUtil.getAttributeValue(startElement, JBossSAMLConstants.RETURN_CONTEXT.get());
+      if (returnContext != null)
       {
-         xacmlQuery.setReturnContext( Boolean.parseBoolean( returnContext ));
+         xacmlQuery.setReturnContext(Boolean.parseBoolean(returnContext));
       }
-      
+
       //Go thru the children
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
             EndElement endElement = (EndElement) xmlEvent;
-            if( ! (StaxParserUtil.matches(endElement, JBossSAMLConstants.REQUEST_ABSTRACT.get() )
-                  || StaxParserUtil.matches(endElement, JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get() ) ))
-               throw new ParsingException( "Expected endelement RequestAbstract or XACMLAuthzDecisionQuery" );
+            if (!(StaxParserUtil.matches(endElement, JBossSAMLConstants.REQUEST_ABSTRACT.get()) || StaxParserUtil
+                  .matches(endElement, JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get())))
+               throw new ParsingException("Expected endelement RequestAbstract or XACMLAuthzDecisionQuery");
             break;
          }
-         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
-         if( startElement == null )
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
             break;
-         super.parseCommonElements(startElement, xmlEventReader, xacmlQuery); 
+         super.parseCommonElements(startElement, xmlEventReader, xacmlQuery);
          String tag = StaxParserUtil.getStartElementName(startElement);
-         
-         if( tag.equals( JBossSAMLConstants.REQUEST.get() ))
+
+         if (tag.equals(JBossSAMLConstants.REQUEST.get()))
          {
             Element xacmlRequest = StaxParserUtil.getDOMElement(xmlEventReader);
             //xacml request
-            String xacmlPath = "org.jboss.security.xacml.core.model.context"; 
+            String xacmlPath = "org.jboss.security.xacml.core.model.context";
             try
             {
-               JAXBContext jaxb = JAXBContext.newInstance( xacmlPath );
+               JAXBContext jaxb = JAXBContext.newInstance(xacmlPath);
                Unmarshaller un = jaxb.createUnmarshaller();
                un.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
-               JAXBElement<RequestType> jaxbRequestType = (JAXBElement<RequestType>) un.unmarshal( DocumentUtil.getNodeAsStream(xacmlRequest));
+               JAXBElement<RequestType> jaxbRequestType = (JAXBElement<RequestType>) un.unmarshal(DocumentUtil
+                     .getNodeAsStream(xacmlRequest));
                RequestType req = jaxbRequestType.getValue();
                xacmlQuery.setRequest(req);
             }
-            catch ( Exception e)
+            catch (Exception e)
             {
-               throw new ParsingException( e ); 
-            } 
-         } 
+               throw new ParsingException(e);
+            }
+         }
       }
-      return xacmlQuery; 
+      return xacmlQuery;
    }
 }

@@ -67,6 +67,8 @@ public enum JBossSAMLURIConstants
    SAML_HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
    SAML_HTTP_REDIRECT_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
    
+   SAML_11_NS("urn:oasis:names:tc:SAML:1.0:assertion"),
+   
    SUBJECT_CONFIRMATION_BEARER("urn:oasis:names:tc:SAML:2.0:cm:bearer"),
    
    

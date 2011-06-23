@@ -32,7 +32,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -54,8 +53,7 @@ public class AssertionUtilUnitTestCase
       NameIDType nameIdType = new NameIDType();
       nameIdType.setValue("somename");
 
-      AssertionType assertion = new AssertionType("SomeID", XMLTimeUtil.getIssueInstant(),
-            JBossSAMLConstants.VERSION_2_0.get());
+      AssertionType assertion = new AssertionType("SomeID", XMLTimeUtil.getIssueInstant());
       assertion.setIssuer(nameIdType);
 
       //Assertions with no conditions are everlasting
@@ -78,8 +76,7 @@ public class AssertionUtilUnitTestCase
       NameIDType nameIdType = new NameIDType();
       nameIdType.setValue("somename");
 
-      AssertionType assertion = new AssertionType("SomeID", XMLTimeUtil.getIssueInstant(),
-            JBossSAMLConstants.VERSION_2_0.get());
+      AssertionType assertion = new AssertionType("SomeID", XMLTimeUtil.getIssueInstant());
       assertion.setIssuer(nameIdType);
 
       XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();

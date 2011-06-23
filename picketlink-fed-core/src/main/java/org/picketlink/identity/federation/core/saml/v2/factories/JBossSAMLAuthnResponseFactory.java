@@ -41,9 +41,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationD
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
  * @since Dec 9, 2008
  */
 public class JBossSAMLAuthnResponseFactory
-{   
+{
    /**
     * Create a StatusType given the status code uri
     * @param statusCodeURI
@@ -60,23 +60,14 @@ public class JBossSAMLAuthnResponseFactory
     */
    public static StatusType createStatusType(String statusCodeURI)
    {
-      StatusCodeType sct = new StatusCodeType(); 
-      sct.setValue( URI.create( statusCodeURI ));
-      
-      StatusType statusType = new StatusType(); 
+      StatusCodeType sct = new StatusCodeType();
+      sct.setValue(URI.create(statusCodeURI));
+
+      StatusType statusType = new StatusType();
       statusType.setStatusCode(sct);
       return statusType;
    }
-   
-   /**
-    * Create an empty response type
-    * @return
-    */
-   public static ResponseType createResponseType()
-   {
-      return new ResponseType();
-   }
-   
+
    /**
     * Create a ResponseType
     * @param ID id of the response
@@ -86,54 +77,53 @@ public class JBossSAMLAuthnResponseFactory
     * @return
     * @throws ConfigurationException   
     */
-   public static ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, 
-         IssuerInfoHolder issuerInfo) throws ConfigurationException 
-   {  
+   public static ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp,
+         IssuerInfoHolder issuerInfo) throws ConfigurationException
+   {
       String responseDestinationURI = sp.getResponseDestinationURI();
-      
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
-      
+
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+
       //Create an assertion
-      String id = IDGenerator.create( "ID_" ); 
-      
+      String id = IDGenerator.create("ID_");
+
       //Create assertion -> subject
       SubjectType subjectType = new SubjectType();
-      
+
       //subject -> nameid
       NameIDType nameIDType = new NameIDType();
-      nameIDType.setFormat( URI.create( idp.getNameIDFormat() ));
+      nameIDType.setFormat(URI.create(idp.getNameIDFormat()));
       nameIDType.setValue(idp.getNameIDFormatValue());
-      
+
       SubjectType.STSubType subType = new SubjectType.STSubType();
-      subType.addBaseID(nameIDType); 
+      subType.addBaseID(nameIDType);
       subjectType.setSubType(subType);
-      
-      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType(); 
-      subjectConfirmation.setMethod(  idp.getSubjectConfirmationMethod());
-      
+
+      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType();
+      subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
+
       SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
-      subjectConfirmationData.setInResponseTo(  sp.getRequestID() );
-      subjectConfirmationData.setRecipient( responseDestinationURI );
+      subjectConfirmationData.setInResponseTo(sp.getRequestID());
+      subjectConfirmationData.setRecipient(responseDestinationURI);
       subjectConfirmationData.setNotBefore(issueInstant);
       subjectConfirmationData.setNotOnOrAfter(issueInstant);
-      
+
       subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
       subjectType.addConfirmation(subjectConfirmation);
-      
-      AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, 
-            nameIDType , issueInstant, (ConditionsType) null, subjectType, (List<StatementAbstractType>)null );
-      
-      
-      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType); 
+
+      AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, nameIDType, issueInstant,
+            (ConditionsType) null, subjectType, (List<StatementAbstractType>) null);
+
+      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
       //InResponseTo ID
       responseType.setInResponseTo(sp.getRequestID());
       //Destination
       responseType.setDestination(responseDestinationURI);
-       
+
       return responseType;
-   } 
-   
+   }
+
    /**
     * Create a Response Type
     * @param ID
@@ -142,35 +132,27 @@ public class JBossSAMLAuthnResponseFactory
     * @return
     * @throws ConfigurationException 
     */
-   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType) 
-   throws ConfigurationException 
+   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType)
+         throws ConfigurationException
    {
-      ResponseType responseType = new ResponseType();
-      responseType.setVersion(issuerInfo.getSamlVersion());
-      
-      //ID
-      responseType.setID(ID);
-      
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+      ResponseType responseType = new ResponseType(ID, issueInstant);
+
       //Issuer 
       NameIDType issuer = issuerInfo.getIssuer();
       responseType.setIssuer(issuer);
-      
+
       //Status
       String statusCode = issuerInfo.getStatusCode();
-      if(statusCode == null)
+      if (statusCode == null)
          throw new IllegalArgumentException("issuerInfo missing status code");
-      
-      responseType.setStatus(createStatusType(statusCode) );
-      
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
-      
-      //IssueInstant
-      responseType.setIssueInstant(issueInstant); 
-      
-      responseType.addAssertion( new RTChoiceType( assertionType )); 
-      return responseType; 
-   }  
-   
+
+      responseType.setStatus(createStatusType(statusCode));
+
+      responseType.addAssertion(new RTChoiceType(assertionType));
+      return responseType;
+   }
+
    /**
     * Create a Response Type
     * @param ID
@@ -179,33 +161,23 @@ public class JBossSAMLAuthnResponseFactory
     * @return
     * @throws ConfigurationException 
     */
-   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion ) 
-   throws ConfigurationException 
+   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)
+         throws ConfigurationException
    {
-      ResponseType responseType = new ResponseType();
-      responseType.setVersion(issuerInfo.getSamlVersion());
-      
-      //ID
-      responseType.setID(ID);
-      
+      ResponseType responseType = new ResponseType(ID, XMLTimeUtil.getIssueInstant());
+
       //Issuer 
       NameIDType issuer = issuerInfo.getIssuer();
       responseType.setIssuer(issuer);
-      
+
       //Status
       String statusCode = issuerInfo.getStatusCode();
-      if(statusCode == null)
+      if (statusCode == null)
          throw new IllegalArgumentException("issuerInfo missing status code");
-      
-      responseType.setStatus(createStatusType(statusCode) );
-      
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant(); 
-      
-      //IssueInstant
-      responseType.setIssueInstant(issueInstant); 
-      
-      
-      responseType.addAssertion( new RTChoiceType( new EncryptedAssertionType( encryptedAssertion ) )); 
-      return responseType; 
-   }  
+
+      responseType.setStatus(createStatusType(statusCode));
+
+      responseType.addAssertion(new RTChoiceType(new EncryptedAssertionType(encryptedAssertion)));
+      return responseType;
+   }
 }

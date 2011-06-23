@@ -32,7 +32,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants; 
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
@@ -50,49 +50,50 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_REQUEST.get() );
-      
-      AuthnRequestType authnRequest =  parseBaseAttributes( startElement ); 
-      
-      while( xmlEventReader.hasNext() )
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_REQUEST.get());
+
+      AuthnRequestType authnRequest = parseBaseAttributes(startElement);
+
+      while (xmlEventReader.hasNext())
       {
          //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
-         if( startElement == null )
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
             break;
          super.parseCommonElements(startElement, xmlEventReader, authnRequest);
-         
-         String elementName = StaxParserUtil.getStartElementName( startElement );
-         
-         if( JBossSAMLConstants.NAMEID_POLICY.get().equals( elementName ))
+
+         String elementName = StaxParserUtil.getStartElementName(startElement);
+
+         if (JBossSAMLConstants.NAMEID_POLICY.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            authnRequest.setNameIDPolicy( getNameIDPolicy( startElement ));
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            authnRequest.setNameIDPolicy(getNameIDPolicy(startElement));
          }
-         else if( JBossSAMLConstants.SUBJECT.get().equals( elementName ))
-         { 
-            authnRequest.setSubject( getSubject(xmlEventReader) );
+         else if (JBossSAMLConstants.SUBJECT.get().equals(elementName))
+         {
+            authnRequest.setSubject(getSubject(xmlEventReader));
          }
-         else if( JBossSAMLConstants.CONDITIONS.get().equals( elementName ))
-         { 
-            authnRequest.setConditions( (ConditionsType) ( new SAMLConditionsParser()).parse(xmlEventReader));
+         else if (JBossSAMLConstants.CONDITIONS.get().equals(elementName))
+         {
+            authnRequest.setConditions((ConditionsType) (new SAMLConditionsParser()).parse(xmlEventReader));
          }
-         else if( JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get().equals( elementName ))
-         { 
-            authnRequest.setRequestedAuthnContext( getRequestedAuthnContextType(xmlEventReader));
+         else if (JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get().equals(elementName))
+         {
+            authnRequest.setRequestedAuthnContext(getRequestedAuthnContextType(xmlEventReader));
          }
-         else if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
-         { 
+         else if (JBossSAMLConstants.ISSUER.get().equals(elementName))
+         {
             continue;
          }
-         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
-         { 
+         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
+         {
             continue;
          }
-         else throw new RuntimeException( "Unknown Element:" + elementName + "::location=" + startElement.getLocation()  );
+         else
+            throw new RuntimeException("Unknown Element:" + elementName + "::location=" + startElement.getLocation());
       }
       return authnRequest;
    }
@@ -102,61 +103,64 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
     */
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() ) ;
+      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI());
    }
-   
+
    /**
     * Parse the attributes at the authnrequesttype element
     * @param startElement
     * @return 
     * @throws ParsingException 
     */
-   private AuthnRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
-   { 
+   private AuthnRequestType parseBaseAttributes(StartElement startElement) throws ParsingException
+   {
       super.parseRequiredAttributes(startElement);
-      AuthnRequestType authnRequest = new AuthnRequestType( id, version, issueInstant );
+      AuthnRequestType authnRequest = new AuthnRequestType(id, issueInstant);
       //Let us get the attributes
-      super.parseBaseAttributes(startElement, authnRequest );
-      
-      Attribute assertionConsumerServiceURL = startElement.getAttributeByName( new QName( "AssertionConsumerServiceURL" ));
-      if( assertionConsumerServiceURL != null )
-      {
-         String uri = StaxParserUtil.getAttributeValue( assertionConsumerServiceURL );
-         authnRequest.setAssertionConsumerServiceURL(  URI.create(uri));
-      }
-          
+      super.parseBaseAttributes(startElement, authnRequest);
 
-      Attribute assertionConsumerServiceIndex = startElement.getAttributeByName( new QName( "AssertionConsumerServiceIndex" ));
-      if( assertionConsumerServiceIndex != null )
-         authnRequest.setAssertionConsumerServiceIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( assertionConsumerServiceIndex )));
-      
-      Attribute protocolBinding = startElement.getAttributeByName( new QName( "ProtocolBinding" ));
-      if( protocolBinding != null )
-         authnRequest.setProtocolBinding( URI.create( StaxParserUtil.getAttributeValue( protocolBinding )));
-      
-      Attribute providerName = startElement.getAttributeByName( new QName( "ProviderName" ));
-      if( providerName != null )
-         authnRequest.setProviderName( StaxParserUtil.getAttributeValue( providerName ));
-      
-      Attribute forceAuthn = startElement.getAttributeByName( new QName( "ForceAuthn" ));
-      if( forceAuthn != null )
+      Attribute assertionConsumerServiceURL = startElement.getAttributeByName(new QName("AssertionConsumerServiceURL"));
+      if (assertionConsumerServiceURL != null)
       {
-         authnRequest.setForceAuthn( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( forceAuthn ) ));
+         String uri = StaxParserUtil.getAttributeValue(assertionConsumerServiceURL);
+         authnRequest.setAssertionConsumerServiceURL(URI.create(uri));
       }
-      
-      Attribute isPassive = startElement.getAttributeByName( new QName( "IsPassive" ));
-      if( isPassive != null )
+
+      Attribute assertionConsumerServiceIndex = startElement.getAttributeByName(new QName(
+            "AssertionConsumerServiceIndex"));
+      if (assertionConsumerServiceIndex != null)
+         authnRequest.setAssertionConsumerServiceIndex(Integer.parseInt(StaxParserUtil
+               .getAttributeValue(assertionConsumerServiceIndex)));
+
+      Attribute protocolBinding = startElement.getAttributeByName(new QName("ProtocolBinding"));
+      if (protocolBinding != null)
+         authnRequest.setProtocolBinding(URI.create(StaxParserUtil.getAttributeValue(protocolBinding)));
+
+      Attribute providerName = startElement.getAttributeByName(new QName("ProviderName"));
+      if (providerName != null)
+         authnRequest.setProviderName(StaxParserUtil.getAttributeValue(providerName));
+
+      Attribute forceAuthn = startElement.getAttributeByName(new QName("ForceAuthn"));
+      if (forceAuthn != null)
       {
-         authnRequest.setIsPassive( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( isPassive ) ));
+         authnRequest.setForceAuthn(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(forceAuthn)));
       }
-      
-      Attribute attributeConsumingServiceIndex = startElement.getAttributeByName( new QName( "AttributeConsumingServiceIndex" ));
-      if( attributeConsumingServiceIndex != null )
-         authnRequest.setAttributeConsumingServiceIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( attributeConsumingServiceIndex )));
-      
-      return authnRequest; 
-   } 
-   
+
+      Attribute isPassive = startElement.getAttributeByName(new QName("IsPassive"));
+      if (isPassive != null)
+      {
+         authnRequest.setIsPassive(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(isPassive)));
+      }
+
+      Attribute attributeConsumingServiceIndex = startElement.getAttributeByName(new QName(
+            "AttributeConsumingServiceIndex"));
+      if (attributeConsumingServiceIndex != null)
+         authnRequest.setAttributeConsumingServiceIndex(Integer.parseInt(StaxParserUtil
+               .getAttributeValue(attributeConsumingServiceIndex)));
+
+      return authnRequest;
+   }
+
    /**
     * Get the NameIDPolicy
     * @param startElement
@@ -165,39 +169,41 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
    private NameIDPolicyType getNameIDPolicy(StartElement startElement)
    {
       NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
-      Attribute format = startElement.getAttributeByName( new QName( "Format" ));
-      if( format != null )
-         nameIDPolicy.setFormat( URI.create( StaxParserUtil.getAttributeValue( format )));
-      
-      Attribute allowCreate = startElement.getAttributeByName( new QName( "AllowCreate" ));
-      if( allowCreate != null )
-         nameIDPolicy.setAllowCreate( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( allowCreate )));
-      
+      Attribute format = startElement.getAttributeByName(new QName("Format"));
+      if (format != null)
+         nameIDPolicy.setFormat(URI.create(StaxParserUtil.getAttributeValue(format)));
+
+      Attribute allowCreate = startElement.getAttributeByName(new QName("AllowCreate"));
+      if (allowCreate != null)
+         nameIDPolicy.setAllowCreate(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowCreate)));
+
       return nameIDPolicy;
-   } 
-   
-   private SubjectType getSubject( XMLEventReader xmlEventReader ) throws ParsingException
+   }
+
+   private SubjectType getSubject(XMLEventReader xmlEventReader) throws ParsingException
    {
       SAMLSubjectParser subjectParser = new SAMLSubjectParser();
       return (SubjectType) subjectParser.parse(xmlEventReader);
    }
-   
-   private RequestedAuthnContextType getRequestedAuthnContextType( XMLEventReader xmlEventReader ) throws ParsingException
+
+   private RequestedAuthnContextType getRequestedAuthnContextType(XMLEventReader xmlEventReader)
+         throws ParsingException
    {
       RequestedAuthnContextType ract = new RequestedAuthnContextType();
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get() );
-      
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get());
+
       startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       String elName = StaxParserUtil.getStartElementName(startElement);
-      
-      if( elName.equals( JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get() ))
+
+      if (elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get()))
       {
          String value = StaxParserUtil.getElementText(xmlEventReader);
          ract.addAuthnContextClassRef(value);
       }
-      else throw new RuntimeException( "unknown :" + elName );
-      
+      else
+         throw new RuntimeException("unknown :" + elName);
+
       return ract;
    }
 }

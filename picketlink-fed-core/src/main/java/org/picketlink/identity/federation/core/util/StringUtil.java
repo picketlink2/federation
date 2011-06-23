@@ -121,6 +121,17 @@ public class StringUtil
    }
 
    /**
+    * Match two strings else throw a {@link RuntimeException}
+    * @param first
+    * @param second
+    */
+   public static void match(String first, String second)
+   {
+      if (first.equals(second) == false)
+         throw new RuntimeException(first + " does not match with " + second);
+   }
+
+   /**
     * Given a comma separated string, get the tokens as a {@link List}
     * @param str
     * @return

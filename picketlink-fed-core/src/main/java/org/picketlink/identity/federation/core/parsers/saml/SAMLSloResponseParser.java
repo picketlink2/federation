@@ -21,14 +21,12 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -46,61 +44,47 @@ public class SAMLSloResponseParser extends SAMLStatusResponseTypeParser implemen
 {
 
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, LOGOUT_RESPONSE.get() );
+      StaxParserUtil.validate(startElement, LOGOUT_RESPONSE.get());
 
-      StatusResponseType response = parseBaseAttributes(startElement); 
+      StatusResponseType response = parseBaseAttributes(startElement);
 
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
          //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
-         if( startElement == null )
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
             break;
-         String elementName = StaxParserUtil.getStartElementName( startElement );
+         String elementName = StaxParserUtil.getStartElementName(startElement);
 
-         if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+         if (JBossSAMLConstants.ISSUER.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             NameIDType issuer = new NameIDType();
-            issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-            response.setIssuer( issuer );
+            issuer.setValue(StaxParserUtil.getElementText(xmlEventReader));
+            response.setIssuer(issuer);
          }
-         else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
+         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get() );
-         } 
-         else if( JBossSAMLConstants.STATUS.get().equals( elementName ))
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.SIGNATURE.get());
+         }
+         else if (JBossSAMLConstants.STATUS.get().equals(elementName))
          {
-            response.setStatus( parseStatus(xmlEventReader) ); 
+            response.setStatus(parseStatus(xmlEventReader));
          }
       }
       return response;
    }
 
    /**
-    * Parse the attributes at the response element
-    * @param startElement
-    * @return
-    * @throws ConfigurationException
-    */
-   private StatusResponseType parseBaseAttributes( StartElement startElement ) throws ParsingException
-   { 
-      StatusResponseType response = new StatusResponseType();
-      super.parseBaseAttributes( startElement, response ); 
-
-      return response; 
-   } 
-
-   /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
-    */ 
+    */
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
-      && LOGOUT_RESPONSE.equals( qname.getLocalPart() );
+      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI())
+            && LOGOUT_RESPONSE.equals(qname.getLocalPart());
    }
 }

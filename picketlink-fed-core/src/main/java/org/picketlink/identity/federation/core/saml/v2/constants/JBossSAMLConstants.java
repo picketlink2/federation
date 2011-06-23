@@ -31,7 +31,7 @@ public enum JBossSAMLConstants
    ADDRESS( "Address" ),
    ALLOW_CREATE( "AllowCreate" ),
    ARTIFACT_RESOLUTION_SERVICE( "ArtifactResolutionService" ),
-   ASSERTION( "Assertion" ),
+   ASSERTION( "Assertion" ), 
    ASSERTION_CONSUMER_SERVICE( "AssertionConsumerService" ),
    ASSERTION_CONSUMER_SERVICE_URL( "AssertionConsumerServiceURL" ),
    ASSERTION_CONSUMER_SERVICE_INDEX( "AssertionConsumerServiceIndex" ),

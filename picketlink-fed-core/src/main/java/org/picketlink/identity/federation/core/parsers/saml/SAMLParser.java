@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntitie
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 
@@ -42,94 +43,101 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
  * @since Oct 12, 2010
  */
 public class SAMLParser extends AbstractParser
-{ 
+{
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if( xmlEvent instanceof StartElement )
+         if (xmlEvent instanceof StartElement)
          {
             StartElement startElement = (StartElement) xmlEvent;
             QName startElementName = startElement.getName();
             String nsURI = startElementName.getNamespaceURI();
-            
+
             String localPart = startElementName.getLocalPart();
 
-            String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( JBossSAMLConstants.ASSERTION.get() ))
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+
+            if (elementName.equalsIgnoreCase(JBossSAMLConstants.ASSERTION.get()))
             {
+               if (nsURI.equals(SAML11Constants.ASSERTION_11_NSURI))
+               {
+                  SAML11AssertionParser saml11AssertionParser = new SAML11AssertionParser();
+                  return saml11AssertionParser.parse(xmlEventReader);
+               }
                SAMLAssertionParser assertionParser = new SAMLAssertionParser();
-               return assertionParser.parse( xmlEventReader ); 
+               return assertionParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
-                  JBossSAMLConstants.AUTHN_REQUEST.get().equals( startElementName.getLocalPart() ))
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.AUTHN_REQUEST.get().equals(startElementName.getLocalPart()))
             {
                SAMLAuthNRequestParser authNRequestParser = new SAMLAuthNRequestParser();
-               return authNRequestParser.parse( xmlEventReader );
+               return authNRequestParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
-                  JBossSAMLConstants.LOGOUT_REQUEST.get().equals( startElementName.getLocalPart() ))
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.LOGOUT_REQUEST.get().equals(startElementName.getLocalPart()))
             {
                SAMLSloRequestParser sloParser = new SAMLSloRequestParser();
-               return sloParser.parse( xmlEventReader ); 
+               return sloParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
-                  JBossSAMLConstants.LOGOUT_RESPONSE.get().equals( startElementName.getLocalPart() ))
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.LOGOUT_RESPONSE.get().equals(startElementName.getLocalPart()))
             {
                SAMLSloResponseParser sloParser = new SAMLSloResponseParser();
-               return sloParser.parse( xmlEventReader ); 
+               return sloParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
-                  JBossSAMLConstants.RESPONSE.get().equals( startElementName.getLocalPart() ))
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart()))
             {
                SAMLResponseParser responseParser = new SAMLResponseParser();
-               return responseParser.parse( xmlEventReader ); 
+               return responseParser.parse(xmlEventReader);
             }
 
-            else if( JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals( nsURI ) &&
-                  JBossSAMLConstants.REQUEST_ABSTRACT.get().equals( startElementName.getLocalPart() ))
-            { 
-               String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement); 
-               if( xsiTypeValue.contains( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get() ))
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.REQUEST_ABSTRACT.get().equals(startElementName.getLocalPart()))
+            {
+               String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);
+               if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get()))
                {
                   SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
-                  return samlXacmlParser.parse(xmlEventReader); 
+                  return samlXacmlParser.parse(xmlEventReader);
                }
-               throw new RuntimeException( "Unknown xsi:type=" + xsiTypeValue );
+               throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
             }
-            else if( JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals( localPart ) )
+            else if (JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals(localPart))
             {
                SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
                return samlXacmlParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals( localPart ))
+            else if (JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals(localPart))
             {
                SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
-               return entityDescriptorParser.parse( xmlEventReader );
+               return entityDescriptorParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equals( localPart ))
+            else if (JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equals(localPart))
             {
                SAMLEntitiesDescriptorParser entityDescriptorParser = new SAMLEntitiesDescriptorParser();
-               return entityDescriptorParser.parse( xmlEventReader );
+               return entityDescriptorParser.parse(xmlEventReader);
             }
-            else if( JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI) )
+            else if (JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(nsURI))
             {
-               SAMLAssertionParser assertionParser = new SAMLAssertionParser(); 
-               return assertionParser.parse( xmlEventReader );
-            }  
-            else throw new RuntimeException( "Unknown Tag:" + elementName + "::location=" + startElement.getLocation() );
+               SAMLAssertionParser assertionParser = new SAMLAssertionParser();
+               return assertionParser.parse(xmlEventReader);
+            }
+            else
+               throw new RuntimeException("Unknown Tag:" + elementName + "::location=" + startElement.getLocation());
          }
          else
          {
-            StaxParserUtil.getNextEvent(xmlEventReader); 
+            StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException( "SAML Parsing has failed" );
+      throw new RuntimeException("SAML Parsing has failed");
    }
 
    /**
@@ -137,6 +145,6 @@ public class SAMLParser extends AbstractParser
     */
    public boolean supports(QName qname)
    {
-      return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals( qname.getNamespaceURI() );
+      return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(qname.getNamespaceURI());
    }
 }

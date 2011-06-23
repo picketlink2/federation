@@ -35,11 +35,17 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.saml.SAML11SubjectParser;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclRefType;
@@ -47,7 +53,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 
 /**
  * Utility methods for SAML Parser
@@ -362,6 +367,101 @@ public class SAMLParserUtil
          throw new RuntimeException("Unknown Tag:" + tag + "::Location=" + startElement.getLocation());
 
       return authnContextType;
+   }
+
+   /**
+    * Parse the AuthnStatement inside the assertion
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static SAML11AuthenticationStatementType parseAuthenticationStatement(XMLEventReader xmlEventReader)
+         throws ParsingException
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+      StaxParserUtil.validate(startElement, SAML11Constants.AUTHENTICATION_STATEMENT);
+
+      Attribute authMethod = startElement.getAttributeByName(new QName(SAML11Constants.AUTHENTICATION_METHOD));
+      if (authMethod == null)
+         throw new ParsingException(SAML11Constants.AUTHENTICATION_METHOD + " attribute needed");
+
+      Attribute authInstant = startElement.getAttributeByName(new QName(SAML11Constants.AUTHENTICATION_INSTANT));
+      if (authInstant == null)
+         throw new ParsingException(SAML11Constants.AUTHENTICATION_INSTANT + " attribute needed");
+
+      SAML11AuthenticationStatementType authStat = new SAML11AuthenticationStatementType(URI.create(StaxParserUtil
+            .getAttributeValue(authMethod)), XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authInstant)));
+
+      while (xmlEventReader.hasNext())
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent == null)
+            break;
+
+         if (xmlEvent instanceof EndElement)
+         {
+            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+            EndElement endElement = (EndElement) xmlEvent;
+            String endElementTag = StaxParserUtil.getEndElementName(endElement);
+            if (endElementTag.equals(SAML11Constants.AUTHENTICATION_STATEMENT))
+               break;
+            else
+               throw new RuntimeException("Unknown End Element:" + endElementTag);
+         }
+         startElement = null;
+
+         if (xmlEvent instanceof StartElement)
+         {
+            startElement = (StartElement) xmlEvent;
+         }
+         else
+         {
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         }
+         if (startElement == null)
+            break;
+
+         String tag = StaxParserUtil.getStartElementName(startElement);
+
+         if (JBossSAMLConstants.SUBJECT.get().equalsIgnoreCase(tag))
+         {
+            SAML11SubjectParser subjectParser = new SAML11SubjectParser();
+            SAML11SubjectType subject = (SAML11SubjectType) subjectParser.parse(xmlEventReader);
+            SAML11SubjectStatementType subStat = new SAML11SubjectStatementType();
+            subStat.setSubject(subject);
+
+            authStat.setSubject(subject);
+         }
+
+         /*if (JBossSAMLConstants.SUBJECT_LOCALITY.get().equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            SubjectLocalityType subjectLocalityType = new SubjectLocalityType();
+            Attribute address = startElement.getAttributeByName(new QName(JBossSAMLConstants.ADDRESS.get()));
+            if (address != null)
+            {
+               subjectLocalityType.setAddress(StaxParserUtil.getAttributeValue(address));
+            }
+            Attribute dns = startElement.getAttributeByName(new QName(JBossSAMLConstants.DNS_NAME.get()));
+            if (dns != null)
+            {
+               subjectLocalityType.setDNSName(StaxParserUtil.getAttributeValue(dns));
+            }
+            authnStatementType.setSubjectLocality(subjectLocalityType);
+            StaxParserUtil.validate(StaxParserUtil.getNextEndElement(xmlEventReader),
+                  JBossSAMLConstants.SUBJECT_LOCALITY.get());
+         }
+         else if (JBossSAMLConstants.AUTHN_CONTEXT.get().equals(tag))
+         {
+            authnStatementType.setAuthnContext(parseAuthnContextType(xmlEventReader));
+         }*/
+         else
+            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+
+      }
+
+      return authStat;
    }
 
    /**

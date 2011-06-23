@@ -23,11 +23,9 @@ package org.picketlink.identity.federation.core.wstrust.auth;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil; 
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
 
@@ -39,23 +37,22 @@ import org.w3c.dom.Element;
  */
 public final class Util
 {
-    private Util()
-    {
-    }
-    
-    public static Element createSamlToken() throws Exception
-    {
-        String id = "ID+" + JBossSAMLBaseFactory.createUUID();
-        final AssertionType assertionType = new AssertionType( id, XMLTimeUtil.getIssueInstant(),
-              JBossSAMLConstants.VERSION_2_0.get() );
-        return SAMLUtil.toElement(assertionType);
-    }
-    
-    public static Map<String, String> allOptions()
-    {
-        Map<String, String> options = new HashMap<String, String>();
-        options.put(AbstractSTSLoginModule.STS_CONFIG_FILE, "wstrust/auth/jboss-sts-client.properties");
-        return options;
-    }
+   private Util()
+   {
+   }
+
+   public static Element createSamlToken() throws Exception
+   {
+      String id = "ID+" + JBossSAMLBaseFactory.createUUID();
+      final AssertionType assertionType = new AssertionType(id, XMLTimeUtil.getIssueInstant());
+      return SAMLUtil.toElement(assertionType);
+   }
+
+   public static Map<String, String> allOptions()
+   {
+      Map<String, String> options = new HashMap<String, String>();
+      options.put(AbstractSTSLoginModule.STS_CONFIG_FILE, "wstrust/auth/jboss-sts-client.properties");
+      return options;
+   }
 
 }

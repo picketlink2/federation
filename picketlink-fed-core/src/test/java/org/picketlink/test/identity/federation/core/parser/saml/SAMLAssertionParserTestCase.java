@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWrit
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
@@ -52,7 +53,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 
 /**
@@ -64,31 +64,31 @@ public class SAMLAssertionParserTestCase
 {
    @Test
    public void testSAMLAssertionParsing() throws Exception
-   {   
+   {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion.xml" );
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion.xml");
 
       SAMLParser parser = new SAMLParser();
       AssertionType assertion = (AssertionType) parser.parse(configStream);
-      assertNotNull( assertion );
+      assertNotNull(assertion);
 
-      assertEquals( "ID_ab0392ef-b557-4453-95a8-a7e168da8ac5", assertion.getID() );
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ), assertion.getIssueInstant() );
+      assertEquals("ID_ab0392ef-b557-4453-95a8-a7e168da8ac5", assertion.getID());
+      assertEquals(XMLTimeUtil.parse("2010-09-30T19:13:37.869Z"), assertion.getIssueInstant());
       //Issuer
-      assertEquals( "Test STS", assertion.getIssuer().getValue() );
+      assertEquals("Test STS", assertion.getIssuer().getValue());
 
       //Subject
       SubjectType subject = assertion.getSubject();
-      
+
       STSubType subType = subject.getSubType();
       NameIDType subjectNameID = (NameIDType) subType.getBaseID();
-      assertEquals( "jduke", subjectNameID.getValue() );
-      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
-      
-      ConditionsType conditions = assertion.getConditions(); 
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ) , conditions.getNotBefore() );
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() ); 
-      
+      assertEquals("jduke", subjectNameID.getValue());
+      assertEquals("urn:picketlink:identity-federation", subjectNameID.getNameQualifier());
+
+      ConditionsType conditions = assertion.getConditions();
+      assertEquals(XMLTimeUtil.parse("2010-09-30T19:13:37.869Z"), conditions.getNotBefore());
+      assertEquals(XMLTimeUtil.parse("2010-09-30T21:13:37.869Z"), conditions.getNotOnOrAfter());
+
       /*List<JAXBElement<?>> content = subject.getContent(); 
 
       int size = content.size();
@@ -112,8 +112,7 @@ public class SAMLAssertionParserTestCase
             assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() ); 
          }
       } */
-   } 
-
+   }
 
    /**
     * This test validates the parsing of audience restrictions inside the conditions
@@ -121,143 +120,110 @@ public class SAMLAssertionParserTestCase
     */
    @Test
    public void testSAMLAssertionParsingWithAudienceRestriction() throws Exception
-   { 
+   {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion-audiencerestriction.xml" );
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-audiencerestriction.xml");
 
       SAMLParser parser = new SAMLParser();
       AssertionType assertion = (AssertionType) parser.parse(configStream);
-      assertNotNull( assertion );
+      assertNotNull(assertion);
 
-      assertEquals( "ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374", assertion.getID() );
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.911Z" ), assertion.getIssueInstant() );
-      assertEquals( "2.0", assertion.getVersion() );
+      assertEquals("ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374", assertion.getID());
+      assertEquals(XMLTimeUtil.parse("2010-09-30T19:13:37.911Z"), assertion.getIssueInstant());
+      assertEquals("2.0", assertion.getVersion());
 
       //Issuer
-      assertEquals( "Test STS", assertion.getIssuer().getValue() );
+      assertEquals("Test STS", assertion.getIssuer().getValue());
 
       //Subject
       SubjectType subject = assertion.getSubject();
-      
+
       STSubType subType = subject.getSubType();
       NameIDType subjectNameID = (NameIDType) subType.getBaseID();
-      assertEquals( "jduke", subjectNameID.getValue() );
-      assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() );
-      
-      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0 );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() ); 
-      
+      assertEquals("jduke", subjectNameID.getValue());
+      assertEquals("urn:picketlink:identity-federation", subjectNameID.getNameQualifier());
+
+      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod());
+
       ConditionsType conditions = assertion.getConditions();
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.911Z" ) , conditions.getNotBefore() );
-      assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.911Z" ) , conditions.getNotOnOrAfter() );
-      
+      assertEquals(XMLTimeUtil.parse("2010-09-30T19:13:37.911Z"), conditions.getNotBefore());
+      assertEquals(XMLTimeUtil.parse("2010-09-30T21:13:37.911Z"), conditions.getNotOnOrAfter());
+
       AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) conditions.getConditions().get(0);
-      assertEquals( 1, audienceRestrictionType.getAudience().size() );
-      assertEquals( "http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get( 0 ).toASCIIString());
-      
-      /*List<JAXBElement<?>> content = subject.getContent(); 
-
-      int size = content.size();
-
-      for( int i = 0 ; i < size; i++ )
-      {
-         JAXBElement<?> node = content.get(i);
-         if( node.getDeclaredType().equals( NameIDType.class ))
-         {
-            NameIDType subjectNameID = (NameIDType) node.getValue();
-
-            assertEquals( "jduke", subjectNameID.getValue() );
-            assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
-         }
-
-         if( node.getDeclaredType().equals( ConditionsType.class ))
-         { 
-            //Conditions
-            ConditionsType conditions =  (ConditionsType) node.getValue();
-            assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.911Z" ) , conditions.getNotBefore() );
-            assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.911Z" ) , conditions.getNotOnOrAfter() );
-
-            //Audience Restriction
-            AudienceRestrictionType audienceRestrictionType = 
-               (AudienceRestrictionType) conditions.getConditionOrAudienceRestrictionOrOneTimeUse();
-            assertEquals( 1, audienceRestrictionType.getAudience().size() );
-            assertEquals( "http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get( 0 ));
-         }
-      }*/ 
-   } 
-
+      assertEquals(1, audienceRestrictionType.getAudience().size());
+      assertEquals("http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get(0)
+            .toASCIIString());
+   }
 
    @Test
    public void testAssertionWithX500Attribute() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-assertion-x500attrib.xml" );
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-x500attrib.xml");
 
       SAMLParser parser = new SAMLParser();
       AssertionType assertion = (AssertionType) parser.parse(configStream);
-      assertNotNull( assertion );
+      assertNotNull(assertion);
 
-      assertEquals( "ID_b07b804c-7c29-ea16-7300-4f3d6f7928ac", assertion.getID() );
-      assertEquals( XMLTimeUtil.parse( "2004-12-05T09:22:05Z" ), assertion.getIssueInstant() );
-      assertEquals( "2.0", assertion.getVersion() );
+      assertEquals("ID_b07b804c-7c29-ea16-7300-4f3d6f7928ac", assertion.getID());
+      assertEquals(XMLTimeUtil.parse("2004-12-05T09:22:05Z"), assertion.getIssueInstant());
+      assertEquals("2.0", assertion.getVersion());
 
       //Issuer
-      assertEquals( "https://idp.example.org/SAML2", assertion.getIssuer().getValue() );
+      assertEquals("https://idp.example.org/SAML2", assertion.getIssuer().getValue());
 
-      Set<StatementAbstractType> statements = assertion.getStatements(); 
-      assertEquals( 2, statements.size() );
+      Set<StatementAbstractType> statements = assertion.getStatements();
+      assertEquals(2, statements.size());
 
       Iterator<StatementAbstractType> iter = statements.iterator();
       AuthnStatementType authnStatement = (AuthnStatementType) iter.next();
-      assertEquals( XMLTimeUtil.parse( "2004-12-05T09:22:00Z" ), authnStatement.getAuthnInstant() );
-      assertEquals( "b07b804c-7c29-ea16-7300-4f3d6f7928ac", authnStatement.getSessionIndex() );
-
+      assertEquals(XMLTimeUtil.parse("2004-12-05T09:22:00Z"), authnStatement.getAuthnInstant());
+      assertEquals("b07b804c-7c29-ea16-7300-4f3d6f7928ac", authnStatement.getSessionIndex());
 
       AttributeStatementType attributeStatement = (AttributeStatementType) iter.next();
       List<ASTChoiceType> attributes = attributeStatement.getAttributes();
-      assertEquals( 1, attributes.size() ); 
+      assertEquals(1, attributes.size());
       AttributeType attribute = attributes.get(0).getAttribute();
-      assertEquals( "eduPersonAffiliation", attribute.getFriendlyName() );
-      assertEquals( "urn:oid:1.3.6.1.4.1.5923.1.1.1.1", attribute.getName() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:attrname-format:uri", attribute.getNameFormat() );
+      assertEquals("eduPersonAffiliation", attribute.getFriendlyName());
+      assertEquals("urn:oid:1.3.6.1.4.1.5923.1.1.1.1", attribute.getName());
+      assertEquals("urn:oasis:names:tc:SAML:2.0:attrname-format:uri", attribute.getNameFormat());
 
       //Ensure that we have x500:encoding
-      QName x500EncodingName = new QName( JBossSAMLURIConstants.X500_NSURI.get(), 
-            JBossSAMLConstants.ENCODING.get() );
-      String encodingValue = attribute.getOtherAttributes().get( x500EncodingName );
-      assertEquals( "LDAP", encodingValue );
+      QName x500EncodingName = new QName(JBossSAMLURIConstants.X500_NSURI.get(), JBossSAMLConstants.ENCODING.get());
+      String encodingValue = attribute.getOtherAttributes().get(x500EncodingName);
+      assertEquals("LDAP", encodingValue);
 
       List<Object> attributeValues = attribute.getAttributeValue();
-      assertEquals( 2, attributeValues.size() );
+      assertEquals(2, attributeValues.size());
 
-      String str = (String ) attributeValues.get( 0 ); 
-      if( ! ( str.equals( "member") || str.equals( "staff" )))
-         throw new RuntimeException( "attrib value not found" );
+      String str = (String) attributeValues.get(0);
+      if (!(str.equals("member") || str.equals("staff")))
+         throw new RuntimeException("attrib value not found");
 
       //Subject
       SubjectType subject = assertion.getSubject();
       STSubType subType = subject.getSubType();
       NameIDType subjectNameID = (NameIDType) subType.getBaseID();
-      assertEquals( "3f7b3dcf-1674-4ecd-92c8-1544f346baf8", subjectNameID.getValue() );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat().toString() ); 
-      
-      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0 );
-      assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() ); 
-      
+      assertEquals("3f7b3dcf-1674-4ecd-92c8-1544f346baf8", subjectNameID.getValue());
+      assertEquals("urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat().toString());
+
+      SubjectConfirmationType subjectConfirmation = subject.getConfirmation().get(0);
+      assertEquals("urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod());
+
       SubjectConfirmationDataType subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
-      assertEquals( "ID_aaf23196-1773-2113-474a-fe114412ab72", subjectConfirmationData.getInResponseTo() ); 
-      assertEquals(  XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ), subjectConfirmationData.getNotOnOrAfter() );
-      assertEquals( "https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
-      
+      assertEquals("ID_aaf23196-1773-2113-474a-fe114412ab72", subjectConfirmationData.getInResponseTo());
+      assertEquals(XMLTimeUtil.parse("2004-12-05T09:27:05Z"), subjectConfirmationData.getNotOnOrAfter());
+      assertEquals("https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
+
       ConditionsType conditions = assertion.getConditions();
-      assertEquals( XMLTimeUtil.parse( "2004-12-05T09:17:05Z" ) , conditions.getNotBefore() );
-      assertEquals( XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ) , conditions.getNotOnOrAfter() );
-      
+      assertEquals(XMLTimeUtil.parse("2004-12-05T09:17:05Z"), conditions.getNotBefore());
+      assertEquals(XMLTimeUtil.parse("2004-12-05T09:27:05Z"), conditions.getNotOnOrAfter());
+
       AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) conditions.getConditions().get(0);
-      assertEquals( 1, audienceRestrictionType.getAudience().size() );
-      assertEquals( "https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get( 0 ).toString());
-      
-      
+      assertEquals(1, audienceRestrictionType.getAudience().size());
+      assertEquals("https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get(0).toString());
+
       /*List<JAXBElement<?>> content = subject.getContent(); 
 
       int size = content.size();
@@ -300,14 +266,14 @@ public class SAMLAssertionParserTestCase
             assertEquals( "https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
          }
       } */
-      
+
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(assertion);
-      
-      System.out.println( new String( baos.toByteArray() ));
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      DocumentUtil.getDocument( bis ); //throws exceptions
+
+      System.out.println(new String(baos.toByteArray()));
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      DocumentUtil.getDocument(bis); //throws exceptions
    }
 }

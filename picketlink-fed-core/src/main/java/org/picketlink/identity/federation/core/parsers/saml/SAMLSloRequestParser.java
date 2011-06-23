@@ -33,7 +33,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
@@ -47,27 +47,27 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       //Get the startelement
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, LOGOUT_REQUEST.get() );
-      
-      LogoutRequestType logoutRequest = parseBaseAttributes( startElement );
-      
-      while( xmlEventReader.hasNext() )
+      StaxParserUtil.validate(startElement, LOGOUT_REQUEST.get());
+
+      LogoutRequestType logoutRequest = parseBaseAttributes(startElement);
+
+      while (xmlEventReader.hasNext())
       {
          //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement( xmlEventReader );
-         if( startElement == null )
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
             break;
-         String elementName = StaxParserUtil.getStartElementName( startElement );
-         
-         parseCommonElements(startElement, xmlEventReader, logoutRequest );
-         
-         if( JBossSAMLConstants.SESSION_INDEX.get().equals( elementName ))
+         String elementName = StaxParserUtil.getStartElementName(startElement);
+
+         parseCommonElements(startElement, xmlEventReader, logoutRequest);
+
+         if (JBossSAMLConstants.SESSION_INDEX.get().equals(elementName))
          {
-            startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-            logoutRequest.getSessionIndex().add(  StaxParserUtil.getElementText( xmlEventReader ) );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            logoutRequest.getSessionIndex().add(StaxParserUtil.getElementText(xmlEventReader));
          }
       }
       return logoutRequest;
@@ -75,33 +75,32 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}
-    */ 
+    */
    public boolean supports(QName qname)
    {
-      return PROTOCOL_NSURI.get().equals( qname.getNamespaceURI() )
-             && LOGOUT_REQUEST.equals( qname.getLocalPart() );
+      return PROTOCOL_NSURI.get().equals(qname.getNamespaceURI()) && LOGOUT_REQUEST.equals(qname.getLocalPart());
    }
-   
+
    /**
     * Parse the attributes at the log out request element
     * @param startElement
     * @return 
     * @throws ParsingException 
     */
-   private LogoutRequestType parseBaseAttributes( StartElement startElement ) throws ParsingException
-   { 
+   private LogoutRequestType parseBaseAttributes(StartElement startElement) throws ParsingException
+   {
       super.parseRequiredAttributes(startElement);
-      LogoutRequestType logoutRequest = new LogoutRequestType( id, version, issueInstant );
+      LogoutRequestType logoutRequest = new LogoutRequestType(id, issueInstant);
       //Let us get the attributes
-      super.parseBaseAttributes(startElement, logoutRequest );
-      
-      Attribute reason = startElement.getAttributeByName( new QName( "Reason" ));
-      if( reason != null )
-         logoutRequest.setReason( StaxParserUtil.getAttributeValue( reason )); 
-      
-      Attribute notOnOrAfter = startElement.getAttributeByName( new QName( "NotOnOrAfter" ));
-      if( notOnOrAfter != null )
-         logoutRequest.setNotOnOrAfter( XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( notOnOrAfter )));  
-      return logoutRequest; 
+      super.parseBaseAttributes(startElement, logoutRequest);
+
+      Attribute reason = startElement.getAttributeByName(new QName("Reason"));
+      if (reason != null)
+         logoutRequest.setReason(StaxParserUtil.getAttributeValue(reason));
+
+      Attribute notOnOrAfter = startElement.getAttributeByName(new QName("NotOnOrAfter"));
+      if (notOnOrAfter != null)
+         logoutRequest.setNotOnOrAfter(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notOnOrAfter)));
+      return logoutRequest;
    }
 }

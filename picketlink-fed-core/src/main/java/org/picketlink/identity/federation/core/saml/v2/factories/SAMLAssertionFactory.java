@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
@@ -45,7 +44,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  * @since Jan 28, 2009
  */
 public class SAMLAssertionFactory
-{     
+{
    /**
     * <p>
     * Creates an {@code AudienceRestrictionType} with the specified values.
@@ -57,12 +56,12 @@ public class SAMLAssertionFactory
    public static AudienceRestrictionType createAudienceRestriction(String... values)
    {
       AudienceRestrictionType audienceRestriction = new AudienceRestrictionType();
-      if ( values != null )
+      if (values != null)
       {
-         for( String val: values )
+         for (String val : values)
          {
-            audienceRestriction.addAudience( URI.create( val ) );
-         } 
+            audienceRestriction.addAudience(URI.create(val));
+         }
       }
       return audienceRestriction;
    }
@@ -80,8 +79,8 @@ public class SAMLAssertionFactory
    public static NameIDType createNameID(String format, String qualifier, String value)
    {
       NameIDType nameID = new NameIDType();
-      if( format != null )
-         nameID.setFormat( URI.create( format ));
+      if (format != null)
+         nameID.setFormat(URI.create(format));
       nameID.setNameQualifier(qualifier);
       nameID.setValue(value);
       return nameID;
@@ -103,14 +102,14 @@ public class SAMLAssertionFactory
       ConditionsType conditions = new ConditionsType();
       conditions.setNotBefore(notBefore);
       conditions.setNotOnOrAfter(notOnOrAfter);
-      if ( restrictions != null )
+      if (restrictions != null)
       {
-         for( ConditionAbstractType condition : restrictions )
+         for (ConditionAbstractType condition : restrictions)
          {
             conditions.addCondition(condition);
          }
-         
-      } 
+
+      }
       return conditions;
    }
 
@@ -124,11 +123,11 @@ public class SAMLAssertionFactory
     */
    public static KeyInfoConfirmationDataType createKeyInfoConfirmation(KeyInfoType keyInfo)
    {
-      KeyInfoConfirmationDataType type = new KeyInfoConfirmationDataType(); 
-      type.setAnyType( keyInfo ); 
+      KeyInfoConfirmationDataType type = new KeyInfoConfirmationDataType();
+      type.setAnyType(keyInfo);
       return type;
    }
-   
+
    /**
     * <p>
     * Creates a {@code SubjectConfirmationType} object with the specified values.
@@ -161,17 +160,17 @@ public class SAMLAssertionFactory
     */
    public static SubjectType createSubject(NameIDType nameID, SubjectConfirmationType confirmation)
    {
-      SubjectType subject = new SubjectType(); 
+      SubjectType subject = new SubjectType();
       if (nameID != null)
       {
-         SubjectType.STSubType subType = new  SubjectType.STSubType();
+         SubjectType.STSubType subType = new SubjectType.STSubType();
          subType.addConfirmation(confirmation);
          subType.addBaseID(nameID);
          subject.setSubType(subType);
-      } 
+      }
       return subject;
-   } 
-   
+   }
+
    /**
     * <p>
     * Creates a SAMLV2 {@code AssertionType} with the specified values.
@@ -189,20 +188,20 @@ public class SAMLAssertionFactory
    public static AssertionType createAssertion(String id, NameIDType issuerID, XMLGregorianCalendar issueInstant,
          ConditionsType conditions, SubjectType subject, List<StatementAbstractType> statements)
    {
-      AssertionType assertion = new AssertionType( id, issueInstant, JBossSAMLConstants.VERSION_2_0.get() ); 
-      assertion.setIssuer(issuerID); 
-      if(conditions != null)
-        assertion.setConditions(conditions);
-      if(subject != null)
-        assertion.setSubject(subject);
-      
-      if ( statements != null )
+      AssertionType assertion = new AssertionType(id, issueInstant);
+      assertion.setIssuer(issuerID);
+      if (conditions != null)
+         assertion.setConditions(conditions);
+      if (subject != null)
+         assertion.setSubject(subject);
+
+      if (statements != null)
       {
-         for( StatementAbstractType statement: statements )
+         for (StatementAbstractType statement : statements)
          {
             assertion.addStatement(statement);
          }
-      } 
+      }
       return assertion;
    }
 }
