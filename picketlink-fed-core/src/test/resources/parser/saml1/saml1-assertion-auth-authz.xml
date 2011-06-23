@@ -19,21 +19,21 @@
 			</SubjectConfirmation>
 		</Subject>
 		<Attribute AttributeName="uid"
-			AttributeNamespace="http://www.ja-sig.org/products/cas/">
+			AttributeNamespace="http://jboss.org/test">
 			<AttributeValue>12345</AttributeValue>
 		</Attribute>
 		<Attribute AttributeName="groupMembership"
-			AttributeNamespace="http://www.ja-sig.org/products/cas/">
+			AttributeNamespace="http://jboss.org/test">
 			<AttributeValue>
 				uugid=middleware.staff,ou=Groups,dc=vt,dc=edu
             </AttributeValue>
 		</Attribute>
 		<Attribute AttributeName="eduPersonAffiliation"
-			AttributeNamespace="http://www.ja-sig.org/products/cas/">
+			AttributeNamespace="http://jboss.org/test">
 			<AttributeValue>staff</AttributeValue>
 		</Attribute>
 		<Attribute AttributeName="accountState"
-			AttributeNamespace="http://www.ja-sig.org/products/cas/">
+			AttributeNamespace="http://jboss.org/test">
 			<AttributeValue>ACTIVE</AttributeValue>
 		</Attribute>
 	</AttributeStatement>

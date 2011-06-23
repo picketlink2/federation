@@ -207,22 +207,22 @@ public class SAML11AssertionParserTestCase
       assertEquals(4, attributes.size());
       SAML11AttributeType attr = attributes.get(0);
       assertEquals("uid", attr.getAttributeName());
-      assertEquals("http://www.ja-sig.org/products/cas/", attr.getAttributeNamespace().toString());
+      assertEquals("http://jboss.org/test", attr.getAttributeNamespace().toString());
       assertEquals("12345", attr.get().get(0));
 
       attr = attributes.get(1);
       assertEquals("groupMembership", attr.getAttributeName());
-      assertEquals("http://www.ja-sig.org/products/cas/", attr.getAttributeNamespace().toString());
+      assertEquals("http://jboss.org/test", attr.getAttributeNamespace().toString());
       assertEquals("uugid=middleware.staff,ou=Groups,dc=vt,dc=edu", attr.get().get(0));
 
       attr = attributes.get(2);
       assertEquals("eduPersonAffiliation", attr.getAttributeName());
-      assertEquals("http://www.ja-sig.org/products/cas/", attr.getAttributeNamespace().toString());
+      assertEquals("http://jboss.org/test", attr.getAttributeNamespace().toString());
       assertEquals("staff", attr.get().get(0));
 
       attr = attributes.get(3);
       assertEquals("accountState", attr.getAttributeName());
-      assertEquals("http://www.ja-sig.org/products/cas/", attr.getAttributeNamespace().toString());
+      assertEquals("http://jboss.org/test", attr.getAttributeNamespace().toString());
       assertEquals("ACTIVE", attr.get().get(0));
 
       SAML11AuthenticationStatementType authStat = (SAML11AuthenticationStatementType) statements.get(1);
