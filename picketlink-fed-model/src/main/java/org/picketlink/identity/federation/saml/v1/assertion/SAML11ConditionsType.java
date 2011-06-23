@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.saml.v1.assertion;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.identity.federation.saml.common.CommonConditionsType;
@@ -58,5 +59,10 @@ public class SAML11ConditionsType extends CommonConditionsType
    public boolean remove(SAML11ConditionsAbstractType condition)
    {
       return this.conditions.remove(condition);
+   }
+
+   public List<SAML11ConditionAbstractType> get()
+   {
+      return Collections.unmodifiableList(conditions);
    }
 }

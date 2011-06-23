@@ -34,6 +34,8 @@ public class CommonActionType implements Serializable
 
    protected String namespace;
 
+   protected String value;
+
    /**
     * Gets the value of the namespace property.
     * 
@@ -58,5 +60,15 @@ public class CommonActionType implements Serializable
    public void setNamespace(String value)
    {
       this.namespace = value;
+   }
+
+   public String getValue()
+   {
+      return value;
+   }
+
+   public void setValue(String value)
+   {
+      this.value = value;
    }
 }

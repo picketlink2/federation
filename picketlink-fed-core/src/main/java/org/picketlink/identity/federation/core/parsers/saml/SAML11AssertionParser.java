@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorizationDecisionStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
@@ -139,44 +140,9 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
          else if (JBossSAMLConstants.CONDITIONS.get().equalsIgnoreCase(tag))
          {
             startElement = (StartElement) xmlEvent;
-            SAML11ConditionsType conditions = new SAML11ConditionsType();
+
+            SAML11ConditionsType conditions = SAML11ParserUtil.parseSAML11Conditions(xmlEventReader);
             assertion.setConditions(conditions);
-
-            StartElement conditionsElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            StaxParserUtil.validate(conditionsElement, JBossSAMLConstants.CONDITIONS.get());
-
-            String assertionNS = SAML11Constants.ASSERTION_11_NSURI;
-
-            QName notBeforeQName = new QName("", JBossSAMLConstants.NOT_BEFORE.get());
-            QName notBeforeQNameWithNS = new QName(assertionNS, JBossSAMLConstants.NOT_BEFORE.get());
-
-            QName notAfterQName = new QName("", JBossSAMLConstants.NOT_ON_OR_AFTER.get());
-            QName notAfterQNameWithNS = new QName(assertionNS, JBossSAMLConstants.NOT_ON_OR_AFTER.get());
-
-            Attribute notBeforeAttribute = conditionsElement.getAttributeByName(notBeforeQName);
-            if (notBeforeAttribute == null)
-               notBeforeAttribute = conditionsElement.getAttributeByName(notBeforeQNameWithNS);
-
-            Attribute notAfterAttribute = conditionsElement.getAttributeByName(notAfterQName);
-            if (notAfterAttribute == null)
-               notAfterAttribute = conditionsElement.getAttributeByName(notAfterQNameWithNS);
-
-            if (notBeforeAttribute != null)
-            {
-               String notBeforeValue = StaxParserUtil.getAttributeValue(notBeforeAttribute);
-               conditions.setNotBefore(XMLTimeUtil.parse(notBeforeValue));
-            }
-
-            if (notAfterAttribute != null)
-            {
-               String notAfterValue = StaxParserUtil.getAttributeValue(notAfterAttribute);
-               conditions.setNotOnOrAfter(XMLTimeUtil.parse(notAfterValue));
-            }
-
-            assertion.setConditions(conditions);
-
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, JBossSAMLConstants.CONDITIONS.get());
          }
          else if (SAML11Constants.AUTHENTICATION_STATEMENT.equals(tag))
          {
@@ -184,53 +150,18 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
             SAML11AuthenticationStatementType authStat = SAMLParserUtil.parseAuthenticationStatement(xmlEventReader);
             assertion.add(authStat);
          }
-         else if (JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equalsIgnoreCase(tag))
+         else if (SAML11Constants.ATTRIBUTE_STATEMENT.equalsIgnoreCase(tag))
          {
             SAML11AttributeStatementType attributeStatementType = SAML11ParserUtil
                   .parseSAML11AttributeStatement(xmlEventReader);
             assertion.add(attributeStatementType);
          }
-         /*else if (JBossSAMLConstants.AUTHN_STATEMENT.get().equalsIgnoreCase(tag))
+         else if (SAML11Constants.AUTHORIZATION_DECISION_STATEMENT.equalsIgnoreCase(tag))
          {
-            AuthnStatementType authnStatementType = SAMLParserUtil.parseAuthnStatement(xmlEventReader);
-            assertion.addStatement(authnStatementType);
+            SAML11AuthorizationDecisionStatementType authzStat = SAML11ParserUtil
+                  .parseSAML11AuthorizationDecisionStatement(xmlEventReader);
+            assertion.add(authzStat);
          }
-         else if (JBossSAMLConstants.ATTRIBUTE_STATEMENT.get().equalsIgnoreCase(tag))
-         {
-            AttributeStatementType attributeStatementType = SAMLParserUtil.parseAttributeStatement(xmlEventReader);
-            assertion.addStatement(attributeStatementType);
-         }
-         else if (JBossSAMLConstants.STATEMENT.get().equalsIgnoreCase(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-
-            String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);
-            if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_STATEMENT_TYPE.get()))
-            {
-               XACMLAuthzDecisionStatementType authZStat = new XACMLAuthzDecisionStatementType();
-
-               startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-               tag = StaxParserUtil.getStartElementName(startElement);
-
-               if (tag.contains(JBossSAMLConstants.RESPONSE.get()))
-               {
-                  authZStat.setResponse(getXACMLResponse(xmlEventReader));
-                  startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-                  //There may be request also
-                  tag = StaxParserUtil.getStartElementName(startElement);
-                  if (tag.contains(JBossSAMLConstants.REQUEST.get()))
-                  {
-                     authZStat.setRequest(getXACMLRequest(xmlEventReader));
-                  }
-               }
-
-               EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(endElement, JBossSAMLConstants.STATEMENT.get());
-               assertion.addStatement(authZStat);
-            }
-            else
-               throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
-         }*/
          else
             throw new RuntimeException("SAML11AssertionParser:: unknown: " + tag + "::location="
                   + peekedElement.getLocation());

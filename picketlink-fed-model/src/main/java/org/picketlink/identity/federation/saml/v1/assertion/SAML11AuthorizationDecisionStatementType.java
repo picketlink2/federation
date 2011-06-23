@@ -44,7 +44,7 @@ import java.util.List;
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11AuthorizationDecisionStatementType extends SAML11StatementAbstractType
+public class SAML11AuthorizationDecisionStatementType extends SAML11SubjectStatementType
 {
    private static final long serialVersionUID = 1L;
 

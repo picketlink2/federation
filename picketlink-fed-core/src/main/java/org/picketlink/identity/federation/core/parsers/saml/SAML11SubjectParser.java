@@ -94,8 +94,14 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
                nameID.setFormat(URI.create(StaxParserUtil.getAttributeValue(formatAtt)));
             }
 
+            Attribute nameQAtt = peekedElement.getAttributeByName(new QName(SAML11Constants.NAME_QUALIFIER));
+            if (nameQAtt != null)
+            {
+               nameID.setNameQualifier(StaxParserUtil.getAttributeValue(formatAtt));
+            }
+
             String val = StaxParserUtil.getElementText(xmlEventReader);
-            nameID.setNameQualifier(val);
+            nameID.setValue(val);
             SAML11SubjectTypeChoice subChoice = new SAML11SubjectTypeChoice(nameID);
             subject.setChoice(subChoice);
          }

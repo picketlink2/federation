@@ -44,6 +44,8 @@ public class SAML11NameIdentifierType implements Serializable
 
    protected URI format;
 
+   protected String value;
+
    public String getNameQualifier()
    {
       return nameQualifier;
@@ -62,5 +64,15 @@ public class SAML11NameIdentifierType implements Serializable
    public void setFormat(URI format)
    {
       this.format = format;
+   }
+
+   public String getValue()
+   {
+      return value;
+   }
+
+   public void setValue(String value)
+   {
+      this.value = value;
    }
 }

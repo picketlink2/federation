@@ -22,11 +22,14 @@
 package org.picketlink.identity.federation.core.saml.v1;
 
 /**
+ * Constants for the SAML v1.1 Specifications
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public interface SAML11Constants
 {
+   String ACTION = "Action";
+
    String ASSERTIONID = "AssertionID";
 
    String ASSERTION_11_NSURI = "urn:oasis:names:tc:SAML:1.0:assertion";
@@ -35,13 +38,21 @@ public interface SAML11Constants
 
    String ATTRIBUTE_NAMESPACE = "AttributeNamespace";
 
+   String ATTRIBUTE_STATEMENT = "AttributeStatement";
+
+   String AUDIENCE_RESTRICTION_CONDITION = "AudienceRestrictionCondition";
+
    String AUTHENTICATION_INSTANT = "AuthenticationInstant";
 
    String AUTHENTICATION_METHOD = "AuthenticationMethod";
 
    String AUTHENTICATION_STATEMENT = "AuthenticationStatement";
 
+   String AUTHORIZATION_DECISION_STATEMENT = "AuthorizationDecisionStatement";
+
    String CONFIRMATION_METHOD = "ConfirmationMethod";
+
+   String DECISION = "Decision";
 
    String FORMAT = "Format";
 
@@ -52,4 +63,10 @@ public interface SAML11Constants
    String MINOR_VERSION = "MinorVersion";
 
    String NAME_IDENTIFIER = "NameIdentifier";
+
+   String NAME_QUALIFIER = "NameQualifier";
+
+   String NAMESPACE = "Namespace";
+
+   String RESOURCE = "Resource";
 }

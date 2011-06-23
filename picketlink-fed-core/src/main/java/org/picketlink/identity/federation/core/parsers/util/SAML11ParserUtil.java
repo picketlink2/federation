@@ -35,8 +35,14 @@ import org.picketlink.identity.federation.core.parsers.saml.SAML11SubjectParser;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AudienceRestrictionCondition;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorizationDecisionStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11DecisionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 
 /**
@@ -179,5 +185,139 @@ public class SAML11ParserUtil
       }
 
       throw new RuntimeException("Unsupported xsi:type=" + typeValue);
+   }
+
+   public static SAML11AuthorizationDecisionStatementType parseSAML11AuthorizationDecisionStatement(
+         XMLEventReader xmlEventReader) throws ParsingException
+   {
+      SAML11AuthorizationDecisionStatementType authzDecision = null;
+
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, SAML11Constants.AUTHORIZATION_DECISION_STATEMENT);
+
+      Attribute decision = startElement.getAttributeByName(new QName(SAML11Constants.DECISION));
+      if (decision == null)
+         throw new RuntimeException("Required attribute Decision in Attribute");
+      String decisionValue = StaxParserUtil.getAttributeValue(decision);
+
+      Attribute resource = startElement.getAttributeByName(new QName(SAML11Constants.RESOURCE));
+      if (resource == null)
+         throw new RuntimeException("Required attribute Namespace in Attribute");
+      String resValue = StaxParserUtil.getAttributeValue(resource);
+
+      authzDecision = new SAML11AuthorizationDecisionStatementType(URI.create(resValue),
+            SAML11DecisionType.valueOf(decisionValue));
+
+      while (xmlEventReader.hasNext())
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent instanceof EndElement)
+         {
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if (StaxParserUtil.matches(end, SAML11Constants.AUTHORIZATION_DECISION_STATEMENT))
+               break;
+         }
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
+            break;
+         String tag = StaxParserUtil.getStartElementName(startElement);
+
+         if (SAML11Constants.ACTION.equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            SAML11ActionType samlAction = new SAML11ActionType();
+            Attribute namespaceAttr = startElement.getAttributeByName(new QName(SAML11Constants.NAMESPACE));
+            if (namespaceAttr != null)
+            {
+               samlAction.setNamespace(StaxParserUtil.getAttributeValue(namespaceAttr));
+            }
+            samlAction.setValue(StaxParserUtil.getElementText(xmlEventReader));
+
+            authzDecision.addAction(samlAction);
+         }
+         else if (JBossSAMLConstants.SUBJECT.get().equals(tag))
+         {
+            SAML11SubjectParser parser = new SAML11SubjectParser();
+            authzDecision.setSubject((SAML11SubjectType) parser.parse(xmlEventReader));
+         }
+         else
+            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+      }
+      return authzDecision;
+   }
+
+   /**
+    * Parse {@link SAML11ConditionsType}
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static SAML11ConditionsType parseSAML11Conditions(XMLEventReader xmlEventReader) throws ParsingException
+   {
+      StartElement startElement;
+      SAML11ConditionsType conditions = new SAML11ConditionsType();
+      StartElement conditionsElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(conditionsElement, JBossSAMLConstants.CONDITIONS.get());
+
+      String assertionNS = SAML11Constants.ASSERTION_11_NSURI;
+
+      QName notBeforeQName = new QName("", JBossSAMLConstants.NOT_BEFORE.get());
+      QName notBeforeQNameWithNS = new QName(assertionNS, JBossSAMLConstants.NOT_BEFORE.get());
+
+      QName notAfterQName = new QName("", JBossSAMLConstants.NOT_ON_OR_AFTER.get());
+      QName notAfterQNameWithNS = new QName(assertionNS, JBossSAMLConstants.NOT_ON_OR_AFTER.get());
+
+      Attribute notBeforeAttribute = conditionsElement.getAttributeByName(notBeforeQName);
+      if (notBeforeAttribute == null)
+         notBeforeAttribute = conditionsElement.getAttributeByName(notBeforeQNameWithNS);
+
+      Attribute notAfterAttribute = conditionsElement.getAttributeByName(notAfterQName);
+      if (notAfterAttribute == null)
+         notAfterAttribute = conditionsElement.getAttributeByName(notAfterQNameWithNS);
+
+      if (notBeforeAttribute != null)
+      {
+         String notBeforeValue = StaxParserUtil.getAttributeValue(notBeforeAttribute);
+         conditions.setNotBefore(XMLTimeUtil.parse(notBeforeValue));
+      }
+
+      if (notAfterAttribute != null)
+      {
+         String notAfterValue = StaxParserUtil.getAttributeValue(notAfterAttribute);
+         conditions.setNotOnOrAfter(XMLTimeUtil.parse(notAfterValue));
+      }
+
+      while (xmlEventReader.hasNext())
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent instanceof EndElement)
+         {
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if (StaxParserUtil.matches(end, JBossSAMLConstants.CONDITIONS.get()))
+               break;
+         }
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
+            break;
+         String tag = StaxParserUtil.getStartElementName(startElement);
+
+         if (SAML11Constants.AUDIENCE_RESTRICTION_CONDITION.equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            SAML11AudienceRestrictionCondition restrictCond = new SAML11AudienceRestrictionCondition();
+
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            if (StaxParserUtil.getStartElementName(startElement).equals(JBossSAMLConstants.AUDIENCE.get()))
+            {
+               restrictCond.add(URI.create(StaxParserUtil.getElementText(xmlEventReader)));
+            }
+            EndElement theEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(theEndElement, SAML11Constants.AUDIENCE_RESTRICTION_CONDITION);
+            conditions.add(restrictCond);
+         }
+         else
+            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+      }
+      return conditions;
    }
 }
