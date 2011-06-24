@@ -51,33 +51,31 @@ import org.w3c.dom.Element;
 public class DOMTransformerTestCase
 {
    String xml = "<a xmlns=\'urn:a\'><b><c><d>SomeD</d></c></b></a>";
-   
+
    @Test
    public void testDOMTransformer() throws Exception
-   {   
-      ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes() );
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( bis );
-      
-      StartElement a = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(a, "a" );
-      
+   {
+      ByteArrayInputStream bis = new ByteArrayInputStream(xml.getBytes());
+      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(bis);
+
+      StartElement a = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(a, "a");
+
       Document resultDocument = DocumentUtil.createDocument();
-      DOMResult domResult = new DOMResult( resultDocument );
-      
+      DOMResult domResult = new DOMResult(resultDocument);
+
       //Let us parse <b><c><d> using transformer
       StAXSource source = new StAXSource(xmlEventReader);
-      
+
       Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
-      transformer.transform( source, domResult );
-      
+      transformer.transform(source, domResult);
+
       Document doc = (Document) domResult.getNode();
       Element elem = doc.getDocumentElement();
-      assertEquals( "b", elem.getLocalName() );
-      
+      assertEquals("b", elem.getLocalName());
+
       XMLEvent xmlEvent = xmlEventReader.nextEvent();
-      assertTrue( xmlEvent instanceof EndElement );
-      StaxParserUtil.validate( (EndElement) xmlEvent, "a" );
-      
-      System.out.println( DocumentUtil.asString( (Document) domResult.getNode() ));
-   } 
+      assertTrue(xmlEvent instanceof EndElement);
+      StaxParserUtil.validate((EndElement) xmlEvent, "a");
+   }
 }

@@ -73,7 +73,6 @@ public class WSTrustCancelTargetSamlTestCase
 
       rstWriter.write(requestToken);
 
-      System.out.println(new String(baos.toByteArray()));
       DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
    }
 

@@ -33,7 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil; 
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 
@@ -48,36 +48,36 @@ public class SAMLAuthnRequestParserTestCase
    public void testSAMLAuthnRequestParse() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-authnrequest.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest.xml");
+
       SAMLParser parser = new SAMLParser();
-      AuthnRequestType authnRequest = ( AuthnRequestType ) parser.parse(configStream);
-      assertNotNull( "AuthnRequestType is not null", authnRequest );
-      
-      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest.getAssertionConsumerServiceURL().toString() );
-      assertEquals( "http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination().toString() );
-      assertEquals( "a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID() );
-      assertEquals( XMLTimeUtil.parse( "2007-12-17T18:40:52.203Z" ), authnRequest.getIssueInstant() );
-      assertEquals( "urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString() );
-      assertEquals( "Test SAML2 SP", authnRequest.getProviderName() ); 
-      assertEquals( "2.0", authnRequest.getVersion() );
-      
+      AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(configStream);
+      assertNotNull("AuthnRequestType is not null", authnRequest);
+
+      assertEquals("http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest
+            .getAssertionConsumerServiceURL().toString());
+      assertEquals("http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination()
+            .toString());
+      assertEquals("a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID());
+      assertEquals(XMLTimeUtil.parse("2007-12-17T18:40:52.203Z"), authnRequest.getIssueInstant());
+      assertEquals("urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString());
+      assertEquals("Test SAML2 SP", authnRequest.getProviderName());
+      assertEquals("2.0", authnRequest.getVersion());
+
       //Issuer
-      assertEquals( "Test SAML2 SP", authnRequest.getIssuer().getValue() );
-      
+      assertEquals("Test SAML2 SP", authnRequest.getIssuer().getValue());
+
       //NameID Policy
       NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
-      assertEquals( "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString() );
-      assertEquals( Boolean.TRUE , nameIDPolicy.isAllowCreate() );
-      
+      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString());
+      assertEquals(Boolean.TRUE, nameIDPolicy.isAllowCreate());
+
       //Try out writing
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos)); 
-      writer.write( authnRequest );
-      
-      System.out.println( new String( baos.toByteArray() ));
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      DocumentUtil.getDocument( bis ); //throws exceptions
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(authnRequest);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      DocumentUtil.getDocument(bis); //throws exceptions
    }
 }

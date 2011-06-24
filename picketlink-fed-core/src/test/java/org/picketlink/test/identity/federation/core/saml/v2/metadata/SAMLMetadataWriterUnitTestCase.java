@@ -44,7 +44,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
-
 /**
  * Unit test the {@code SAMLMetadataWriter}
  * @author Anil.Saldhana@redhat.com
@@ -56,45 +55,42 @@ public class SAMLMetadataWriterUnitTestCase
    public void testWriteSPSSODescriptor() throws Exception
    {
       String fileName = "saml2/metadata/sp-entitydescriptor.xml";
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream( fileName );
-      assertNotNull( is );
-      
+      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+      assertNotNull(is);
+
       SAMLParser parser = new SAMLParser();
       EntityDescriptorType entityDesc = (EntityDescriptorType) parser.parse(is);
-      
+
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
-      XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
-      
+
+      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+
       //write it back
-      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
-      mdWriter.writeEntityDescriptor( entityDesc ) ; 
-      
-      System.out.println( new String( baos.toByteArray() ));
+      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter(writer);
+      mdWriter.writeEntityDescriptor(entityDesc);
+
    }
-   
+
    @Test
    public void testWriteEntityDescWithContactPerson() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = 
-         tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
-      assertNotNull("Inputstream not null", is); 
-      
+      InputStream is = tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
+      assertNotNull("Inputstream not null", is);
+
       SAMLParser parser = new SAMLParser();
       EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
-      assertNotNull( entity );
+      assertNotNull(entity);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
-      XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
-      
+
+      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+
       //write it back
-      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
-      mdWriter.writeEntityDescriptor( entity ) ; 
-      
-      System.out.println( new String( baos.toByteArray() ));
+      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter(writer);
+      mdWriter.writeEntityDescriptor(entity);
+
    }
-   
+
    /**
     * PLFED-142
     * @throws Exception
@@ -103,27 +99,26 @@ public class SAMLMetadataWriterUnitTestCase
    public void testDynamicMetadataCreation() throws Exception
    {
       OrganizationType org = new OrganizationType();
-      AttributeType attributeType = new AttributeType( "hello" );
+      AttributeType attributeType = new AttributeType("hello");
       List<AttributeType> attributes = new ArrayList<AttributeType>();
       attributes.add(attributeType);
-      
-      URI test = URI.create( "http://test");
-      EndpointType sloEndPoint = new EndpointType( test, test );
+
+      URI test = URI.create("http://test");
+      EndpointType sloEndPoint = new EndpointType(test, test);
       KeyDescriptorType keyDescriptorType = new KeyDescriptorType();
       String str = "<a/>";
-      keyDescriptorType.setKeyInfo( DocumentUtil.getDocument( str ).getDocumentElement() );
-      
-      SPSSODescriptorType spSSO = MetaDataBuilderDelegate.createSPSSODescriptor(false, keyDescriptorType, sloEndPoint, attributes, org);
+      keyDescriptorType.setKeyInfo(DocumentUtil.getDocument(str).getDocumentElement());
+
+      SPSSODescriptorType spSSO = MetaDataBuilderDelegate.createSPSSODescriptor(false, keyDescriptorType, sloEndPoint,
+            attributes, org);
       EntityDescriptorType entity = MetaDataBuilderDelegate.createEntityDescriptor(spSSO);
-      
 
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
-      XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
-      
+
+      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+
       //write it back
-      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
-      mdWriter.writeEntityDescriptor( entity ) ; 
-      System.out.println( new String( baos.toByteArray() ));
+      SAMLMetadataWriter mdWriter = new SAMLMetadataWriter(writer);
+      mdWriter.writeEntityDescriptor(entity);
    }
 }

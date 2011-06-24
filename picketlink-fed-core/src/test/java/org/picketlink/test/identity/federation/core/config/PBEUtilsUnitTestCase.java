@@ -43,27 +43,24 @@ public class PBEUtilsUnitTestCase
    public void testPBE() throws Exception
    {
       String pass = "testpass";
-      
+
       String salt = "18273645";
       int iterationCount = 56;
-      
 
       String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
-      SecretKeyFactory factory = SecretKeyFactory.getInstance( pbeAlgo );
+      SecretKeyFactory factory = SecretKeyFactory.getInstance(pbeAlgo);
 
       char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
-      PBEParameterSpec cipherSpec = new PBEParameterSpec( salt.getBytes(), iterationCount );
+      PBEParameterSpec cipherSpec = new PBEParameterSpec(salt.getBytes(), iterationCount);
       PBEKeySpec keySpec = new PBEKeySpec(password);
       SecretKey cipherKey = factory.generateSecret(keySpec);
-      
-      String encodedPass = PBEUtils.encode64(pass.getBytes(), pbeAlgo , cipherKey, cipherSpec);
-      
-      System.out.println( getClass().getCanonicalName() + ":encoded=" + encodedPass );
-      
+
+      String encodedPass = PBEUtils.encode64(pass.getBytes(), pbeAlgo, cipherKey, cipherSpec);
+
       //Decode the stuff
       cipherKey = factory.generateSecret(keySpec);
       String decodedPass = PBEUtils.decode64(encodedPass, pbeAlgo, cipherKey, cipherSpec);
-      
-      assertEquals( "Passwords match", pass, decodedPass );
+
+      assertEquals("Passwords match", pass, decodedPass);
    }
 }

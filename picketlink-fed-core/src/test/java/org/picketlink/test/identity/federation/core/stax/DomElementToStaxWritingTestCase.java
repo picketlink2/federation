@@ -41,16 +41,15 @@ public class DomElementToStaxWritingTestCase
    public void testDOM2Stax() throws Exception
    {
       String xml = "<a xmlns=\'urn:hello\' >  <b> <c/> <d xmlns=\'urn:t\' test=\'tt\'/> </b></a>";
-      
-      Document doc = DocumentUtil.getDocument( xml );
-      
+
+      Document doc = DocumentUtil.getDocument(xml);
+
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      
-      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter( baos );
-      StaxUtil.writeDOMElement(writer, doc.getDocumentElement() );
-      
-      String writtenDoc = new String( baos.toByteArray() );
-      System.out.println( writtenDoc );
-      doc = DocumentUtil.getDocument( writtenDoc ); 
+
+      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+      StaxUtil.writeDOMElement(writer, doc.getDocumentElement());
+
+      String writtenDoc = new String(baos.toByteArray());
+      doc = DocumentUtil.getDocument(writtenDoc);
    }
 }

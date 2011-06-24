@@ -79,13 +79,7 @@ public class X500AttributeUnitTestCase extends TestCase
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(rt);
 
-      /*Marshaller marshaller = JBossSAMLAuthnResponseFactory.getValidatingMarshaller(false);
-      JAXBElement<ResponseType> jaxb = SAMLProtocolFactory.getObjectFactory().createResponse(rt);
-      marshaller.marshal(jaxb, baos);
-      *///marshaller.marshal(jaxb, System.out);
-
       Document samlDom = DocumentUtil.getDocument(new String(baos.toByteArray()));
-      System.out.println(DocumentUtil.getDocumentAsString(samlDom));
 
       NodeList nl = samlDom.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "Attribute");
       assertEquals("nodes = 2", 2, nl.getLength());

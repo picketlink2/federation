@@ -40,27 +40,26 @@ import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWri
  * @since Oct 18, 2010
  */
 public class WSTrustIssueTestCase
-{ 
+{
    @Test
    public void testIssue() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-issue.xml" );
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue.xml");
 
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = ( RequestSecurityToken ) parser.parse( configStream );   
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
 
-      assertEquals( "testcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString() ); 
+      assertEquals("testcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
 
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken); 
+      rstWriter.write(requestToken);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
    }
 }

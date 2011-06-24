@@ -76,8 +76,6 @@ public class SAMLSloResponseParserTestCase
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(response, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
 
-      System.out.println(new String(baos.toByteArray()));
-
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions
 

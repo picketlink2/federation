@@ -403,7 +403,6 @@ public class SAML2Response
          writer.write(responseType, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
       }
 
-      //System.out.println( new String( bos.toByteArray() ) );
       return DocumentUtil.getDocument(new ByteArrayInputStream(bos.toByteArray()));
    }
 

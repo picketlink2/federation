@@ -123,7 +123,6 @@ public class SAML2AuthenticationHandlerUnitTestCase
 
       Document samlReq = response.getResultingDocument();
       SAMLParser parser = new SAMLParser();
-      System.out.println("Doc=" + DocumentUtil.asString(samlReq));
       AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
       NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
       assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
@@ -187,8 +186,6 @@ public class SAML2AuthenticationHandlerUnitTestCase
       PublicKey publicKey = keypair.getPublic();
       XMLEncryptionUtil.encryptElement(new QName(assertionNS, "Assertion", "saml"), responseDoc, publicKey, secretKey,
             128, assertionQName, true);
-
-      System.out.println(DocumentUtil.asString(responseDoc));
 
       SAMLParser parser = new SAMLParser();
       saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));

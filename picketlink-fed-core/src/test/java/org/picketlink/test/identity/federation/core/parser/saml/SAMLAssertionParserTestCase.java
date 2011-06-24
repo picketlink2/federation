@@ -224,54 +224,9 @@ public class SAMLAssertionParserTestCase
       assertEquals(1, audienceRestrictionType.getAudience().size());
       assertEquals("https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get(0).toString());
 
-      /*List<JAXBElement<?>> content = subject.getContent(); 
-
-      int size = content.size();
-      assertEquals( 2, size );
-
-      for( int i = 0 ; i < size; i++ )
-      {
-         JAXBElement<?> node = content.get(i);
-         Class<?> clazz = node.getDeclaredType();
-         if( clazz.equals( NameIDType.class ))
-         {
-            NameIDType subjectNameID = (NameIDType) node.getValue();
-
-            assertEquals( "3f7b3dcf-1674-4ecd-92c8-1544f346baf8", subjectNameID.getValue() );
-            assertEquals( "urn:oasis:names:tc:SAML:2.0:nameid-format:transient", subjectNameID.getFormat() ); 
-         }
-
-         if( clazz.equals( ConditionsType.class ))
-         { 
-            //Conditions
-            ConditionsType conditions =  (ConditionsType) node.getValue();
-            assertEquals( XMLTimeUtil.parse( "2004-12-05T09:17:05Z" ) , conditions.getNotBefore() );
-            assertEquals( XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ) , conditions.getNotOnOrAfter() );
-
-            //Audience Restriction
-            AudienceRestrictionType audienceRestrictionType = 
-               (AudienceRestrictionType) conditions.getConditionOrAudienceRestrictionOrOneTimeUse();
-            assertEquals( 1, audienceRestrictionType.getAudience().size() );
-            assertEquals( "https://sp.example.com/SAML2", audienceRestrictionType.getAudience().get( 0 ));
-         }
-
-         else if( clazz.equals( SubjectConfirmationType.class ))
-         { 
-            SubjectConfirmationType subjectConfirmation = (SubjectConfirmationType) node.getValue();
-            assertEquals( "urn:oasis:names:tc:SAML:2.0:cm:bearer", subjectConfirmation.getMethod() );
-
-            SubjectConfirmationDataType subjectConfirmationData = subjectConfirmation.getSubjectConfirmationData();
-            assertEquals( "ID_aaf23196-1773-2113-474a-fe114412ab72", subjectConfirmationData.getInResponseTo() ); 
-            assertEquals(  XMLTimeUtil.parse( "2004-12-05T09:27:05Z" ), subjectConfirmationData.getNotOnOrAfter() );
-            assertEquals( "https://sp.example.com/SAML2/SSO/POST", subjectConfirmationData.getRecipient());
-         }
-      } */
-
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(assertion);
-
-      System.out.println(new String(baos.toByteArray()));
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions

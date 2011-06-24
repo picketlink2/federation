@@ -80,8 +80,6 @@ public class SignatureValidationUnitTestCase
       ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
       Document signedDoc = ss.sign(authnRequest, kp);
 
-      // System.out.println(DocumentUtil.getDocumentAsString(signedDoc));
-
       // Validate the signature
       boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
       assertTrue(isValid);
@@ -102,12 +100,12 @@ public class SignatureValidationUnitTestCase
 
       String authnContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
 
-      AuthnStatementType authnStatement = response.createAuthnStatement(authnContextDeclRef, XMLTimeUtil
-            .getIssueInstant());
+      AuthnStatementType authnStatement = response.createAuthnStatement(authnContextDeclRef,
+            XMLTimeUtil.getIssueInstant());
 
       // Create an assertion
       AssertionType assertion = response.createAssertion(id, issuerInfo.getIssuer());
-      assertion.addStatement( authnStatement );
+      assertion.addStatement(authnStatement);
 
       KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
       KeyPair kp = kpg.genKeyPair();
@@ -154,8 +152,6 @@ public class SignatureValidationUnitTestCase
       SAML2Signature ss = new SAML2Signature();
       Document signedDoc = ss.sign(responseType, id, kp, referenceURI);
 
-      // System.out.println(DocumentUtil.getDocumentAsString(signedDoc));
-
       Node signedNode = DocumentUtil.getNodeWithAttribute(signedDoc, "urn:oasis:names:tc:SAML:2.0:assertion",
             "Assertion", "ID", id);
 
@@ -167,8 +163,7 @@ public class SignatureValidationUnitTestCase
       // Validate the signature 
       boolean isValid = XMLSignatureUtil.validate(validatingDoc, kp.getPublic());
       assertTrue("Signature is valid:", isValid);
-      
-      
+
       /**
        * Now the signed document is marshalled across the wire using dom
        * write
@@ -176,10 +171,10 @@ public class SignatureValidationUnitTestCase
       //Binder<Node> binder = response.getBinder();
       //We have to parse the dom coming from the stream and feed to binder
       Document readDoc = DocumentUtil.getDocument(DocumentUtil.getNodeAsStream(signedDoc));
-      
-      signedNode = DocumentUtil.getNodeWithAttribute(readDoc, "urn:oasis:names:tc:SAML:2.0:assertion",
-            "Assertion", "ID", id);
-      
+
+      signedNode = DocumentUtil.getNodeWithAttribute(readDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion",
+            "ID", id);
+
       // The client creates a validating document, importing the signed assertion.
       validatingDoc = DocumentUtil.createDocument();
       importedSignedNode = validatingDoc.importNode(signedNode, true);
@@ -187,7 +182,7 @@ public class SignatureValidationUnitTestCase
 
       // The client re-validates the signature.  
       assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));
-      
+
       /*JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc);
       responseType = jaxbresponseType.getValue();
       assertNotNull(responseType); */
@@ -210,5 +205,5 @@ public class SignatureValidationUnitTestCase
 
       boolean valid = SignatureUtil.validate(arbitContent.getBytes(), sigVal, kp.getPublic());
       assertTrue(valid);
-   } 
+   }
 }

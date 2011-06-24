@@ -38,7 +38,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
  * @since Jan 6, 2009
  */
 public class XMLTimeUtilUnitTestCase extends TestCase
-{ 
+{
    public void testCompareViaParsing() throws Exception
    {
       DatatypeFactory dt = DatatypeFactory.newInstance();
@@ -47,39 +47,37 @@ public class XMLTimeUtilUnitTestCase extends TestCase
       XMLGregorianCalendar notOnOrAfter = dt.newXMLGregorianCalendar("2009-06-03T17:47:05.901-04:00");
       assertTrue(XMLTimeUtil.isValid(now, notBefore, notOnOrAfter));
    }
-   
+
    public void testAdd() throws Exception
    {
       XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
       long min5 = XMLTimeUtil.inMilis(5);
-      
+
       XMLGregorianCalendar after5M = XMLTimeUtil.add(now, min5);
-      assertTrue(now.compare(after5M) == DatatypeConstants.LESSER); 
-      
+      assertTrue(now.compare(after5M) == DatatypeConstants.LESSER);
+
       GregorianCalendar nowG = now.toGregorianCalendar();
       GregorianCalendar now5M = after5M.toGregorianCalendar();
-      
+
       //Add 5 minutes
       nowG.roll(Calendar.MINUTE, 5);
-      
+
       int val = nowG.compareTo(now5M);
-      
-      System.out.println("Comparison value="+val);
-      
-      assertTrue( "Compared value is 0", val <= 0);
+
+      assertTrue("Compared value is 0", val <= 0);
    }
 
    public void testIsValid() throws Exception
-   { 
+   {
       XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
- 
+
       long milisFor5Mins = XMLTimeUtil.inMilis(5);
-      
+
       XMLGregorianCalendar after5M = XMLTimeUtil.add(now, milisFor5Mins);
       XMLGregorianCalendar after10M = XMLTimeUtil.add(now, milisFor5Mins * 2);
-      
+
       //isValid(now, notbefore, notOnOrAfter)
       assertTrue(XMLTimeUtil.isValid(after5M, now, after10M));
-      assertFalse(XMLTimeUtil.isValid(now, after5M,after10M));
-   } 
+      assertFalse(XMLTimeUtil.isValid(now, after5M, after10M));
+   }
 }

@@ -44,39 +44,37 @@ import org.picketlink.identity.federation.ws.trust.EntropyType;
  * @since Oct 18, 2010
  */
 public class WSTrustIssueSymmetricKeyTestCase
-{  
+{
    @Test
    public void testSymKey() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-issue-symmetric-key.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-symmetric-key.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = ( RequestSecurityToken ) parser.parse( configStream );   
-       
-      assertEquals( "testcontext", requestToken.getContext() );
-      assertEquals( WSTrustConstants.ISSUE_REQUEST , requestToken.getRequestType().toASCIIString() ); 
-      
+      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+
+      assertEquals("testcontext", requestToken.getContext());
+      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+
       AppliesTo appliesTo = requestToken.getAppliesTo();
       EndpointReferenceType endpoint = (EndpointReferenceType) appliesTo.getAny().get(0);
-      assertEquals( "http://services.testcorp.org/provider2", endpoint.getAddress().getValue() );
-      
-      
-      assertEquals( WSTrustConstants.BS_TYPE_SYMMETRIC, requestToken.getKeyType().toASCIIString() );
-      
+      assertEquals("http://services.testcorp.org/provider2", endpoint.getAddress().getValue());
+
+      assertEquals(WSTrustConstants.BS_TYPE_SYMMETRIC, requestToken.getKeyType().toASCIIString());
+
       EntropyType entropy = requestToken.getEntropy();
-      BinarySecretType binarySecret = (BinarySecretType) entropy.getAny().get(0); 
-      
-      assertEquals( WSTrustConstants.BS_TYPE_NONCE, binarySecret.getType() );
-      assertEquals( "M0/7qLpV49c=" , new String( binarySecret.getValue() ));
-      
+      BinarySecretType binarySecret = (BinarySecretType) entropy.getAny().get(0);
+
+      assertEquals(WSTrustConstants.BS_TYPE_NONCE, binarySecret.getType());
+      assertEquals("M0/7qLpV49c=", new String(binarySecret.getValue()));
+
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken); 
+      rstWriter.write(requestToken);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
    }
 }

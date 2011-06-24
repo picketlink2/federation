@@ -57,45 +57,44 @@ public class SAMLMetadataParsingUnitTestCase
    public void testEntitiesDescriptor() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = 
-         tcl.getResourceAsStream("saml2/metadata/seam-entities.xml");
-      assertNotNull("Inputstream not null", is); 
-      
+      InputStream is = tcl.getResourceAsStream("saml2/metadata/seam-entities.xml");
+      assertNotNull("Inputstream not null", is);
+
       SAMLParser parser = new SAMLParser();
       EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
-      Assert.assertNotNull(entities); 
-      Assert.assertEquals( 2, entities.getEntityDescriptor().size() );
+      Assert.assertNotNull(entities);
+      Assert.assertEquals(2, entities.getEntityDescriptor().size());
       EntityDescriptorType entity = (EntityDescriptorType) entities.getEntityDescriptor().get(0);
       IDPSSODescriptorType idp = entity.getChoiceType().get(0).getDescriptors().get(0).getIdpDescriptor();
       KeyDescriptorType keyDescriptor = idp.getKeyDescriptor().get(0);
       X509Certificate cert = SAMLMetadataUtil.getCertificate(keyDescriptor);
       Assert.assertNotNull(cert);
-      Assert.assertEquals( "CN=test, OU=OpenSSO, O=Sun, L=Santa Clara, ST=California, C=US", cert.getIssuerDN().getName() );
+      Assert.assertEquals("CN=test, OU=OpenSSO, O=Sun, L=Santa Clara, ST=California, C=US", cert.getIssuerDN()
+            .getName());
    }
-   
+
    @Test
    public void parseOrganizationAndContactPerson() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = 
-         tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
-      assertNotNull("Inputstream not null", is); 
-      
+      InputStream is = tcl.getResourceAsStream("saml2/metadata/sp-entitydescOrgContact.xml");
+      assertNotNull("Inputstream not null", is);
+
       SAMLParser parser = new SAMLParser();
       EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
-      assertNotNull( entity );
+      assertNotNull(entity);
       OrganizationType org = entity.getOrganization();
-      assertNotNull( org );
-      
+      assertNotNull(org);
+
       List<ContactType> contactPersons = entity.getContactPerson();
-      assertNotNull( contactPersons );
-      assertTrue( contactPersons.size() == 1 );
-      
-      assertEquals( "technical", contactPersons.get(0).getContactType().value() );
-      assertEquals( "SAML SP Support", contactPersons.get(0).getSurName() );
-      assertEquals( "mailto:saml-support@sp.example.com", contactPersons.get(0).getEmailAddress().get(0) ); 
+      assertNotNull(contactPersons);
+      assertTrue(contactPersons.size() == 1);
+
+      assertEquals("technical", contactPersons.get(0).getContactType().value());
+      assertEquals("SAML SP Support", contactPersons.get(0).getSurName());
+      assertEquals("mailto:saml-support@sp.example.com", contactPersons.get(0).getEmailAddress().get(0));
    }
-   
+
    /**
     * PLFED-39
     * @throws Exception
@@ -104,48 +103,45 @@ public class SAMLMetadataParsingUnitTestCase
    public void testShibbolethMetadataExtensions() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = 
-         tcl.getResourceAsStream("saml2/metadata/testshib.org.idp-metadata.xml");
-      assertNotNull("Inputstream not null", is); 
+      InputStream is = tcl.getResourceAsStream("saml2/metadata/testshib.org.idp-metadata.xml");
+      assertNotNull("Inputstream not null", is);
       SAMLParser parser = new SAMLParser();
 
       EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
-      assertNotNull(entities);  
-      
+      assertNotNull(entities);
+
       //Another md
       is = tcl.getResourceAsStream("saml2/metadata/shib.idp-metadata.xml");
-      assertNotNull("Inputstream not null", is); 
-     
+      assertNotNull("Inputstream not null", is);
+
       EntityDescriptorType entity = (EntityDescriptorType) parser.parse(is);
-      assertNotNull( entity );
+      assertNotNull(entity);
    }
-   
+
    @Test
    public void testShibbolethMetadata() throws Exception
    {
       boolean runTest = false;
-      System.out.println( "Test is disabled because of heap space issues in test env" );
-      if( runTest )
+      System.out.println("Test is disabled because of heap space issues in test env");
+      if (runTest)
       {
          ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-         InputStream is = 
-            tcl.getResourceAsStream("saml2/metadata/testshib-two-metadata.xml");
-         assertNotNull("Inputstream not null", is); 
+         InputStream is = tcl.getResourceAsStream("saml2/metadata/testshib-two-metadata.xml");
+         assertNotNull("Inputstream not null", is);
          SAMLParser parser = new SAMLParser();
 
          EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
          assertNotNull(entities);
-         assertEquals( "urn:mace:shibboleth:testshib:two", entities.getName() );
-         
+         assertEquals("urn:mace:shibboleth:testshib:two", entities.getName());
+
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
-         
-         XMLStreamWriter  writer = StaxUtil.getXMLStreamWriter( baos );
-         
+
+         XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+
          //write it back
-         SAMLMetadataWriter mdWriter = new SAMLMetadataWriter( writer );
+         SAMLMetadataWriter mdWriter = new SAMLMetadataWriter(writer);
          mdWriter.writeEntitiesDescriptor(entities);
-         
-         //System.out.println( new String( baos.toByteArray() )); 
+
       }
    }
 }

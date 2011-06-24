@@ -50,8 +50,8 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
  * Validate the parsing of SAML2 Response
@@ -125,8 +125,6 @@ public class SAMLResponseParserTestCase
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(response);
-
-      System.out.println(new String(baos.toByteArray()));
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions

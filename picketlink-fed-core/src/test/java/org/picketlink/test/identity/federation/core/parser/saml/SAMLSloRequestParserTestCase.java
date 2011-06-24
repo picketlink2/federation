@@ -33,7 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil; 
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
@@ -45,28 +45,26 @@ public class SAMLSloRequestParserTestCase
 {
    @Test
    public void testSAMLLogOutRequestParsing() throws Exception
-   {   
+   {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/saml2/saml2-logout-request.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request.xml");
+
       SAMLParser parser = new SAMLParser();
-      LogoutRequestType lotRequest = ( LogoutRequestType ) parser.parse(configStream);
-      assertNotNull( lotRequest );
-      
-      assertEquals( "ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3", lotRequest.getID() );
-      assertEquals( XMLTimeUtil.parse( "2010-07-29T13:46:20.647-05:00" ), lotRequest.getIssueInstant() );
-      assertEquals( "2.0", lotRequest.getVersion() );
+      LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
+      assertNotNull(lotRequest);
+
+      assertEquals("ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3", lotRequest.getID());
+      assertEquals(XMLTimeUtil.parse("2010-07-29T13:46:20.647-05:00"), lotRequest.getIssueInstant());
+      assertEquals("2.0", lotRequest.getVersion());
       //Issuer
-      assertEquals( "http://localhost:8080/sales/", lotRequest.getIssuer().getValue() );
-      
+      assertEquals("http://localhost:8080/sales/", lotRequest.getIssuer().getValue());
+
       //Try out writing
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos)); 
-      writer.write( lotRequest ); 
-      
-      System.out.println( new String( baos.toByteArray() ));
-      
-      ByteArrayInputStream bis = new ByteArrayInputStream( baos.toByteArray() );
-      DocumentUtil.getDocument( bis ); //throws exceptions
-   } 
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(lotRequest);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      DocumentUtil.getDocument(bis); //throws exceptions
+   }
 }

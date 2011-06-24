@@ -44,38 +44,37 @@ import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWri
  */
 public class WSTrustBatchValidateParsingTestCase
 {
-   @Test 
+   @Test
    public void testWST_BatchValidate() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream( "parser/wst/wst-batch-validate.xml" );
-      
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-batch-validate.xml");
+
       WSTrustParser parser = new WSTrustParser();
-      RequestSecurityTokenCollection requestCollection = (RequestSecurityTokenCollection) parser.parse( configStream ); 
-      assertNotNull( "Request Security Token Collection is null?", requestCollection );
-      
-      List<RequestSecurityToken> tokens = requestCollection.getRequestSecurityTokens(); 
-      assertEquals( 2, tokens.size() );
-      
-      RequestSecurityToken rst1 = tokens.get( 0 );
-      assertEquals( "validatecontext1", rst1.getContext() );
-      assertEquals( WSTrustConstants.BATCH_VALIDATE_REQUEST, rst1.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString() );
-      
-      RequestSecurityToken rst2 = tokens.get( 1 );
-      assertEquals( "validatecontext2", rst2.getContext() );
-      assertEquals( WSTrustConstants.BATCH_VALIDATE_REQUEST , rst2.getRequestType().toASCIIString() );
-      assertEquals( WSTrustConstants.RSTR_STATUS_TOKEN_TYPE , rst2.getTokenType().toASCIIString() );
-      
+      RequestSecurityTokenCollection requestCollection = (RequestSecurityTokenCollection) parser.parse(configStream);
+      assertNotNull("Request Security Token Collection is null?", requestCollection);
+
+      List<RequestSecurityToken> tokens = requestCollection.getRequestSecurityTokens();
+      assertEquals(2, tokens.size());
+
+      RequestSecurityToken rst1 = tokens.get(0);
+      assertEquals("validatecontext1", rst1.getContext());
+      assertEquals(WSTrustConstants.BATCH_VALIDATE_REQUEST, rst1.getRequestType().toASCIIString());
+      assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
+
+      RequestSecurityToken rst2 = tokens.get(1);
+      assertEquals("validatecontext2", rst2.getContext());
+      assertEquals(WSTrustConstants.BATCH_VALIDATE_REQUEST, rst2.getRequestType().toASCIIString());
+      assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst2.getTokenType().toASCIIString());
+
       //Now for the writing part
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write( requestCollection ); 
+      rstWriter.write(requestCollection);
 
-      System.out.println( new String( baos.toByteArray() ));
-      DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() )); 
-      baos.close(); 
+      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      baos.close();
    }
 
 }
