@@ -90,4 +90,22 @@ public class SAML11RequestParserTestCase
       SAML11SubjectType.SAML11SubjectTypeChoice choice = subject.getChoice();
       assertEquals("testID", choice.getNameID().getValue());
    }
+
+   @Test
+   public void testSAML11RequestWithAssertionArtifact() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml1/saml1-request-assertionartifact.xml");
+
+      SAMLParser parser = new SAMLParser();
+      SAML11RequestType request = (SAML11RequestType) parser.parse(configStream);
+      assertNotNull(request);
+
+      assertEquals(1, request.getMajorVersion());
+      assertEquals(1, request.getMinorVersion());
+      assertEquals("rid", request.getID());
+      assertEquals(XMLTimeUtil.parse("2002-06-19T17:03:44.022Z"), request.getIssueInstant());
+
+      assertEquals("abcd", request.getAssertionArtifact().get(0));
+   }
 }

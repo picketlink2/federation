@@ -34,6 +34,8 @@ public interface SAML11Constants
 
    String ASSERTION_11_NSURI = "urn:oasis:names:tc:SAML:1.0:assertion";
 
+   String ASSERTION_ARTIFACT = "AssertionArtifact";
+
    String ATTRIBUTE_QUERY = "AttributeQuery";
 
    String ATTRIBUTE_NAME = "AttributeName";

@@ -94,6 +94,11 @@ public class SAML11RequestParser implements ParserNamespaceSupport
             SAML11AuthenticationQueryType query = SAML11ParserUtil.parseSAML11AuthenticationQuery(xmlEventReader);
             request.setQuery(query);
          }
+         else if (SAML11Constants.ASSERTION_ARTIFACT.equals(elementName))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            request.addAssertionArtifact(StaxParserUtil.getElementText(xmlEventReader));
+         }
          else if (elementName.equals(JBossSAMLConstants.SIGNATURE.get()))
          {
             request.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
