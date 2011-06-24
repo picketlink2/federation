@@ -36,7 +36,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil; 
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
@@ -49,18 +49,22 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 public class BaseWriter
 {
    protected static String PROTOCOL_PREFIX = "samlp";
+
    protected static String ASSERTION_PREFIX = "saml";
+
    protected static String XACML_SAML_PREFIX = "xacml-saml";
+
    protected static String XACML_SAML_PROTO_PREFIX = "xacml-samlp";
+
    protected static String XSI_PREFIX = "xsi";
-   
-   protected XMLStreamWriter writer = null;  
-   
+
+   protected XMLStreamWriter writer = null;
+
    public BaseWriter(XMLStreamWriter writer) throws ProcessingException
    {
       this.writer = writer;
    }
-   
+
    /**
     * Write {@code NameIDType} to stream
     * @param nameIDType
@@ -68,44 +72,44 @@ public class BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( NameIDType nameIDType, QName tag ) throws ProcessingException
+   public void write(NameIDType nameIDType, QName tag) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, tag.getPrefix(), tag.getLocalPart() , tag.getNamespaceURI() );
-      
+      StaxUtil.writeStartElement(writer, tag.getPrefix(), tag.getLocalPart(), tag.getNamespaceURI());
+
       URI format = nameIDType.getFormat();
-      if( format != null )
+      if (format != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString() );
-      } 
-      
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString());
+      }
+
       String spProvidedID = nameIDType.getSPProvidedID();
-      if( StringUtil.isNotNull( spProvidedID ))
+      if (StringUtil.isNotNull(spProvidedID))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.SP_PROVIDED_ID.get(), spProvidedID );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.SP_PROVIDED_ID.get(), spProvidedID);
       }
-      
+
       String spNameQualifier = nameIDType.getSPNameQualifier();
-      if( StringUtil.isNotNull( spNameQualifier ))
+      if (StringUtil.isNotNull(spNameQualifier))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.SP_NAME_QUALIFIER.get(), spNameQualifier );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.SP_NAME_QUALIFIER.get(), spNameQualifier);
       }
-      
+
       String nameQualifier = nameIDType.getNameQualifier();
-      if( StringUtil.isNotNull( nameQualifier ))
+      if (StringUtil.isNotNull(nameQualifier))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.NAME_QUALIFIER.get(), nameQualifier );
-      } 
-      
-      String value = nameIDType.getValue();
-      if( StringUtil.isNotNull( value ))
-      {
-         StaxUtil.writeCharacters( writer, value );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME_QUALIFIER.get(), nameQualifier);
       }
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+
+      String value = nameIDType.getValue();
+      if (StringUtil.isNotNull(value))
+      {
+         StaxUtil.writeCharacters(writer, value);
+      }
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write an {@code AttributeType} to stream
     * 
@@ -117,13 +121,13 @@ public class BaseWriter
    {
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get(), ASSERTION_NSURI.get());
 
-      writeAttributeTypeWithoutRootTag(attributeType); 
-      
+      writeAttributeTypeWithoutRootTag(attributeType);
+
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }
-   
-   public void writeAttributeTypeWithoutRootTag( AttributeType attributeType ) throws ProcessingException
+
+   public void writeAttributeTypeWithoutRootTag(AttributeType attributeType) throws ProcessingException
    {
       String attributeName = attributeType.getName();
       if (attributeName != null)
@@ -171,32 +175,34 @@ public class BaseWriter
          {
             if (attributeValue instanceof String)
             {
-               writeStringAttributeValue( (String) attributeValue ); 
+               writeStringAttributeValue((String) attributeValue);
             }
             else
                throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
          }
       }
    }
-   
-   public void writeStringAttributeValue( String attributeValue ) throws ProcessingException
+
+   public void writeStringAttributeValue(String attributeValue) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(), ASSERTION_NSURI.get());
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(),
+            ASSERTION_NSURI.get());
 
       StaxUtil.writeNameSpace(writer, JBossSAMLURIConstants.XSI_PREFIX.get(), JBossSAMLURIConstants.XSI_NSURI.get());
       StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
       StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xs:string");
-      StaxUtil.writeCharacters(writer, attributeValue ); 
+      StaxUtil.writeCharacters(writer, attributeValue);
       StaxUtil.writeEndElement(writer);
    }
-   
 
-   
-   public void writeLocalizedNameType( LocalizedNameType localizedNameType, QName startElement ) throws ProcessingException
+   public void writeLocalizedNameType(LocalizedNameType localizedNameType, QName startElement)
+         throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, startElement.getPrefix(), startElement.getLocalPart(), startElement.getNamespaceURI() );
-      StaxUtil.writeAttribute(writer,  new QName( JBossSAMLURIConstants.XML.get(), "lang", "xml" ),  localizedNameType.getLang() );
-      StaxUtil.writeCharacters(writer, localizedNameType.getValue() );
+      StaxUtil.writeStartElement(writer, startElement.getPrefix(), startElement.getLocalPart(),
+            startElement.getNamespaceURI());
+      StaxUtil.writeAttribute(writer, new QName(JBossSAMLURIConstants.XML.get(), "lang", "xml"),
+            localizedNameType.getLang());
+      StaxUtil.writeCharacters(writer, localizedNameType.getValue());
       StaxUtil.writeEndElement(writer);
    }
 }

@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMi
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -72,6 +73,19 @@ public class AssertionUtil
       SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(assertion);
       return new String(baos.toByteArray());
+   }
+
+   /**
+    * Create an assertion
+    * @param id
+    * @param issuer
+    * @return
+    */
+   public static SAML11AssertionType createSAML11Assertion(String id, XMLGregorianCalendar issueInstant, String issuer)
+   {
+      SAML11AssertionType assertion = new SAML11AssertionType(id, issueInstant);
+      assertion.setIssuer(issuer);
+      return assertion;
    }
 
    /**

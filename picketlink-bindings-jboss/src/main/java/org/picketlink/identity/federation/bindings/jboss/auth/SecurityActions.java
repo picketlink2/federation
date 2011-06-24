@@ -27,6 +27,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SecurityContextFactory;
 
 /**
@@ -37,6 +38,17 @@ import org.jboss.security.SecurityContextFactory;
  */
 class SecurityActions
 {
+   static SecurityContext getSecurityContext()
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>()
+      {
+         public SecurityContext run()
+         {
+            return SecurityContextAssociation.getSecurityContext();
+         }
+      });
+   }
+
    static SecurityContext createSecurityContext() throws PrivilegedActionException
    {
       return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()

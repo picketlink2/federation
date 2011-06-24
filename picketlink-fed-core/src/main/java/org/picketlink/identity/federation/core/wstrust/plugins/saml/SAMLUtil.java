@@ -23,14 +23,17 @@ package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.security.GeneralSecurityException;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAML11AssertionWriter;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -45,11 +48,21 @@ import org.w3c.dom.Element;
 public class SAMLUtil
 {
 
+   public static final String SAML11_BEARER_URI = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
+
+   public static final String SAML11_HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:1.0:cm:holder-of-key";
+
+   public static final String SAML11_SENDER_VOUCHES_URI = "urn:oasis:names:tc:SAML:1.0:cm:sender-vouches";
+
    public static final String SAML2_BEARER_URI = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
 
    public static final String SAML2_HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
 
    public static final String SAML2_SENDER_VOUCHES_URI = "urn:oasis:names:tc:SAML:2.0:cm:sender-vouches";
+
+   public static final String SAML11_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1";
+
+   public static final String SAML11_VALUE_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.0#SAMLAssertionID";
 
    public static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
@@ -80,6 +93,29 @@ public class SAMLUtil
 
    /**
     * <p>
+    * Utility method that marshals the specified {@code AssertionType} object into an {@code Element} instance.
+    * </p>
+    * 
+    * @param assertion
+    *           an {@code AssertionType} object representing the SAML assertion to be marshaled.
+    * @return a reference to the {@code Element} that contains the marshaled SAML assertion.
+    * @throws Exception
+    *            if an error occurs while marshaling the assertion.
+    */
+   public static Element toElement(SAML11AssertionType assertion) throws Exception
+   {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      Document document = DocumentUtil.getDocument(bis);
+
+      return document.getDocumentElement();
+   }
+
+   /**
+    * <p>
     * Utility method that unmarshals the specified {@code Element} into an {@code AssertionType} instance.
     * </p>
     * 
@@ -96,5 +132,17 @@ public class SAMLUtil
       SAMLParser samlParser = new SAMLParser();
       AssertionType assertion = (AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(assertionElement));
       return assertion;
+   }
+
+   /**
+    * Given a {@link Element} that represents a SAML 1.1 assertion, convert it into a {@link SAML11AssertionType}
+    * @param assertionElement
+    * @return
+    * @throws GeneralSecurityException
+    */
+   public static SAML11AssertionType saml11FromElement(Element assertionElement) throws GeneralSecurityException
+   {
+      SAMLParser samlParser = new SAMLParser();
+      return (SAML11AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(assertionElement));
    }
 }
