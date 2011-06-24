@@ -37,6 +37,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQueryType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthorizationDecisionQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
 
 /**
@@ -99,9 +100,21 @@ public class SAML11RequestParser implements ParserNamespaceSupport
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             request.addAssertionArtifact(StaxParserUtil.getElementText(xmlEventReader));
          }
+         else if (SAML11Constants.AUTHORIZATION_DECISION_QUERY.equals(elementName))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            SAML11AuthorizationDecisionQueryType query = SAML11ParserUtil
+                  .parseSAML11AuthorizationDecisionQueryType(xmlEventReader);
+            request.setQuery(query);
+         }
          else if (elementName.equals(JBossSAMLConstants.SIGNATURE.get()))
          {
             request.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
+         }
+         else if (SAML11Constants.ASSERTION_ID_REF.equals(elementName))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            request.addAssertionIDRef(StaxParserUtil.getElementText(xmlEventReader));
          }
          else
             throw new RuntimeException("Unknown Element:" + elementName + "::location=" + startElement.getLocation());

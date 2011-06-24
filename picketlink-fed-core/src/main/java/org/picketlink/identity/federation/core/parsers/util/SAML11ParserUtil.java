@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirm
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQueryType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthorizationDecisionQueryType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
@@ -651,6 +652,66 @@ public class SAML11ParserUtil
             {
                SAML11SubjectParser parser = new SAML11SubjectParser();
                query.setSubject((SAML11SubjectType) parser.parse(xmlEventReader));
+            }
+            else
+               throw new ParsingException("Unknown tag:" + startTag);
+         }
+      }
+      return query;
+   }
+
+   /**
+    * Parse the {@link SAML11AuthorizationDecisionQueryType}
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static SAML11AuthorizationDecisionQueryType parseSAML11AuthorizationDecisionQueryType(
+         XMLEventReader xmlEventReader) throws ParsingException
+   {
+      SAML11AuthorizationDecisionQueryType query = new SAML11AuthorizationDecisionQueryType();
+      StartElement startElement;
+      // There may be additional things under subject confirmation
+      while (xmlEventReader.hasNext())
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent instanceof EndElement)
+         {
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            if (StaxParserUtil.matches(endElement, SAML11Constants.AUTHORIZATION_DECISION_QUERY))
+               break;
+            else
+               throw new ParsingException("Unknown end element:" + StaxParserUtil.getEndElementName(endElement));
+         }
+
+         if (xmlEvent instanceof StartElement)
+         {
+            startElement = (StartElement) xmlEvent;
+
+            String startTag = StaxParserUtil.getStartElementName(startElement);
+
+            if (startTag.equals(JBossSAMLConstants.SUBJECT.get()))
+            {
+               SAML11SubjectParser parser = new SAML11SubjectParser();
+               query.setSubject((SAML11SubjectType) parser.parse(xmlEventReader));
+            }
+            else if (startTag.equals(SAML11Constants.RESOURCE))
+            {
+               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               query.setResource(URI.create(StaxParserUtil.getElementText(xmlEventReader)));
+            }
+            else if (startTag.equals(SAML11Constants.ACTION))
+            {
+               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               SAML11ActionType action = new SAML11ActionType();
+               Attribute nsAttr = startElement.getAttributeByName(new QName(SAML11Constants.NAMESPACE));
+               if (nsAttr != null)
+               {
+                  action.setNamespace(StaxParserUtil.getAttributeValue(nsAttr));
+               }
+
+               action.setValue(StaxParserUtil.getElementText(xmlEventReader));
+               query.add(action);
             }
             else
                throw new ParsingException("Unknown tag:" + startTag);

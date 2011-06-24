@@ -90,7 +90,7 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
             Attribute nameQAtt = peekedElement.getAttributeByName(new QName(SAML11Constants.NAME_QUALIFIER));
             if (nameQAtt != null)
             {
-               nameID.setNameQualifier(StaxParserUtil.getAttributeValue(formatAtt));
+               nameID.setNameQualifier(StaxParserUtil.getAttributeValue(nameQAtt));
             }
 
             String val = StaxParserUtil.getElementText(xmlEventReader);

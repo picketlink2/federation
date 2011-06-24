@@ -36,6 +36,8 @@ public interface SAML11Constants
 
    String ASSERTION_ARTIFACT = "AssertionArtifact";
 
+   String ASSERTION_ID_REF = "AssertionIDReference";
+
    String ATTRIBUTE_QUERY = "AttributeQuery";
 
    String ATTRIBUTE_NAME = "AttributeName";
@@ -54,6 +56,8 @@ public interface SAML11Constants
 
    String AUTHENTICATION_STATEMENT = "AuthenticationStatement";
 
+   String AUTHORIZATION_DECISION_QUERY = "AuthorizationDecisionQuery";
+
    String AUTHORIZATION_DECISION_STATEMENT = "AuthorizationDecisionStatement";
 
    String CONFIRMATION_METHOD = "ConfirmationMethod";
@@ -61,6 +65,8 @@ public interface SAML11Constants
    String DECISION = "Decision";
 
    String FORMAT = "Format";
+
+   String FORMAT_EMAIL_ADDRESS = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";
 
    String ISSUER = "Issuer";
 
@@ -72,7 +78,7 @@ public interface SAML11Constants
 
    String NAME_QUALIFIER = "NameQualifier";
 
-   String NAMESPACE = "Namespace";
+   String NAMESPACE = "NameSpace";
 
    String PROTOCOL_11_NSURI = "urn:oasis:names:tc:SAML:1.0:protocol";
 
