@@ -92,4 +92,14 @@ public class SAML11RequestType extends SAML11RequestAbstractType
    {
       return Collections.unmodifiableList(assertionArtifact);
    }
+
+   public SAML11QueryAbstractType getQuery()
+   {
+      return query;
+   }
+
+   public void setQuery(SAML11QueryAbstractType query)
+   {
+      this.query = query;
+   }
 }

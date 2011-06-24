@@ -120,10 +120,8 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
          if (tag.equals(JBossSAMLConstants.SIGNATURE.get()))
          {
             assertion.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
-            continue;
          }
-
-         if (JBossSAMLConstants.ISSUER.get().equalsIgnoreCase(tag))
+         else if (JBossSAMLConstants.ISSUER.get().equalsIgnoreCase(tag))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             issuer = StaxParserUtil.getElementText(xmlEventReader);

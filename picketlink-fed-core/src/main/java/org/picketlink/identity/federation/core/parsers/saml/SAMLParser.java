@@ -130,6 +130,12 @@ public class SAMLParser extends AbstractParser
                SAML11ResponseParser responseParser = new SAML11ResponseParser();
                return responseParser.parse(xmlEventReader);
             }
+            else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
+                  && SAML11Constants.REQUEST.equals(startElementName.getLocalPart()))
+            {
+               SAML11RequestParser reqParser = new SAML11RequestParser();
+               return reqParser.parse(xmlEventReader);
+            }
             else
                throw new RuntimeException("Unknown Tag:" + elementName + "::location=" + startElement.getLocation());
          }
