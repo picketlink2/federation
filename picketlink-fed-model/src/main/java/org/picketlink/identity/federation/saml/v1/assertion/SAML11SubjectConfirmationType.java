@@ -83,4 +83,9 @@ public class SAML11SubjectConfirmationType
    {
       this.keyInfo = keyInfo;
    }
+
+   public Object getSubjectConfirmationData()
+   {
+      return subjectConfirmationData;
+   }
 }

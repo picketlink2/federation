@@ -59,7 +59,7 @@ public class SAML11SubjectType
          return nameID;
       }
 
-      public SAML11SubjectConfirmationType getsubjectConfirmation()
+      public SAML11SubjectConfirmationType getSubjectConfirmation()
       {
          return subjectConfirmation;
       }

@@ -56,19 +56,31 @@ public interface SAML11Constants
 
    String AUTHENTICATION_STATEMENT = "AuthenticationStatement";
 
+   String AUTHORITY_BINDING = "AuthorityBinding";
+
+   String AUTHORITY_KIND = "AuthorityKind";
+
    String AUTHORIZATION_DECISION_QUERY = "AuthorizationDecisionQuery";
 
    String AUTHORIZATION_DECISION_STATEMENT = "AuthorizationDecisionStatement";
+
+   String BINDING = "Binding";
 
    String CONFIRMATION_METHOD = "ConfirmationMethod";
 
    String DECISION = "Decision";
 
+   String DNS_ADDRESS = "DNSAddress";
+
    String FORMAT = "Format";
 
    String FORMAT_EMAIL_ADDRESS = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";
 
+   String IP_ADDRESS = "IPAddress";
+
    String ISSUER = "Issuer";
+
+   String LOCATION = "Location";
 
    String MAJOR_VERSION = "MajorVersion";
 
