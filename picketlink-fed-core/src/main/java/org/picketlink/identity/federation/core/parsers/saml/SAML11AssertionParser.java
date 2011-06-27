@@ -34,7 +34,6 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
-import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -145,7 +144,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
          else if (SAML11Constants.AUTHENTICATION_STATEMENT.equals(tag))
          {
             startElement = (StartElement) xmlEvent;
-            SAML11AuthenticationStatementType authStat = SAMLParserUtil.parseAuthenticationStatement(xmlEventReader);
+            SAML11AuthenticationStatementType authStat = SAML11ParserUtil.parseAuthenticationStatement(xmlEventReader);
             assertion.add(authStat);
          }
          else if (SAML11Constants.ATTRIBUTE_STATEMENT.equalsIgnoreCase(tag))

@@ -41,10 +41,14 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AudienceRestrictionCondition;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorityBindingType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorizationDecisionStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11DecisionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectLocalityType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQueryType;
@@ -64,6 +68,119 @@ import org.w3c.dom.Element;
  */
 public class SAML11ParserUtil
 {
+
+   /**
+    * Parse the AuthnStatement inside the assertion
+    * @param xmlEventReader
+    * @return
+    * @throws ParsingException
+    */
+   public static SAML11AuthenticationStatementType parseAuthenticationStatement(XMLEventReader xmlEventReader)
+         throws ParsingException
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+      StaxParserUtil.validate(startElement, SAML11Constants.AUTHENTICATION_STATEMENT);
+
+      Attribute authMethod = startElement.getAttributeByName(new QName(SAML11Constants.AUTHENTICATION_METHOD));
+      if (authMethod == null)
+         throw new ParsingException(SAML11Constants.AUTHENTICATION_METHOD + " attribute needed");
+
+      Attribute authInstant = startElement.getAttributeByName(new QName(SAML11Constants.AUTHENTICATION_INSTANT));
+      if (authInstant == null)
+         throw new ParsingException(SAML11Constants.AUTHENTICATION_INSTANT + " attribute needed");
+
+      SAML11AuthenticationStatementType authStat = new SAML11AuthenticationStatementType(URI.create(StaxParserUtil
+            .getAttributeValue(authMethod)), XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authInstant)));
+
+      while (xmlEventReader.hasNext())
+      {
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent == null)
+            break;
+
+         if (xmlEvent instanceof EndElement)
+         {
+            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+            EndElement endElement = (EndElement) xmlEvent;
+            String endElementTag = StaxParserUtil.getEndElementName(endElement);
+            if (endElementTag.equals(SAML11Constants.AUTHENTICATION_STATEMENT))
+               break;
+            else
+               throw new RuntimeException("Unknown End Element:" + endElementTag);
+         }
+         startElement = null;
+
+         if (xmlEvent instanceof StartElement)
+         {
+            startElement = (StartElement) xmlEvent;
+         }
+         else
+         {
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         }
+         if (startElement == null)
+            break;
+
+         String tag = StaxParserUtil.getStartElementName(startElement);
+
+         if (JBossSAMLConstants.SUBJECT.get().equalsIgnoreCase(tag))
+         {
+            SAML11SubjectParser subjectParser = new SAML11SubjectParser();
+            SAML11SubjectType subject = (SAML11SubjectType) subjectParser.parse(xmlEventReader);
+            SAML11SubjectStatementType subStat = new SAML11SubjectStatementType();
+            subStat.setSubject(subject);
+
+            authStat.setSubject(subject);
+         }
+         else if (JBossSAMLConstants.SUBJECT_LOCALITY.get().equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            SAML11SubjectLocalityType subjectLocalityType = new SAML11SubjectLocalityType();
+            Attribute address = startElement.getAttributeByName(new QName(SAML11Constants.IP_ADDRESS));
+            if (address != null)
+            {
+               subjectLocalityType.setIpAddress(StaxParserUtil.getAttributeValue(address));
+            }
+            Attribute dns = startElement.getAttributeByName(new QName(SAML11Constants.DNS_ADDRESS));
+            if (dns != null)
+            {
+               subjectLocalityType.setDnsAddress(StaxParserUtil.getAttributeValue(dns));
+            }
+            authStat.setSubjectLocality(subjectLocalityType);
+            StaxParserUtil.validate(StaxParserUtil.getNextEndElement(xmlEventReader),
+                  JBossSAMLConstants.SUBJECT_LOCALITY.get());
+         }
+         else if (SAML11Constants.AUTHORITY_BINDING.equals(tag))
+         {
+            Attribute authorityKindAttr = startElement.getAttributeByName(new QName(SAML11Constants.AUTHORITY_KIND));
+            if (authorityKindAttr == null)
+               throw new ParsingException("Required attribute AuthorityKind");
+
+            Attribute locationAttr = startElement.getAttributeByName(new QName(SAML11Constants.LOCATION));
+            if (locationAttr == null)
+               throw new ParsingException("Required attribute Location");
+            URI location = URI.create(StaxParserUtil.getAttributeValue(locationAttr));
+
+            Attribute bindingAttr = startElement.getAttributeByName(new QName(SAML11Constants.BINDING));
+            if (bindingAttr == null)
+               throw new ParsingException("Required attribute Binding");
+            URI binding = URI.create(StaxParserUtil.getAttributeValue(bindingAttr));
+
+            QName authorityKind = QName.valueOf(StaxParserUtil.getAttributeValue(authorityKindAttr));
+
+            SAML11AuthorityBindingType authorityBinding = new SAML11AuthorityBindingType(authorityKind, location,
+                  binding);
+            authStat.add(authorityBinding);
+         }
+         else
+            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+
+      }
+
+      return authStat;
+   }
+
    /**
     * Parse the {@link SAML11SubjectConfirmationType}
     * @param xmlEventReader
