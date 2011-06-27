@@ -102,7 +102,7 @@ public class StaxUtil
          throw new ProcessingException(e);
       }
    }
-   
+
    /**
     * Get an {@code XMLStreamWriter}
     * 
@@ -110,12 +110,12 @@ public class StaxUtil
     * @return
     * @throws ProcessingException
     */
-   public static XMLStreamWriter getXMLStreamWriter(final Writer writer ) throws ProcessingException
+   public static XMLStreamWriter getXMLStreamWriter(final Writer writer) throws ProcessingException
    {
       XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
       try
       {
-         return xmlOutputFactory.createXMLStreamWriter( writer );
+         return xmlOutputFactory.createXMLStreamWriter(writer);
       }
       catch (XMLStreamException e)
       {
@@ -154,6 +154,21 @@ public class StaxUtil
       {
          throw new ProcessingException(e);
       }
+   }
+
+   /**
+    * Write an attribute
+    * 
+    * @param writer
+    * @param attributeName
+    *           QName of the attribute
+    * @param attributeValue
+    * @throws ProcessingException
+    */
+   public static void writeAttribute(XMLStreamWriter writer, String attributeName, QName attributeValue)
+         throws ProcessingException
+   {
+      writeAttribute(writer, attributeName, attributeValue.toString());
    }
 
    /**
@@ -244,7 +259,7 @@ public class StaxUtil
          throw new ProcessingException(e);
       }
    }
-   
+
    /**
     * Write a string as text node
     * 
@@ -256,7 +271,7 @@ public class StaxUtil
    {
       try
       {
-         writer.writeCData( value );
+         writer.writeCData(value);
       }
       catch (XMLStreamException e)
       {
