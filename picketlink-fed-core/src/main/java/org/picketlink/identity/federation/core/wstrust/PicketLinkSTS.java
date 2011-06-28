@@ -181,14 +181,17 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
    private Node getBinaryToken(SOAPHeader soapHeader)
    {
-      NodeList children = soapHeader.getChildNodes();
-      int length = children != null ? children.getLength() : 0;
-      for (int i = 0; i < length; i++)
+      if (soapHeader != null)
       {
-         Node child = children.item(i);
-         if (child.getNodeName().contains(WSSE.BINARY_SECURITY_TOKEN))
+         NodeList children = soapHeader.getChildNodes();
+         int length = children != null ? children.getLength() : 0;
+         for (int i = 0; i < length; i++)
          {
-            return child;
+            Node child = children.item(i);
+            if (child.getNodeName().contains(WSSE.BINARY_SECURITY_TOKEN))
+            {
+               return child;
+            }
          }
       }
       return null;
