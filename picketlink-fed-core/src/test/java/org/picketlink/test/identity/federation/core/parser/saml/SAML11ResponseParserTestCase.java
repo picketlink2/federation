@@ -24,13 +24,16 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusCodeType;
@@ -68,5 +71,11 @@ public class SAML11ResponseParserTestCase
       assertEquals(1, assertions.size());
       SAML11AssertionType assertion = assertions.get(0);
       assertEquals("buGxcG4gILg5NlocyLccDz6iXrUa", assertion.getID());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response);
+      System.out.println(new String(baos.toByteArray()));
    }
 }

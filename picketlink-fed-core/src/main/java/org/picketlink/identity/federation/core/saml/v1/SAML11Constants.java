@@ -78,6 +78,8 @@ public interface SAML11Constants
 
    String FORMAT_EMAIL_ADDRESS = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";
 
+   String IN_RESPONSE_TO = "InResponseTo";
+
    String IP_ADDRESS = "IPAddress";
 
    String ISSUER = "Issuer";
@@ -96,9 +98,25 @@ public interface SAML11Constants
 
    String PROTOCOL_11_NSURI = "urn:oasis:names:tc:SAML:1.0:protocol";
 
+   String RECIPIENT = "Recipient";
+
    String REQUEST = "Request";
 
    String REQUEST_ID = "RequestID";
 
    String RESOURCE = "Resource";
+
+   String RESPONSE = "Response";
+
+   String RESPONSE_ID = "ResponseID";
+
+   String STATUS = "Status";
+
+   String STATUS_CODE = "StatusCode";
+
+   String STATUS_DETAIL = "StatusDetail";
+
+   String STATUS_MSG = "StatusMessage";
+
+   String VALUE = "Value";
 }
