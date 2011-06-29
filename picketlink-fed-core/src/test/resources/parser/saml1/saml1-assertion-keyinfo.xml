@@ -12,7 +12,7 @@
 					<KeyName>CN=anil, OU=PicketLink, O=JBoss, L=Chicago, ST=IL, C=US</KeyName>
 					<KeyValue>
 						<RSAKeyValue>
-							<Modulus>dsfdfdskjfdsf;dfjds;fdsjfdsfdsjf</Modulus>
+							<Modulus>YWJjZA==</Modulus>
 							<Exponent>AQAB</Exponent>
 						</RSAKeyValue>
 					</KeyValue>
@@ -36,7 +36,7 @@
 		<SignatureValue>ApcX/Ddfsfdslkfd</SignatureValue>
 		<KeyInfo>
 			<X509Data>
-				<X509Certificate>MIICmjdfdflkfdslfaf;sjdposafhpofhpowfowqpowqfow
+				<X509Certificate>YWJjZA==
 				</X509Certificate>
 			</X509Data>
 		</KeyInfo>

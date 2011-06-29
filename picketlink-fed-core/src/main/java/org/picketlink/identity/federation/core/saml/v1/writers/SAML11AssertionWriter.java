@@ -297,6 +297,12 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
       if (subject != null)
          write(subject);
 
+      List<SAML11ActionType> actions = xacmlStat.getActions();
+      for (SAML11ActionType action : actions)
+      {
+         write(action);
+      }
+
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }
