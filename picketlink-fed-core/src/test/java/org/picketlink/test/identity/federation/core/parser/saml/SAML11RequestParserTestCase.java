@@ -27,10 +27,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.List;
+
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Validator;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11RequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
@@ -77,7 +82,12 @@ public class SAML11RequestParserTestCase
       //Lets do the writing
       SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(request);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 
    @Test
@@ -107,7 +117,12 @@ public class SAML11RequestParserTestCase
       //Lets do the writing
       SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(request);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 
    @Test
@@ -122,7 +137,7 @@ public class SAML11RequestParserTestCase
 
       assertEquals(1, request.getMajorVersion());
       assertEquals(1, request.getMinorVersion());
-      assertEquals("1234", request.getID());
+      assertEquals("R1234", request.getID());
       assertEquals(XMLTimeUtil.parse("2002-08-05T10:04:15"), request.getIssueInstant());
 
       SAML11QueryAbstractType query = request.getQuery();
@@ -146,7 +161,12 @@ public class SAML11RequestParserTestCase
       //Lets do the writing
       SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(request);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 
    @Test
@@ -170,7 +190,12 @@ public class SAML11RequestParserTestCase
       //Lets do the writing
       SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(request);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 
    @Test
@@ -194,6 +219,11 @@ public class SAML11RequestParserTestCase
       //Lets do the writing
       SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(request);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 }

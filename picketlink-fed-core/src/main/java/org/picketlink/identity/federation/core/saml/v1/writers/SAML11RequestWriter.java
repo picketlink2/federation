@@ -62,6 +62,7 @@ public class SAML11RequestWriter extends BaseSAML11Writer
    {
       StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SAML11Constants.REQUEST, namespace);
       StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, namespace);
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, SAML11Constants.ASSERTION_11_NSURI);
       StaxUtil.writeDefaultNameSpace(writer, namespace);
 
       // Attributes
@@ -73,7 +74,8 @@ public class SAML11RequestWriter extends BaseSAML11Writer
       List<String> assertionIDRefs = request.getAssertionIDRef();
       for (String assertionIDRef : assertionIDRefs)
       {
-         StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SAML11Constants.ASSERTION_ID_REF, namespace);
+         StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.ASSERTION_ID_REF,
+               SAML11Constants.ASSERTION_11_NSURI);
          StaxUtil.writeCharacters(writer, assertionIDRef);
          StaxUtil.writeEndElement(writer);
       }
@@ -166,7 +168,7 @@ public class SAML11RequestWriter extends BaseSAML11Writer
 
    public void write(SAML11AuthorizationDecisionQueryType attr) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SAML11Constants.ATTRIBUTE_QUERY, namespace);
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SAML11Constants.AUTHORIZATION_DECISION_QUERY, namespace);
 
       URI resource = attr.getResource();
       if (resource != null)

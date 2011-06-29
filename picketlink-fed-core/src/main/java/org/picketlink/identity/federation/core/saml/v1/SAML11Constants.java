@@ -94,7 +94,7 @@ public interface SAML11Constants
 
    String NAME_QUALIFIER = "NameQualifier";
 
-   String NAMESPACE = "NameSpace";
+   String NAMESPACE = "Namespace";
 
    String PROTOCOL_11_NSURI = "urn:oasis:names:tc:SAML:1.0:protocol";
 

@@ -1,7 +1,7 @@
 <samlp:Response
    xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
    MajorVersion="1" MinorVersion="1"
-   ResponseID="_P1YaA+Q/wSM/t/8E3R8rNhcpPTM="
+   ResponseID="P1234"
    IssueInstant="2002-06-19T17:05:37.795Z">
    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
 		<SignedInfo>
@@ -19,7 +19,7 @@
 		<SignatureValue>ApcX/Ddfsfdslkfd</SignatureValue>
 		<KeyInfo>
 			<X509Data>
-				<X509Certificate>MIICmjdfdflkfdslfaf;sjdposafhpofhpowfowqpowqfow
+				<X509Certificate>YWJjZA==
 				</X509Certificate>
 			</X509Data>
 		</KeyInfo>

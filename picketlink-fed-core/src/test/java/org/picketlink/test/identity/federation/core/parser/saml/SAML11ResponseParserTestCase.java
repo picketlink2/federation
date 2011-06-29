@@ -26,11 +26,16 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.List;
+
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Validator;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -58,7 +63,7 @@ public class SAML11ResponseParserTestCase
 
       assertEquals(1, response.getMajorVersion());
       assertEquals(1, response.getMinorVersion());
-      assertEquals("_P1YaA+Q/wSM/t/8E3R8rNhcpPTM=", response.getID());
+      assertEquals("P1234", response.getID());
       assertEquals(XMLTimeUtil.parse("2002-06-19T17:05:37.795Z"), response.getIssueInstant());
 
       assertNotNull(response.getSignature());
@@ -76,6 +81,11 @@ public class SAML11ResponseParserTestCase
       //Lets do the writing
       SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(response);
-      System.out.println(new String(baos.toByteArray()));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+
+      Validator validator = StaxParserUtil.getSchemaValidator();
+      assertNotNull(validator);
+      validator.validate(new StreamSource(new StringReader(writtenString)));
    }
 }
