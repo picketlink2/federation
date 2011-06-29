@@ -38,11 +38,11 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -51,60 +51,60 @@ import org.w3c.dom.Element;
  * @since Nov 2, 2010
  */
 public class SAMLResponseWriter extends BaseWriter
-{  
-   private  SAMLAssertionWriter assertionWriter;
-   
-   public SAMLResponseWriter(XMLStreamWriter writer) throws ProcessingException
+{
+   private final SAMLAssertionWriter assertionWriter;
+
+   public SAMLResponseWriter(XMLStreamWriter writer)
    {
       super(writer);
       this.assertionWriter = new SAMLAssertionWriter(writer);
    }
-   
+
    /**
     * Write a {@code ResponseType} to stream
     * @param response
     * @param out
     * @throws ProcessingException
     */
-   public void write( ResponseType response ) throws ProcessingException
+   public void write(ResponseType response) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.RESPONSE.get() , PROTOCOL_NSURI.get() ); 
-      
-      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.writeNameSpace( writer, ASSERTION_PREFIX, ASSERTION_NSURI.get() );   
-      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
-      
-      writeBaseAttributes( response ); 
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.RESPONSE.get(), PROTOCOL_NSURI.get());
+
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
+      writeBaseAttributes(response);
 
       NameIDType issuer = response.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
-      
+      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+
       StatusType status = response.getStatus();
-      write( status );
-      
+      write(status);
+
       List<RTChoiceType> choiceTypes = response.getAssertions();
-      if( choiceTypes != null )
+      if (choiceTypes != null)
       {
-         for( RTChoiceType choiceType: choiceTypes )
+         for (RTChoiceType choiceType : choiceTypes)
          {
             AssertionType assertion = choiceType.getAssertion();
-            if( assertion != null )
+            if (assertion != null)
             {
-               assertionWriter.write( (AssertionType) assertion );
+               assertionWriter.write(assertion);
             }
-            
+
             EncryptedAssertionType encryptedAssertion = choiceType.getEncryptedAssertion();
-            if( encryptedAssertion != null )
+            if (encryptedAssertion != null)
             {
                Element encElement = encryptedAssertion.getEncryptedElement();
                StaxUtil.writeDOMElement(writer, encElement);
-            } 
+            }
          }
       }
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code StatusResponseType}
     * @param response
@@ -112,118 +112,121 @@ public class SAMLResponseWriter extends BaseWriter
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusResponseType response, QName qname ) throws ProcessingException
+   public void write(StatusResponseType response, QName qname) throws ProcessingException
    {
-      if( qname == null )
+      if (qname == null)
       {
-         StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_RESPONSE_TYPE.get() , PROTOCOL_NSURI.get() ); 
+         StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_RESPONSE_TYPE.get(),
+               PROTOCOL_NSURI.get());
       }
       else
       {
-         StaxUtil.writeStartElement( writer, qname.getPrefix(), qname.getLocalPart() , qname.getNamespaceURI() );
+         StaxUtil.writeStartElement(writer, qname.getPrefix(), qname.getLocalPart(), qname.getNamespaceURI());
       }
-      
-      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
-      
-      writeBaseAttributes( response ); 
+
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
+      writeBaseAttributes(response);
 
       NameIDType issuer = response.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get() ) ); 
-      
+      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+
       StatusType status = response.getStatus();
-      write( status );
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      write(status);
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code StatusType} to stream
     * @param status
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusType status ) throws ProcessingException
+   public void write(StatusType status) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS.get() , PROTOCOL_NSURI.get() ); 
-      
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS.get(), PROTOCOL_NSURI.get());
+
       StatusCodeType statusCodeType = status.getStatusCode();
-      write( statusCodeType );
-      
+      write(statusCodeType);
+
       String statusMessage = status.getStatusMessage();
-      if( StringUtil.isNotNull( statusMessage ))
+      if (StringUtil.isNotNull(statusMessage))
       {
-         StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_MESSAGE.get() , PROTOCOL_NSURI.get() ); 
-         StaxUtil.writeEndElement( writer);  
+         StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_MESSAGE.get(),
+               PROTOCOL_NSURI.get());
+         StaxUtil.writeEndElement(writer);
       }
-      
+
       StatusDetailType statusDetail = status.getStatusDetail();
-      if( statusDetail != null )
-         write( statusDetail );
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      if (statusDetail != null)
+         write(statusDetail);
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code StatusCodeType} to stream
     * @param statusCodeType
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusCodeType statusCodeType ) throws ProcessingException
+   public void write(StatusCodeType statusCodeType) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get() , PROTOCOL_NSURI.get() ); 
-      
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get(), PROTOCOL_NSURI.get());
+
       URI value = statusCodeType.getValue();
-      if( value != null )
-      { 
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.VALUE.get(), value.toASCIIString() );
+      if (value != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.VALUE.get(), value.toASCIIString());
       }
       StatusCodeType subStatusCode = statusCodeType.getStatusCode();
-      if( subStatusCode != null )
-         write( subStatusCode );
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+      if (subStatusCode != null)
+         write(subStatusCode);
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code StatusDetailType} to stream
     * @param statusDetailType
     * @param out
     * @throws ProcessingException
     */
-   public void write( StatusDetailType statusDetailType ) throws ProcessingException
+   public void write(StatusDetailType statusDetailType) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get() , PROTOCOL_NSURI.get() ); 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.STATUS_CODE.get(), PROTOCOL_NSURI.get());
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write the common attributes for all response types
     * @param statusResponse
     * @throws ProcessingException
     */
-   private void writeBaseAttributes( StatusResponseType statusResponse ) throws ProcessingException
+   private void writeBaseAttributes(StatusResponseType statusResponse) throws ProcessingException
    {
       //Attributes 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), statusResponse.getID() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), statusResponse.getVersion() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), statusResponse.getIssueInstant().toString() );
-      
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), statusResponse.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), statusResponse.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), statusResponse.getIssueInstant()
+            .toString());
+
       String destination = statusResponse.getDestination();
-      if( StringUtil.isNotNull( destination ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination ); 
+      if (StringUtil.isNotNull(destination))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination);
 
       String consent = statusResponse.getConsent();
-      if( StringUtil.isNotNull( consent ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
-      
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
       String inResponseTo = statusResponse.getInResponseTo();
-      if( StringUtil.isNotNull( inResponseTo ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.IN_RESPONSE_TO.get(), inResponseTo ); 
-   } 
+      if (StringUtil.isNotNull(inResponseTo))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.IN_RESPONSE_TO.get(), inResponseTo);
+   }
 }

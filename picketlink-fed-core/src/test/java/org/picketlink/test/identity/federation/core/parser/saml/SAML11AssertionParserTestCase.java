@@ -25,13 +25,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v1.writers.SAML11AssertionWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
@@ -86,6 +89,12 @@ public class SAML11AssertionParserTestCase
       SAML11SubjectConfirmationType subjectConfirm = subject.getSubjectConfirmation();
       URI confirmationMethod = subjectConfirm.getConfirmationMethod().get(0);
       assertEquals("urn:oasis:names:tc:SAML:1.0:cm:bearer", confirmationMethod.toString());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -143,6 +152,12 @@ public class SAML11AssertionParserTestCase
       List<Object> attribValues = attrib.get();
       assertTrue(attribValues.contains("member"));
       assertTrue(attribValues.contains("student"));
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -165,6 +180,12 @@ public class SAML11AssertionParserTestCase
       SAML11ConditionsType conditions = assertion.getConditions();
       assertEquals(XMLTimeUtil.parse("2002-06-19T17:05:37.795Z"), conditions.getNotBefore());
       assertEquals(XMLTimeUtil.parse("2002-06-19T17:15:37.795Z"), conditions.getNotOnOrAfter());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -236,6 +257,12 @@ public class SAML11AssertionParserTestCase
       subjConf = subject.getSubjectConfirmation();
       confirmationMethod = subjConf.getConfirmationMethod().get(0);
       assertEquals("urn:oasis:names:tc:SAML:1.0:cm:artifact", confirmationMethod.toString());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -271,5 +298,11 @@ public class SAML11AssertionParserTestCase
 
       Element sig = assertion.getSignature();
       assertNotNull(sig);
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      System.out.println(new String(baos.toByteArray()));
    }
 }

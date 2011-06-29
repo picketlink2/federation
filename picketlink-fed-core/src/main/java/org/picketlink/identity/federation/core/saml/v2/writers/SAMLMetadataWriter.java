@@ -43,6 +43,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.ContactTypeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
@@ -54,8 +56,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeTyp
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -67,7 +67,7 @@ public class SAMLMetadataWriter extends BaseWriter
 {
    private final String METADATA_PREFIX = "md";
 
-   public SAMLMetadataWriter(XMLStreamWriter writer) throws ProcessingException
+   public SAMLMetadataWriter(XMLStreamWriter writer)
    {
       super(writer);
    }

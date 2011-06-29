@@ -25,13 +25,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
+import org.picketlink.identity.federation.core.saml.v1.writers.SAML11RequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
@@ -69,6 +72,12 @@ public class SAML11RequestParserTestCase
       SAML11SubjectType subject = attQuery.getSubject();
       SAML11SubjectType.SAML11SubjectTypeChoice choice = subject.getChoice();
       assertEquals("myusername", choice.getNameID().getValue());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(request);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -93,6 +102,12 @@ public class SAML11RequestParserTestCase
       SAML11SubjectType subject = attQuery.getSubject();
       SAML11SubjectType.SAML11SubjectTypeChoice choice = subject.getChoice();
       assertEquals("testID", choice.getNameID().getValue());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(request);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -126,6 +141,12 @@ public class SAML11RequestParserTestCase
       SAML11ActionType action = actions.get(0);
       assertEquals("create", action.getValue());
       assertEquals("http://www.jboss.org", action.getNamespace());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(request);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -144,6 +165,12 @@ public class SAML11RequestParserTestCase
       assertEquals(XMLTimeUtil.parse("2002-06-19T17:03:44.022Z"), request.getIssueInstant());
 
       assertEquals("abcd", request.getAssertionArtifact().get(0));
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(request);
+      System.out.println(new String(baos.toByteArray()));
    }
 
    @Test
@@ -162,5 +189,11 @@ public class SAML11RequestParserTestCase
       assertEquals(XMLTimeUtil.parse("2002-06-19T17:03:44.022Z"), request.getIssueInstant());
 
       assertEquals("abcd", request.getAssertionIDRef().get(0));
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAML11RequestWriter writer = new SAML11RequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(request);
+      System.out.println(new String(baos.toByteArray()));
    }
 }

@@ -30,6 +30,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AdviceType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
@@ -40,6 +41,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorityBindi
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthorizationDecisionStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11EvidenceType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
@@ -57,24 +59,13 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since June 24, 2011
  */
-public class SAML11AssertionWriter
+public class SAML11AssertionWriter extends BaseSAML11Writer
 {
+   String ns = SAML11Constants.ASSERTION_11_NSURI;
 
-   protected static String PROTOCOL_PREFIX = "samlp";
-
-   protected static String ASSERTION_PREFIX = "saml";
-
-   protected static String XACML_SAML_PREFIX = "xacml-saml";
-
-   protected static String XACML_SAML_PROTO_PREFIX = "xacml-samlp";
-
-   protected static String XSI_PREFIX = "xsi";
-
-   protected XMLStreamWriter writer;
-
-   public SAML11AssertionWriter(XMLStreamWriter writer) throws ProcessingException
+   public SAML11AssertionWriter(XMLStreamWriter writer)
    {
-      this.writer = writer;
+      super(writer);
    }
 
    /**
@@ -86,7 +77,6 @@ public class SAML11AssertionWriter
     */
    public void write(SAML11AssertionType assertion) throws ProcessingException
    {
-      String ns = SAML11Constants.ASSERTION_11_NSURI;
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ASSERTION.get(), ns);
       StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ns);
       StaxUtil.writeDefaultNameSpace(writer, ns);
@@ -227,7 +217,7 @@ public class SAML11AssertionWriter
     */
    public void write(SAML11AuthenticationStatementType authnStatement) throws ProcessingException
    {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_STATEMENT.get(),
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.AUTHENTICATION_STATEMENT,
             SAML11Constants.ASSERTION_11_NSURI);
 
       XMLGregorianCalendar authnInstant = authnStatement.getAuthenticationInstant();
@@ -296,7 +286,6 @@ public class SAML11AssertionWriter
 
    public void write(SAML11AuthorizationDecisionStatementType xacmlStat) throws ProcessingException
    {
-      String ns = SAML11Constants.ASSERTION_11_NSURI;
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.AUTHORIZATION_DECISION_STATEMENT, ns);
 
       String resource = xacmlStat.getResource().toString();
@@ -323,6 +312,7 @@ public class SAML11AssertionWriter
    {
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get(),
             SAML11Constants.ASSERTION_11_NSURI);
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ns);
 
       SAML11SubjectTypeChoice choice = subject.getChoice();
       if (choice != null)
@@ -369,7 +359,10 @@ public class SAML11AssertionWriter
       }
 
       Object subjectConfirmationData = confirmation.getSubjectConfirmationData();
-      writeSubjectConfirmationData(subjectConfirmationData);
+      if (subjectConfirmationData != null)
+      {
+         writeSubjectConfirmationData(subjectConfirmationData);
+      }
 
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
@@ -411,7 +404,6 @@ public class SAML11AssertionWriter
     */
    public void write(SAML11AttributeType attributeType) throws ProcessingException
    {
-      String ns = SAML11Constants.ASSERTION_11_NSURI;
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE.get(), ns);
 
       writeAttributeTypeWithoutRootTag(attributeType);
@@ -449,7 +441,6 @@ public class SAML11AssertionWriter
 
    public void writeStringAttributeValue(String attributeValue) throws ProcessingException
    {
-      String ns = SAML11Constants.ASSERTION_11_NSURI;
       StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.ATTRIBUTE_VALUE.get(), ns);
 
       StaxUtil.writeNameSpace(writer, JBossSAMLURIConstants.XSI_PREFIX.get(), JBossSAMLURIConstants.XSI_NSURI.get());
@@ -467,6 +458,42 @@ public class SAML11AssertionWriter
       StaxUtil.writeAttribute(writer, new QName(JBossSAMLURIConstants.XML.get(), "lang", "xml"),
             localizedNameType.getLang());
       StaxUtil.writeCharacters(writer, localizedNameType.getValue());
+      StaxUtil.writeEndElement(writer);
+   }
+
+   public void write(SAML11ActionType action) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.ACTION, ns);
+      String ns = action.getNamespace();
+      if (StringUtil.isNotNull(ns))
+      {
+         StaxUtil.writeAttribute(writer, SAML11Constants.NAMESPACE, ns);
+      }
+      String val = action.getValue();
+      if (StringUtil.isNotNull(val))
+      {
+         StaxUtil.writeCharacters(writer, val);
+      }
+      StaxUtil.writeEndElement(writer);
+   }
+
+   public void write(SAML11EvidenceType evidence) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.EVIDENCE, ns);
+
+      List<String> assertionIDRefs = evidence.getAssertionIDReference();
+      for (String assertionIDRef : assertionIDRefs)
+      {
+         StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, SAML11Constants.ASSERTION_ID_REF, ns);
+         StaxUtil.writeCharacters(writer, assertionIDRef);
+         StaxUtil.writeEndElement(writer);
+      }
+
+      List<SAML11AssertionType> assertions = evidence.getAssertions();
+      for (SAML11AssertionType assertion : assertions)
+      {
+         write(assertion);
+      }
       StaxUtil.writeEndElement(writer);
    }
 }

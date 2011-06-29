@@ -72,6 +72,8 @@ public interface SAML11Constants
 
    String DNS_ADDRESS = "DNSAddress";
 
+   String EVIDENCE = "Evidence";
+
    String FORMAT = "Format";
 
    String FORMAT_EMAIL_ADDRESS = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";

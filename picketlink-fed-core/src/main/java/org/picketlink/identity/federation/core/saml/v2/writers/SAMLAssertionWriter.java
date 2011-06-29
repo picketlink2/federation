@@ -75,7 +75,7 @@ import org.w3c.dom.Element;
  */
 public class SAMLAssertionWriter extends BaseWriter
 {
-   public SAMLAssertionWriter(XMLStreamWriter writer) throws ProcessingException
+   public SAMLAssertionWriter(XMLStreamWriter writer)
    {
       super(writer);
    }

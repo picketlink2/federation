@@ -60,7 +60,7 @@ public class BaseWriter
 
    protected XMLStreamWriter writer = null;
 
-   public BaseWriter(XMLStreamWriter writer) throws ProcessingException
+   public BaseWriter(XMLStreamWriter writer)
    {
       this.writer = writer;
    }

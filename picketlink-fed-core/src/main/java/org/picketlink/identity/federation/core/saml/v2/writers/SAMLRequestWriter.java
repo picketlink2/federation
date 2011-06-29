@@ -42,7 +42,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil; 
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
@@ -56,214 +56,219 @@ import org.w3c.dom.Document;
  * @since Nov 2, 2010
  */
 public class SAMLRequestWriter extends BaseWriter
-{   
-   public SAMLRequestWriter(XMLStreamWriter writer) throws ProcessingException
+{
+   public SAMLRequestWriter(XMLStreamWriter writer)
    {
       super(writer);
    }
-   
+
    /**
     * Write a {@code AuthnRequestType } to stream
     * @param request
     * @param out
     * @throws ProcessingException
     */
-   public void write( AuthnRequestType request ) throws ProcessingException
-   { 
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.AUTHN_REQUEST.get() , PROTOCOL_NSURI.get() ); 
-      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
-      
+   public void write(AuthnRequestType request) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.AUTHN_REQUEST.get(), PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
       //Attributes 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), request.getID() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), request.getVersion() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), request.getIssueInstant().toString() );
-       
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), request.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), request.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), request.getIssueInstant().toString());
+
       URI destination = request.getDestination();
-      if( destination != null )
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() ); 
+      if (destination != null)
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString());
 
       String consent = request.getConsent();
-      if( StringUtil.isNotNull( consent ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
-      
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
       URI assertionURL = request.getAssertionConsumerServiceURL();
-      if( assertionURL != null )
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(), assertionURL.toASCIIString() );
-      
+      if (assertionURL != null)
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get(),
+               assertionURL.toASCIIString());
+
       Boolean forceAuthn = request.isForceAuthn();
-      if( forceAuthn != null )
+      if (forceAuthn != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORCE_AUTHN.get(), forceAuthn.toString() );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.FORCE_AUTHN.get(), forceAuthn.toString());
       }
-      
+
       Boolean isPassive = request.isIsPassive();
-      if( isPassive != null )
+      if (isPassive != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.IS_PASSIVE.get(), isPassive.toString() );
-      } 
-      
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.IS_PASSIVE.get(), isPassive.toString());
+      }
+
       URI protocolBinding = request.getProtocolBinding();
-      if( protocolBinding != null )
+      if (protocolBinding != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.PROTOCOL_BINDING.get(), protocolBinding.toString() );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.PROTOCOL_BINDING.get(), protocolBinding.toString());
       }
-      
+
       Integer assertionIndex = request.getAssertionConsumerServiceIndex();
-      if( assertionIndex != null )
+      if (assertionIndex != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_INDEX.get(), assertionIndex.toString() );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_INDEX.get(),
+               assertionIndex.toString());
       }
-      
+
       Integer attrIndex = request.getAttributeConsumingServiceIndex();
-      if( attrIndex != null )
+      if (attrIndex != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE_INDEX.get(), attrIndex.toString() );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE_INDEX.get(),
+               attrIndex.toString());
       }
       String providerName = request.getProviderName();
-      if( StringUtil.isNotNull( providerName ))
+      if (StringUtil.isNotNull(providerName))
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.PROVIDER_NAME.get(), providerName );
-      } 
-      
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.PROVIDER_NAME.get(), providerName);
+      }
+
       NameIDType issuer = request.getIssuer();
-      if( issuer != null )
+      if (issuer != null)
       {
-         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
-      } 
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
       NameIDPolicyType nameIDPolicy = request.getNameIDPolicy();
-      if( nameIDPolicy != null )
-         write( nameIDPolicy );
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer );  
+      if (nameIDPolicy != null)
+         write(nameIDPolicy);
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code LogoutRequestType} to stream
     * @param logOutRequest
     * @param out
     * @throws ProcessingException
     */
-   public void write( LogoutRequestType logOutRequest ) throws ProcessingException
+   public void write(LogoutRequestType logOutRequest) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.LOGOUT_REQUEST.get() , PROTOCOL_NSURI.get() ); 
-      
-      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.writeDefaultNameSpace( writer, ASSERTION_NSURI.get() );
-      
+      StaxUtil
+            .writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.LOGOUT_REQUEST.get(), PROTOCOL_NSURI.get());
+
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
       //Attributes 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), logOutRequest.getID() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), logOutRequest.getVersion() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), logOutRequest.getIssueInstant().toString() );
-      
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), logOutRequest.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), logOutRequest.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), logOutRequest.getIssueInstant()
+            .toString());
+
       URI destination = logOutRequest.getDestination();
-      if( destination != null )
+      if (destination != null)
       {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() );
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString());
       }
-      
+
       String consent = logOutRequest.getConsent();
-      if( StringUtil.isNotNull( consent ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
-      
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
       NameIDType issuer = logOutRequest.getIssuer();
-      write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
-      
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
+
    /**
     * Write a {@code NameIDPolicyType} to stream
     * @param nameIDPolicy
     * @param out
     * @throws ProcessingException
     */
-   public void write( NameIDPolicyType nameIDPolicy ) throws ProcessingException
+   public void write(NameIDPolicyType nameIDPolicy) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.NAMEID_POLICY.get(), PROTOCOL_NSURI.get() );
-      
-      URI format = nameIDPolicy.getFormat();
-      if( format != null )
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString() );
-      }
-      
-      String spNameQualifier = nameIDPolicy.getSPNameQualifier();
-      if( StringUtil.isNotNull( spNameQualifier ))
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.SP_NAME_QUALIFIER.get(), spNameQualifier );
-      }
-      
-      Boolean allowCreate = nameIDPolicy.isAllowCreate();
-      if( allowCreate != null )
-      {
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.ALLOW_CREATE.get(), allowCreate.toString() ); 
-      } 
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.NAMEID_POLICY.get(), PROTOCOL_NSURI.get());
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+      URI format = nameIDPolicy.getFormat();
+      if (format != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.FORMAT.get(), format.toASCIIString());
+      }
+
+      String spNameQualifier = nameIDPolicy.getSPNameQualifier();
+      if (StringUtil.isNotNull(spNameQualifier))
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.SP_NAME_QUALIFIER.get(), spNameQualifier);
+      }
+
+      Boolean allowCreate = nameIDPolicy.isAllowCreate();
+      if (allowCreate != null)
+      {
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ALLOW_CREATE.get(), allowCreate.toString());
+      }
+
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
-   
-   public void write( XACMLAuthzDecisionQueryType xacmlQuery ) throws ProcessingException
+
+   public void write(XACMLAuthzDecisionQueryType xacmlQuery) throws ProcessingException
    {
-      StaxUtil.writeStartElement( writer, PROTOCOL_PREFIX, JBossSAMLConstants.REQUEST_ABSTRACT.get(), PROTOCOL_NSURI.get() );
-      StaxUtil.writeNameSpace( writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get() );   
-      StaxUtil.writeNameSpace(writer, XACML_SAML_PROTO_PREFIX, JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get() );
-      StaxUtil.writeDefaultNameSpace( writer, JBossSAMLURIConstants.XACML_NSURI.get() );
-      
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.REQUEST_ABSTRACT.get(),
+            PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, XACML_SAML_PROTO_PREFIX, JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, JBossSAMLURIConstants.XACML_NSURI.get());
+
       //Attributes 
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ID.get(), xacmlQuery.getID() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.VERSION.get(), xacmlQuery.getVersion() );
-      StaxUtil.writeAttribute( writer, JBossSAMLConstants.ISSUE_INSTANT.get(), xacmlQuery.getIssueInstant().toString() );
-      
-      StaxUtil.writeAttribute( writer, new QName( JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
-             JBossSAMLConstants.INPUT_CONTEXT_ONLY.get() , XACML_SAML_PROTO_PREFIX ),  "true" );
-      
-      StaxUtil.writeAttribute( writer, new QName( JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
-            JBossSAMLConstants.RETURN_CONTEXT.get(), XACML_SAML_PROTO_PREFIX ), "true" );
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), xacmlQuery.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), xacmlQuery.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), xacmlQuery.getIssueInstant().toString());
+
+      StaxUtil.writeAttribute(writer, new QName(JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
+            JBossSAMLConstants.INPUT_CONTEXT_ONLY.get(), XACML_SAML_PROTO_PREFIX), "true");
+
+      StaxUtil.writeAttribute(writer, new QName(JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get(),
+            JBossSAMLConstants.RETURN_CONTEXT.get(), XACML_SAML_PROTO_PREFIX), "true");
 
       StaxUtil.writeNameSpace(writer, JBossSAMLURIConstants.XSI_PREFIX.get(), JBossSAMLURIConstants.XSI_NSURI.get());
       StaxUtil.writeNameSpace(writer, "xs", JBossSAMLURIConstants.XMLSCHEMA_NSURI.get());
-      
+
       StaxUtil.writeAttribute(writer, JBossSAMLURIConstants.XSI_NSURI.get(), "type",
-             "xacml-samlp:XACMLAuthzDecisionQueryType" );
-       
+            "xacml-samlp:XACMLAuthzDecisionQueryType");
+
       URI destination = xacmlQuery.getDestination();
-      if( destination != null )
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString() ); 
+      if (destination != null)
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString());
 
       String consent = xacmlQuery.getConsent();
-      if( StringUtil.isNotNull( consent ))
-         StaxUtil.writeAttribute( writer, JBossSAMLConstants.CONSENT.get(), consent );
-      
-       
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
       NameIDType issuer = xacmlQuery.getIssuer();
-      if( issuer != null )
+      if (issuer != null)
       {
-         write( issuer, new QName( ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
-      } 
-      
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
+
       RequestType xacmlRequest = xacmlQuery.getRequest();
-      
+
       ObjectFactory of = new ObjectFactory();
-       
+
       StringWriter sw = new StringWriter();
       try
       {
-         Marshaller m = JAXBUtil.getMarshaller( RequestType.class.getPackage().getName() );
-         m.marshal( of.createRequest(xacmlRequest), sw );
+         Marshaller m = JAXBUtil.getMarshaller(RequestType.class.getPackage().getName());
+         m.marshal(of.createRequest(xacmlRequest), sw);
       }
       catch (JAXBException e)
-      { 
+      {
          throw new ProcessingException(e);
       }
-      
+
       try
       {
-         Document xacmlDoc = DocumentUtil.getDocument( sw.toString() );
-         StaxUtil.writeDOMNode(writer, xacmlDoc.getDocumentElement() );
+         Document xacmlDoc = DocumentUtil.getDocument(sw.toString());
+         StaxUtil.writeDOMNode(writer, xacmlDoc.getDocumentElement());
       }
       catch (ConfigurationException e)
       {
@@ -274,7 +279,7 @@ public class SAMLRequestWriter extends BaseWriter
          throw new ProcessingException(e);
       }
 
-      StaxUtil.writeEndElement( writer); 
-      StaxUtil.flush( writer ); 
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
    }
 }
