@@ -1,18 +1,18 @@
 <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-	ID="response-id:1" Version="2.0" IssueInstant="2008-03-19T22:17:13Z">
-	<samlp:Status xmlns:samlp="urn:oasixacml-context:s:names:tc:SAML:2.0:protocol">
+	ID="response-id_1" Version="2.0" IssueInstant="2008-03-19T22:17:13Z">
+	<samlp:Status xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
 		<samlp:StatusCode xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
 			Value="urn:oasis:names:tc:xacml:1.0:status:ok">
 		</samlp:StatusCode>
 	</samlp:Status>
 	<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-		Version="2.0" ID="ID_response-id:1" IssueInstant="2008-03-19T22:17:13Z">
+		Version="2.0" ID="ID_response-id_1" IssueInstant="2008-03-19T22:17:13Z">
 		<saml:Issuer>issuer-1</saml:Issuer>
 		<saml:Statement xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-			xsi:type="xacml-samlp:XACMLAuthzDecisionStatementType" 
+			xsi:type="xacml-saml:XACMLAuthzDecisionStatementType" 
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
-			xmlns:xacml-saml="urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os">
+			xmlns:xacml-saml="urn:oasis:xacml:2.0:saml:assertion:schema:os">
 			<xacml-context:Response
 				xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
 				<xacml-context:Result>
@@ -36,7 +36,7 @@
 
 			<xacml-context:Request
 				xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os 
 http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd">
 				<xacml-context:Subject

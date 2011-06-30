@@ -26,16 +26,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.List;
-
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Validator;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -49,7 +44,7 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
  * @author Anil.Saldhana@redhat.com
  * @since Jun 23, 2011
  */
-public class SAML11ResponseParserTestCase
+public class SAML11ResponseParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAML11Response() throws Exception
@@ -83,9 +78,6 @@ public class SAML11ResponseParserTestCase
       writer.write(response);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 }

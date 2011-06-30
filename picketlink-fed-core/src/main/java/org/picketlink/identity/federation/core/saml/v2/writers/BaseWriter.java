@@ -76,6 +76,8 @@ public class BaseWriter
    {
       StaxUtil.writeStartElement(writer, tag.getPrefix(), tag.getLocalPart(), tag.getNamespaceURI());
 
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+
       URI format = nameIDType.getFormat();
       if (format != null)
       {

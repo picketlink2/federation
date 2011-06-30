@@ -58,7 +58,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLResponseParserTestCase
+public class SAMLResponseParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAMLResponseParse() throws Exception
@@ -128,6 +128,14 @@ public class SAMLResponseParserTestCase
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions
+
+      baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 
    @Test
@@ -196,6 +204,14 @@ public class SAMLResponseParserTestCase
          if (!(str.equals("employee") || str.equals("manager")))
             throw new RuntimeException("attrib value not found");
       }
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 
    @Test
@@ -203,14 +219,15 @@ public class SAMLResponseParserTestCase
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream configStream = tcl.getResourceAsStream("saml-xacml/saml-xacml-response-1.xml");
-
+      validateSchema(configStream);
+      configStream = tcl.getResourceAsStream("saml-xacml/saml-xacml-response-1.xml");
       SAMLParser parser = new SAMLParser();
       ResponseType response = (ResponseType) parser.parse(configStream);
       assertNotNull("ResponseType is not null", response);
 
       //Get the assertion
       AssertionType assertion = response.getAssertions().get(0).getAssertion();
-      assertEquals("ID_response-id:1", assertion.getID());
+      assertEquals("ID_response-id_1", assertion.getID());
       assertEquals(XMLTimeUtil.parse("2008-03-19T22:17:13Z"), assertion.getIssueInstant());
       assertEquals("2.0", assertion.getVersion());
 
@@ -218,5 +235,13 @@ public class SAMLResponseParserTestCase
             .iterator().next();
       assertNotNull(xacmlStat.getRequest());
       assertNotNull(xacmlStat.getResponse());
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 }

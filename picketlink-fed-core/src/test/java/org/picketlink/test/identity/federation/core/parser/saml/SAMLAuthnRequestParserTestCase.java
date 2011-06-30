@@ -42,7 +42,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLAuthnRequestParserTestCase
+public class SAMLAuthnRequestParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAMLAuthnRequestParse() throws Exception

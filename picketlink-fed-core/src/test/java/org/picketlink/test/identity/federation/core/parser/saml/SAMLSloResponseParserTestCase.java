@@ -46,7 +46,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 3, 2010
  */
-public class SAMLSloResponseParserTestCase
+public class SAMLSloResponseParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAMLResponseParse() throws Exception
@@ -79,6 +79,13 @@ public class SAMLSloResponseParserTestCase
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions
 
+      baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 
    @Test

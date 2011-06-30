@@ -175,6 +175,12 @@ public class SAMLRequestWriter extends BaseWriter
       NameIDType issuer = logOutRequest.getIssuer();
       write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
 
+      NameIDType nameID = logOutRequest.getNameID();
+      if (nameID != null)
+      {
+         write(nameID, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
+      }
+
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }

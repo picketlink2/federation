@@ -21,8 +21,8 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -33,13 +33,9 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
@@ -48,13 +44,12 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * Utility for the stax based parser
@@ -470,82 +465,8 @@ public class StaxParserUtil
          throw new RuntimeException("Expecting </" + tag + ">.  Found </" + elementTag + ">");
    }
 
-   public static Validator getSchemaValidator()
+   public static Validator getSchemaValidator() throws SAXException, IOException
    {
-      if (validator == null)
-      {
-         try
-         {
-            final Class<?> clazz = StaxParserUtil.class;
-
-            URL saml1Assertion = SecurityActions.loadResource(clazz, "schema/saml/v1/saml-schema-assertion-1.0.xsd");
-            URL saml1Protocol = SecurityActions.loadResource(clazz, "schema/saml/v1/saml-schema-protocol-1.1.xsd");
-            URL dsig = SecurityActions.loadResource(clazz, "schema/w3c/xmldsig/xmldsig-core-schema.xsd");
-            URL xmlenc = SecurityActions.loadResource(clazz, "schema/w3c/xmlenc/xenc-schema.xsd");
-
-            if (saml1Assertion == null)
-               throw new RuntimeException("SAML11 Assertion Schema not found");
-
-            if (saml1Protocol == null)
-               throw new RuntimeException("SAML11 Protocol Schema not found");
-
-            if (dsig == null)
-               throw new RuntimeException("XML DSIG Schema not found");
-
-            if (xmlenc == null)
-               throw new RuntimeException("XML Enc Schema not found");
-
-            Source[] sources = new Source[]
-            {new StreamSource(dsig.openStream()), new StreamSource(xmlenc.openStream()),
-                  new StreamSource(saml1Assertion.openStream()), new StreamSource(saml1Protocol.openStream())};
-
-            /* URL schemaURL = tcl.getResource(schemaFile);
-             if (schemaURL == null)
-                throw new RuntimeException("Cannot find schema :" + schemaFile);*/
-            SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-            Schema schemaGrammar = schemaFactory.newSchema(sources);
-
-            validator = schemaGrammar.newValidator();
-            validator.setErrorHandler(new ErrorHandler()
-            {
-
-               public void error(SAXParseException ex) throws SAXException
-               {
-                  logException(ex);
-                  throw ex;
-               }
-
-               public void fatalError(SAXParseException ex) throws SAXException
-               {
-                  logException(ex);
-                  throw ex;
-               }
-
-               public void warning(SAXParseException ex) throws SAXException
-               {
-                  logException(ex);
-               }
-
-               private void logException(SAXParseException sax)
-               {
-                  StringBuilder builder = new StringBuilder();
-
-                  if (trace)
-                  {
-                     builder.append("[").append(sax.getLineNumber()).append(",").append(sax.getColumnNumber())
-                           .append("]");
-                     builder.append(":").append(sax.getLocalizedMessage());
-                     log.trace(builder.toString());
-                  }
-               }
-            });
-         }
-         catch (Exception e)
-         {
-            throw new RuntimeException(e);
-         }
-      }
-
-      return validator;
+      return JAXPValidationUtil.validator();
    }
 }

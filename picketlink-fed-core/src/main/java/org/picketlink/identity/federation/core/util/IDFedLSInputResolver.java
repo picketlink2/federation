@@ -23,9 +23,12 @@ package org.picketlink.identity.federation.core.util;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
@@ -36,23 +39,18 @@ import org.w3c.dom.ls.LSResourceResolver;
  */
 public class IDFedLSInputResolver implements LSResourceResolver
 {
+   protected static Logger log = Logger.getLogger(IDFedLSInputResolver.class);
+
    private static Map<String, LSInput> lsmap = new HashMap<String, LSInput>();
 
-   private static Map<String, String> schemaLocationMap = new HashMap<String, String>();
+   private static Map<String, String> schemaLocationMap = new LinkedHashMap<String, String>();
 
    static
    {
-      //SAML
-      schemaLocationMap.put("saml-schema-assertion-2.0.xsd", "schema/saml/v2/saml-schema-assertion-2.0.xsd");
-
-      //WS-T
-      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512", "schema/wstrust/v1_3/ws-trust-1.3.xsd");
-      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-            "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-            "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-      schemaLocationMap.put("http://schemas.xmlsoap.org/ws/2004/09/policy", "schema/wstrust/v1_3/ws-policy.xsd");
-      schemaLocationMap.put("http://www.w3.org/2005/08/addressing", "schema/wstrust/v1_3/ws-addr.xsd");
+      //XML Schema/DTD
+      schemaLocationMap.put("datatypes.dtd", "schema/w3c/xmlschema/datatypes.dtd");
+      schemaLocationMap.put("XMLSchema.dtd", "schema/w3c/xmlschema/XMLSchema.dtd");
+      schemaLocationMap.put("http://www.w3.org/2001/xml.xsd", "schema/w3c/xmlschema/xml.xsd");
 
       //XML DSIG
       schemaLocationMap.put("http://www.w3.org/2000/09/xmldsig#", "schema/w3c/xmldsig/xmldsig-core-schema.xsd");
@@ -64,25 +62,67 @@ public class IDFedLSInputResolver implements LSResourceResolver
       schemaLocationMap.put("http://www.w3.org/TR/2002/REC-xmlenc-core-20021210/xenc-schema.xsd",
             "schema/w3c/xmlenc/xenc-schema.xsd");
 
-      //XML Schema/DTD
-      schemaLocationMap.put("datatypes.dtd", "schema/w3c/xmlschema/datatypes.dtd");
-      schemaLocationMap.put("http://www.w3.org/2001/XMLSchema.dtd", "schema/w3c/xmlschema/XMLSchema.dtd");
+      //XACML
+      schemaLocationMap.put("access_control-xacml-2.0-context-schema-os.xsd",
+            "schema/access_control-xacml-2.0-context-schema-os.xsd");
+      schemaLocationMap.put("access_control-xacml-2.0-policy-schema-os.xsd",
+            "schema/access_control-xacml-2.0-policy-schema-os.xsd");
+
+      //SAML
+
+      schemaLocationMap.put("saml-schema-assertion-2.0.xsd", "schema/saml/v2/saml-schema-assertion-2.0.xsd");
+      schemaLocationMap.put("saml-schema-protocol-2.0.xsd", "schema/saml/v2/saml-schema-protocol-2.0.xsd");
+      schemaLocationMap.put("saml-schema-metadata-2.0.xsd", "schema/saml/v2/saml-schema-metadata-2.0.xsd");
+      schemaLocationMap.put("saml-schema-x500-2.0.xsd", "schema/saml/v2/saml-schema-x500-2.0.xsd");
+      schemaLocationMap.put("saml-schema-xacml-2.0.xsd", "schema/saml/v2/saml-schema-xacml-2.0.xsd");
+      schemaLocationMap.put("saml-schema-xacml-2.0.xsd", "schema/saml/v2/saml-schema-xacml-2.0.xsd");
+      schemaLocationMap.put("saml-schema-authn-context-2.0.xsd", "schema/saml/v2/saml-schema-authn-context-2.0.xsd");
+      schemaLocationMap.put("saml-schema-authn-context-types-2.0.xsd",
+            "schema/saml/v2/saml-schema-authn-context-types-2.0.xsd");
+
+      schemaLocationMap.put("saml-schema-assertion-1.0.xsd", "schema/saml/v1/saml-schema-assertion-1.0.xsd");
+      schemaLocationMap.put("oasis-sstc-saml-schema-assertion-1.1.xsd",
+            "schema/saml/v1/oasis-sstc-saml-schema-assertion-1.1.xsd");
+      schemaLocationMap.put("saml-schema-protocol-1.1.xsd", "schema/saml/v1/saml-schema-protocol-1.1.xsd");
+
+      schemaLocationMap.put("access_control-xacml-2.0-saml-assertion-schema-os.xsd",
+            "schema/saml/v2/access_control-xacml-2.0-saml-assertion-schema-os.xsd");
+
+      schemaLocationMap.put("access_control-xacml-2.0-saml-protocol-schema-os.xsd",
+            "schema/saml/v2/access_control-xacml-2.0-saml-protocol-schema-os.xsd");
+
+      //WS-T
+      schemaLocationMap.put("http://docs.oasis-open.org/ws-sx/ws-trust/200512", "schema/wstrust/v1_3/ws-trust-1.3.xsd");
+      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+            "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+      schemaLocationMap.put("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+            "schema/wstrust/v1_3/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+      schemaLocationMap.put("http://schemas.xmlsoap.org/ws/2004/09/policy", "schema/wstrust/v1_3/ws-policy.xsd");
+      schemaLocationMap.put("http://www.w3.org/2005/08/addressing", "schema/wstrust/v1_3/ws-addr.xsd");
+   }
+
+   public static Collection<String> schemas()
+   {
+      Collection<String> schemaValues = schemaLocationMap.values();
+      schemaValues.remove("schema/w3c/xmlschema/datatypes.dtd");
+      schemaValues.remove("schema/w3c/xmlschema/XMLSchema.dtd");
+      log.info("Considered the schemas:" + schemaValues);
+      return schemaValues;
    }
 
    public LSInput resolveResource(String type, String namespaceURI, final String publicId, final String systemId,
          final String baseURI)
    {
+      if (systemId == null)
+         throw new RuntimeException("systemid null");
       LSInput lsi = lsmap.get(systemId);
       if (lsi == null)
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
-         String loc = schemaLocationMap.get(systemId);
+         final ClassLoader tcl = SecurityActions.getContextClassLoader();
+         final String loc = schemaLocationMap.get(systemId);
          if (loc == null)
             return null;
 
-         final InputStream is = tcl.getResourceAsStream(loc);
-         if (is == null)
-            throw new RuntimeException("inputstream is null for " + loc);
          lsi = new LSInput()
          {
             public String getBaseURI()
@@ -92,6 +132,9 @@ public class IDFedLSInputResolver implements LSResourceResolver
 
             public InputStream getByteStream()
             {
+               final InputStream is = tcl.getResourceAsStream(loc);
+               if (is == null)
+                  throw new RuntimeException("inputstream is null for " + loc);
                return is;
             }
 
@@ -162,5 +205,4 @@ public class IDFedLSInputResolver implements LSResourceResolver
       }
       return lsi;
    }
-
 }

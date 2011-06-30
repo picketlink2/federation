@@ -111,7 +111,7 @@ public enum JBossSAMLURIConstants
    X500_PREFIX("x500"),
    X500_NSURI("urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"),
    XACML_NSURI( "urn:oasis:names:tc:xacml:2.0:context:schema:os" ),
-   XACML_SAML_NSURI( "urn:oasis:names:tc:xacml:2.0:saml:assertion:schema:os" ),
+   XACML_SAML_NSURI( "urn:oasis:xacml:2.0:saml:assertion:schema:os" ),
    XACML_SAML_PROTO_NSURI( "urn:oasis:xacml:2.0:saml:protocol:schema:os" ),
    XML( "http://www.w3.org/XML/1998/namespace" ),
    XMLSCHEMA_NSURI("http://www.w3.org/2001/XMLSchema"),

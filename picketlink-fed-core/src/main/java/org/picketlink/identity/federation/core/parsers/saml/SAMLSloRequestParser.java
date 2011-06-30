@@ -31,9 +31,11 @@ import javax.xml.stream.events.StartElement;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
@@ -64,11 +66,23 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
 
          parseCommonElements(startElement, xmlEventReader, logoutRequest);
 
+         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         if (startElement == null)
+            break;
+         elementName = StaxParserUtil.getStartElementName(startElement);
+
          if (JBossSAMLConstants.SESSION_INDEX.get().equals(elementName))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             logoutRequest.getSessionIndex().add(StaxParserUtil.getElementText(xmlEventReader));
          }
+         else if (JBossSAMLConstants.NAMEID.get().equals(elementName))
+         {
+            NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
+            logoutRequest.setNameID(nameID);
+         }
+         else
+            throw new RuntimeException("unknown " + elementName);
       }
       return logoutRequest;
    }

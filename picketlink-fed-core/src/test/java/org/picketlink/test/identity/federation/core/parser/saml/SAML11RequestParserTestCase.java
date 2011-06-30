@@ -27,15 +27,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.List;
-
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Validator;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11RequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
@@ -53,7 +48,7 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
  * @author Anil.Saldhana@redhat.com
  * @since Jun 24, 2011
  */
-public class SAML11RequestParserTestCase
+public class SAML11RequestParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAML11RequestWithAuthQuery() throws Exception
@@ -84,10 +79,7 @@ public class SAML11RequestParserTestCase
       writer.write(request);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 
    @Test
@@ -119,10 +111,7 @@ public class SAML11RequestParserTestCase
       writer.write(request);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 
    @Test
@@ -163,10 +152,7 @@ public class SAML11RequestParserTestCase
       writer.write(request);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 
    @Test
@@ -192,10 +178,7 @@ public class SAML11RequestParserTestCase
       writer.write(request);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 
    @Test
@@ -221,9 +204,6 @@ public class SAML11RequestParserTestCase
       writer.write(request);
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
-
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(writtenString)));
+      validateSchema(writtenString);
    }
 }

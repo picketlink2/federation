@@ -6,4 +6,11 @@
                    IssueInstant="2010-07-29T13:46:20.647-05:00"
                    Version="2.0" >
     <Issuer>http://localhost:8080/sales/</Issuer>
+    <saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
+            NameQualifier="urn:jboss:1.0" 
+            SPNameQualifier="http://jboss.org" 
+            Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">
+                YgolvKBPsL4ABSrdOpilovLnVq+X
+    </saml:NameID>
+    
 </ns3:LogoutRequest>

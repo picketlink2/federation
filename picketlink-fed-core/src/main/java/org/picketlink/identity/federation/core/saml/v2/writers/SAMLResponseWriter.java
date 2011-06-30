@@ -77,7 +77,10 @@ public class SAMLResponseWriter extends BaseWriter
       writeBaseAttributes(response);
 
       NameIDType issuer = response.getIssuer();
-      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      if (issuer != null)
+      {
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
 
       StatusType status = response.getStatus();
       write(status);

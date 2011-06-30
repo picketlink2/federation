@@ -60,7 +60,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubTyp
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class SAMLAssertionParserTestCase
+public class SAMLAssertionParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAMLAssertionParsing() throws Exception
@@ -89,29 +89,13 @@ public class SAMLAssertionParserTestCase
       assertEquals(XMLTimeUtil.parse("2010-09-30T19:13:37.869Z"), conditions.getNotBefore());
       assertEquals(XMLTimeUtil.parse("2010-09-30T21:13:37.869Z"), conditions.getNotOnOrAfter());
 
-      /*List<JAXBElement<?>> content = subject.getContent(); 
-
-      int size = content.size();
-
-      for( int i = 0 ; i < size; i++ )
-      {
-         JAXBElement<?> node = content.get(i);
-         if( node.getDeclaredType().equals( NameIDType.class ))
-         {
-            NameIDType subjectNameID = (NameIDType) node.getValue();
-
-            assertEquals( "jduke", subjectNameID.getValue() );
-            assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
-         }
-
-         if( node.getDeclaredType().equals( ConditionsType.class ))
-         { 
-            //Conditions
-            ConditionsType conditions =  (ConditionsType) node.getValue();
-            assertEquals( XMLTimeUtil.parse( "2010-09-30T19:13:37.869Z" ) , conditions.getNotBefore() );
-            assertEquals( XMLTimeUtil.parse( "2010-09-30T21:13:37.869Z" ) , conditions.getNotOnOrAfter() ); 
-         }
-      } */
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 
    /**
@@ -154,6 +138,13 @@ public class SAMLAssertionParserTestCase
       assertEquals(1, audienceRestrictionType.getAudience().size());
       assertEquals("http://services.testcorp.org/provider2", audienceRestrictionType.getAudience().get(0)
             .toASCIIString());
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(assertion);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 
    @Test
@@ -228,7 +219,12 @@ public class SAMLAssertionParserTestCase
       SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(assertion);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      byte[] bytes = baos.toByteArray();
+      ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
       DocumentUtil.getDocument(bis); //throws exceptions
+
+      String writtenString = new String(bytes);
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 }

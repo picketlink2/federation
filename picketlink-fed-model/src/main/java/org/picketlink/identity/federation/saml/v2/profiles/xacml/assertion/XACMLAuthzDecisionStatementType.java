@@ -25,7 +25,6 @@ import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 
-
 /**
  * <p>Java class for XACMLAuthzDecisionStatementType complex type.
  * 
@@ -45,13 +44,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
  * </pre>
  * 
  * 
- */ 
-public class XACMLAuthzDecisionStatementType
-extends StatementAbstractType
-{ 
+ */
+public class XACMLAuthzDecisionStatementType extends StatementAbstractType
+{
    private static final long serialVersionUID = 1L;
-   public static final String XSI_TYPE = "xacml-samlp:XACMLAuthzDecisionStatementType";
+
+   public static final String XSI_TYPE = "xacml-saml:XACMLAuthzDecisionStatementType";
+
    protected ResponseType response;
+
    protected RequestType request;
 
    /**
@@ -62,7 +63,8 @@ extends StatementAbstractType
     *     {@link ResponseType }
     *     
     */
-   public ResponseType getResponse() {
+   public ResponseType getResponse()
+   {
       return response;
    }
 
@@ -74,7 +76,8 @@ extends StatementAbstractType
     *     {@link ResponseType }
     *     
     */
-   public void setResponse(ResponseType value) {
+   public void setResponse(ResponseType value)
+   {
       this.response = value;
    }
 
@@ -86,7 +89,8 @@ extends StatementAbstractType
     *     {@link RequestType }
     *     
     */
-   public RequestType getRequest() {
+   public RequestType getRequest()
+   {
       return request;
    }
 
@@ -98,7 +102,8 @@ extends StatementAbstractType
     *     {@link RequestType }
     *     
     */
-   public void setRequest(RequestType value) {
+   public void setRequest(RequestType value)
+   {
       this.request = value;
    }
 }

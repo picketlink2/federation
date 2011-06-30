@@ -41,7 +41,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 3, 2010
  */
-public class SAMLSloRequestParserTestCase
+public class SAMLSloRequestParserTestCase extends AbstractParserTest
 {
    @Test
    public void testSAMLLogOutRequestParsing() throws Exception
@@ -66,5 +66,13 @@ public class SAMLSloRequestParserTestCase
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       DocumentUtil.getDocument(bis); //throws exceptions
+
+      baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(lotRequest);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 }
