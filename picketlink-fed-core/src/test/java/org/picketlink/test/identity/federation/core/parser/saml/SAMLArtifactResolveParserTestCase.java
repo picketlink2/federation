@@ -37,7 +37,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
  * @author Anil.Saldhana@redhat.com
  * @since Jul 1, 2011
  */
-public class SAMLArtifactResolveParerTestCase
+public class SAMLArtifactResolveParserTestCase
 {
    @Test
    public void testSAMLArtifactResolveParse() throws Exception
