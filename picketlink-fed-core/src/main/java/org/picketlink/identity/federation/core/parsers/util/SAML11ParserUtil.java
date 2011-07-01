@@ -215,7 +215,7 @@ public class SAML11ParserUtil
             {
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                String method = StaxParserUtil.getElementText(xmlEventReader);
-               subjectConfirmationType.addConfirmation(URI.create(method));
+               subjectConfirmationType.addConfirmationMethod(URI.create(method));
             }
 
             else if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get()))

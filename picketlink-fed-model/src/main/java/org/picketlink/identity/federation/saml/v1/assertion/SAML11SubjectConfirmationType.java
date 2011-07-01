@@ -49,17 +49,17 @@ public class SAML11SubjectConfirmationType
 
    protected Element keyInfo;
 
-   public void addConfirmation(URI confirmation)
+   public void addConfirmationMethod(URI confirmation)
    {
       this.confirmationMethod.add(confirmation);
    }
 
-   public void addAllConfirmation(List<URI> confirmation)
+   public void addAllConfirmationMethod(List<URI> confirmation)
    {
       this.confirmationMethod.addAll(confirmation);
    }
 
-   public boolean removeConfirmation(URI confirmation)
+   public boolean removeConfirmationMethod(URI confirmation)
    {
       return this.confirmationMethod.remove(confirmation);
    }

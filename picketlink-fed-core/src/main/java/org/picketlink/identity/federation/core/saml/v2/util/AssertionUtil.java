@@ -37,6 +37,7 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWrit
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -236,6 +237,37 @@ public class AssertionUtil
 
       //Check for validity of assertion
       ConditionsType conditionsType = assertion.getConditions();
+      if (conditionsType != null)
+      {
+         XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+         XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
+         XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
+         if (trace)
+            log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
+                  + notOnOrAfter);
+         expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
+         if (expiry)
+         {
+            log.info("Assertion has expired with id=" + assertion.getID());
+         }
+      }
+
+      //TODO: if conditions do not exist, assume the assertion to be everlasting?
+      return expiry;
+   }
+
+   /**
+    * Check whether the assertion has expired
+    * @param assertion
+    * @return
+    * @throws ConfigurationException
+    */
+   public static boolean hasExpired(SAML11AssertionType assertion) throws ConfigurationException
+   {
+      boolean expiry = false;
+
+      //Check for validity of assertion
+      SAML11ConditionsType conditionsType = assertion.getConditions();
       if (conditionsType != null)
       {
          XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();

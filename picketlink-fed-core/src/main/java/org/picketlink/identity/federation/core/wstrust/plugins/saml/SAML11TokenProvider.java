@@ -35,7 +35,6 @@ import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
@@ -48,13 +47,12 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AudienceRestrictionCondition;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -63,7 +61,7 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * A {@code SecurityTokenProvider} implementation that handles WS-Trust SAML 2.0 token requests.
+ * A {@code SecurityTokenProvider} implementation that handles WS-Trust SAML 1.1 token requests.
  * </p>
  * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
@@ -131,10 +129,10 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
          throw new ProcessingException("Invalid cancel request: missing required CancelTarget");
       Element assertionElement = (Element) token.getFirstChild();
       if (!this.isAssertion(assertionElement))
-         throw new ProcessingException("CancelTarget doesn't not contain a SAMLV2.0 assertion");
+         throw new ProcessingException("CancelTarget doesn't not contain a SAMLV1.1 assertion");
 
       // get the assertion ID and add it to the canceled assertions set.
-      String assertionId = assertionElement.getAttribute("ID");
+      String assertionId = assertionElement.getAttribute(SAML11Constants.ASSERTIONID);
       this.revocationRegistry.revokeToken(SAMLUtil.SAML11_TOKEN_TYPE, assertionId);
    }
 
@@ -171,7 +169,10 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
       Principal principal = context.getCallerPrincipal();
 
       String confirmationMethod = null;
-      KeyInfoConfirmationDataType keyInfoDataType = null;
+      //KeyInfoConfirmationDataType keyInfoDataType = null;
+
+      Element keyInfo = null;
+
       // if there is a on-behalf-of principal, we have the sender vouches confirmation method.
       if (context.getOnBehalfOfPrincipal() != null)
       {
@@ -182,18 +183,30 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
       else if (context.getProofTokenInfo() != null)
       {
          confirmationMethod = SAMLUtil.SAML11_HOLDER_OF_KEY_URI;
-         keyInfoDataType = SAMLAssertionFactory.createKeyInfoConfirmation(context.getProofTokenInfo());
+         //keyInfoDataType = SAMLAssertionFactory.createKeyInfoConfirmation(context.getProofTokenInfo());
+         keyInfo = (Element) context.getProofTokenInfo().getContent().get(0);
       }
       else
          confirmationMethod = SAMLUtil.SAML11_BEARER_URI;
 
-      SubjectConfirmationType subjectConfirmation = SAMLAssertionFactory.createSubjectConfirmation(null,
-            confirmationMethod, keyInfoDataType);
+      /* SubjectConfirmationType subjectConfirmation = SAMLAssertionFactory.createSubjectConfirmation(null,
+             confirmationMethod, keyInfoDataType);
+      */
+      SAML11SubjectConfirmationType subjectConfirmation = new SAML11SubjectConfirmationType();
+      subjectConfirmation.addConfirmationMethod(URI.create(confirmationMethod));
+      if (keyInfo != null)
+         subjectConfirmation.setKeyInfo(keyInfo);
 
       // create a subject using the caller principal or on-behalf-of principal.
       String subjectName = principal == null ? "ANONYMOUS" : principal.getName();
-      NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:picketlink:identity-federation", subjectName);
-      SubjectType subject = SAMLAssertionFactory.createSubject(nameID, subjectConfirmation);
+      SAML11NameIdentifierType nameID = new SAML11NameIdentifierType();
+      nameID.setNameQualifier("urn:picketlink:identity-federation");
+      nameID.setValue(subjectName);
+
+      SAML11SubjectTypeChoice subjectChoice = new SAML11SubjectTypeChoice(nameID);
+      SAML11SubjectType subject = new SAML11SubjectType();
+      subject.setChoice(subjectChoice);
+      subject.setSubjectConfirmation(subjectConfirmation);
 
       // create the attribute statements if necessary.
       List<StatementAbstractType> statements = null;
@@ -203,6 +216,8 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
          statements = new ArrayList<StatementAbstractType>();
          statements.add(StatementUtil.createAttributeStatement(claimedAttributes));
       }
+      throw new RuntimeException("Implement");
+
       /*
             // create the SAML assertion.
             NameIDType issuerID = SAMLAssertionFactory.createNameID(null, null, context.getTokenIssuer());
@@ -341,7 +356,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
       String code = WSTrustConstants.STATUS_CODE_VALID;
       String reason = "SAMLV2.0 Assertion successfuly validated";
 
-      AssertionType assertion = null;
+      SAML11AssertionType assertion = null;
       Element assertionElement = (Element) token.getFirstChild();
       if (!this.isAssertion(assertionElement))
       {
@@ -352,7 +367,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider implement
       {
          try
          {
-            assertion = SAMLUtil.fromElement(assertionElement);
+            assertion = SAMLUtil.saml11FromElement(assertionElement);
          }
          catch (Exception e)
          {
