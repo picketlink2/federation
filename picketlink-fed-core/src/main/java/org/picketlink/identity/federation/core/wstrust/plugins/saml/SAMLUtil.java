@@ -32,6 +32,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11AssertionWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -130,6 +131,8 @@ public class SAMLUtil
          ConfigurationException, ParsingException
    {
       SAMLParser samlParser = new SAMLParser();
+
+      JAXPValidationUtil.checkSchemaValidation(assertionElement);
       AssertionType assertion = (AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(assertionElement));
       return assertion;
    }
@@ -143,6 +146,8 @@ public class SAMLUtil
    public static SAML11AssertionType saml11FromElement(Element assertionElement) throws GeneralSecurityException
    {
       SAMLParser samlParser = new SAMLParser();
+
+      JAXPValidationUtil.checkSchemaValidation(assertionElement);
       return (SAML11AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(assertionElement));
    }
 }

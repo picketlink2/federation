@@ -46,11 +46,12 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Node;
 
 /**
@@ -94,6 +95,9 @@ public class SOAPSAMLXACMLUtil
    {
       XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlResponse));
       SAMLParser samlParser = new SAMLParser();
+
+      JAXPValidationUtil.checkSchemaValidation(samlResponse);
+
       org.picketlink.identity.federation.saml.v2.protocol.ResponseType response = (org.picketlink.identity.federation.saml.v2.protocol.ResponseType) samlParser
             .parse(xmlEventReader);
       List<RTChoiceType> choices = response.getAssertions();

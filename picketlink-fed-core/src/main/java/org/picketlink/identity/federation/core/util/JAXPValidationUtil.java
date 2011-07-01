@@ -34,6 +34,9 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -61,6 +64,27 @@ public class JAXPValidationUtil
    public static void validate(InputStream stream) throws SAXException, IOException
    {
       validator().validate(new StreamSource(stream));
+   }
+
+   /**
+    * Based on system property "picketlink.schema.validate" set to "true",
+    * do schema validation
+    * @param samlDocument
+    * @throws ProcessingException
+    */
+   public static void checkSchemaValidation(Node samlDocument) throws ProcessingException
+   {
+      if (SecurityActions.getSystemProperty("picketlink.schema.validate", "false").equalsIgnoreCase("true"))
+      {
+         try
+         {
+            JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(samlDocument));
+         }
+         catch (Exception e)
+         {
+            throw new ProcessingException(e);
+         }
+      }
    }
 
    public static Validator validator() throws SAXException, IOException

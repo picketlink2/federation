@@ -44,6 +44,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -149,6 +150,7 @@ public class SAML2Request
       Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
+      JAXPValidationUtil.checkSchemaValidation(samlDocument);
       SAML2Object requestType = (SAML2Object) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
 
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
@@ -173,6 +175,7 @@ public class SAML2Request
       Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
+      JAXPValidationUtil.checkSchemaValidation(samlDocument);
       RequestAbstractType requestType = (RequestAbstractType) samlParser.parse(DocumentUtil
             .getNodeAsStream(samlDocument));
 
@@ -198,6 +201,8 @@ public class SAML2Request
       Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
+      JAXPValidationUtil.checkSchemaValidation(samlDocument);
+
       AuthnRequestType requestType = (AuthnRequestType) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
       samlDocumentHolder = new SAMLDocumentHolder(requestType, samlDocument);
       return requestType;

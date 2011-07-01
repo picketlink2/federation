@@ -54,6 +54,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
@@ -276,14 +277,20 @@ public class SAML2Response
     * @param is
     * @return   
     * @throws ParsingException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException 
     */
-   public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException
+   public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException, ConfigurationException,
+         ProcessingException
    {
       if (is == null)
          throw new IllegalArgumentException("inputstream is null");
 
+      Document samlDocument = DocumentUtil.getDocument(is);
       SAMLParser samlParser = new SAMLParser();
-      return (EncryptedAssertionType) samlParser.parse(is);
+      JAXPValidationUtil.checkSchemaValidation(samlDocument);
+
+      return (EncryptedAssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
 
    }
 
@@ -292,14 +299,19 @@ public class SAML2Response
     * @param is
     * @return 
     * @throws ParsingException 
+    * @throws ProcessingException 
+    * @throws ConfigurationException 
     */
-   public AssertionType getAssertionType(InputStream is) throws ParsingException
+   public AssertionType getAssertionType(InputStream is) throws ParsingException, ConfigurationException,
+         ProcessingException
    {
       if (is == null)
          throw new IllegalArgumentException("inputstream is null");
+      Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
-      return (AssertionType) samlParser.parse(is);
+      JAXPValidationUtil.checkSchemaValidation(samlDocument);
+      return (AssertionType) samlParser.parse(DocumentUtil.getNodeAsStream(samlDocument));
    }
 
    /**
@@ -327,6 +339,8 @@ public class SAML2Response
       Document samlResponseDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
+      JAXPValidationUtil.checkSchemaValidation(samlResponseDocument);
+
       ResponseType responseType = (ResponseType) samlParser.parse(DocumentUtil.getNodeAsStream(samlResponseDocument));
 
       samlDocumentHolder = new SAMLDocumentHolder(responseType, samlResponseDocument);
@@ -353,6 +367,8 @@ public class SAML2Response
          log.trace("RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
 
       SAMLParser samlParser = new SAMLParser();
+      JAXPValidationUtil.checkSchemaValidation(samlResponseDocument);
+
       InputStream responseStream = DocumentUtil.getNodeAsStream(samlResponseDocument);
       SAML2Object responseType = (SAML2Object) samlParser.parse(responseStream);
 
