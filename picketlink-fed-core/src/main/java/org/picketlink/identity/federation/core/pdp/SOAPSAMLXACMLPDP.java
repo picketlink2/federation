@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
@@ -52,21 +53,20 @@ import org.w3c.dom.Document;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 24, 2011
  */
-@WebServiceProvider(serviceName="SOAPSAMLXACMLPDP",portName="SOAPSAMLXACMLPort",
-      targetNamespace="urn:picketlink:identity-federation:pdp",wsdlLocation="WEB-INF/wsdl/SOAPSAMLXACMLPDP.wsdl") 
+@WebServiceProvider(serviceName = "SOAPSAMLXACMLPDP", portName = "SOAPSAMLXACMLPort", targetNamespace = "urn:picketlink:identity-federation:pdp", wsdlLocation = "WEB-INF/wsdl/SOAPSAMLXACMLPDP.wsdl")
 public class SOAPSAMLXACMLPDP implements Provider<Source>
-{  
-   protected Logger log = Logger.getLogger( SOAPSAMLXACMLPDP.class );
-   
+{
+   protected Logger log = Logger.getLogger(SOAPSAMLXACMLPDP.class);
+
    @Resource
    WebServiceContext context;
-   
+
    protected String policyConfigFileName = "policyConfig.xml";
-   
+
    protected PolicyDecisionPoint pdp;
-   
+
    protected String issuer = "PicketLinkPDP";
-   
+
    public SOAPSAMLXACMLPDP()
    {
       try
@@ -74,55 +74,55 @@ public class SOAPSAMLXACMLPDP implements Provider<Source>
          pdp = getPDP();
       }
       catch (PrivilegedActionException e)
-      { 
-         throw new RuntimeException( e );
+      {
+         throw new RuntimeException(e);
       }
    }
-   
+
    public Source invoke(Source request)
-   { 
+   {
       try
       {
-         Document doc = (Document) DocumentUtil.getNodeFromSource( request );
-         if( log.isDebugEnabled() )
+         Document doc = (Document) DocumentUtil.getNodeFromSource(request);
+         if (log.isDebugEnabled())
          {
-            log.debug( "Received Message::" + DocumentUtil.asString(doc) );
+            log.debug("Received Message::" + DocumentUtil.asString(doc));
          }
          XACMLAuthzDecisionQueryType xacmlQuery = SOAPSAMLXACMLUtil.getXACMLQueryType(doc);
          ResponseType samlResponseType = SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlQuery);
          ByteArrayOutputStream baos = new ByteArrayOutputStream();
          XMLStreamWriter xmlStreamWriter = StaxUtil.getXMLStreamWriter(baos);
 
-         SAMLResponseWriter samlResponseWriter = new SAMLResponseWriter( xmlStreamWriter );
-         samlResponseWriter.write( samlResponseType );
-         Document responseDocument = DocumentUtil.getDocument( new ByteArrayInputStream( baos.toByteArray() ));
-         
-         return new DOMSource( responseDocument.getDocumentElement());  
+         SAMLResponseWriter samlResponseWriter = new SAMLResponseWriter(xmlStreamWriter);
+         samlResponseWriter.write(samlResponseType);
+         Document responseDocument = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+
+         return new DOMSource(responseDocument.getDocumentElement());
       }
-      catch ( Exception e )
-      {  
-         throw new RuntimeException( e) ;
-      }  
-   }  
-   
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
    private PolicyDecisionPoint getPDP() throws PrivilegedActionException
-   { 
-      SecurityActions.setSystemProperty( "org.jboss.security.xacml.schema.validation", "false" );
-      
+   {
+      SystemPropertiesUtil.ensure();
+
       ClassLoader tcl = SecurityActions.getContextClassLoader();
-      URL url = tcl.getResource( policyConfigFileName );
-      if( url == null)
-         throw new IllegalStateException(policyConfigFileName  + " could not be located");
-      
+      URL url = tcl.getResource(policyConfigFileName);
+      if (url == null)
+         throw new IllegalStateException(policyConfigFileName + " could not be located");
+
       InputStream is;
       try
       {
          is = url.openStream();
       }
       catch (IOException e)
-      { 
-         throw new RuntimeException( e );
+      {
+         throw new RuntimeException(e);
       }
-      return new JBossPDP(is); 
-   }  
+      return new JBossPDP(is);
+   }
 }

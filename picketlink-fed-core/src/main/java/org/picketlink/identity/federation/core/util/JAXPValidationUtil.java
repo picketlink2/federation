@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
-import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -89,8 +88,7 @@ public class JAXPValidationUtil
 
    public static Validator validator() throws SAXException, IOException
    {
-      String schemaFactoryProperty = "javax.xml.validation.SchemaFactory:" + XMLConstants.W3C_XML_SCHEMA_NS_URI;
-      SecurityActions.setSystemProperty(schemaFactoryProperty, "org.apache.xerces.jaxp.validation.XMLSchemaFactory");
+      SystemPropertiesUtil.ensure();
 
       if (validator == null)
       {

@@ -23,12 +23,10 @@ package org.picketlink.identity.federation.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
-import java.security.AccessController;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.PrivilegedAction;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -106,14 +104,7 @@ public class XMLSignatureUtil
    //Set some system properties
    static
    {
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true");
-            return null;
-         }
-      });
+      SystemPropertiesUtil.ensure();
    };
 
    /**

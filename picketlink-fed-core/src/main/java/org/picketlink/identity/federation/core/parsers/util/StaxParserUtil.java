@@ -465,6 +465,12 @@ public class StaxParserUtil
          throw new RuntimeException("Expecting </" + tag + ">.  Found </" + elementTag + ">");
    }
 
+   /**
+    * Get the {@link Validator} for JAXP Validation
+    * @return
+    * @throws SAXException
+    * @throws IOException
+    */
    public static Validator getSchemaValidator() throws SAXException, IOException
    {
       return JAXPValidationUtil.validator();
