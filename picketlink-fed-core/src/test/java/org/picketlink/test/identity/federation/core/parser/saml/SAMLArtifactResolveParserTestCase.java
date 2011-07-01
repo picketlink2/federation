@@ -24,13 +24,19 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
+import org.w3c.dom.Document;
 
 /**
  * Unit test the parsing of {@link ArtifactResolveType}
@@ -57,5 +63,14 @@ public class SAMLArtifactResolveParserTestCase
       assertEquals("https://sp.example.com/SAML2/ArtifactResolution", artifactResolve.getDestination().toString());
       assertEquals("https://idp.example.org/SAML2", artifactResolve.getIssuer().getValue());
       assertEquals("AAQAAMh48/1oXIM+sDo7Dh2qMp1HM4IF5DaRNmDj6RdUmllwn9jJHyEgIi8=", artifactResolve.getArtifact());
+
+      //Try out writing
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(artifactResolve);
+
+      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }

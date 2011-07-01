@@ -44,11 +44,13 @@ import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Writes a SAML2 Request Type to Stream
@@ -134,6 +136,13 @@ public class SAMLRequestWriter extends BaseWriter
       {
          write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
       }
+
+      Element sig = request.getSignature();
+      if (sig != null)
+      {
+         StaxUtil.writeDOMElement(writer, sig);
+      }
+
       NameIDPolicyType nameIDPolicy = request.getNameIDPolicy();
       if (nameIDPolicy != null)
          write(nameIDPolicy);
@@ -213,6 +222,47 @@ public class SAMLRequestWriter extends BaseWriter
          StaxUtil.writeAttribute(writer, JBossSAMLConstants.ALLOW_CREATE.get(), allowCreate.toString());
       }
 
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+
+   public void write(ArtifactResolveType request) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.ARTIFACT_RESOLVE.get(),
+            PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
+      //Attributes 
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), request.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), request.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), request.getIssueInstant().toString());
+
+      URI destination = request.getDestination();
+      if (destination != null)
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString());
+
+      String consent = request.getConsent();
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
+      NameIDType issuer = request.getIssuer();
+      if (issuer != null)
+      {
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
+      Element sig = request.getSignature();
+      if (sig != null)
+      {
+         StaxUtil.writeDOMElement(writer, sig);
+      }
+      String artifact = request.getArtifact();
+      if (StringUtil.isNotNull(artifact))
+      {
+         StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.ARTIFACT.get(), PROTOCOL_NSURI.get());
+         StaxUtil.writeCharacters(writer, artifact);
+         StaxUtil.writeEndElement(writer);
+      }
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }

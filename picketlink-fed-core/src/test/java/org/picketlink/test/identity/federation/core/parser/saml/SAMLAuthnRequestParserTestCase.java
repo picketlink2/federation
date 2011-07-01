@@ -33,9 +33,11 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.w3c.dom.Document;
 
 /**
  * Validate the SAML2 AuthnRequest parse
@@ -78,6 +80,7 @@ public class SAMLAuthnRequestParserTestCase extends AbstractParserTest
       writer.write(authnRequest);
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      DocumentUtil.getDocument(bis); //throws exceptions
+      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }
