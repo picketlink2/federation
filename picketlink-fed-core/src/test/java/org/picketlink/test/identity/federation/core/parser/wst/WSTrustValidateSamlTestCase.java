@@ -23,14 +23,20 @@ package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
+import org.w3c.dom.Document;
 
 /**
  * Validate the parsing of wst-validate-saml.xml
@@ -54,5 +60,14 @@ public class WSTrustValidateSamlTestCase
       ValidateTargetType validateTarget = rst1.getValidateTarget();
       AssertionType assertion = (AssertionType) validateTarget.getAny().get(0);
       assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
+
+      //Now for the writing part
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+
+      rstWriter.write(rst1);
+
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }
