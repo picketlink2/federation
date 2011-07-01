@@ -121,6 +121,12 @@ public class SAMLParser extends AbstractParser
                SAMLArtifactResponseParser responseParser = new SAMLArtifactResponseParser();
                return responseParser.parse(xmlEventReader);
             }
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.ATTRIBUTE_QUERY.get().equals(startElementName.getLocalPart()))
+            {
+               SAMLAttributeQueryParser responseParser = new SAMLAttributeQueryParser();
+               return responseParser.parse(xmlEventReader);
+            }
             else if (JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals(localPart))
             {
                SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();

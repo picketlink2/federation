@@ -34,7 +34,6 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
@@ -178,12 +177,6 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
          nameIDPolicy.setAllowCreate(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowCreate)));
 
       return nameIDPolicy;
-   }
-
-   private SubjectType getSubject(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      SAMLSubjectParser subjectParser = new SAMLSubjectParser();
-      return (SubjectType) subjectParser.parse(xmlEventReader);
    }
 
    private RequestedAuthnContextType getRequestedAuthnContextType(XMLEventReader xmlEventReader)

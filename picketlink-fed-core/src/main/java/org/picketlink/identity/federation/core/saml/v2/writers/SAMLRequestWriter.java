@@ -26,6 +26,7 @@ import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAM
 
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -43,8 +44,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
+import org.picketlink.identity.federation.saml.v2.protocol.AttributeQueryType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
@@ -231,6 +235,7 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.ARTIFACT_RESOLVE.get(),
             PROTOCOL_NSURI.get());
       StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
       StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
 
       //Attributes 
@@ -267,11 +272,58 @@ public class SAMLRequestWriter extends BaseWriter
       StaxUtil.flush(writer);
    }
 
+   public void write(AttributeQueryType request) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.ATTRIBUTE_QUERY.get(),
+            PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
+      //Attributes 
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), request.getID());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.VERSION.get(), request.getVersion());
+      StaxUtil.writeAttribute(writer, JBossSAMLConstants.ISSUE_INSTANT.get(), request.getIssueInstant().toString());
+
+      URI destination = request.getDestination();
+      if (destination != null)
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.DESTINATION.get(), destination.toASCIIString());
+
+      String consent = request.getConsent();
+      if (StringUtil.isNotNull(consent))
+         StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
+
+      NameIDType issuer = request.getIssuer();
+      if (issuer != null)
+      {
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
+      Element sig = request.getSignature();
+      if (sig != null)
+      {
+         StaxUtil.writeDOMElement(writer, sig);
+      }
+      SubjectType subject = request.getSubject();
+      if (subject != null)
+      {
+         write(subject);
+      }
+      List<AttributeType> attributes = request.getAttribute();
+      for (AttributeType attr : attributes)
+      {
+         write(attr);
+      }
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+
    public void write(XACMLAuthzDecisionQueryType xacmlQuery) throws ProcessingException
    {
       StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.REQUEST_ABSTRACT.get(),
             PROTOCOL_NSURI.get());
       StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+
       StaxUtil.writeNameSpace(writer, XACML_SAML_PROTO_PREFIX, JBossSAMLURIConstants.XACML_SAML_PROTO_NSURI.get());
       StaxUtil.writeDefaultNameSpace(writer, JBossSAMLURIConstants.XACML_NSURI.get());
 

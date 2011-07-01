@@ -32,8 +32,9 @@ import javax.xml.stream.events.StartElement;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil; 
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 
 /**
@@ -44,62 +45,70 @@ import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 public abstract class SAMLRequestAbstractParser
 {
    protected String id;
+
    protected String version;
-   protected XMLGregorianCalendar issueInstant; 
-   
-   protected void parseRequiredAttributes( StartElement startElement ) throws ParsingException
+
+   protected XMLGregorianCalendar issueInstant;
+
+   protected void parseRequiredAttributes(StartElement startElement) throws ParsingException
    {
-      Attribute idAttr = startElement.getAttributeByName( new QName( "ID" ));
-      if( idAttr == null )
-         throw new RuntimeException( "ID attribute is missing" );
-      
-      id =  StaxParserUtil.getAttributeValue( idAttr ); 
-      
-      Attribute versionAttr = startElement.getAttributeByName( new QName( "Version" ));
-      if( versionAttr == null )
-         throw new RuntimeException( "Version attribute required in Request" );
-      version = StaxParserUtil.getAttributeValue( versionAttr );
-      
-      Attribute issueInstantAttr = startElement.getAttributeByName( new QName( "IssueInstant" ));
-      if( issueInstantAttr == null )
-         throw new RuntimeException( "IssueInstant attribute required in Request" ); 
-      issueInstant =  XMLTimeUtil.parse( StaxParserUtil.getAttributeValue( issueInstantAttr )); 
+      Attribute idAttr = startElement.getAttributeByName(new QName("ID"));
+      if (idAttr == null)
+         throw new RuntimeException("ID attribute is missing");
+
+      id = StaxParserUtil.getAttributeValue(idAttr);
+
+      Attribute versionAttr = startElement.getAttributeByName(new QName("Version"));
+      if (versionAttr == null)
+         throw new RuntimeException("Version attribute required in Request");
+      version = StaxParserUtil.getAttributeValue(versionAttr);
+
+      Attribute issueInstantAttr = startElement.getAttributeByName(new QName("IssueInstant"));
+      if (issueInstantAttr == null)
+         throw new RuntimeException("IssueInstant attribute required in Request");
+      issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
    }
-   
+
    /**
     * Parse the attributes that are common to all SAML Request Types
     * @param startElement
     * @param request
     * @throws ParsingException
     */
-   protected void parseBaseAttributes(  StartElement startElement, RequestAbstractType request ) throws ParsingException
-   { 
-      Attribute destinationAttr = startElement.getAttributeByName( new QName( "Destination" ));
-      if( destinationAttr != null )
-         request.setDestination( URI.create( StaxParserUtil.getAttributeValue( destinationAttr ) ));
-      
-      Attribute consent = startElement.getAttributeByName( new QName( "Consent" ));
-      if( consent != null )
-         request.setConsent( StaxParserUtil.getAttributeValue( consent )); 
-   } 
-   
-   protected void parseCommonElements( StartElement startElement, XMLEventReader xmlEventReader,
-         RequestAbstractType request ) throws ParsingException
+   protected void parseBaseAttributes(StartElement startElement, RequestAbstractType request) throws ParsingException
    {
-      if( startElement == null )
-         throw new IllegalArgumentException( " startElement is null" );
-      String elementName = StaxParserUtil.getStartElementName( startElement );
+      Attribute destinationAttr = startElement.getAttributeByName(new QName("Destination"));
+      if (destinationAttr != null)
+         request.setDestination(URI.create(StaxParserUtil.getAttributeValue(destinationAttr)));
 
-      if( JBossSAMLConstants.ISSUER.get().equals( elementName ))
+      Attribute consent = startElement.getAttributeByName(new QName("Consent"));
+      if (consent != null)
+         request.setConsent(StaxParserUtil.getAttributeValue(consent));
+   }
+
+   protected void parseCommonElements(StartElement startElement, XMLEventReader xmlEventReader,
+         RequestAbstractType request) throws ParsingException
+   {
+      if (startElement == null)
+         throw new IllegalArgumentException(" startElement is null");
+      String elementName = StaxParserUtil.getStartElementName(startElement);
+
+      if (JBossSAMLConstants.ISSUER.get().equals(elementName))
       {
-         startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
+         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
          NameIDType issuer = new NameIDType();
-         issuer.setValue( StaxParserUtil.getElementText( xmlEventReader ));
-         request.setIssuer( issuer );
+         issuer.setValue(StaxParserUtil.getElementText(xmlEventReader));
+         request.setIssuer(issuer);
       }
-      else if( JBossSAMLConstants.SIGNATURE.get().equals( elementName ))
-      {  
-         request.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) ); 
-      }  
+      else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
+      {
+         request.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
+      }
+   }
+
+   protected SubjectType getSubject(XMLEventReader xmlEventReader) throws ParsingException
+   {
+      SAMLSubjectParser subjectParser = new SAMLSubjectParser();
+      return (SubjectType) subjectParser.parse(xmlEventReader);
    }
 }

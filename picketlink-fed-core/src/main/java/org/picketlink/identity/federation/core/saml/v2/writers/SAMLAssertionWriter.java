@@ -34,8 +34,6 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.SAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AdviceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
@@ -48,22 +46,14 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclType
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.assertion.KeyInfoConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.saml.v2.assertion.URIType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -393,163 +383,6 @@ public class SAMLAssertionWriter extends BaseWriter
             StaxUtil.writeCharacters(writer, uriType.getValue().toString());
             StaxUtil.writeEndElement(writer);
          }
-      }
-
-      StaxUtil.writeEndElement(writer);
-      StaxUtil.flush(writer);
-   }
-
-   /**
-    * write an {@code SubjectType} to stream
-    * 
-    * @param subject
-    * @param out
-    * @throws ProcessingException
-    */
-   public void write(SubjectType subject) throws ProcessingException
-   {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT.get(), ASSERTION_NSURI.get());
-
-      STSubType subType = subject.getSubType();
-      if (subType != null)
-      {
-         BaseIDAbstractType baseID = subType.getBaseID();
-         if (baseID instanceof NameIDType)
-         {
-            NameIDType nameIDType = (NameIDType) baseID;
-            write(nameIDType, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
-         }
-         EncryptedElementType enc = subType.getEncryptedID();
-         if (enc != null)
-            throw new RuntimeException("NYI");
-         List<SubjectConfirmationType> confirmations = subType.getConfirmation();
-         if (confirmations != null)
-         {
-            for (SubjectConfirmationType confirmation : confirmations)
-            {
-               write(confirmation);
-            }
-         }
-      }
-      List<SubjectConfirmationType> subjectConfirmations = subject.getConfirmation();
-      if (subjectConfirmations != null)
-      {
-         for (SubjectConfirmationType subjectConfirmationType : subjectConfirmations)
-         {
-            write(subjectConfirmationType);
-         }
-      }
-
-      StaxUtil.writeEndElement(writer);
-      StaxUtil.flush(writer);
-   }
-
-   private void write(BaseIDAbstractType baseId) throws ProcessingException
-   {
-      throw new RuntimeException("NYI");
-   }
-
-   private void write(SubjectConfirmationType subjectConfirmationType) throws ProcessingException
-   {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION.get(),
-            ASSERTION_NSURI.get());
-
-      StaxUtil.writeAttribute(writer, JBossSAMLConstants.METHOD.get(), subjectConfirmationType.getMethod());
-
-      BaseIDAbstractType baseID = subjectConfirmationType.getBaseID();
-      if (baseID != null)
-      {
-         write(baseID);
-      }
-      NameIDType nameIDType = subjectConfirmationType.getNameID();
-      if (nameIDType != null)
-      {
-         write(nameIDType, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
-      }
-      SubjectConfirmationDataType subjectConfirmationData = subjectConfirmationType.getSubjectConfirmationData();
-      if (subjectConfirmationData != null)
-      {
-         write(subjectConfirmationData);
-      }
-      StaxUtil.writeEndElement(writer);
-   }
-
-   private void write(SubjectConfirmationDataType subjectConfirmationData) throws ProcessingException
-   {
-      StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get(),
-            ASSERTION_NSURI.get());
-
-      // Let us look at attributes
-      String inResponseTo = subjectConfirmationData.getInResponseTo();
-      if (StringUtil.isNotNull(inResponseTo))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.IN_RESPONSE_TO.get(), inResponseTo);
-      }
-
-      XMLGregorianCalendar notBefore = subjectConfirmationData.getNotBefore();
-      if (notBefore != null)
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(), notBefore.toString());
-      }
-
-      XMLGregorianCalendar notOnOrAfter = subjectConfirmationData.getNotOnOrAfter();
-      if (notOnOrAfter != null)
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), notOnOrAfter.toString());
-      }
-
-      String recipient = subjectConfirmationData.getRecipient();
-      if (StringUtil.isNotNull(recipient))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.RECIPIENT.get(), recipient);
-      }
-
-      String address = subjectConfirmationData.getAddress();
-      if (StringUtil.isNotNull(address))
-      {
-         StaxUtil.writeAttribute(writer, JBossSAMLConstants.ADDRESS.get(), address);
-      }
-
-      if (subjectConfirmationData instanceof KeyInfoConfirmationDataType)
-      {
-         KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) subjectConfirmationData;
-         KeyInfoType keyInfo = (KeyInfoType) kicd.getAnyType();
-         if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
-            throw new ProcessingException("Invalid KeyInfo object: content cannot be empty");
-         StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
-               WSTrustConstants.XMLDSig.KEYINFO, WSTrustConstants.XMLDSig.DSIG_NS);
-         StaxUtil.writeNameSpace(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.DSIG_NS);
-         // write the keyInfo content.
-         Object content = keyInfo.getContent().get(0);
-         if (content instanceof Element)
-         {
-            Element element = (Element) keyInfo.getContent().get(0);
-            StaxUtil.writeDOMNode(this.writer, element);
-         }
-         else if (content instanceof X509DataType)
-         {
-            X509DataType type = (X509DataType) content;
-            if (type.getDataObjects().size() == 0)
-               throw new ProcessingException("X509Data cannot be empy");
-            StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
-                  WSTrustConstants.XMLDSig.X509DATA, WSTrustConstants.XMLDSig.DSIG_NS);
-            Object obj = type.getDataObjects().get(0);
-            if (obj instanceof Element)
-            {
-               Element element = (Element) obj;
-               StaxUtil.writeDOMElement(this.writer, element);
-            }
-            else if (obj instanceof X509CertificateType)
-            {
-               X509CertificateType cert = (X509CertificateType) obj;
-               StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
-                     WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.DSIG_NS);
-               StaxUtil.writeCharacters(this.writer, new String(cert.getEncodedCertificate()));
-               StaxUtil.writeEndElement(this.writer);
-            }
-            StaxUtil.writeEndElement(this.writer);
-         }
-         StaxUtil.writeEndElement(this.writer);
       }
 
       StaxUtil.writeEndElement(writer);

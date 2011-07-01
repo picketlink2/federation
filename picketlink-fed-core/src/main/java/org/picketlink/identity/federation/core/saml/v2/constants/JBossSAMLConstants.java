@@ -40,6 +40,7 @@ public enum JBossSAMLConstants
    ASSERTION_CONSUMER_SERVICE_INDEX( "AssertionConsumerServiceIndex" ),
    ASSERTION_ID_REQUEST_SERVICE( "AssertionIDRequestService" ),
    ATTRIBUTE( "Attribute" ),
+   ATTRIBUTE_QUERY( "AttributeQuery" ),
    ATTRIBUTE_AUTHORITY_DESCRIPTOR( "AttributeAuthorityDescriptor" ),
    ATTRIBUTE_CONSUMING_SERVICE( "AttributeConsumingService" ),
    ATTRIBUTE_CONSUMING_SERVICE_INDEX( "AttributeConsumingServiceIndex" ),
