@@ -30,6 +30,8 @@ public enum JBossSAMLConstants
 {
    ADDRESS( "Address" ),
    ALLOW_CREATE( "AllowCreate" ),
+   ARTIFACT( "Artifact" ),
+   ARTIFACT_RESOLVE( "ArtifactResolve" ),
    ARTIFACT_RESOLUTION_SERVICE( "ArtifactResolutionService" ),
    ASSERTION( "Assertion" ), 
    ASSERTION_CONSUMER_SERVICE( "AssertionConsumerService" ),

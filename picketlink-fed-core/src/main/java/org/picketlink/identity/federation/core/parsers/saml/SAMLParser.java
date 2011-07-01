@@ -109,6 +109,12 @@ public class SAMLParser extends AbstractParser
                }
                throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
             }
+            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                  && JBossSAMLConstants.ARTIFACT_RESOLVE.get().equals(startElementName.getLocalPart()))
+            {
+               SAMLArtifactResolveParser artifactResolverParser = new SAMLArtifactResolveParser();
+               return artifactResolverParser.parse(xmlEventReader);
+            }
             else if (JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals(localPart))
             {
                SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
