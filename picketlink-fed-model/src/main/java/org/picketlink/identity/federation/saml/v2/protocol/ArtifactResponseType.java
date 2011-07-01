@@ -55,6 +55,11 @@ public class ArtifactResponseType extends StatusResponseType
       super(id, issueInstant);
    }
 
+   public ArtifactResponseType(StatusResponseType srt)
+   {
+      super(srt);
+   }
+
    /**
     * Gets the value of the any property.
     * 

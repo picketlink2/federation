@@ -37,6 +37,8 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
@@ -82,6 +84,12 @@ public class SAMLResponseWriter extends BaseWriter
          write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
       }
 
+      Element sig = response.getSignature();
+      if (sig != null)
+      {
+         StaxUtil.writeDOMElement(writer, sig);
+      }
+
       StatusType status = response.getStatus();
       write(status);
 
@@ -104,6 +112,51 @@ public class SAMLResponseWriter extends BaseWriter
             }
          }
       }
+      StaxUtil.writeEndElement(writer);
+      StaxUtil.flush(writer);
+   }
+
+   public void write(ArtifactResponseType response) throws ProcessingException
+   {
+      StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.ARTIFACT_RESPONSE.get(),
+            PROTOCOL_NSURI.get());
+
+      StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
+      StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+
+      writeBaseAttributes(response);
+
+      NameIDType issuer = response.getIssuer();
+      if (issuer != null)
+      {
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      }
+
+      Element sig = response.getSignature();
+      if (sig != null)
+      {
+         StaxUtil.writeDOMElement(writer, sig);
+      }
+
+      StatusType status = response.getStatus();
+      if (status != null)
+      {
+         write(status);
+      }
+      Object anyObj = response.getAny();
+      if (anyObj instanceof AuthnRequestType)
+      {
+         AuthnRequestType authn = (AuthnRequestType) anyObj;
+         SAMLRequestWriter requestWriter = new SAMLRequestWriter(writer);
+         requestWriter.write(authn);
+      }
+      else if (anyObj instanceof ResponseType)
+      {
+         ResponseType rt = (ResponseType) anyObj;
+         write(rt);
+      }
+
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
    }
