@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
@@ -43,6 +44,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
+import org.w3c.dom.Document;
 
 /**
  * Validate the WST Cancel Target for SAML assertions
@@ -73,7 +75,8 @@ public class WSTrustCancelTargetSamlTestCase
 
       rstWriter.write(requestToken);
 
-      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 
    private void validateAssertion(AssertionType assertion) throws Exception

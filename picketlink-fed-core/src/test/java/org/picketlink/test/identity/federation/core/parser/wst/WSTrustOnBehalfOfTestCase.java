@@ -32,11 +32,13 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+import org.w3c.dom.Document;
 
 /**
  * Validate the OnBehalfOf parsing
@@ -70,6 +72,7 @@ public class WSTrustOnBehalfOfTestCase
 
       rstWriter.write(requestToken);
 
-      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }

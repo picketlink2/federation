@@ -27,12 +27,14 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTokenParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -73,6 +75,7 @@ public class WSTrustIssuePublicKeyTestCase
 
       rstWriter.write(requestToken);
 
-      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }

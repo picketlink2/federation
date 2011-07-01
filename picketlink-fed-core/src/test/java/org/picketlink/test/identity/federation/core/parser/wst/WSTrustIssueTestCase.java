@@ -30,9 +30,11 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
+import org.w3c.dom.Document;
 
 /**
  * Validate simple RST parsing
@@ -60,6 +62,7 @@ public class WSTrustIssueTestCase
 
       rstWriter.write(requestToken);
 
-      DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }
