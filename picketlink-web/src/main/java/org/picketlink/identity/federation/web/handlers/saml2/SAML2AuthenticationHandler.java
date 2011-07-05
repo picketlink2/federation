@@ -162,7 +162,6 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
       public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response)
             throws ProcessingException
       {
-
       }
 
       public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
@@ -181,6 +180,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             throw new ProcessingException("AuthnRequest is null");
 
          String destination = art.getAssertionConsumerServiceURL().toASCIIString();
+         if (trace)
+            log.trace("Destination=" + destination);
 
          HttpSession session = BaseSAML2Handler.getHttpSession(request);
          Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
@@ -315,7 +316,6 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          catch (Exception e)
          {
-            e.printStackTrace();
             if (trace)
                log.trace(e);
          }

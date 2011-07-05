@@ -144,7 +144,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
       public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response)
             throws ProcessingException
       {
-
       }
 
       public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
@@ -319,6 +318,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             SAML2HandlerResponse response, String originalIssuer) throws ConfigurationException,
             ParserConfigurationException, ProcessingException
       {
+         if (trace)
+         {
+            log.trace("Generating Success Status Response for " + originalIssuer);
+         }
          StatusResponseType statusResponse = new StatusResponseType(IDGenerator.create("ID_"),
                XMLTimeUtil.getIssueInstant());
 
@@ -369,6 +372,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             while (participants > 0 && participant.equals(originalRequestor));
          }
 
+         if (trace)
+         {
+            log.trace("Participant = " + participant);
+         }
          return participant;
       }
    }
