@@ -81,6 +81,14 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
             NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
             logoutRequest.setNameID(nameID);
          }
+         else if (JBossSAMLConstants.ISSUER.get().equals(elementName))
+         {
+            continue;
+         }
+         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
+         {
+            continue;
+         }
          else
             throw new RuntimeException("unknown " + elementName);
       }
