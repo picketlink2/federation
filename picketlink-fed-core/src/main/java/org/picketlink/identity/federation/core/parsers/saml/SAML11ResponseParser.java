@@ -124,7 +124,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
          QName startElementName = startElement.getName();
          String elementTag = startElementName.getLocalPart();
 
-         SAML11StatusCodeType statusCode = new SAML11StatusCodeType();
+         SAML11StatusCodeType statusCode = null;
 
          if (JBossSAMLConstants.STATUS_CODE.get().equals(elementTag))
          {
@@ -134,7 +134,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
             Attribute valueAttr = startElement.getAttributeByName(new QName("Value"));
             if (valueAttr != null)
             {
-               statusCode.setValue(new QName(StaxParserUtil.getAttributeValue(valueAttr)));
+               statusCode = new SAML11StatusCodeType(new QName(StaxParserUtil.getAttributeValue(valueAttr)));
             }
             status.setStatusCode(statusCode);
 
@@ -143,12 +143,13 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
             elementTag = startElement.getName().getLocalPart();
             if (JBossSAMLConstants.STATUS_CODE.get().equals(elementTag))
             {
-               SAML11StatusCodeType subStatusCodeType = new SAML11StatusCodeType();
+               SAML11StatusCodeType subStatusCodeType = null;
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                Attribute subValueAttr = startElement.getAttributeByName(new QName("Value"));
                if (subValueAttr != null)
                {
-                  subStatusCodeType.setValue(new QName(StaxParserUtil.getAttributeValue(subValueAttr)));
+                  subStatusCodeType = new SAML11StatusCodeType(
+                        new QName(StaxParserUtil.getAttributeValue(subValueAttr)));
                }
                statusCode.setStatusCode(subStatusCodeType);
 

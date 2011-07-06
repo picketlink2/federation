@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException; 
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
  * <p>
@@ -41,11 +41,10 @@ public interface SecurityTokenProvider
     * An enumeration that identifies the family to which
     * the security token provider belongs 
     */
-   public enum FAMILY_TYPE
-   {
-      SAML2, WS_TRUST,OPENID,OAUTH, CUSTOM;
+   public enum FAMILY_TYPE {
+      SAML2, SAML11, WS_TRUST, OPENID, OAUTH, CUSTOM;
    }
-   
+
    /**
     * <p>
     * Initializes the {@code SecurityTokenProvider} using the specified properties map.
@@ -55,27 +54,26 @@ public interface SecurityTokenProvider
     * this {@code SecurityTokenProvider}.
     */
    public void initialize(Map<String, String> properties);
-   
+
    /**
     * Specify whether this token provider supports a particular namespace
     * @param namespace a string value representing a namespace
     * @return
     */
-   public boolean supports( String namespace );
-   
+   public boolean supports(String namespace);
+
    /**
     * Token Type
     * @return
     */
    public String tokenType();
-   
+
    /**
     * Provide an optional {@code QName} for configuration
     * @return
     */
    public QName getSupportedQName();
-   
-   
+
    /**
     * The family where this security token provider belongs
     * @see {@code FAMILY_TYPE}}
@@ -92,7 +90,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} to be used when generating the token.
     * @throws WSTrustException if an error occurs while creating the security token.
     */
-   public void issueToken( ProtocolContext context) throws ProcessingException;
+   public void issueToken(ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -103,7 +101,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be renewed.
     * @throws WSTrustException if an error occurs while renewing the security token.
     */
-   public void renewToken( ProtocolContext context) throws ProcessingException;
+   public void renewToken(ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -114,7 +112,7 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be canceled.
     * @throws WSTrustException if an error occurs while canceling the security token.
     */
-   public void cancelToken( ProtocolContext context) throws ProcessingException;
+   public void cancelToken(ProtocolContext context) throws ProcessingException;
 
    /**
     * <p>
@@ -125,5 +123,5 @@ public interface SecurityTokenProvider
     * @param context the {@code ProtocolContext} that contains the token to be validated.
     * @throws WSTrustException if an error occurs while validating the security token.
     */
-   public void validateToken( ProtocolContext context) throws ProcessingException;
+   public void validateToken(ProtocolContext context) throws ProcessingException;
 }
