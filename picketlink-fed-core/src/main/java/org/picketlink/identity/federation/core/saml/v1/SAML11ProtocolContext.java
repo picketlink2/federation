@@ -59,6 +59,8 @@ public class SAML11ProtocolContext implements ProtocolContext
 
    protected SAML11AssertionType issuedAssertion;
 
+   protected String authMethod = SAML11Constants.AUTH_METHOD_PASSWORD;
+
    /**
     * Get the Issuer ID
     * @return instance of {@link SAML11NameIdentifierType}
@@ -155,6 +157,25 @@ public class SAML11ProtocolContext implements ProtocolContext
          sm.checkPermission(PicketLinkCoreSTS.rte);
 
       this.issuedAssertion = issuedAssertion;
+   }
+
+   /**
+    * Get the Authentication Method
+    * @return
+    */
+   public String getAuthMethod()
+   {
+      return authMethod;
+   }
+
+   /**
+    * Set the Authentication Method.
+    * By default, it is set to urn:oasis:names:tc:SAML:1.0:am:password
+    * @param authMethod
+    */
+   public void setAuthMethod(String authMethod)
+   {
+      this.authMethod = authMethod;
    }
 
    /**

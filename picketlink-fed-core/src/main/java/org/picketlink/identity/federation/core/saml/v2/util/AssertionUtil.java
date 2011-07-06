@@ -203,6 +203,30 @@ public class AssertionUtil
    }
 
    /**
+    * Add validity conditions to the SAML2 Assertion
+    * @param assertion
+    * @param durationInMilis   
+    * @throws ConfigurationException 
+    * @throws IssueInstantMissingException 
+    */
+   public static void createSAML11TimedConditions(SAML11AssertionType assertion, long durationInMilis, long clockSkew)
+         throws ConfigurationException, IssueInstantMissingException
+   {
+      XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
+      if (issueInstant == null)
+         throw new IssueInstantMissingException("null issue instant");
+      XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis + clockSkew);
+
+      SAML11ConditionsType conditionsType = new SAML11ConditionsType();
+
+      XMLGregorianCalendar beforeInstant = XMLTimeUtil.subtract(issueInstant, clockSkew);
+
+      conditionsType.setNotBefore(beforeInstant);
+      conditionsType.setNotOnOrAfter(assertionValidityLength);
+      assertion.setConditions(conditionsType);
+   }
+
+   /**
     * Given an assertion element, validate the signature
     * @param assertionElement
     * @param publicKey the {@link PublicKey}

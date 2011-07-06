@@ -52,6 +52,14 @@ public interface SAML11Constants
 
    String AUTHENTICATION_METHOD = "AuthenticationMethod";
 
+   String AUTH_METHOD_PASSWORD = "urn:oasis:names:tc:SAML:1.0:am:password";
+
+   String AUTH_METHOD_KERBEROS = "urn:ietf:rfc:1510";
+
+   String AUTH_METHOD_SRP = "urn:ietf:rfc:2945";
+
+   String AUTH_METHOD_TLS = "urn:ietf:rfc:2246";
+
    String AUTHENTICATION_QUERY = "AuthenticationQuery";
 
    String AUTHENTICATION_STATEMENT = "AuthenticationStatement";

@@ -5,7 +5,7 @@
             TokenType="urn:oasis:names:tc:SAML:2.0:assertion"
 	        TokenElement="Assertion"
 	        TokenElementNS="urn:oasis:names:tc:SAML:2.0:assertion"/>
-	    <TokenProvider ProviderClass="org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML11TokenProvider"
+	    <TokenProvider ProviderClass="org.picketlink.identity.federation.core.saml.v1.providers.SAML11AssertionTokenProvider"
             TokenType="urn:oasis:names:tc:SAML:1.0:assertion"
 	        TokenElement="Assertion"
 	        TokenElementNS="urn:oasis:names:tc:SAML:1.0:assertion"/>
