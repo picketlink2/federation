@@ -46,6 +46,11 @@ public class SAML11NameIdentifierType implements Serializable
 
    protected String value;
 
+   public SAML11NameIdentifierType(String val)
+   {
+      this.value = val;
+   }
+
    public String getNameQualifier()
    {
       return nameQualifier;
@@ -69,10 +74,5 @@ public class SAML11NameIdentifierType implements Serializable
    public String getValue()
    {
       return value;
-   }
-
-   public void setValue(String value)
-   {
-      this.value = value;
    }
 }

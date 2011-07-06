@@ -49,7 +49,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
  */
 public class SAML11ProtocolContext implements ProtocolContext
 {
-   protected SAML11NameIdentifierType issuerID;
+   protected String issuerID;
 
    protected SAML11SubjectType subjectType;
 
@@ -65,16 +65,16 @@ public class SAML11ProtocolContext implements ProtocolContext
     * Get the Issuer ID
     * @return instance of {@link SAML11NameIdentifierType}
     */
-   public SAML11NameIdentifierType getIssuerID()
+   public String getIssuerID()
    {
       return issuerID;
    }
 
    /**
     * Set the Issuer ID
-    * @param issuerID {@link SAML11NameIdentifierType}
+    * @param issuerID {@link String}
     */
-   public void setIssuerID(SAML11NameIdentifierType issuerID)
+   public void setIssuerID(String issuerID)
    {
       this.issuerID = issuerID;
    }

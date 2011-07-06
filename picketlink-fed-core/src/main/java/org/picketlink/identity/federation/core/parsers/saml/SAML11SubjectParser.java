@@ -80,7 +80,8 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
          if (SAML11Constants.NAME_IDENTIFIER.equalsIgnoreCase(tag))
          {
             peekedElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            SAML11NameIdentifierType nameID = new SAML11NameIdentifierType();
+            String val = StaxParserUtil.getElementText(xmlEventReader);
+            SAML11NameIdentifierType nameID = new SAML11NameIdentifierType(val);
             Attribute formatAtt = peekedElement.getAttributeByName(new QName(SAML11Constants.FORMAT));
             if (formatAtt != null)
             {
@@ -93,8 +94,6 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
                nameID.setNameQualifier(StaxParserUtil.getAttributeValue(nameQAtt));
             }
 
-            String val = StaxParserUtil.getElementText(xmlEventReader);
-            nameID.setValue(val);
             SAML11SubjectTypeChoice subChoice = new SAML11SubjectTypeChoice(nameID);
             subject.setChoice(subChoice);
          }

@@ -45,7 +45,6 @@ import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -117,7 +116,10 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
       SAML11ProtocolContext samlProtocolContext = (SAML11ProtocolContext) context;
 
-      SAML11NameIdentifierType issuerID = samlProtocolContext.getIssuerID();
+      String issuerID = samlProtocolContext.getIssuerID();
+      if (issuerID == null)
+         throw new ProcessingException("Issuer in SAML Protocol Context is null");
+
       XMLGregorianCalendar issueInstant;
       try
       {
@@ -134,7 +136,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
       String assertionID = IDGenerator.create("ID_");
 
       SAML11AssertionType assertionType = new SAML11AssertionType(assertionID, issueInstant);
-      assertionType.setIssuer(issuerID.getValue());
+      assertionType.setIssuer(issuerID);
       assertionType.addAllStatements(statements);
       try
       {
