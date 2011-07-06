@@ -40,9 +40,16 @@ public class SAML11StatusCodeType implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
+   public static final SAML11StatusCodeType SUCCESS = new SAML11StatusCodeType(new QName("samlp:Success"));
+
    protected SAML11StatusCodeType statusCode;
 
    protected QName value;
+
+   public SAML11StatusCodeType(QName theValue)
+   {
+      value = theValue;
+   }
 
    /**
     * Gets the value of the statusCode property.
@@ -81,18 +88,5 @@ public class SAML11StatusCodeType implements Serializable
    public QName getValue()
    {
       return value;
-   }
-
-   /**
-    * Sets the value of the value property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValue(QName value)
-   {
-      this.value = value;
    }
 }
