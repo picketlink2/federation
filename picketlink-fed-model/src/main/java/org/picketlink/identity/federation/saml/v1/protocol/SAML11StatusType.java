@@ -77,4 +77,11 @@ public class SAML11StatusType implements Serializable
    {
       this.statusDetail = statusDetail;
    }
+
+   public static SAML11StatusType successType()
+   {
+      SAML11StatusType success = new SAML11StatusType();
+      success.setStatusCode(SAML11StatusCodeType.SUCCESS);
+      return success;
+   }
 }

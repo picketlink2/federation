@@ -118,5 +118,7 @@ public interface SAML11Constants
 
    String STATUS_MSG = "StatusMessage";
 
+   String TARGET = "TARGET";
+
    String VALUE = "Value";
 }
