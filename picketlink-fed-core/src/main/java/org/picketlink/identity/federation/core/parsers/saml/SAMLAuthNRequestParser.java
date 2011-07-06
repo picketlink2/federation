@@ -195,7 +195,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
          ract.addAuthnContextClassRef(value);
       }
       else
-         throw new RuntimeException("unknown :" + elName);
+         throw new RuntimeException("SAMLAuthNRequestParser::unknown :" + elName);
 
       return ract;
    }
