@@ -37,7 +37,10 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWrit
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -353,6 +356,53 @@ public class AssertionUtil
                      continue;
                }
                List<Object> attributeValues = attr.getAttributeValue();
+               if (attributeValues != null)
+               {
+                  for (Object attrValue : attributeValues)
+                  {
+                     if (attrValue instanceof String)
+                     {
+                        roles.add((String) attrValue);
+                     }
+                     else if (attrValue instanceof Node)
+                     {
+                        Node roleNode = (Node) attrValue;
+                        roles.add(roleNode.getFirstChild().getNodeValue());
+                     }
+                     else
+                        throw new RuntimeException("Unknown role object type : " + attrValue);
+                  }
+               }
+            }
+         }
+      }
+      return roles;
+   }
+
+   /**
+    * Given an assertion, return the list of roles it may have
+    * @param assertion The {@link SAML11AssertionType} 
+    * @param roleKeys a list of string values representing the role keys. The list can be null.
+    * @return
+    */
+   public static List<String> getRoles(SAML11AssertionType assertion, List<String> roleKeys)
+   {
+      List<String> roles = new ArrayList<String>();
+      List<SAML11StatementAbstractType> statements = assertion.getStatements();
+      for (SAML11StatementAbstractType statement : statements)
+      {
+         if (statement instanceof SAML11AttributeStatementType)
+         {
+            SAML11AttributeStatementType attributeStatement = (SAML11AttributeStatementType) statement;
+            List<SAML11AttributeType> attributes = attributeStatement.get();
+            for (SAML11AttributeType attr : attributes)
+            {
+               if (roleKeys != null && roleKeys.size() > 0)
+               {
+                  if (!roleKeys.contains(attr.getAttributeName()))
+                     continue;
+               }
+               List<Object> attributeValues = attr.get();
                if (attributeValues != null)
                {
                   for (Object attrValue : attributeValues)

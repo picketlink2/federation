@@ -40,6 +40,11 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
+      <source>${basedir}/../sales-saml11/target/sales-saml11.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
       <source>${basedir}/../employee-post-sig/target/employee-post-sig.war</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
