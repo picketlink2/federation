@@ -98,11 +98,12 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
    public SOAPMessage invoke(SOAPMessage request)
    {
       String valueType = null;
+      Node binaryToken = null;
       //Check headers
       try
       {
          SOAPHeader soapHeader = request.getSOAPHeader();
-         Node binaryToken = getBinaryToken(soapHeader);
+         binaryToken = getBinaryToken(soapHeader);
          if (binaryToken != null)
          {
             NamedNodeMap namedNodeMap = binaryToken.getAttributes();
@@ -147,6 +148,11 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          catch (Exception e)
          {
             throw new RuntimeException(e);
+         }
+
+         if (binaryToken != null)
+         {
+            req.setBinaryToken(binaryToken);
          }
 
          if (valueType != null)
