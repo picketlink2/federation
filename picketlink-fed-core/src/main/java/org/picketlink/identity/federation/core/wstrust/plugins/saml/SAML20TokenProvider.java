@@ -18,7 +18,6 @@
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
 import java.security.Principal;
-import java.security.PrivilegedActionException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +65,7 @@ import org.w3c.dom.Element;
  */
 public class SAML20TokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider
 {
-   protected static Logger logger = Logger.getLogger(SAML20TokenProvider.class); 
+   protected static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
 
    private SAML20TokenAttributeProvider attributeProvider;
 
@@ -77,8 +76,8 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     */
    public void initialize(Map<String, String> properties)
    {
-      super.initialize(properties); 
-        
+      super.initialize(properties);
+
       // Check if an attribute provider has been set.
       String attributeProviderClassName = this.properties.get(ATTRIBUTE_PROVIDER);
       if (attributeProviderClassName == null)
@@ -90,7 +89,8 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
       {
          try
          {
-            Object object = SecurityActions.instantiateClass(attributeProviderClassName);
+            Class<?> clazz = SecurityActions.loadClass(getClass(), attributeProviderClassName);
+            Object object = clazz.newInstance();
             if (object instanceof SAML20TokenAttributeProvider)
             {
                this.attributeProvider = (SAML20TokenAttributeProvider) object;
@@ -100,7 +100,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
                logger.warn("Attribute provider not installed: " + attributeProviderClassName
                      + "is not an instance of SAML20TokenAttributeProvider");
          }
-         catch (PrivilegedActionException pae)
+         catch (Exception pae)
          {
             logger.warn("Error instantiating attribute provider: " + pae.getMessage());
             pae.printStackTrace();
@@ -114,15 +114,15 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void cancelToken( ProtocolContext protoContext) throws ProcessingException
+   public void cancelToken(ProtocolContext protoContext) throws ProcessingException
    {
-      if(! (protoContext instanceof WSTrustRequestContext) )
+      if (!(protoContext instanceof WSTrustRequestContext))
          return;
-      
+
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
-      
+
       // get the assertion that must be canceled.
-      Element token = (Element) context.getRequestSecurityToken().getCancelTargetElement();
+      Element token = context.getRequestSecurityToken().getCancelTargetElement();
       if (token == null)
          throw new ProcessingException("Invalid cancel request: missing required CancelTarget");
       Element assertionElement = (Element) token.getFirstChild();
@@ -140,12 +140,12 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void issueToken( ProtocolContext protoContext) throws ProcessingException
+   public void issueToken(ProtocolContext protoContext) throws ProcessingException
    {
-      if(! (protoContext instanceof WSTrustRequestContext) )
+      if (!(protoContext instanceof WSTrustRequestContext))
          return;
-      
-      WSTrustRequestContext context = (WSTrustRequestContext) protoContext; 
+
+      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       // generate an id for the new assertion.
       String assertionID = IDGenerator.create("ID_");
 
@@ -205,7 +205,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
          AttributeStatementType attributeStatement = this.attributeProvider.getAttributeStatement();
          if (attributeStatement != null)
          {
-            assertion.addStatement( attributeStatement );
+            assertion.addStatement(attributeStatement);
          }
       }
 
@@ -239,14 +239,14 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void renewToken( ProtocolContext protoContext ) throws ProcessingException
+   public void renewToken(ProtocolContext protoContext) throws ProcessingException
    {
-      if(! (protoContext instanceof WSTrustRequestContext) )
+      if (!(protoContext instanceof WSTrustRequestContext))
          return;
-      
+
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       // get the specified assertion that must be renewed.
-      Element token = (Element) context.getRequestSecurityToken().getRenewTargetElement();
+      Element token = context.getRequestSecurityToken().getRenewTargetElement();
       if (token == null)
          throw new ProcessingException("Invalid renew request: missing required RenewTarget");
       Element oldAssertionElement = (Element) token.getFirstChild();
@@ -259,7 +259,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
       {
          oldAssertion = SAMLUtil.fromElement(oldAssertionElement);
       }
-      catch ( Exception je )
+      catch (Exception je)
       {
          throw new ProcessingException("Error unmarshalling assertion", je);
       }
@@ -276,14 +276,13 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
 
       // create a new unique ID for the renewed assertion.
       String assertionID = IDGenerator.create("ID_");
-      
+
       List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
-      statements.addAll( oldAssertion.getStatements() );
+      statements.addAll(oldAssertion.getStatements());
 
       // create the new assertion.
       AssertionType newAssertion = SAMLAssertionFactory.createAssertion(assertionID, oldAssertion.getIssuer(), context
-            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), 
-            statements );
+            .getRequestSecurityToken().getLifetime().getCreated(), conditions, oldAssertion.getSubject(), statements);
 
       // create a security token with the new assertion.
       Element assertionElement = null;
@@ -313,11 +312,11 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#
     * validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
     */
-   public void validateToken( ProtocolContext protoContext ) throws ProcessingException
+   public void validateToken(ProtocolContext protoContext) throws ProcessingException
    {
-      if(! (protoContext instanceof WSTrustRequestContext) )
+      if (!(protoContext instanceof WSTrustRequestContext))
          return;
-      
+
       WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
       if (logger.isTraceEnabled())
          logger.trace("SAML V2.0 token validation started");
@@ -343,7 +342,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
          {
             assertion = SAMLUtil.fromElement(assertionElement);
          }
-         catch ( Exception e )
+         catch (Exception e)
          {
             throw new ProcessingException("Unmarshalling error:", e);
          }
@@ -413,15 +412,15 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#getSupportedQName()
     */
    public QName getSupportedQName()
-   { 
-      return new QName( tokenType(), JBossSAMLConstants.ASSERTION.get() );
+   {
+      return new QName(tokenType(), JBossSAMLConstants.ASSERTION.get());
    }
 
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#family()
     */
    public String family()
-   { 
+   {
       return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
-   } 
+   }
 }

@@ -30,11 +30,12 @@ package org.picketlink.identity.federation.web.util;
 public class ServerDetector
 {
    private boolean jboss = false;
+
    private boolean tomcat = false;
-   
+
    public ServerDetector()
    {
-      this.detectServer(); 
+      this.detectServer();
    }
 
    public boolean isJboss()
@@ -46,39 +47,38 @@ public class ServerDetector
    {
       return tomcat;
    }
-   
+
    private void detectServer()
    {
-      //Detect JBoss
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      
+      //Detect JBoss 
+
       try
       {
-         Class<?> clazz = tcl.loadClass("org.jboss.system.Service");
-         if(clazz != null)
+         Class<?> clazz = SecurityActions.loadClass(getClass(), "org.jboss.system.Service");
+         if (clazz != null)
          {
             jboss = true;
             return;
          }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-       //ignore  
+         //ignore  
       }
-      
+
       //Tomcat
       try
       {
-         Class<?> clazz = tcl.loadClass("org.apache.cataline.Server");
-         if(clazz != null)
+         Class<?> clazz = SecurityActions.loadClass(getClass(), "org.apache.cataline.Server");
+         if (clazz != null)
          {
             tomcat = true;
             return;
          }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-       //ignore  
+         //ignore  
       }
    }
 }

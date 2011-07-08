@@ -355,7 +355,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             configurationFileURL = configurationFile.toURI().toURL();
          else
             // if not configuration file was found in the user home, check the context classloader.
-            configurationFileURL = SecurityActions.getContextClassLoader().getResource(STS_CONFIG_FILE);
+            configurationFileURL = SecurityActions.loadResource(getClass(), STS_CONFIG_FILE);
 
          // if no configuration file was found, log a warn message and use default configuration values.
          if (configurationFileURL == null)
@@ -376,5 +376,4 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          throw new ConfigurationException("Error parsing the configuration file:[" + configurationFileURL + "]", e);
       }
    }
-
 }

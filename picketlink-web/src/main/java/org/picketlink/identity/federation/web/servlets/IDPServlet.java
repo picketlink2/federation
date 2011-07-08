@@ -171,8 +171,8 @@ public class IDPServlet extends HttpServlet
          String attributeManager = idpConfiguration.getAttributeManager();
          if (attributeManager != null && !"".equals(attributeManager))
          {
-            ClassLoader tcl = SecurityActions.getContextClassLoader();
-            AttributeManager delegate = (AttributeManager) tcl.loadClass(attributeManager).newInstance();
+            AttributeManager delegate = (AttributeManager) SecurityActions.loadClass(getClass(), attributeManager)
+                  .newInstance();
             this.attribManager.setDelegate(delegate);
          }
 
@@ -212,12 +212,11 @@ public class IDPServlet extends HttpServlet
 
          try
          {
-            ClassLoader tcl = SecurityActions.getContextClassLoader();
             String keyManagerClassName = keyProvider.getClassName();
             if (keyManagerClassName == null)
                throw new RuntimeException("KeyManager class name is null");
 
-            Class<?> clazz = tcl.loadClass(keyManagerClassName);
+            Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
             this.keyManager = (TrustKeyManager) clazz.newInstance();
 
             List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
@@ -259,18 +258,10 @@ public class IDPServlet extends HttpServlet
          {
             try
             {
-               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass(theStackParam);
+               Class<?> stackClass = SecurityActions.loadClass(getClass(), theStackParam);
                identityServer.setStack((IdentityParticipantStack) stackClass.newInstance());
             }
-            catch (ClassNotFoundException e)
-            {
-               log("Unable to set the Identity Participant Stack Class. Will just use the default", e);
-            }
-            catch (InstantiationException e)
-            {
-               log("Unable to set the Identity Participant Stack Class. Will just use the default", e);
-            }
-            catch (IllegalAccessException e)
+            catch (Exception e)
             {
                log("Unable to set the Identity Participant Stack Class. Will just use the default", e);
             }
@@ -683,7 +674,7 @@ public class IDPServlet extends HttpServlet
    {
       try
       {
-         Class<?> clazz = SecurityActions.getContextClassLoader().loadClass(rgName);
+         Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
          roleGenerator = (RoleGenerator) clazz.newInstance();
       }
       catch (Exception e)

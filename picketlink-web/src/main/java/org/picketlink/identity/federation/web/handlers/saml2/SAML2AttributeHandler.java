@@ -43,9 +43,9 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -147,10 +147,9 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
    {
       if (attribStr != null && !"".equals(attribStr))
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          try
          {
-            attribManager = (AttributeManager) tcl.loadClass(attribStr).newInstance();
+            attribManager = (AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance();
             if (trace)
                log.trace("AttributeManager set to " + this.attribManager);
          }

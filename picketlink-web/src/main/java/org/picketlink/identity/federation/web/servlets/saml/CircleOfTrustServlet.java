@@ -48,126 +48,122 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 public class CircleOfTrustServlet extends HttpServlet
 {
    private static final long serialVersionUID = 1L;
-   
+
    private transient IMetadataConfigurationStore configProvider = new FileBasedMetadataConfigurationStore();
-   
+
    @Override
    public void init(ServletConfig config) throws ServletException
    {
-      super.init(config); 
-      
+      super.init(config);
+
       String cstr = config.getInitParameter("configProvider");
-      if(isNotNull(cstr))
+      if (isNotNull(cstr))
       {
-         ClassLoader tcl;
          try
          {
-            tcl = SecurityActions.getContextClassLoader();
-            configProvider = (IMetadataConfigurationStore) tcl.loadClass(cstr).newInstance();
+            configProvider = (IMetadataConfigurationStore) SecurityActions.loadClass(getClass(), cstr).newInstance();
          }
          catch (Exception e)
          {
             throw new ServletException(e);
          }
-      }   
+      }
    }
-    
- 
+
    @Override
    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
-   {  
+   {
       //Handle listing of providers for either idp or sp
       //Handle adding an IDP
       //Handle adding a SP
       String action = req.getParameter("action");
       String type = req.getParameter("type");
-      if(action == null)
+      if (action == null)
          throw new ServletException("action is null");
-      if(type == null)
+      if (type == null)
          throw new ServletException("type is null");
 
       //SP
-      if("sp".equalsIgnoreCase(type))
+      if ("sp".equalsIgnoreCase(type))
       {
-         if("add".equalsIgnoreCase(action))
+         if ("add".equalsIgnoreCase(action))
          {
             try
             {
-               addIDP(req,resp); 
+               addIDP(req, resp);
                req.getRequestDispatcher("/addedIDP.jsp").forward(req, resp);
             }
             catch (Exception e)
             {
                throw new ServletException(e);
-            } 
-         } 
-         if("display_trusted_providers".equalsIgnoreCase(action))
+            }
+         }
+         if ("display_trusted_providers".equalsIgnoreCase(action))
          {
             try
             {
-               displayTrustedProvidersForSP(req,resp); 
+               displayTrustedProvidersForSP(req, resp);
                req.getRequestDispatcher("/spTrustedProviders.jsp").forward(req, resp);
             }
             catch (Exception e)
             {
                throw new ServletException(e);
-            } 
+            }
          }
       }
       else
-       //IDP
-         if("idp".equalsIgnoreCase(type))
+      //IDP
+      if ("idp".equalsIgnoreCase(type))
+      {
+         if ("add".equalsIgnoreCase(action))
          {
-            if("add".equalsIgnoreCase(action))
+            try
             {
-               try
-               {
-                  addSP(req,resp); 
-                  req.getRequestDispatcher("/addedSP.jsp").forward(req, resp);
-               }
-               catch (Exception e)
-               {
-                  throw new ServletException(e);
-               } 
-            } 
-            if("display_trusted_providers".equalsIgnoreCase(action))
+               addSP(req, resp);
+               req.getRequestDispatcher("/addedSP.jsp").forward(req, resp);
+            }
+            catch (Exception e)
             {
-               try
-               {
-                  displayTrustedProvidersForIDP(req,resp); 
-                  req.getRequestDispatcher("/idpTrustedProviders.jsp").forward(req, resp);
-               }
-               catch (Exception e)
-               {
-                  throw new ServletException(e);
-               } 
+               throw new ServletException(e);
             }
          }
+         if ("display_trusted_providers".equalsIgnoreCase(action))
+         {
+            try
+            {
+               displayTrustedProvidersForIDP(req, resp);
+               req.getRequestDispatcher("/idpTrustedProviders.jsp").forward(req, resp);
+            }
+            catch (Exception e)
+            {
+               throw new ServletException(e);
+            }
+         }
+      }
    }
-    
-   private void addIDP(HttpServletRequest request, HttpServletResponse response) 
-   throws IOException
+
+   private void addIDP(HttpServletRequest request, HttpServletResponse response) throws IOException
    {
       String spName = request.getParameter("spname");
       String idpName = request.getParameter("idpname");
       String metadataURL = request.getParameter("metadataURL");
-      
+
       EntityDescriptorType edt = getMetaData(metadataURL);
-      
+
       configProvider.persist(edt, idpName);
-      
+
       HttpSession httpSession = request.getSession();
       httpSession.setAttribute("idp", edt);
-      
+
       //Let us add the trusted providers
-      Map<String,String> trustedProviders = new HashMap<String, String>();
+      Map<String, String> trustedProviders = new HashMap<String, String>();
       try
       {
-         trustedProviders = configProvider.loadTrustedProviders(spName); 
-      } 
+         trustedProviders = configProvider.loadTrustedProviders(spName);
+      }
       catch (ClassNotFoundException e)
       {
-         log("Error obtaining the trusted providers for "+spName);
+         log("Error obtaining the trusted providers for " + spName);
          throw new RuntimeException(e);
       }
       finally
@@ -176,29 +172,28 @@ public class CircleOfTrustServlet extends HttpServlet
          configProvider.persistTrustedProviders(spName, trustedProviders);
       }
    }
-   
-   private void addSP(HttpServletRequest request, HttpServletResponse response) 
-   throws IOException
+
+   private void addSP(HttpServletRequest request, HttpServletResponse response) throws IOException
    {
       String idpName = request.getParameter("idpname");
       String spName = request.getParameter("spname");
-      String metadataURL = request.getParameter("metadataURL"); 
+      String metadataURL = request.getParameter("metadataURL");
 
       EntityDescriptorType edt = getMetaData(metadataURL);
       configProvider.persist(edt, spName);
-      
+
       HttpSession httpSession = request.getSession();
       httpSession.setAttribute("sp", edt);
-      
+
       //Let us add the trusted providers
-      Map<String,String> trustedProviders = new HashMap<String, String>();
+      Map<String, String> trustedProviders = new HashMap<String, String>();
       try
       {
-         trustedProviders = configProvider.loadTrustedProviders(spName); 
+         trustedProviders = configProvider.loadTrustedProviders(spName);
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-         log("Error obtaining the trusted providers for "+spName);
+         log("Error obtaining the trusted providers for " + spName);
       }
       finally
       {
@@ -207,11 +202,10 @@ public class CircleOfTrustServlet extends HttpServlet
       }
    }
 
-
    private EntityDescriptorType getMetaData(String metadataURL) throws IOException
    {
       throw new RuntimeException();
-      
+
       /*InputStream is;
       URL md = new URL(metadataURL);
       HttpURLConnection http = (HttpURLConnection) md.openConnection();
@@ -226,28 +220,28 @@ public class CircleOfTrustServlet extends HttpServlet
       EntityDescriptorType edt = (EntityDescriptorType) obj;
       return edt;*/
    }
-   
-   private void displayTrustedProvidersForIDP(HttpServletRequest request, HttpServletResponse response) 
-   throws IOException, ClassNotFoundException
+
+   private void displayTrustedProvidersForIDP(HttpServletRequest request, HttpServletResponse response)
+         throws IOException, ClassNotFoundException
    {
-      String idpName = request.getParameter("name"); 
-      
-      Map<String, String> trustedProviders = configProvider.loadTrustedProviders(idpName); 
-      
+      String idpName = request.getParameter("name");
+
+      Map<String, String> trustedProviders = configProvider.loadTrustedProviders(idpName);
+
       HttpSession httpSession = request.getSession();
       httpSession.setAttribute("idpName", idpName);
-      httpSession.setAttribute("providers", trustedProviders); 
+      httpSession.setAttribute("providers", trustedProviders);
    }
-   
-   private void displayTrustedProvidersForSP(HttpServletRequest request, HttpServletResponse response) 
-   throws IOException, ClassNotFoundException
+
+   private void displayTrustedProvidersForSP(HttpServletRequest request, HttpServletResponse response)
+         throws IOException, ClassNotFoundException
    {
-      String spName = request.getParameter("name"); 
-      
-      Map<String, String> trustedProviders = configProvider.loadTrustedProviders(spName); 
-      
+      String spName = request.getParameter("name");
+
+      Map<String, String> trustedProviders = configProvider.loadTrustedProviders(spName);
+
       HttpSession httpSession = request.getSession();
       httpSession.setAttribute("spName", spName);
-      httpSession.setAttribute("providers", trustedProviders); 
+      httpSession.setAttribute("providers", trustedProviders);
    }
 }

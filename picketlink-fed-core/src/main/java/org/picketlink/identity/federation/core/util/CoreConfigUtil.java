@@ -46,9 +46,9 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 
 /**
  * Utility for configuration
@@ -82,12 +82,13 @@ public class CoreConfigUtil
       TrustKeyManager trustKeyManager = null;
       try
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          String keyManagerClassName = keyProvider.getClassName();
          if (keyManagerClassName == null)
             throw new RuntimeException("KeyManager class name is null");
 
-         Class<?> clazz = tcl.loadClass(keyManagerClassName);
+         Class<?> clazz = SecurityActions.loadClass(CoreConfigUtil.class, keyManagerClassName);
+         if (clazz == null)
+            throw new RuntimeException(keyManagerClassName + " could not be loaded");
          trustKeyManager = (TrustKeyManager) clazz.newInstance();
       }
       catch (Exception e)

@@ -22,7 +22,7 @@
 package org.picketlink.identity.federation.web.roles;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +47,10 @@ public class DefaultRoleGenerator implements RoleGenerator
    {
       try
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
-         InputStream is = tcl.getResourceAsStream("roles.properties");
-         if (is == null)
+         URL url = SecurityActions.loadResource(DefaultRoleGenerator.class, "roles.properties");
+         if (url == null)
             throw new RuntimeException("roles.properties not found");
-         props.load(is);
+         props.load(url.openStream());
       }
       catch (IOException e)
       {

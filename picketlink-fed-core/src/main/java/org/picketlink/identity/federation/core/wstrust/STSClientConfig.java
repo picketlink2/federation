@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -379,10 +380,10 @@ public class STSClientConfig
          return new FileInputStream(file);
       }
       // Try it as a classpath resource ...
-      final ClassLoader threadClassLoader = SecurityActions.getContextClassLoader();
-      if (threadClassLoader != null)
+      URL url = SecurityActions.loadResource(STSClientConfig.class, resource);
+      if (url != null)
       {
-         final InputStream is = threadClassLoader.getResourceAsStream(resource);
+         final InputStream is = url.openStream();
          if (is != null)
          {
             return is;
@@ -391,5 +392,4 @@ public class STSClientConfig
 
       return null;
    }
-
 }

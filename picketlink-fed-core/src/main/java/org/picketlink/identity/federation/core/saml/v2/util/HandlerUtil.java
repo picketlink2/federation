@@ -44,41 +44,37 @@ public class HandlerUtil
 {
    public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException
    {
-      if(handlers == null)
+      if (handlers == null)
          throw new IllegalArgumentException("handlers is null");
       List<Handler> handlerList = handlers.getHandler();
 
       Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
 
-      for(Handler handler : handlerList)
+      for (Handler handler : handlerList)
       {
          String clazzName = handler.getClazz();
 
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          Class<?> clazz;
          try
          {
-            clazz = tcl.loadClass(clazzName);
-
+            clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
+            if (clazz == null)
+               throw new RuntimeException(clazzName + " could not be loaded");
             SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
             List<KeyValueType> options = handler.getOption();
 
             Map<String, Object> mapOptions = new HashMap<String, Object>();
 
-            for(KeyValueType kvtype : options)
+            for (KeyValueType kvtype : options)
             {
                mapOptions.put(kvtype.getKey(), kvtype.getValue());
             }
             SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
             handlerConfig.set(mapOptions);
-            
+
             samlhandler.initHandlerConfig(handlerConfig);
 
             handlerSet.add(samlhandler);
-         }
-         catch (ClassNotFoundException e)
-         {
-            throw new ConfigurationException(e);
          }
          catch (InstantiationException e)
          {
@@ -88,8 +84,7 @@ public class HandlerUtil
          {
             throw new ConfigurationException(e);
          }
-      } 
-      
+      }
       return handlerSet;
-   } 
+   }
 }

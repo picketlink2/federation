@@ -56,9 +56,9 @@ import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Element;
@@ -71,20 +71,25 @@ import org.w3c.dom.Element;
 public class MetadataServlet extends HttpServlet
 {
    private static final long serialVersionUID = 1L;
+
    private static Logger log = Logger.getLogger(MetadataServlet.class);
-   private boolean trace = log.isTraceEnabled();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    private String configFileLocation = GeneralConstants.CONFIG_FILE_LOCATION;
+
    private transient MetadataProviderType metadataProviderType = null;
-   
+
    private transient IMetadataProvider<?> metadataProvider = null;
-   
+
    private transient EntityDescriptorType metadata;
-   
+
    private String signingAlias = null;
+
    private String encryptingAlias = null;
-   private TrustKeyManager keyManager; 
-   
+
+   private TrustKeyManager keyManager;
+
    @SuppressWarnings("rawtypes")
    @Override
    public void init(ServletConfig config) throws ServletException
@@ -94,33 +99,32 @@ public class MetadataServlet extends HttpServlet
       {
          ServletContext context = config.getServletContext();
          String configL = config.getInitParameter("configFile");
-         if(isNotNull(configL))
+         if (isNotNull(configL))
             configFileLocation = configL;
-         if(trace)
-            log.trace("Config File Location="+ configFileLocation);
+         if (trace)
+            log.trace("Config File Location=" + configFileLocation);
          InputStream is = context.getResourceAsStream(configFileLocation);
-         if(is == null)
+         if (is == null)
             throw new RuntimeException(configFileLocation + " missing");
-         
+
          //Look for signing alias
          signingAlias = config.getInitParameter("signingAlias");
          encryptingAlias = config.getInitParameter("encryptingAlias");
 
-         ProviderType providerType = ConfigurationUtil.getIDPConfiguration(is); 
-         metadataProviderType  = providerType.getMetaDataProvider();
+         ProviderType providerType = ConfigurationUtil.getIDPConfiguration(is);
+         metadataProviderType = providerType.getMetaDataProvider();
          String fqn = metadataProviderType.getClassName();
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
-         Class<?> clazz = tcl.loadClass(fqn);
+         Class<?> clazz = SecurityActions.loadClass(getClass(), fqn);
          metadataProvider = (IMetadataProvider) clazz.newInstance();
          List<KeyValueType> keyValues = metadataProviderType.getOption();
-         Map<String,String> options = new HashMap<String,String>();
-         if(keyValues != null)
+         Map<String, String> options = new HashMap<String, String>();
+         if (keyValues != null)
          {
-            for(KeyValueType kvt: keyValues)
+            for (KeyValueType kvt : keyValues)
                options.put(kvt.getKey(), kvt.getValue());
          }
          metadataProvider.init(options);
-         if(metadataProvider.isMultiple())
+         if (metadataProvider.isMultiple())
             throw new RuntimeException("Multiple Entities not currently supported");
 
          /**
@@ -128,10 +132,10 @@ public class MetadataServlet extends HttpServlet
           * It may be difficult to get to the resource from the TCL.
           */
          String fileInjectionStr = metadataProvider.requireFileInjection();
-         if(isNotNull(fileInjectionStr))
+         if (isNotNull(fileInjectionStr))
          {
             metadataProvider.injectFileStream(context.getResourceAsStream(fileInjectionStr));
-         } 
+         }
 
          metadata = (EntityDescriptorType) metadataProvider.getMetaData();
 
@@ -139,61 +143,60 @@ public class MetadataServlet extends HttpServlet
          KeyProviderType keyProvider = providerType.getKeyProvider();
          signingAlias = keyProvider.getSigningAlias();
          String keyManagerClassName = keyProvider.getClassName();
-         if(keyManagerClassName == null)
+         if (keyManagerClassName == null)
             throw new RuntimeException("KeyManager class name is null");
 
-         clazz = tcl.loadClass(keyManagerClassName);
+         clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         
+
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-         keyManager.setAuthProperties( authProperties ); 
+         keyManager.setAuthProperties(authProperties);
 
          Certificate cert = keyManager.getCertificate(signingAlias);
          Element keyInfo = KeyUtil.getKeyInfo(cert);
 
          //TODO: Assume just signing key for now
-         KeyDescriptorType keyDescriptor = KeyDescriptorMetaDataBuilder.createKeyDescriptor(keyInfo, 
-               null, 0, true, false);
+         KeyDescriptorType keyDescriptor = KeyDescriptorMetaDataBuilder.createKeyDescriptor(keyInfo, null, 0, true,
+               false);
 
          updateKeyDescriptor(metadata, keyDescriptor);
 
          //encryption
-         if(this.encryptingAlias != null)
+         if (this.encryptingAlias != null)
          {
             cert = keyManager.getCertificate(encryptingAlias);
             keyInfo = KeyUtil.getKeyInfo(cert);
             String certAlgo = cert.getPublicKey().getAlgorithm();
-            keyDescriptor = KeyDescriptorMetaDataBuilder.createKeyDescriptor(keyInfo, 
-                  XMLEncryptionUtil.getEncryptionURL(certAlgo), 
-                  XMLEncryptionUtil.getEncryptionKeySize(certAlgo), false, true);
+            keyDescriptor = KeyDescriptorMetaDataBuilder.createKeyDescriptor(keyInfo,
+                  XMLEncryptionUtil.getEncryptionURL(certAlgo), XMLEncryptionUtil.getEncryptionKeySize(certAlgo),
+                  false, true);
             updateKeyDescriptor(metadata, keyDescriptor);
          }
-      } catch(Exception e)
+      }
+      catch (Exception e)
       {
-         log.error("Exception in starting servlet:",e);
+         log.error("Exception in starting servlet:", e);
          throw new ServletException("Unable to start servlet");
       }
-      
+
    }
-   
-   
+
    @Override
-   protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-   throws ServletException, IOException
+   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
    {
       resp.setContentType(JBossSAMLConstants.METADATA_MIME.get());
       OutputStream os = resp.getOutputStream();
-      
+
       try
       {
-         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter( os );
-         SAMLMetadataWriter writer = new SAMLMetadataWriter( streamWriter );
+         XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter(os);
+         SAMLMetadataWriter writer = new SAMLMetadataWriter(streamWriter);
          writer.writeEntityDescriptor(metadata);
       }
       catch (ProcessingException e)
       {
-         throw new ServletException( e );
-      } 
+         throw new ServletException(e);
+      }
       /*
       JAXBElement<?> jaxbEl = MetaDataBuilder.getObjectFactory().createEntityDescriptor(metadata);
       try
@@ -203,19 +206,19 @@ public class MetadataServlet extends HttpServlet
       catch (Exception e)
       {
          throw new RuntimeException(e);
-      }*/ 
+      }*/
    }
-   
+
    private void updateKeyDescriptor(EntityDescriptorType entityD, KeyDescriptorType keyD)
    {
-     List<EDTDescriptorChoiceType> objs = entityD.getChoiceType().get(0).getDescriptors();
-     if(objs != null)
-     {
-        for(EDTDescriptorChoiceType roleD: objs)
-        {
-           RoleDescriptorType roleDescriptor = roleD.getRoleDescriptor();
-           roleDescriptor.addKeyDescriptor( keyD );
-        }
-     }
+      List<EDTDescriptorChoiceType> objs = entityD.getChoiceType().get(0).getDescriptors();
+      if (objs != null)
+      {
+         for (EDTDescriptorChoiceType roleD : objs)
+         {
+            RoleDescriptorType roleDescriptor = roleD.getRoleDescriptor();
+            roleDescriptor.addKeyDescriptor(keyD);
+         }
+      }
    }
 }

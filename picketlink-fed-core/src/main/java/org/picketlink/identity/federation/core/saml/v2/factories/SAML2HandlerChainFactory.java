@@ -34,22 +34,25 @@ public class SAML2HandlerChainFactory
 {
    public static SAML2HandlerChain createChain()
    {
-      return new DefaultSAML2HandlerChain(); 
-   } 
-   
+      return new DefaultSAML2HandlerChain();
+   }
+
    public static SAML2HandlerChain createChain(String fqn) throws ProcessingException
    {
-      if(fqn == null)
+      if (fqn == null)
          throw new IllegalArgumentException("fqn is null");
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      
+
+      Class<?> clazz = SecurityActions.loadClass(SAML2HandlerChainFactory.class, fqn);
+      if (clazz == null)
+         throw new ProcessingException("Handler Chain could not be created");
+
       try
       {
-         return (SAML2HandlerChain) tcl.loadClass(fqn).newInstance();
+         return (SAML2HandlerChain) clazz.newInstance();
       }
       catch (Exception e)
       {
-         throw new ProcessingException("Cannot create chain:",e); 
-      } 
+         throw new ProcessingException("Cannot create chain:", e);
+      }
    }
 }

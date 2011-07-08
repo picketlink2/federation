@@ -309,9 +309,8 @@ public class PicketLinkCoreSTS
             configurationFileURL = configurationFile.toURI().toURL();
          else
          {
-            // if not configuration file was found in the user home, check the context classloader.
-            ClassLoader tccl = SecurityActions.getContextClassLoader();
-            configurationFileURL = tccl.getResource(fileName);
+            // if not configuration file was found in the user home, check the context classloader. 
+            configurationFileURL = SecurityActions.loadResource(getClass(), fileName);
          }
 
          // if no configuration file was found, log a warn message and use default configuration values.

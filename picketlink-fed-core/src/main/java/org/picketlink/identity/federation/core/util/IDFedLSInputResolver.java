@@ -21,8 +21,10 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -118,7 +120,6 @@ public class IDFedLSInputResolver implements LSResourceResolver
       LSInput lsi = lsmap.get(systemId);
       if (lsi == null)
       {
-         final ClassLoader tcl = SecurityActions.getContextClassLoader();
          final String loc = schemaLocationMap.get(systemId);
          if (loc == null)
             return null;
@@ -132,7 +133,16 @@ public class IDFedLSInputResolver implements LSResourceResolver
 
             public InputStream getByteStream()
             {
-               final InputStream is = tcl.getResourceAsStream(loc);
+               URL url = SecurityActions.loadResource(getClass(), loc);
+               InputStream is;
+               try
+               {
+                  is = url.openStream();
+               }
+               catch (IOException e)
+               {
+                  throw new RuntimeException(loc + " could not be loaded");
+               }
                if (is == null)
                   throw new RuntimeException("inputstream is null for " + loc);
                return is;

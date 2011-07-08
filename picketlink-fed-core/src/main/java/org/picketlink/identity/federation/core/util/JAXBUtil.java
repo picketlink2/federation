@@ -47,18 +47,19 @@ import org.xml.sax.SAXParseException;
 public class JAXBUtil
 {
    private static Logger log = Logger.getLogger(JAXBUtil.class);
+
    private static boolean trace = log.isTraceEnabled();
-   
+
    public static final String W3C_XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
-   
-   private static HashMap<String,JAXBContext> jaxbContextHash = new HashMap<String, JAXBContext>();
-   
+
+   private static HashMap<String, JAXBContext> jaxbContextHash = new HashMap<String, JAXBContext>();
+
    static
    {
       //Useful on Sun VMs.  Harmless on other VMs.
       SecurityActions.setSystemProperty("com.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot", "true");
    }
-   
+
    /**
     * Get the JAXB Marshaller
     * @param pkgName The package name for the jaxb context
@@ -67,15 +68,15 @@ public class JAXBUtil
     * @throws JAXBException 
     * @throws SAXException 
     */
-   public static Marshaller getValidatingMarshaller(String pkgName, String schemaLocation) 
-   throws JAXBException, SAXException  
+   public static Marshaller getValidatingMarshaller(String pkgName, String schemaLocation) throws JAXBException,
+         SAXException
    {
-      Marshaller marshaller = getMarshaller(pkgName); 
-      
+      Marshaller marshaller = getMarshaller(pkgName);
+
       //Validate against schema
       Schema schema = getJAXPSchemaInstance(schemaLocation);
-      marshaller.setSchema(schema); 
-   
+      marshaller.setSchema(schema);
+
       return marshaller;
    }
 
@@ -85,11 +86,11 @@ public class JAXBUtil
     * @return Marshaller 
     * @throws JAXBException 
     */
-   public static Marshaller getMarshaller(String pkgName) throws JAXBException 
+   public static Marshaller getMarshaller(String pkgName) throws JAXBException
    {
-      if(pkgName == null)
+      if (pkgName == null)
          throw new IllegalArgumentException("pkgName is null");
-      
+
       JAXBContext jc = getJAXBContext(pkgName);
       Marshaller marshaller = jc.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
@@ -103,14 +104,14 @@ public class JAXBUtil
     * @return unmarshaller
     * @throws JAXBException  
     */
-   public static Unmarshaller getUnmarshaller(String pkgName) throws JAXBException 
+   public static Unmarshaller getUnmarshaller(String pkgName) throws JAXBException
    {
-      if(pkgName == null)
+      if (pkgName == null)
          throw new IllegalArgumentException("pkgName is null");
       JAXBContext jc = getJAXBContext(pkgName);
       return jc.createUnmarshaller();
    }
-   
+
    /**
     * Get the JAXB Unmarshaller for a selected set
     * of package names
@@ -118,14 +119,14 @@ public class JAXBUtil
     * @return
     * @throws JAXBException
     */
-   public static Unmarshaller getUnmarshaller(String... pkgNames) throws JAXBException 
+   public static Unmarshaller getUnmarshaller(String... pkgNames) throws JAXBException
    {
-      if(pkgNames == null)
+      if (pkgNames == null)
          throw new IllegalArgumentException("pkgName is null");
       int len = pkgNames.length;
-      if(len == 0)
+      if (len == 0)
          return getUnmarshaller(pkgNames[0]);
-      
+
       JAXBContext jc = getJAXBContext(pkgNames);
       return jc.createUnmarshaller();
    }
@@ -138,60 +139,57 @@ public class JAXBUtil
     * @throws JAXBException 
     * @throws SAXException  
     */
-   public static Unmarshaller getValidatingUnmarshaller(String pkgName, String schemaLocation) 
-   throws JAXBException, SAXException
-   { 
-      Unmarshaller unmarshaller = getUnmarshaller(pkgName); 
+   public static Unmarshaller getValidatingUnmarshaller(String pkgName, String schemaLocation) throws JAXBException,
+         SAXException
+   {
+      Unmarshaller unmarshaller = getUnmarshaller(pkgName);
       Schema schema = getJAXPSchemaInstance(schemaLocation);
-      unmarshaller.setSchema(schema); 
-    
+      unmarshaller.setSchema(schema);
+
       return unmarshaller;
    }
-   
-   public static Unmarshaller getValidatingUnmarshaller(String[] pkgNames,
-         String[] schemaLocations) throws JAXBException,SAXException, IOException
+
+   public static Unmarshaller getValidatingUnmarshaller(String[] pkgNames, String[] schemaLocations)
+         throws JAXBException, SAXException, IOException
    {
       StringBuilder builder = new StringBuilder();
       int len = pkgNames.length;
-      if(len == 0)
+      if (len == 0)
          throw new IllegalArgumentException("Packages are empty");
-      
-      for(String pkg:pkgNames)
+
+      for (String pkg : pkgNames)
       {
-        builder.append(pkg); 
-        builder.append(":");
+         builder.append(pkg);
+         builder.append(":");
       }
-      
-      Unmarshaller unmarshaller = getUnmarshaller(builder.toString()); 
-      
+
+      Unmarshaller unmarshaller = getUnmarshaller(builder.toString());
+
       SchemaFactory schemaFactory = getSchemaFactory();
-      
+
       //Get the sources
       Source[] schemaSources = new Source[schemaLocations.length];
-      
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      
-      int i=0;
-      for(String schemaLocation : schemaLocations)
+
+      int i = 0;
+      for (String schemaLocation : schemaLocations)
       {
-         URL schemaURL = tcl.getResource(schemaLocation);
-         if(schemaURL == null)
+         URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
+         if (schemaURL == null)
             throw new IllegalStateException("Schema URL is null:" + schemaLocation);
 
-         schemaSources[i++] = new StreamSource(schemaURL.openStream());   
+         schemaSources[i++] = new StreamSource(schemaURL.openStream());
       }
-      
+
       Schema schema = schemaFactory.newSchema(schemaSources);
-      unmarshaller.setSchema(schema); 
-    
+      unmarshaller.setSchema(schema);
+
       return unmarshaller;
    }
 
    private static Schema getJAXPSchemaInstance(String schemaLocation) throws SAXException
-   {   
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      URL schemaURL = tcl.getResource(schemaLocation);
-      if(schemaURL == null)
+   {
+      URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
+      if (schemaURL == null)
          throw new IllegalStateException("Schema URL is null:" + schemaLocation);
       SchemaFactory scFact = getSchemaFactory();
       Schema schema = scFact.newSchema(schemaURL);
@@ -201,11 +199,11 @@ public class JAXBUtil
    private static SchemaFactory getSchemaFactory()
    {
       SchemaFactory scFact = SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI);
-      
+
       //Always install the resolver unless the system property is set
-      if(SecurityActions.getSystemProperty("org.picketlink.identity.federation.jaxb.ls", null) == null)
-        scFact.setResourceResolver( new IDFedLSInputResolver()); 
-      
+      if (SecurityActions.getSystemProperty("org.picketlink.identity.federation.jaxb.ls", null) == null)
+         scFact.setResourceResolver(new IDFedLSInputResolver());
+
       scFact.setErrorHandler(new ErrorHandler()
       {
          public void error(SAXParseException exception) throws SAXException
@@ -216,8 +214,9 @@ public class JAXBUtil
             builder.append(" Public ID=").append(exception.getPublicId());
             builder.append(" System ID=").append(exception.getSystemId());
             builder.append(" exc=").append(exception.getLocalizedMessage());
-            
-            if(trace) log.trace("SAX Error:" + builder.toString());
+
+            if (trace)
+               log.trace("SAX Error:" + builder.toString());
          }
 
          public void fatalError(SAXParseException exception) throws SAXException
@@ -228,7 +227,7 @@ public class JAXBUtil
             builder.append(" Public ID=").append(exception.getPublicId());
             builder.append(" System ID=").append(exception.getSystemId());
             builder.append(" exc=").append(exception.getLocalizedMessage());
-            
+
             log.error("SAX Fatal Error:" + builder.toString());
          }
 
@@ -240,53 +239,54 @@ public class JAXBUtil
             builder.append(" Public ID=").append(exception.getPublicId());
             builder.append(" System ID=").append(exception.getSystemId());
             builder.append(" exc=").append(exception.getLocalizedMessage());
-            
-            if(trace) log.trace("SAX Warn:" + builder.toString());        
+
+            if (trace)
+               log.trace("SAX Warn:" + builder.toString());
          }
       });
       return scFact;
    }
-   
+
    public static JAXBContext getJAXBContext(String path) throws JAXBException
    {
       JAXBContext jx = jaxbContextHash.get(path);
-      if(jx == null)
+      if (jx == null)
       {
          jx = JAXBContext.newInstance(path);
          jaxbContextHash.put(path, jx);
       }
       return jx;
    }
-   
+
    public static JAXBContext getJAXBContext(String... paths) throws JAXBException
    {
       int len = paths.length;
       if (len == 0)
          return getJAXBContext(paths[0]);
-      
+
       StringBuilder builder = new StringBuilder();
-      for(String path: paths)
+      for (String path : paths)
       {
-        builder.append(path).append(":");  
+         builder.append(path).append(":");
       }
-      
+
       String finalPath = builder.toString();
-      
+
       JAXBContext jx = jaxbContextHash.get(finalPath);
-      if(jx == null)
+      if (jx == null)
       {
          jx = JAXBContext.newInstance(finalPath);
          jaxbContextHash.put(finalPath, jx);
       }
       return jx;
    }
-   
+
    public static JAXBContext getJAXBContext(Class<?> clazz) throws JAXBException
    {
       String clazzName = clazz.getName();
-      
+
       JAXBContext jx = jaxbContextHash.get(clazzName);
-      if(jx == null)
+      if (jx == null)
       {
          jx = JAXBContext.newInstance(clazz);
          jaxbContextHash.put(clazzName, jx);

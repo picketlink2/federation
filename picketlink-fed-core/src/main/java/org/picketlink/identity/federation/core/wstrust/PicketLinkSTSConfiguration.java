@@ -81,7 +81,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
    public PicketLinkSTSConfiguration()
    {
       this.delegate = new STSType();
-      this.delegate.setRequestHandler( StandardRequestHandler.class.getCanonicalName() );
+      this.delegate.setRequestHandler(StandardRequestHandler.class.getCanonicalName());
       // TODO: add default token provider classes.
    }
 
@@ -91,13 +91,13 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * </p>
     * 
     * @param config a reference to the object that holds the configuration of the STS.
-    */ 
+    */
    public PicketLinkSTSConfiguration(STSType config)
    {
       this.delegate = config;
       // set the default request handler if one hasn't been specified.
       if (this.delegate.getRequestHandler() == null)
-         this.delegate.setRequestHandler( StandardRequestHandler.class.getCanonicalName() );
+         this.delegate.setRequestHandler(StandardRequestHandler.class.getCanonicalName());
 
       // build the token-provider maps.
       TokenProvidersType providers = this.delegate.getTokenProviders();
@@ -111,23 +111,23 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
             List<KeyValueType> providerPropertiesList;
             try
             {
-               providerPropertiesList = CoreConfigUtil.getProperties( provider );
+               providerPropertiesList = CoreConfigUtil.getProperties(provider);
             }
             catch (GeneralSecurityException e)
             {
-               throw new RuntimeException( e );
+               throw new RuntimeException(e);
             }
-            
-            for (KeyValueType propertyType :  providerPropertiesList )
-                  properties.put(propertyType.getKey(), propertyType.getValue());
-            
+
+            for (KeyValueType propertyType : providerPropertiesList)
+               properties.put(propertyType.getKey(), propertyType.getValue());
+
             // create and initialize the token provider.
             SecurityTokenProvider tokenProvider = WSTrustServiceFactory.getInstance().createTokenProvider(
                   provider.getProviderClass(), properties);
             // token providers can be keyed by the token type and by token element + namespace.
             this.tokenProviders.put(provider.getTokenType(), tokenProvider);
-            String tokenElementAndNS = 
-               tokenProvider.family() + "$" + provider.getTokenElement() + "$" + provider.getTokenElementNS();
+            String tokenElementAndNS = tokenProvider.family() + "$" + provider.getTokenElement() + "$"
+                  + provider.getTokenElementNS();
             this.tokenProviders.put(tokenElementAndNS, tokenProvider);
          }
       }
@@ -143,14 +143,14 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
             List<KeyValueType> processorPropertiesList;
             try
             {
-               processorPropertiesList = CoreConfigUtil.getProperties( processor );
+               processorPropertiesList = CoreConfigUtil.getProperties(processor);
             }
             catch (GeneralSecurityException e)
             {
-               throw new RuntimeException( e );
-            }  
+               throw new RuntimeException(e);
+            }
 
-            for (KeyValueType propertyType :  processorPropertiesList )
+            for (KeyValueType propertyType : processorPropertiesList)
                properties.put(propertyType.getKey(), propertyType.getValue());
 
             // create and initialize the claims processor.
@@ -177,10 +177,13 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          try
          {
             //Decrypt/de-mask the passwords if any
-            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProviderType); 
-            
-            this.trustManager = (TrustKeyManager) SecurityActions.instantiateClass(keyManagerClassName);
-            this.trustManager.setAuthProperties( authProperties );
+            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProviderType);
+
+            Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
+            if (clazz == null)
+               throw new RuntimeException(keyManagerClassName + " could not be loaded");
+            this.trustManager = (TrustKeyManager) clazz.newInstance();
+            this.trustManager.setAuthProperties(authProperties);
             this.trustManager.setValidatingAlias(keyProviderType.getValidatingAlias());
          }
          catch (Exception e)
@@ -188,7 +191,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
             throw new RuntimeException("Unable to construct the key manager:", e);
          }
       }
-   } 
+   }
 
    /*
     * (non-Javadoc)
@@ -251,9 +254,9 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public SecurityTokenProvider getProviderForService(String serviceName)
    {
-      if( serviceName == null )
-         throw new IllegalArgumentException( "serviceName is null ");
-      
+      if (serviceName == null)
+         throw new IllegalArgumentException("serviceName is null ");
+
       ServiceProviderType provider = this.spMetadata.get(serviceName);
       if (provider != null)
       {
@@ -269,8 +272,8 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public SecurityTokenProvider getProviderForTokenType(String tokenType)
    {
-      if( tokenType == null )
-         throw new IllegalArgumentException( "tokenType is null ");
+      if (tokenType == null)
+         throw new IllegalArgumentException("tokenType is null ");
       return this.tokenProviders.get(tokenType);
    }
 
@@ -279,8 +282,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public SecurityTokenProvider getProviderForTokenElementNS(String family, QName tokenQName)
    {
-      return this.tokenProviders.get( family + "$" + 
-            tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() );
+      return this.tokenProviders.get(family + "$" + tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI());
    }
 
    /*
@@ -383,7 +385,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * @see STSConfiguration#getXMLDSigCanonicalizationMethod()
     */
    public String getXMLDSigCanonicalizationMethod()
-   { 
+   {
       return delegate.getCanonicalizationMethod();
    }
 
@@ -391,20 +393,20 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * @see {@code STSCoreConfig#addTokenProvider(String, SecurityTokenProvider)}
     */
    public void addTokenProvider(String key, SecurityTokenProvider provider)
-   { 
+   {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
-      tokenProviders.put(key, provider); 
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+
+      tokenProviders.put(key, provider);
 
       QName tokenQName = provider.getSupportedQName();
-      if( tokenQName != null )
+      if (tokenQName != null)
       {
-         String tokenElementAndNS = 
-            provider.family() + "$" + tokenQName.getLocalPart() + "$" + tokenQName.getNamespaceURI() ;
-         
-         this.tokenProviders.put(tokenElementAndNS, provider ); 
+         String tokenElementAndNS = provider.family() + "$" + tokenQName.getLocalPart() + "$"
+               + tokenQName.getNamespaceURI();
+
+         this.tokenProviders.put(tokenElementAndNS, provider);
       }
    }
 
@@ -412,33 +414,33 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     * @see {@code STSCoreConfig#removeTokenProvider(String)}
     */
    public void removeTokenProvider(String key)
-   { 
+   {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
-      tokenProviders.remove(key); 
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+
+      tokenProviders.remove(key);
    }
 
    /**
     * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#getTokenProviders()
     */
    public List<SecurityTokenProvider> getTokenProviders()
-   {  
+   {
       List<SecurityTokenProvider> list = new ArrayList<SecurityTokenProvider>();
-      list.addAll( tokenProviders .values()); 
+      list.addAll(tokenProviders.values());
       return Collections.unmodifiableList(list);
    }
 
    /**
     * @see org.picketlink.identity.federation.core.sts.STSCoreConfig#getProvidersByFamily(java.lang.String)
     */
-   public List<SecurityTokenProvider> getProvidersByFamily( String familyName )
-   { 
+   public List<SecurityTokenProvider> getProvidersByFamily(String familyName)
+   {
       List<SecurityTokenProvider> result = new ArrayList<SecurityTokenProvider>();
-      for( SecurityTokenProvider provider: tokenProviders.values() )
+      for (SecurityTokenProvider provider : tokenProviders.values())
       {
-         if( provider.family().equals( familyName ))
+         if (provider.family().equals(familyName))
             result.add(provider);
       }
       return result;
@@ -449,14 +451,14 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
     */
    public void copy(STSCoreConfig thatConfig)
    {
-      if( thatConfig instanceof PicketLinkSTSConfiguration )
+      if (thatConfig instanceof PicketLinkSTSConfiguration)
       {
          PicketLinkSTSConfiguration pc = (PicketLinkSTSConfiguration) thatConfig;
-         this.tokenProviders.putAll(  pc.tokenProviders );
-         this.claimsProcessors.putAll( pc.claimsProcessors );
+         this.tokenProviders.putAll(pc.tokenProviders);
+         this.claimsProcessors.putAll(pc.claimsProcessors);
       }
-      else 
-         throw new RuntimeException( "Unknown config :" + thatConfig  ); //TODO: Handle other configuration
+      else
+         throw new RuntimeException("Unknown config :" + thatConfig); //TODO: Handle other configuration
    }
 
    @Override

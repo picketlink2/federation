@@ -21,10 +21,9 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 
 /**
  * <p>
@@ -35,73 +34,67 @@ import java.security.PrivilegedExceptionAction;
  */
 class SecurityActions
 {
-
-   /**
-    * <p>
-    * Gets the thread context class loader using a privileged block.
-    * </p>
-    * 
-    * @return a reference to the thread context {@code ClassLoader}.
-    */
-   static ClassLoader getContextClassLoader()
+   static Class<?> loadClass(final Class<?> theClass, final String fqn)
    {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
       {
-         public ClassLoader run()
+         public Class<?> run()
          {
-            return Thread.currentThread().getContextClassLoader();
+            ClassLoader classLoader = theClass.getClassLoader();
+
+            Class<?> clazz = loadClass(classLoader, fqn);
+            if (clazz == null)
+            {
+               classLoader = Thread.currentThread().getContextClassLoader();
+               clazz = loadClass(classLoader, fqn);
+            }
+            return clazz;
          }
       });
    }
 
-   /**
-    * <p>
-    * Loads a class using the thread context class loader in a privileged block.
-    * </p>
-    * 
-    * @param name the fully-qualified name of the class to be loaded.
-    * @return a reference to the loaded {@code Class}.
-    * @throws PrivilegedActionException if an error occurs while loading the class. This exception wraps the real cause
-    *             of the error, so classes using this method must perform a {@code getCause()} in order to get a
-    *             reference to the root of the error.
-    */
-   static Class<?> loadClass(final String name) throws PrivilegedActionException
+   static Class<?> loadClass(final ClassLoader cl, final String fqn)
    {
-      return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>()
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
       {
-         public Class<?> run() throws PrivilegedActionException
+         public Class<?> run()
          {
             try
             {
-               return getContextClassLoader().loadClass(name);
+               return cl.loadClass(fqn);
             }
-            catch (Exception e)
+            catch (ClassNotFoundException e)
             {
-               throw new PrivilegedActionException(e);
             }
+            return null;
          }
       });
    }
 
    /**
-    * <p>
-    * Creates an instance of the specified class in a privileged block. The class must define a default constructor.
-    * </p>
-    * 
-    * @param className the fully-qualified name of the class to be instantiated.
-    * @return a reference to the instantiated {@code Object}.
-    * @throws PrivilegedActionException if an error occurs while instantiating the class. This exception wraps the real
-    *             cause of the error, so classes using this method must perform a {@code getCause()} in order to get a
-    *             reference to the root of the error.
+    * Load a resource based on the passed {@link Class} classloader.
+    * Failing which try with the Thread Context CL
+    * @param clazz
+    * @param resourceName
+    * @return
     */
-   static Object instantiateClass(final String className) throws PrivilegedActionException
+   static URL loadResource(final Class<?> clazz, final String resourceName)
    {
-      return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+      return AccessController.doPrivileged(new PrivilegedAction<URL>()
       {
-         public Object run() throws Exception
+         public URL run()
          {
-            Class<?> objectClass = loadClass(className);
-            return objectClass.newInstance();
+            URL url = null;
+            ClassLoader clazzLoader = clazz.getClassLoader();
+            url = clazzLoader.getResource(resourceName);
+
+            if (url == null)
+            {
+               clazzLoader = Thread.currentThread().getContextClassLoader();
+               url = clazzLoader.getResource(resourceName);
+            }
+
+            return url;
          }
       });
    }

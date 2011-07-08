@@ -109,8 +109,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source>
    {
       SystemPropertiesUtil.ensure();
 
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      URL url = tcl.getResource(policyConfigFileName);
+      URL url = SecurityActions.loadResource(getClass(), policyConfigFileName);
       if (url == null)
          throw new IllegalStateException(policyConfigFileName + " could not be located");
 

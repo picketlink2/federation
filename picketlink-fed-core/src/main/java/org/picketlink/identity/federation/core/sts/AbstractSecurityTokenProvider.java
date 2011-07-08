@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.core.sts;
 
-import java.security.PrivilegedActionException;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -41,8 +40,8 @@ import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistr
  * @since Jan 4, 2011
  */
 public abstract class AbstractSecurityTokenProvider implements SecurityTokenProvider
-{   
-   protected  static Logger logger = Logger.getLogger( AbstractSecurityTokenProvider.class);
+{
+   protected static Logger logger = Logger.getLogger(AbstractSecurityTokenProvider.class);
 
    protected static final String TOKEN_REGISTRY = "TokenRegistry";
 
@@ -63,57 +62,61 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
    protected Map<String, String> properties;
 
    public void initialize(Map<String, String> properties)
-   { 
+   {
       this.properties = properties;
 
       //Check for token registry
-      String tokenRegistryOption = this.properties.get( TOKEN_REGISTRY );
+      String tokenRegistryOption = this.properties.get(TOKEN_REGISTRY);
       if (tokenRegistryOption == null)
       {
          if (logger.isDebugEnabled())
-            logger.debug("Security Token registry option not specified: Issued Tokens will not be persisted!"); 
+            logger.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
       }
       else
       {
          // if a file is to be used as registry, check if the user has specified the file name.
-         if ("FILE".equalsIgnoreCase( tokenRegistryOption ))
+         if ("FILE".equalsIgnoreCase(tokenRegistryOption))
          {
-            String tokenRegistryFile = this.properties.get( TOKEN_REGISTRY_FILE );
-            if ( tokenRegistryFile != null)
-               this.tokenRegistry = new FileBasedTokenRegistry( tokenRegistryFile );
+            String tokenRegistryFile = this.properties.get(TOKEN_REGISTRY_FILE);
+            if (tokenRegistryFile != null)
+               this.tokenRegistry = new FileBasedTokenRegistry(tokenRegistryFile);
             else
                this.tokenRegistry = new FileBasedTokenRegistry();
-         } 
+         }
          // the user has specified its own registry implementation class.
          else
          {
             try
             {
-               Object object = SecurityActions.instantiateClass( tokenRegistryOption );
-               if (object instanceof RevocationRegistry)
-                  this.tokenRegistry = ( SecurityTokenRegistry ) object;
-               else
+               Class<?> clazz = SecurityActions.loadClass(getClass(), tokenRegistryOption);
+               if (clazz != null)
                {
-                  logger.warn( tokenRegistryOption + " is not an instance of SecurityTokenRegistry - using default registry");
+                  Object object = clazz.newInstance();
+                  if (object instanceof RevocationRegistry)
+                     this.tokenRegistry = (SecurityTokenRegistry) object;
+                  else
+                  {
+                     logger.warn(tokenRegistryOption
+                           + " is not an instance of SecurityTokenRegistry - using default registry");
+                  }
                }
             }
-            catch (PrivilegedActionException pae )
+            catch (Exception pae)
             {
                logger.warn("Error instantiating revocation registry class - using default registry");
-               pae.printStackTrace(); 
+               pae.printStackTrace();
             }
          }
 
-         if( this.tokenRegistry == null )
+         if (this.tokenRegistry == null)
             tokenRegistry = new DefaultTokenRegistry();
-
 
          // check if a revocation registry option has been set.
          String registryOption = this.properties.get(REVOCATION_REGISTRY);
          if (registryOption == null)
          {
             if (logger.isDebugEnabled())
-               logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!"); 
+               logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
          }
          else
          {
@@ -140,23 +143,28 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
             {
                try
                {
-                  Object object = SecurityActions.instantiateClass(registryOption);
-                  if (object instanceof RevocationRegistry)
-                     this.revocationRegistry = (RevocationRegistry) object;
-                  else
+                  Class<?> clazz = SecurityActions.loadClass(getClass(), registryOption);
+                  if (clazz != null)
                   {
-                     logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry"); 
+                     Object object = clazz.newInstance();
+                     if (object instanceof RevocationRegistry)
+                        this.revocationRegistry = (RevocationRegistry) object;
+                     else
+                     {
+                        logger.warn(registryOption
+                              + " is not an instance of RevocationRegistry - using default registry");
+                     }
                   }
                }
-               catch (PrivilegedActionException pae )
+               catch (Exception pae)
                {
                   logger.warn("Error instantiating revocation registry class - using default registry");
-                  pae.printStackTrace(); 
+                  pae.printStackTrace();
                }
             }
          }
-         
-         if( this.revocationRegistry == null )
+
+         if (this.revocationRegistry == null)
             this.revocationRegistry = new DefaultRevocationRegistry();
       }
    }

@@ -26,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.PrivilegedActionException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -121,7 +120,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       {
          pdp = this.getPDP();
       }
-      catch (PrivilegedActionException e)
+      catch (IOException e)
       {
          log("Exception loading PDP::", e);
          throw new ServletException("Unable to load PDP");
@@ -275,11 +274,6 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          returnSOAPMessage = SOAPUtil.create();
          SOAPBody returnSOAPBody = returnSOAPMessage.getSOAPBody();
          returnSOAPBody.addDocument(responseDocument);
-
-         /*JAXBElement<?> jaxbResponse = JAXBElementMappingUtil.get();
-
-         //Create a SOAP Envelope to hold the SAML response
-         envelope = this.createEnvelope(jaxbResponse); */
       }
       catch (Exception e)
       {
@@ -293,7 +287,6 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          catch (SOAPException e1)
          {
          }
-         //envelope = this.createEnvelope(this.createFault("Server Error. Reference::" + id));
       }
       finally
       {
@@ -304,11 +297,6 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
             if (returnSOAPMessage == null)
                throw new RuntimeException("SOAPMessage for return is null");
             returnSOAPMessage.writeTo(os);
-            /*if(envelope == null)
-               throw new IllegalStateException("SOAPEnvelope is null");
-            JAXBElement<?> jaxbEnvelope = JAXBElementMappingUtil.get(envelope);
-            Marshaller marshaller = JAXBUtil.getMarshaller(SOAPSAMLXACMLUtil.getPackage());
-            marshaller.marshal(jaxbEnvelope, os);  */
          }
          catch (Exception e)
          {
@@ -317,10 +305,9 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       }
    }
 
-   private PolicyDecisionPoint getPDP() throws PrivilegedActionException
+   private PolicyDecisionPoint getPDP() throws IOException
    {
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(this.policyConfigFileName);
+      InputStream is = SecurityActions.loadResource(getClass(), this.policyConfigFileName).openStream();
       if (is == null)
          throw new IllegalStateException(policyConfigFileName + " could not be located");
       return new JBossPDP(is);

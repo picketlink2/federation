@@ -22,7 +22,7 @@
 package org.picketlink.identity.federation.web.handlers;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 import javax.security.auth.login.LoginException;
@@ -40,16 +40,15 @@ import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 public class DefaultLoginHandler implements ILoginHandler
 {
    private static Properties props = new Properties();
-   
+
    static
    {
       try
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
-         InputStream is = tcl.getResourceAsStream("users.properties");
-         if(is == null)
+         URL url = SecurityActions.loadResource(DefaultLoginHandler.class, "users.properties");
+         if (url == null)
             throw new RuntimeException("users.properties not found");
-         props.load(is);
+         props.load(url.openStream());
       }
       catch (IOException e)
       {
@@ -59,18 +58,18 @@ public class DefaultLoginHandler implements ILoginHandler
 
    public boolean authenticate(String username, Object credential) throws LoginException
    {
-      String pass= null;
-      if(credential instanceof byte[])
+      String pass = null;
+      if (credential instanceof byte[])
       {
-         pass = new String((byte[])credential);
+         pass = new String((byte[]) credential);
       }
-      else if(credential instanceof String)
+      else if (credential instanceof String)
       {
          pass = (String) credential;
       }
       else
          throw new RuntimeException("Unknown credential type:" + credential.getClass());
-      
+
       String storedPass = (String) props.get(username);
       return storedPass != null ? storedPass.equals(pass) : false;
    }

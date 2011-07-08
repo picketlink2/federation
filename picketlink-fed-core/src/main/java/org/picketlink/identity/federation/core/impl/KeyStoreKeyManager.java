@@ -57,7 +57,7 @@ import org.picketlink.identity.federation.core.util.KeyStoreUtil;
  * @since Jan 22, 2009
  */
 public class KeyStoreKeyManager implements TrustKeyManager
-{ 
+{
    /**
     * An map of secret keys alive only for the duration of the program.
     * The keys are generated on the fly.  If you need sophisticated key
@@ -66,38 +66,45 @@ public class KeyStoreKeyManager implements TrustKeyManager
     * a TPM module or a HSM module.
     * Also see JBoss XMLKey.
     */
-   private final Map<String,SecretKey> keys = new HashMap<String,SecretKey>();
-   
+   private final Map<String, SecretKey> keys = new HashMap<String, SecretKey>();
+
    private static Logger log = Logger.getLogger(KeyStoreKeyManager.class);
-   private boolean trace = log.isTraceEnabled();
-   
-   private final HashMap<String,String> domainAliasMap = new HashMap<String,String>();  
-   private final HashMap<String,String> authPropsMap = new HashMap<String,String>();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
+   private final HashMap<String, String> domainAliasMap = new HashMap<String, String>();
+
+   private final HashMap<String, String> authPropsMap = new HashMap<String, String>();
+
    private KeyStore ks = null;
-   
+
    private String keyStoreURL;
+
    private char[] signingKeyPass;
+
    private String signingAlias;
+
    private String keyStorePass;
-   
+
    public static final String KEYSTORE_URL = "KeyStoreURL";
+
    public static final String KEYSTORE_PASS = "KeyStorePass";
+
    public static final String SIGNING_KEY_PASS = "SigningKeyPass";
+
    public static final String SIGNING_KEY_ALIAS = "SigningKeyAlias";
-   
+
    /**
     * @see TrustKeyManager#getSigningKey()
     */
-   public PrivateKey getSigningKey() 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public PrivateKey getSigningKey() throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       try
       {
-         if(ks == null)
+         if (ks == null)
             this.setUpKeyStore();
-         
-         if(ks == null)
+
+         if (ks == null)
             throw new IllegalStateException("KeyStore is null");
          return (PrivateKey) ks.getKey(this.signingAlias, this.signingKeyPass);
       }
@@ -120,21 +127,20 @@ public class KeyStoreKeyManager implements TrustKeyManager
       catch (IOException e)
       {
          throw new TrustKeyProcessingException(e);
-      } 
+      }
    }
 
    /*
     * (non-Javadoc)
     * @see org.picketlink.identity.federation.bindings.interfaces.TrustKeyManager#getSigningKeyPair()
     */
-   public KeyPair getSigningKeyPair()
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public KeyPair getSigningKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       try
       {
-         if(this.ks == null)
+         if (this.ks == null)
             this.setUpKeyStore();
-         
+
          PrivateKey privateKey = this.getSigningKey();
          PublicKey publicKey = KeyStoreUtil.getPublicKey(this.ks, this.signingAlias, this.signingKeyPass);
          return new KeyPair(publicKey, privateKey);
@@ -144,32 +150,31 @@ public class KeyStoreKeyManager implements TrustKeyManager
          throw new TrustKeyConfigurationException(e);
       }
       catch (GeneralSecurityException e)
-      { 
+      {
          throw new TrustKeyProcessingException(e);
       }
       catch (IOException e)
-      { 
+      {
          throw new TrustKeyProcessingException(e);
       }
    }
-   
+
    /**
     * @see TrustKeyManager#getCertificate(String)
     */
-   public Certificate getCertificate(String alias) 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public Certificate getCertificate(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       try
       {
-         if(ks == null)
+         if (ks == null)
             this.setUpKeyStore();
-         
-         if(ks == null)
+
+         if (ks == null)
             throw new IllegalStateException("KeyStore is null");
-         
-         if(alias == null || alias.length() == 0)
+
+         if (alias == null || alias.length() == 0)
             throw new IllegalArgumentException("Alias is null");
-         
+
          return ks.getCertificate(alias);
       }
       catch (KeyStoreException e)
@@ -177,11 +182,11 @@ public class KeyStoreKeyManager implements TrustKeyManager
          throw new TrustKeyConfigurationException(e);
       }
       catch (GeneralSecurityException e)
-      { 
+      {
          throw new TrustKeyProcessingException(e);
       }
       catch (IOException e)
-      { 
+      {
          throw new TrustKeyProcessingException(e);
       }
    }
@@ -189,32 +194,31 @@ public class KeyStoreKeyManager implements TrustKeyManager
    /**
     * @see TrustKeyManager#getPublicKey(String)
     */
-   public PublicKey getPublicKey(String alias) 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public PublicKey getPublicKey(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       PublicKey publicKey = null;
-      
+
       try
       {
-         if(ks == null)
+         if (ks == null)
          {
-            if(trace) log.trace("getPublicKey::Keystore is null. so setting it up");
-            this.setUpKeyStore(); 
+            if (trace)
+               log.trace("getPublicKey::Keystore is null. so setting it up");
+            this.setUpKeyStore();
          }
-         
-         if(ks == null)
+
+         if (ks == null)
             throw new IllegalStateException("KeyStore is null");
          Certificate cert = ks.getCertificate(alias);
-         if(cert != null)
+         if (cert != null)
             publicKey = cert.getPublicKey();
-         else
-            if(trace)
-               log.trace("No public key found for alias=" + alias);
-            
+         else if (trace)
+            log.trace("No public key found for alias=" + alias);
+
          return publicKey;
       }
       catch (KeyStoreException e)
-      { 
+      {
          throw new TrustKeyConfigurationException(e);
       }
       catch (GeneralSecurityException e)
@@ -225,7 +229,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
       {
          throw new TrustKeyProcessingException(e);
       }
-   } 
+   }
 
    /**
     * Get the validating public key
@@ -234,26 +238,25 @@ public class KeyStoreKeyManager implements TrustKeyManager
     * @see TrustKeyManager#getValidatingKey(String)
     * @see TrustKeyManager#getPublicKey(String)
     */
-   public PublicKey getValidatingKey(String domain) 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public PublicKey getValidatingKey(String domain) throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       PublicKey publicKey = null;
       try
       {
-         if(ks == null)
+         if (ks == null)
             this.setUpKeyStore();
-         
-         if(ks == null)
+
+         if (ks == null)
             throw new IllegalStateException("KeyStore is null");
          String domainAlias = this.domainAliasMap.get(domain);
-         if(domainAlias == null)
-            throw new IllegalStateException("Domain Alias missing for "+ domain);
+         if (domainAlias == null)
+            throw new IllegalStateException("Domain Alias missing for " + domain);
          publicKey = null;
          try
          {
             publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.keyStorePass.toCharArray());
          }
-         catch(UnrecoverableKeyException urke)
+         catch (UnrecoverableKeyException urke)
          {
             //Try with the signing key pass
             publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.signingKeyPass);
@@ -281,77 +284,76 @@ public class KeyStoreKeyManager implements TrustKeyManager
    /**
     * @see TrustKeyManager#setAuthProperties(List)
     */
-   public void setAuthProperties(List<AuthPropertyType> authList) 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public void setAuthProperties(List<AuthPropertyType> authList) throws TrustKeyConfigurationException,
+         TrustKeyProcessingException
    {
-      for(AuthPropertyType auth: authList)
+      for (AuthPropertyType auth : authList)
       {
          this.authPropsMap.put(auth.getKey(), auth.getValue());
       }
-      
+
       this.keyStoreURL = this.authPropsMap.get(KEYSTORE_URL);
       this.keyStorePass = this.authPropsMap.get(KEYSTORE_PASS);
-      
 
       this.signingAlias = this.authPropsMap.get(SIGNING_KEY_ALIAS);
-      
+
       String keypass = this.authPropsMap.get(SIGNING_KEY_PASS);
-      if(keypass == null || keypass.length() == 0)
+      if (keypass == null || keypass.length() == 0)
          throw new RuntimeException("Signing Key Pass is null");
-      this.signingKeyPass = keypass.toCharArray(); 
+      this.signingKeyPass = keypass.toCharArray();
    }
 
    /**
     * @see TrustKeyManager#setValidatingAlias(List)
     */
-   public void setValidatingAlias(List<KeyValueType> aliases)
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public void setValidatingAlias(List<KeyValueType> aliases) throws TrustKeyConfigurationException,
+         TrustKeyProcessingException
    {
-      for(KeyValueType alias: aliases)
+      for (KeyValueType alias : aliases)
       {
          domainAliasMap.put(alias.getKey(), alias.getValue());
       }
    }
-   
+
    /**
     * @throws GeneralSecurityException 
     * @see TrustKeyManager#getEncryptionKey(String)
     */
-   public SecretKey getEncryptionKey(String domain,String encryptionAlgorithm, int keyLength) 
-   throws TrustKeyConfigurationException, TrustKeyProcessingException
+   public SecretKey getEncryptionKey(String domain, String encryptionAlgorithm, int keyLength)
+         throws TrustKeyConfigurationException, TrustKeyProcessingException
    {
       SecretKey key = keys.get(domain);
-      if(key == null)
+      if (key == null)
       {
          try
          {
             key = EncryptionKeyUtil.getSecretKey(encryptionAlgorithm, keyLength);
          }
          catch (GeneralSecurityException e)
-         { 
+         {
             throw new TrustKeyProcessingException(e);
          }
          keys.put(domain, key);
-      } 
+      }
       return key;
    }
-   
+
    private void setUpKeyStore() throws GeneralSecurityException, IOException
    {
       //Keystore URL/Pass can be either by configuration or on the HTTPS connector
-      if(this.keyStoreURL == null)
+      if (this.keyStoreURL == null)
       {
          this.keyStoreURL = SecurityActions.getProperty("javax.net.ssl.keyStore", null);
       }
-      if(this.keyStorePass == null)
+      if (this.keyStorePass == null)
       {
          this.keyStorePass = SecurityActions.getProperty("javax.net.ssl.keyStorePassword", null);
       }
-      
+
       InputStream is = this.getKeyStoreInputStream(this.keyStoreURL);
-      ks = KeyStoreUtil.getKeyStore(is, keyStorePass.toCharArray()); 
+      ks = KeyStoreUtil.getKeyStore(is, keyStorePass.toCharArray());
    }
-   
+
    /**
     * Seek the input stream to the KeyStore
     * @param keyStore
@@ -360,32 +362,43 @@ public class KeyStoreKeyManager implements TrustKeyManager
    private InputStream getKeyStoreInputStream(String keyStore)
    {
       InputStream is = null;
-      
+
       try
       {
          //Try the file method
-         File file = new File(keyStore); 
+         File file = new File(keyStore);
          is = new FileInputStream(file);
       }
-      catch(Exception e)
+      catch (Exception e)
       {
+         URL url = null;
          try
          {
-            URL url = new URL(keyStore);
-            is = url.openStream(); 
-         } 
-         catch(Exception ex)
+            url = new URL(keyStore);
+            is = url.openStream();
+         }
+         catch (Exception ex)
          {
-            is = SecurityActions.getContextClassLoader().getResourceAsStream(keyStore); 
+            url = SecurityActions.loadResource(getClass(), keyStore);
+            if (url != null)
+            {
+               try
+               {
+                  is = url.openStream();
+               }
+               catch (IOException e1)
+               {
+               }
+            }
          }
       }
-      
-      if(is == null)
+
+      if (is == null)
       {
          //Try the user.home dir
          String userHome = SecurityActions.getSystemProperty("user.home", "") + "/jbid-keystore";
          File ksDir = new File(userHome);
-         if(ksDir.exists())
+         if (ksDir.exists())
          {
             try
             {
@@ -397,9 +410,8 @@ public class KeyStoreKeyManager implements TrustKeyManager
             }
          }
       }
-      if(is == null)
+      if (is == null)
          throw new RuntimeException("Keystore not located:" + keyStore);
       return is;
-   } 
-
+   }
 }

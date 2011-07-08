@@ -156,6 +156,9 @@ public class SAML2LogoutWorkflowUnitTestCase
       MockContextClassLoader mclIDP = setupTCL(profile + "/idp");
       Thread.currentThread().setContextClassLoader(mclIDP);
 
+      URL url = Thread.currentThread().getContextClassLoader().getResource("roles.properties");
+      assertNotNull("roles.properties visible?", url);
+
       ServletContext servletContext = new MockServletContext();
       session.setServletContext(servletContext);
 

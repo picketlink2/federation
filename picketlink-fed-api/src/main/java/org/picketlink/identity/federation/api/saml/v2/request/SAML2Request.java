@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URL;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
@@ -129,8 +130,19 @@ public class SAML2Request
    {
       if (fileName == null)
          throw new IllegalArgumentException("fileName is null");
-      ClassLoader tcl = SecurityActions.getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(fileName);
+      URL resourceURL = SecurityActions.loadResource(getClass(), fileName);
+      if (resourceURL == null)
+         throw new ProcessingException(fileName + " could not be loaded");
+
+      InputStream is = null;
+      try
+      {
+         is = resourceURL.openStream();
+      }
+      catch (IOException e)
+      {
+         throw new ProcessingException(e);
+      }
       return getAuthnRequestType(is);
    }
 

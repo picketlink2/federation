@@ -21,8 +21,6 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import java.security.PrivilegedActionException;
-
 import java.util.HashMap;
 
 import junit.framework.TestCase;
@@ -71,7 +69,7 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
       }
       catch (RuntimeException re)
       {
-         assertTrue(re.getCause() instanceof PrivilegedActionException);
+         assertTrue(re.getCause().getMessage().contains("could not be loaded"));
       }
    }
 
@@ -103,8 +101,7 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
       }
       catch (RuntimeException re)
       {
-         assertTrue(re.getCause() instanceof PrivilegedActionException);
+         assertTrue(re.getCause().getMessage().contains("could not be loaded"));
       }
-
    }
 }

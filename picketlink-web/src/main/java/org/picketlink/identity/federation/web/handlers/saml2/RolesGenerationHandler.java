@@ -35,7 +35,7 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse; 
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -48,78 +48,76 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 public class RolesGenerationHandler extends BaseSAML2Handler
 {
    private static Logger log = Logger.getLogger(RolesGenerationHandler.class);
-   private boolean trace = log.isTraceEnabled();
-   
-   private transient RoleGenerator roleGenerator = new EmptyRoleGenerator();  
+
+   private final boolean trace = log.isTraceEnabled();
+
+   private transient RoleGenerator roleGenerator = new EmptyRoleGenerator();
 
    @Override
    public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException
-   { 
+   {
       super.initChainConfig(handlerChainConfig);
       Object config = this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-      if(config instanceof IDPType)
+      if (config instanceof IDPType)
       {
          IDPType idpType = (IDPType) config;
          String roleGeneratorString = idpType.getRoleGenerator();
-         this.insantiateRoleValidator(roleGeneratorString); 
-      } 
-   } 
-   
+         this.insantiateRoleValidator(roleGeneratorString);
+      }
+   }
+
    @Override
    public void initHandlerConfig(SAML2HandlerConfig handlerConfig) throws ConfigurationException
    {
       super.initHandlerConfig(handlerConfig);
       String roleGeneratorString = (String) this.handlerConfig.getParameter(GeneralConstants.ATTIBUTE_MANAGER);
-      this.insantiateRoleValidator(roleGeneratorString);   
+      this.insantiateRoleValidator(roleGeneratorString);
    }
-
 
    /**
     * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
     */
    @SuppressWarnings("unchecked")
-   public void handleRequestType(SAML2HandlerRequest request, 
-         SAML2HandlerResponse response) throws ProcessingException
-   { 
+   public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
+   {
       //Do not handle log out request interaction
-      if(request.getSAML2Object() instanceof LogoutRequestType)
-         return ;
-      
-      //only handle IDP side
-      if(getType() == HANDLER_TYPE.SP)
+      if (request.getSAML2Object() instanceof LogoutRequestType)
          return;
-      
+
+      //only handle IDP side
+      if (getType() == HANDLER_TYPE.SP)
+         return;
+
       HTTPContext httpContext = (HTTPContext) request.getContext();
       HttpSession session = httpContext.getRequest().getSession(false);
-      
+
       Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
       List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
-      
-      if(roles == null) 
+
+      if (roles == null)
       {
          roles = roleGenerator.generateRoles(userPrincipal);
          session.setAttribute(GeneralConstants.ROLES_ID, roles);
       }
       response.setRoles(roles);
    }
-   
-   private void insantiateRoleValidator(String attribStr) 
-   throws ConfigurationException
+
+   private void insantiateRoleValidator(String attribStr) throws ConfigurationException
    {
-      if(attribStr != null && !"".equals(attribStr))
+      if (attribStr != null && !"".equals(attribStr))
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          try
          {
-            roleGenerator = (RoleGenerator) tcl.loadClass(attribStr).newInstance();
-            if(trace)
+            Class<?> clazz = SecurityActions.loadClass(getClass(), attribStr);
+            roleGenerator = (RoleGenerator) clazz.newInstance();
+            if (trace)
                log.trace("RoleGenerator set to " + this.roleGenerator);
          }
          catch (Exception e)
          {
-            log.error("Exception initializing role generator:",e);
-            throw new ConfigurationException(); 
-         }  
-      } 
+            log.error("Exception initializing role generator:", e);
+            throw new ConfigurationException();
+         }
+      }
    }
 }

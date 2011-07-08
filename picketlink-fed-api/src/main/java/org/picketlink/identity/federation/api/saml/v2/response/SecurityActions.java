@@ -27,33 +27,60 @@ import java.security.PrivilegedAction;
 /**
  * Privileged Blocks
  */
-class SecurityActions {
-	/**
-	 * Get the Thread Context ClassLoader
-	 * 
-	 * @return
-	 */
-	static ClassLoader getContextClassLoader() {
-		return AccessController
-				.doPrivileged(new PrivilegedAction<ClassLoader>() {
-					public ClassLoader run() {
-						return Thread.currentThread().getContextClassLoader();
-					}
-				});
-	}
+class SecurityActions
+{
+   static Class<?> loadClass(final Class<?> theClass, final String fqn)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            ClassLoader classLoader = theClass.getClassLoader();
 
-	/**
-	 * Get the system property
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return
-	 */
-	static String getSystemProperty(final String key, final String defaultValue) {
-		return AccessController.doPrivileged(new PrivilegedAction<String>() {
-			public String run() {
-				return System.getProperty(key, defaultValue);
-			}
-		});
-	}
+            Class<?> clazz = loadClass(classLoader, fqn);
+            if (clazz == null)
+            {
+               classLoader = Thread.currentThread().getContextClassLoader();
+               clazz = loadClass(classLoader, fqn);
+            }
+            return clazz;
+         }
+      });
+   }
+
+   static Class<?> loadClass(final ClassLoader cl, final String fqn)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            try
+            {
+               return cl.loadClass(fqn);
+            }
+            catch (ClassNotFoundException e)
+            {
+            }
+            return null;
+         }
+      });
+   }
+
+   /**
+    * Get the system property
+    * 
+    * @param key
+    * @param defaultValue
+    * @return
+    */
+   static String getSystemProperty(final String key, final String defaultValue)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<String>()
+      {
+         public String run()
+         {
+            return System.getProperty(key, defaultValue);
+         }
+      });
+   }
 }

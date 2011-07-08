@@ -31,21 +31,21 @@ import java.net.URLClassLoader;
  * @since Oct 7, 2009
  */
 public class MockContextClassLoader extends URLClassLoader
-{ 
+{
    private String profile;
-   
+
    private ClassLoader delegate;
 
    public MockContextClassLoader(URL[] urls)
    {
-      super(urls); 
+      super(urls);
    }
 
    public void setDelegate(ClassLoader tcl)
    {
       this.delegate = tcl;
    }
-   
+
    public void setProfile(String profile)
    {
       this.profile = profile;
@@ -54,11 +54,29 @@ public class MockContextClassLoader extends URLClassLoader
    @Override
    public InputStream getResourceAsStream(String name)
    {
-      if(profile == null)
-         throw new RuntimeException("null profile"); 
+      if (profile == null)
+         throw new RuntimeException("null profile");
       InputStream is = super.getResourceAsStream(name);
-      if( is == null )
+      if (is == null)
          is = delegate.getResourceAsStream(profile + "/" + name);
       return is;
+   }
+
+   @Override
+   public URL getResource(String name)
+   {
+      if (profile == null)
+         throw new RuntimeException("null profile");
+      URL url = null;
+      try
+      {
+         url = super.getResource(profile + "/" + name);
+      }
+      catch (Exception e)
+      {
+      }
+      if (url == null)
+         url = delegate.getResource(profile + "/" + name);
+      return url;
    }
 }

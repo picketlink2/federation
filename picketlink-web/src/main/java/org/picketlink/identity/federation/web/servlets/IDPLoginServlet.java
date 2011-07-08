@@ -46,41 +46,42 @@ import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 public class IDPLoginServlet extends HttpServlet
 {
    private static final long serialVersionUID = 1L;
+
    private transient ServletContext context;
+
    private transient ILoginHandler loginHandler = null;
-   
+
    @Override
-   protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-   throws ServletException, IOException
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
    {
       HttpSession session = request.getSession();
-      
+
       //Check if we are already authenticated
       Principal principal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
-      if(principal != null)
+      if (principal != null)
       {
          this.saveRequest(request, session);
-         redirectToIDP(request,response);
+         redirectToIDP(request, response);
          return;
       }
-      
+
       final String username = request.getParameter(GeneralConstants.USERNAME_FIELD);
       String passwd = request.getParameter(GeneralConstants.PASS_FIELD);
-      
-      if(username == null || passwd == null)
+
+      if (username == null || passwd == null)
       {
          String samlMessage = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
-         
-         if(samlMessage == null || "".equals(samlMessage))
+
+         if (samlMessage == null || "".equals(samlMessage))
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-         
+
          log("No username or password found. Redirecting to login page");
          this.saveRequest(request, session);
-          
-         if(response.isCommitted())
+
+         if (response.isCommitted())
             throw new RuntimeException("Response is committed. Cannot forward to login page.");
-         
-         this.redirectToLoginPage(request, response); 
+
+         this.redirectToLoginPage(request, response);
       }
       else
       {
@@ -88,12 +89,12 @@ public class IDPLoginServlet extends HttpServlet
          try
          {
             boolean isValid = loginHandler.authenticate(username, passwd);
-            if(!isValid)
+            if (!isValid)
             {
-               response.sendError(HttpServletResponse.SC_FORBIDDEN); 
+               response.sendError(HttpServletResponse.SC_FORBIDDEN);
                return;
             }
-            
+
             session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
             {
                public String getName()
@@ -101,8 +102,7 @@ public class IDPLoginServlet extends HttpServlet
                   return username;
                }
             });
-            
-            
+
             this.redirectToIDP(request, response);
             return;
          }
@@ -112,7 +112,7 @@ public class IDPLoginServlet extends HttpServlet
             //TODO: Send back invalid user SAML
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
          }
-      } 
+      }
    }
 
    @Override
@@ -120,58 +120,56 @@ public class IDPLoginServlet extends HttpServlet
    {
       super.init(config);
       this.context = config.getServletContext();
-      
+
       String loginClass = config.getInitParameter("loginClass");
-      if(loginClass == null || loginClass.length() == 0)
+      if (loginClass == null || loginClass.length() == 0)
          loginClass = DefaultLoginHandler.class.getName();
       //Lets set up the login class
       try
       {
-         Class<?> clazz = SecurityActions.getContextClassLoader().loadClass(loginClass);
+         Class<?> clazz = SecurityActions.loadClass(getClass(), loginClass);
          loginHandler = (ILoginHandler) clazz.newInstance();
       }
       catch (Exception e)
       {
          throw new ServletException(e);
-      } 
+      }
    }
-   
-   public void testPost(HttpServletRequest request, HttpServletResponse response) 
-   throws ServletException, IOException
-   {   
+
+   public void testPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+   {
       this.doPost(request, response);
    }
-   
+
    private void saveRequest(HttpServletRequest request, HttpSession session)
    {
       //Save the SAMLRequest and relayState
-      session.setAttribute(GeneralConstants.SAML_REQUEST_KEY, 
-            request.getParameter(GeneralConstants.SAML_REQUEST_KEY));
-      session.setAttribute(GeneralConstants.SAML_RESPONSE_KEY, 
-            request.getParameter(GeneralConstants.SAML_RESPONSE_KEY));
-      
+      session.setAttribute(GeneralConstants.SAML_REQUEST_KEY, request.getParameter(GeneralConstants.SAML_REQUEST_KEY));
+      session
+            .setAttribute(GeneralConstants.SAML_RESPONSE_KEY, request.getParameter(GeneralConstants.SAML_RESPONSE_KEY));
+
       String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
-      if(relayState != null && !"".equals(relayState))
-        session.setAttribute(GeneralConstants.RELAY_STATE, relayState ); 
+      if (relayState != null && !"".equals(relayState))
+         session.setAttribute(GeneralConstants.RELAY_STATE, relayState);
       session.setAttribute("Referer", request.getHeader("Referer"));
    }
-   
-   private void redirectToIDP(HttpServletRequest request, HttpServletResponse response) 
-   throws ServletException, IOException
+
+   private void redirectToIDP(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+         IOException
    {
-      RequestDispatcher dispatch = context.getRequestDispatcher("/IDPServlet"); 
-      if(dispatch == null)
+      RequestDispatcher dispatch = context.getRequestDispatcher("/IDPServlet");
+      if (dispatch == null)
          log("Cannot dispatch to the IDP Servlet");
       else
          dispatch.forward(request, response);
       return;
    }
-   
-   private void redirectToLoginPage(HttpServletRequest request, HttpServletResponse response) 
-   throws ServletException, IOException
+
+   private void redirectToLoginPage(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+         IOException
    {
-      RequestDispatcher dispatch = context.getRequestDispatcher("/jsp/login.jsp"); 
-      if(dispatch == null)
+      RequestDispatcher dispatch = context.getRequestDispatcher("/jsp/login.jsp");
+      if (dispatch == null)
          log("Cannot find the login page");
       else
          dispatch.forward(request, response);
