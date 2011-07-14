@@ -107,66 +107,64 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                pae.printStackTrace();
             }
          }
+      }
+      if (this.tokenRegistry == null)
+         tokenRegistry = new DefaultTokenRegistry();
 
-         if (this.tokenRegistry == null)
-            tokenRegistry = new DefaultTokenRegistry();
-
-         // check if a revocation registry option has been set.
-         String registryOption = this.properties.get(REVOCATION_REGISTRY);
-         if (registryOption == null)
+      // check if a revocation registry option has been set.
+      String registryOption = this.properties.get(REVOCATION_REGISTRY);
+      if (registryOption == null)
+      {
+         if (logger.isDebugEnabled())
+            logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+      }
+      else
+      {
+         // if a file is to be used as registry, check if the user has specified the file name.
+         if ("FILE".equalsIgnoreCase(registryOption))
          {
-            if (logger.isDebugEnabled())
-               logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+            String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
+            if (registryFile != null)
+               this.revocationRegistry = new FileBasedRevocationRegistry(registryFile);
+            else
+               this.revocationRegistry = new FileBasedRevocationRegistry();
          }
+         // another option is to use the default JPA registry to store the revoked ids.
+         else if ("JPA".equalsIgnoreCase(registryOption))
+         {
+            String configuration = this.properties.get(REVOCATION_REGISTRY_JPA_CONFIG);
+            if (configuration != null)
+               this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
+            else
+               this.revocationRegistry = new JPABasedRevocationRegistry();
+         }
+         // the user has specified its own registry implementation class.
          else
          {
-            // if a file is to be used as registry, check if the user has specified the file name.
-            if ("FILE".equalsIgnoreCase(registryOption))
+            try
             {
-               String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
-               if (registryFile != null)
-                  this.revocationRegistry = new FileBasedRevocationRegistry(registryFile);
-               else
-                  this.revocationRegistry = new FileBasedRevocationRegistry();
-            }
-            // another option is to use the default JPA registry to store the revoked ids.
-            else if ("JPA".equalsIgnoreCase(registryOption))
-            {
-               String configuration = this.properties.get(REVOCATION_REGISTRY_JPA_CONFIG);
-               if (configuration != null)
-                  this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
-               else
-                  this.revocationRegistry = new JPABasedRevocationRegistry();
-            }
-            // the user has specified its own registry implementation class.
-            else
-            {
-               try
+               Class<?> clazz = SecurityActions.loadClass(getClass(), registryOption);
+               if (clazz != null)
                {
-                  Class<?> clazz = SecurityActions.loadClass(getClass(), registryOption);
-                  if (clazz != null)
+                  Object object = clazz.newInstance();
+                  if (object instanceof RevocationRegistry)
+                     this.revocationRegistry = (RevocationRegistry) object;
+                  else
                   {
-                     Object object = clazz.newInstance();
-                     if (object instanceof RevocationRegistry)
-                        this.revocationRegistry = (RevocationRegistry) object;
-                     else
-                     {
-                        logger.warn(registryOption
-                              + " is not an instance of RevocationRegistry - using default registry");
-                     }
+                     logger.warn(registryOption
+                           + " is not an instance of RevocationRegistry - using default registry");
                   }
                }
-               catch (Exception pae)
-               {
-                  logger.warn("Error instantiating revocation registry class - using default registry");
-                  pae.printStackTrace();
-               }
+            }
+            catch (Exception pae)
+            {
+               logger.warn("Error instantiating revocation registry class - using default registry");
+               pae.printStackTrace();
             }
          }
-
-         if (this.revocationRegistry == null)
-            this.revocationRegistry = new DefaultRevocationRegistry();
       }
-   }
 
+      if (this.revocationRegistry == null)
+         this.revocationRegistry = new DefaultRevocationRegistry();
+   }
 }
