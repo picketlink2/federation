@@ -4,11 +4,6 @@
     <saml2:Assertion ID="ID_cb1eadf5-50a6-4fdf-96bc-412514f52882" IssueInstant="2010-09-30T19:13:37.603Z" Version="2.0"
         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
       <saml2:Issuer>Test STS</saml2:Issuer>
-      <saml2:Subject>
-        <saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
-        <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
-      </saml2:Subject>
-      <saml2:Conditions NotBefore="2010-09-30T19:13:37.603Z" NotOnOrAfter="2010-09-30T21:13:37.603Z"/>
       <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
         <ds:SignedInfo>
           <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
@@ -40,6 +35,11 @@ lYGGtrP5VQv00dfNPbs=
           </ds:KeyValue>
         </ds:KeyInfo>
       </ds:Signature>
+      <saml2:Subject>
+        <saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
+        <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+      </saml2:Subject>
+      <saml2:Conditions NotBefore="2010-09-30T19:13:37.603Z" NotOnOrAfter="2010-09-30T21:13:37.603Z"/>
     </saml2:Assertion>
   </wst:CancelTarget>
 </wst:RequestSecurityToken>

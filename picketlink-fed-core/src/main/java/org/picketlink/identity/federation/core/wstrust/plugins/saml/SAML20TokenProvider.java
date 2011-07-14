@@ -405,7 +405,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     */
    public String tokenType()
    {
-      return WSTrustConstants.SAML2_TOKEN_TYPE;
+      return SAMLUtil.SAML2_TOKEN_TYPE;
    }
 
    /**

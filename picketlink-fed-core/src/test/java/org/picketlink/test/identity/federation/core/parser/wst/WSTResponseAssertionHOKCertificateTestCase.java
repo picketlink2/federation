@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
@@ -60,7 +61,7 @@ public class WSTResponseAssertionHOKCertificateTestCase
       RequestSecurityTokenResponse rstr = coll.getRequestSecurityTokenResponses().get(0);
 
       assertEquals("testcontext", rstr.getContext());
-      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, rstr.getTokenType().toASCIIString());
+      assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, rstr.getTokenType().toASCIIString());
 
       assertEquals(XMLTimeUtil.parse("2010-11-11T16:34:19.602Z"), rstr.getLifetime().getCreated());
       assertEquals(XMLTimeUtil.parse("2010-11-11T18:34:19.602Z"), rstr.getLifetime().getExpires());
@@ -82,7 +83,7 @@ public class WSTResponseAssertionHOKCertificateTestCase
       Map<QName, String> map = secRef.getOtherAttributes();
       QName wsseTokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE,
             WSTrustConstants.WSSE.PREFIX_11);
-      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, map.get(wsseTokenType));
+      assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, map.get(wsseTokenType));
 
       KeyIdentifierType keyId = (KeyIdentifierType) secRef.getAny().get(0);
       assertEquals("#ID_5a15fc70-daa1-4808-b70e-9cbf6b8e4d4f", keyId.getValue());

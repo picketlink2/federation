@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
@@ -66,7 +67,7 @@ public class WSTrustBatchIssueParsingTestCase
       RequestSecurityToken rst1 = tokens.get(0);
       assertEquals("context1", rst1.getContext());
       assertEquals(WSTrustConstants.BATCH_ISSUE_REQUEST, rst1.getRequestType().toASCIIString());
-      assertEquals(WSTrustConstants.SAML2_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
+      assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
 
       RequestSecurityToken rst2 = tokens.get(1);
       assertEquals("context2", rst2.getContext());

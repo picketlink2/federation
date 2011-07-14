@@ -77,6 +77,8 @@ public class WSTrustBatchValidateParsingTestCase
 
       Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
       baos.close();
+      
+      System.out.println(DocumentUtil.asString(doc));
 
       JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }

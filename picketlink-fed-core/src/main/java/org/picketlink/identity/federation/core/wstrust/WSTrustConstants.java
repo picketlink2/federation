@@ -101,8 +101,6 @@ public interface WSTrustConstants
    QName FAILED_AUTHENTICATION = new QName(WSSE_NS, "FailedAuthentication");
 
    //Token Types
-   String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
-
    String RSTR_STATUS_TOKEN_TYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status";
 
    //Element Names

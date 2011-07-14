@@ -53,25 +53,15 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
       {
          throw new ParsingException("Unable to parse validate token request: security token is null");
       }
-      String tag = StaxParserUtil.getStartElementName(startElement);
 
-      if (tag.equals(JBossSAMLConstants.ASSERTION.get()))
+      // this is an unknown type - parse using the transformer.
+      try
       {
-         SAMLParser assertionParser = new SAMLParser();
-         AssertionType assertion = (AssertionType) assertionParser.parse(xmlEventReader);
-         validateTargetType.add(assertion);
+         validateTargetType.add(StaxParserUtil.getDOMElement(xmlEventReader));
       }
-      else
+      catch (Exception e)
       {
-         // this is an unknown type - parse using the transformer.
-         try
-         {
-            validateTargetType.add(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         catch (Exception e)
-         {
-            throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
-         }
+         throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
       }
 
       return validateTargetType;

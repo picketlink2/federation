@@ -189,7 +189,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
       String majVersion = StaxParserUtil.getAttributeValue(majVersionAttribute);
       StringUtil.match("1", majVersion);
 
-      Attribute minVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));
+      Attribute minVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MINOR_VERSION));
       String minVersion = StaxParserUtil.getAttributeValue(minVersionAttribute);
       StringUtil.match("1", minVersion);
 

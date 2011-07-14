@@ -1,23 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * JBoss, Home of Professional Open Source. Copyright 2008, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
+ * 
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.util;
 
@@ -52,6 +48,7 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -62,6 +59,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -69,9 +67,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Utility for XML Signature
- * <b>Note:</b> You can change the canonicalization method type by using
- * the system property  "picketlink.xmlsig.canonicalization"
+ * Utility for XML Signature <b>Note:</b> You can change the canonicalization method type by using the system property
+ * "picketlink.xmlsig.canonicalization"
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Dec 15, 2008
  */
@@ -95,13 +93,13 @@ public class XMLSignatureUtil
       }
       catch (Exception err)
       {
-         //JDK5
+         // JDK5
          xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
       }
       return xsf;
    }
 
-   //Set some system properties
+   // Set some system properties
    static
    {
       SystemPropertiesUtil.ensure();
@@ -109,6 +107,7 @@ public class XMLSignatureUtil
 
    /**
     * Set the canonicalization method type
+    * 
     * @param canonical
     */
    public static void setCanonicalizationMethodType(String canonical)
@@ -118,8 +117,8 @@ public class XMLSignatureUtil
    }
 
    /**
-    * Precheck whether the document that will be validated
-    * has the right signedinfo
+    * Precheck whether the document that will be validated has the right signedinfo
+    * 
     * @param doc
     * @return
     */
@@ -131,18 +130,25 @@ public class XMLSignatureUtil
 
    /**
     * Sign a node in a document
-    * @param doc Document
-    * @param parentOfNodeToBeSigned Parent Node of the node to be signed
-    * @param signingKey Private Key
-    * @param certificate X509 Certificate holding the public key
-    * @param digestMethod (Example: DigestMethod.SHA1)
-    * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+    * 
+    * @param doc
+    *           Document
+    * @param parentOfNodeToBeSigned
+    *           Parent Node of the node to be signed
+    * @param signingKey
+    *           Private Key
+    * @param certificate
+    *           X509 Certificate holding the public key
+    * @param digestMethod
+    *           (Example: DigestMethod.SHA1)
+    * @param signatureMethod
+    *           (Example: SignatureMethod.DSA_SHA1)
     * @param referenceURI
     * @return Document that contains the signed node
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
-    * @throws ParserConfigurationException  
+    * @throws XMLSignatureException
+    * @throws MarshalException
+    * @throws GeneralSecurityException
+    * @throws ParserConfigurationException
     */
    public static Document sign(Document doc, Node parentOfNodeToBeSigned, PrivateKey signingKey,
          X509Certificate certificate, String digestMethod, String signatureMethod, String referenceURI)
@@ -154,6 +160,7 @@ public class XMLSignatureUtil
 
    /**
     * Sign a node in a document
+    * 
     * @param doc
     * @param nodeToBeSigned
     * @param keyPair
@@ -162,10 +169,10 @@ public class XMLSignatureUtil
     * @param signatureMethod
     * @param referenceURI
     * @return
-    * @throws ParserConfigurationException  
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
+    * @throws ParserConfigurationException
+    * @throws XMLSignatureException
+    * @throws MarshalException
+    * @throws GeneralSecurityException
     */
    public static Document sign(Document doc, Node nodeToBeSigned, KeyPair keyPair, String digestMethod,
          String signatureMethod, String referenceURI) throws ParserConfigurationException, GeneralSecurityException,
@@ -180,35 +187,50 @@ public class XMLSignatureUtil
 
       Node parentNode = nodeToBeSigned.getParentNode();
 
-      //Let us create a new Document
+      // Let us create a new Document
       Document newDoc = DocumentUtil.createDocument();
-      //Import the node
+      // Import the node
       Node signingNode = newDoc.importNode(nodeToBeSigned, true);
       newDoc.appendChild(signingNode);
 
       newDoc = sign(newDoc, keyPair, digestMethod, signatureMethod, referenceURI);
 
-      //Now let us import this signed doc into the original document we got in the method call
+      // if the signed element is a SAMLv2.0 assertion we need to move the signature element to the position
+      // specified in the schema (before the assertion subject element).
+      if (nodeToBeSigned.getLocalName().equals("Assertion")
+            && WSTrustConstants.SAML2_ASSERTION_NS.equals(nodeToBeSigned.getNamespaceURI()))
+      {
+         Node signatureNode = DocumentUtil.getElement(newDoc, new QName(WSTrustConstants.DSIG_NS, "Signature"));
+         Node subjectNode = DocumentUtil.getElement(newDoc, new QName(WSTrustConstants.SAML2_ASSERTION_NS, "Subject"));
+         if (signatureNode != null && subjectNode != null)
+         {
+            newDoc.getDocumentElement().removeChild(signatureNode);
+            newDoc.getDocumentElement().insertBefore(signatureNode, subjectNode);
+         }
+      }
+
+      // Now let us import this signed doc into the original document we got in the method call
       Node signedNode = doc.importNode(newDoc.getFirstChild(), true);
 
       parentNode.replaceChild(signedNode, nodeToBeSigned);
-      //doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);
+      // doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);
 
       return doc;
    }
 
    /**
     * Sign the root element
-    * @param doc 
+    * 
+    * @param doc
     * @param signingKey
     * @param publicKey
     * @param digestMethod
     * @param signatureMethod
     * @param referenceURI
-    * @return 
-    * @throws GeneralSecurityException  
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
+    * @return
+    * @throws GeneralSecurityException
+    * @throws XMLSignatureException
+    * @throws MarshalException
     */
    public static Document sign(Document doc, KeyPair keyPair, String digestMethod, String signatureMethod,
          String referenceURI) throws GeneralSecurityException, MarshalException, XMLSignatureException
@@ -253,11 +275,12 @@ public class XMLSignatureUtil
 
    /**
     * Validate a signed document with the given public key
+    * 
     * @param signedDoc
     * @param publicKey
-    * @return 
-    * @throws MarshalException 
-    * @throws XMLSignatureException 
+    * @return
+    * @throws MarshalException
+    * @throws XMLSignatureException
     */
    @SuppressWarnings("unchecked")
    public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException
@@ -293,24 +316,27 @@ public class XMLSignatureUtil
 
    /**
     * Marshall a SignatureType to output stream
+    * 
     * @param signature
-    * @param os 
-    * @throws SAXException 
-    * @throws JAXBException 
+    * @param os
+    * @throws SAXException
+    * @throws JAXBException
     */
    public static void marshall(SignatureType signature, OutputStream os) throws JAXBException, SAXException
    {
       throw new RuntimeException("NYI");
-      /*JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature);
-      Marshaller marshaller = JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation);
-      marshaller.marshal(jsig, os);*/
+      /*
+       * JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature); Marshaller marshaller =
+       * JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation); marshaller.marshal(jsig, os);
+       */
    }
 
    /**
     * Marshall the signed document to an output stream
+    * 
     * @param signedDocument
     * @param os
-    * @throws TransformerException 
+    * @throws TransformerException
     */
    public static void marshall(Document signedDocument, OutputStream os) throws TransformerException
    {
@@ -321,6 +347,7 @@ public class XMLSignatureUtil
 
    /**
     * Given the X509Certificate in the keyinfo element, get a {@link X509Certificate}
+    * 
     * @param certificateString
     * @return
     * @throws ProcessingException

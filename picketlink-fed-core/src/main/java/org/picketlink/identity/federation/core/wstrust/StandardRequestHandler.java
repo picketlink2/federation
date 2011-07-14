@@ -394,7 +394,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
 
       // create a context and dispatch to the proper security token provider for renewal.
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
-
+      context.setTokenIssuer(this.configuration.getSTSName());
       // if the renew request was made on behalf of another identity, get the principal of that identity.
       if (request.getOnBehalfOf() != null)
       {

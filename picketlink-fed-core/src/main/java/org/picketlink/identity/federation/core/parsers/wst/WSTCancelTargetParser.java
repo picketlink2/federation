@@ -27,11 +27,8 @@ import javax.xml.stream.events.StartElement;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 
 /**
@@ -53,25 +50,14 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
       {
          throw new ParsingException("Unable to parse cancel token request: security token is null");
       }
-      String tag = StaxParserUtil.getStartElementName(startElement);
-
-      if (tag.equals(JBossSAMLConstants.ASSERTION.get()))
+      // this is an unknown type - parse using the transformer.
+      try
       {
-         SAMLParser assertionParser = new SAMLParser();
-         AssertionType assertion = (AssertionType) assertionParser.parse(xmlEventReader);
-         cancelTarget.add(assertion);
+         cancelTarget.add(StaxParserUtil.getDOMElement(xmlEventReader));
       }
-      else
+      catch (Exception e)
       {
-         // this is an unknown type - parse using the transformer.
-         try
-         {
-            cancelTarget.add(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         catch (Exception e)
-         {
-            throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
-         }
+         throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
       }
       return cancelTarget;
    }

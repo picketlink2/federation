@@ -29,8 +29,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 
 import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.w3c.dom.Element;
 
 /**
@@ -79,7 +79,7 @@ public class STSIssuingLoginModule extends AbstractSTSLoginModule
          endpointURI = (String) options.get(ENDPOINT_ADDRESS); //base class
       tokenType = (String) options.get(TOKEN_TYPE_OPTION);
       if (tokenType == null)
-         tokenType = WSTrustConstants.SAML2_TOKEN_TYPE;
+         tokenType = SAMLUtil.SAML2_TOKEN_TYPE;
    }
 
    /**

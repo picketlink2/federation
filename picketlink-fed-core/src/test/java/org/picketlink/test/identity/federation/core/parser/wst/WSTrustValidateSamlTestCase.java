@@ -32,11 +32,13 @@ import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Validate the parsing of wst-validate-saml.xml
@@ -58,7 +60,8 @@ public class WSTrustValidateSamlTestCase
       assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
 
       ValidateTargetType validateTarget = rst1.getValidateTarget();
-      AssertionType assertion = (AssertionType) validateTarget.getAny().get(0);
+      Element assertionElement = (Element) validateTarget.getAny().get(0);
+      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
       assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
 
       //Now for the writing part
