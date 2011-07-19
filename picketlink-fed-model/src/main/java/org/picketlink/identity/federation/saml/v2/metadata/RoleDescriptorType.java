@@ -29,6 +29,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Element;
 
 /**
  * <p>Java class for RoleDescriptorType complex type.
@@ -60,7 +61,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
  */
 public abstract class RoleDescriptorType extends TypeWithOtherAttributes
 {
-   protected SignatureType signature;
+   protected Element signature;
 
    protected ExtensionsType extensions;
 
@@ -129,7 +130,7 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public SignatureType getSignature()
+   public Element getSignature()
    {
       return signature;
    }
@@ -142,7 +143,7 @@ public abstract class RoleDescriptorType extends TypeWithOtherAttributes
     *     {@link SignatureType }
     *     
     */
-   public void setSignature(SignatureType value)
+   public void setSignature(Element value)
    {
       this.signature = value;
    }

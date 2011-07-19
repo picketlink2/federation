@@ -21,10 +21,6 @@
  */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.w3c.dom.Element;
 
 /**
@@ -48,37 +44,15 @@ import org.w3c.dom.Element;
  */
 public class ExtensionsType
 {
-   protected List<Object> any = new ArrayList<Object>();
+   protected Element element = null;
 
-   /**
-    * Add an object
-    * @param obj
-    */
-   public void addObject(Object obj)
+   public Element getElement()
    {
-      this.any.add(obj);
+      return element;
    }
 
-   /**
-    * Remove an object
-    * @param obj
-    */
-   public void removeObject(Object obj)
+   public void setElement(Element element)
    {
-      this.any.remove(obj);
-   }
-
-   /**
-    * Gets the value of the any property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link Element }
-    * {@link Object }
-    * 
-    * 
-    */
-   public List<Object> getAny()
-   {
-      return Collections.unmodifiableList(this.any);
+      this.element = element;
    }
 }

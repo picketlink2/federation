@@ -45,6 +45,9 @@ import org.picketlink.identity.federation.saml.v2.metadata.ContactType;
 import org.picketlink.identity.federation.saml.v2.metadata.ContactTypeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.ExtensionsType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
@@ -54,8 +57,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -64,94 +65,95 @@ import org.w3c.dom.Element;
  * @since Dec 14, 2010
  */
 public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
-{ 
-   private String EDT = JBossSAMLConstants.ENTITY_DESCRIPTOR.get();
-   
+{
+   private final String EDT = JBossSAMLConstants.ENTITY_DESCRIPTOR.get();
+
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
+   {
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, EDT );
-      
-      Attribute entityID = startElement.getAttributeByName( new QName( JBossSAMLConstants.ENTITY_ID.get() ));
+      StaxParserUtil.validate(startElement, EDT);
+
+      Attribute entityID = startElement.getAttributeByName(new QName(JBossSAMLConstants.ENTITY_ID.get()));
       String entityIDValue = StaxParserUtil.getAttributeValue(entityID);
-      EntityDescriptorType entityDescriptorType = new EntityDescriptorType( entityIDValue ); 
-      
-      Attribute validUntil = startElement.getAttributeByName( new QName( JBossSAMLConstants.VALID_UNTIL.get() ));
-      if( validUntil != null )
+      EntityDescriptorType entityDescriptorType = new EntityDescriptorType(entityIDValue);
+
+      Attribute validUntil = startElement.getAttributeByName(new QName(JBossSAMLConstants.VALID_UNTIL.get()));
+      if (validUntil != null)
       {
          String validUntilValue = StaxParserUtil.getAttributeValue(validUntil);
-         entityDescriptorType.setValidUntil( XMLTimeUtil.parse(validUntilValue)); 
-      } 
-      
-      Attribute id = startElement.getAttributeByName( new QName( JBossSAMLConstants.ID.get() ));
-      if( id != null )
+         entityDescriptorType.setValidUntil(XMLTimeUtil.parse(validUntilValue));
+      }
+
+      Attribute id = startElement.getAttributeByName(new QName(JBossSAMLConstants.ID.get()));
+      if (id != null)
       {
-         entityDescriptorType.setID( StaxParserUtil.getAttributeValue(id));  
-      } 
-      
-      Attribute cacheDuration = startElement.getAttributeByName( new QName( JBossSAMLConstants.CACHE_DURATION.get() ));
-      if( cacheDuration != null )
+         entityDescriptorType.setID(StaxParserUtil.getAttributeValue(id));
+      }
+
+      Attribute cacheDuration = startElement.getAttributeByName(new QName(JBossSAMLConstants.CACHE_DURATION.get()));
+      if (cacheDuration != null)
       {
-         entityDescriptorType.setCacheDuration( XMLTimeUtil.parseAsDuration( StaxParserUtil.getAttributeValue( cacheDuration )) );  
-      } 
-      
+         entityDescriptorType.setCacheDuration(XMLTimeUtil.parseAsDuration(StaxParserUtil
+               .getAttributeValue(cacheDuration)));
+      }
+
       //Get the Child Elements
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            StaxParserUtil.validate( (EndElement)xmlEvent , EDT);
+            StaxParserUtil.validate((EndElement) xmlEvent, EDT);
             StaxParserUtil.getNextEndElement(xmlEventReader);
             break;
          }
-         startElement = (StartElement) xmlEvent; 
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get().equals( localPart ))
-         { 
+
+         if (JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get().equals(localPart))
+         {
             IDPSSODescriptorType idpSSO = parseIDPSSODescriptor(xmlEventReader);
-            
-            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType( idpSSO );
-            EDTChoiceType edtChoice = EDTChoiceType.oneValue( edtDescChoice );
+
+            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType(idpSSO);
+            EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
             entityDescriptorType.addChoiceType(edtChoice);
          }
-         else if( JBossSAMLConstants.SP_SSO_DESCRIPTOR.get().equals( localPart ))
-         { 
+         else if (JBossSAMLConstants.SP_SSO_DESCRIPTOR.get().equals(localPart))
+         {
             SPSSODescriptorType spSSO = parseSPSSODescriptor(xmlEventReader);
-            
-            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType( spSSO );
-            EDTChoiceType edtChoice = EDTChoiceType.oneValue( edtDescChoice );
+
+            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType(spSSO);
+            EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
             entityDescriptorType.addChoiceType(edtChoice);
          }
-         else if( JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get().equals( localPart ))
-         {   
-            AttributeAuthorityDescriptorType attrAuthority = parseAttributeAuthorityDescriptor( xmlEventReader );
-            
-            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType( attrAuthority );
-            EDTChoiceType edtChoice = EDTChoiceType.oneValue( edtDescChoice );
-            entityDescriptorType.addChoiceType(edtChoice);  
+         else if (JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get().equals(localPart))
+         {
+            AttributeAuthorityDescriptorType attrAuthority = parseAttributeAuthorityDescriptor(xmlEventReader);
+
+            EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType(attrAuthority);
+            EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
+            entityDescriptorType.addChoiceType(edtChoice);
          }
-         else if( localPart.equals( JBossSAMLConstants.SIGNATURE.get() ) )
-         { 
-            entityDescriptorType.setSignature( StaxParserUtil.getDOMElement(xmlEventReader) );
+         else if (localPart.equals(JBossSAMLConstants.SIGNATURE.get()))
+         {
+            entityDescriptorType.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
          }
-         else if( JBossSAMLConstants.ORGANIZATION.get().equals( localPart ))
+         else if (JBossSAMLConstants.ORGANIZATION.get().equals(localPart))
          {
             OrganizationType organization = parseOrganization(xmlEventReader);
-            
-            entityDescriptorType.setOrganization(organization); 
+
+            entityDescriptorType.setOrganization(organization);
          }
-         else if( JBossSAMLConstants.CONTACT_PERSON.get().equals( localPart ))
+         else if (JBossSAMLConstants.CONTACT_PERSON.get().equals(localPart))
          {
-            entityDescriptorType.addContactPerson( parseContactPerson(xmlEventReader)); 
+            entityDescriptorType.addContactPerson(parseContactPerson(xmlEventReader));
          }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            entityDescriptorType.setExtensions(parseExtensions(xmlEventReader));
          }
-         else 
-            throw new RuntimeException( "Unknown " + localPart + "::location=" + startElement.getLocation() );
+         else
+            throw new RuntimeException("Unknown " + localPart + "::location=" + startElement.getLocation());
       }
       return entityDescriptorType;
    }
@@ -160,412 +162,415 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
    {
       String nsURI = qname.getNamespaceURI();
       String localPart = qname.getLocalPart();
-      
-      return nsURI.equals( JBossSAMLURIConstants.ASSERTION_NSURI.get() ) 
-           && localPart.equals( JBossSAMLConstants.ENTITY_DESCRIPTOR.get() ); 
-   } 
-   
-   
-   private SPSSODescriptorType parseSPSSODescriptor( XMLEventReader xmlEventReader ) throws ParsingException
+
+      return nsURI.equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())
+            && localPart.equals(JBossSAMLConstants.ENTITY_DESCRIPTOR.get());
+   }
+
+   private SPSSODescriptorType parseSPSSODescriptor(XMLEventReader xmlEventReader) throws ParsingException
    {
-      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.SP_SSO_DESCRIPTOR.get() );
-      
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.SP_SSO_DESCRIPTOR.get());
+
       List<String> protocolEnum = SAMLParserUtil.parseProtocolEnumeration(startElement);
-      SPSSODescriptorType spSSODescriptor = new SPSSODescriptorType( protocolEnum );
-      
-      Attribute wantAssertionsSigned = startElement.getAttributeByName( new QName( JBossSAMLConstants.WANT_ASSERTIONS_SIGNED.get() ) );
-      if( wantAssertionsSigned != null )
+      SPSSODescriptorType spSSODescriptor = new SPSSODescriptorType(protocolEnum);
+
+      Attribute wantAssertionsSigned = startElement.getAttributeByName(new QName(
+            JBossSAMLConstants.WANT_ASSERTIONS_SIGNED.get()));
+      if (wantAssertionsSigned != null)
       {
-         spSSODescriptor.setWantAssertionsSigned( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( wantAssertionsSigned ))); 
-      } 
-      Attribute wantAuthnSigned = startElement.getAttributeByName( new QName( JBossSAMLConstants.AUTHN_REQUESTS_SIGNED.get() ) );
-      if( wantAuthnSigned != null )
+         spSSODescriptor.setWantAssertionsSigned(Boolean.parseBoolean(StaxParserUtil
+               .getAttributeValue(wantAssertionsSigned)));
+      }
+      Attribute wantAuthnSigned = startElement.getAttributeByName(new QName(JBossSAMLConstants.AUTHN_REQUESTS_SIGNED
+            .get()));
+      if (wantAuthnSigned != null)
       {
-         spSSODescriptor.setAuthnRequestsSigned( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( wantAuthnSigned ))); 
-      } 
-      
-      while( xmlEventReader.hasNext() )
+         spSSODescriptor
+               .setAuthnRequestsSigned(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(wantAuthnSigned)));
+      }
+
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.SP_SSO_DESCRIPTOR.get() ); 
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.SP_SSO_DESCRIPTOR.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get().equals( localPart ))
-         { 
-            IndexedEndpointType endpoint = parseArtifactResolutionService(xmlEventReader, startElement); 
+
+         if (JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get().equals(localPart))
+         {
+            IndexedEndpointType endpoint = parseArtifactResolutionService(xmlEventReader, startElement);
             spSSODescriptor.addArtifactResolutionService(endpoint);
          }
-         else if( JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE.get().equals( localPart ))
-         { 
-            IndexedEndpointType endpoint = parseAssertionConsumerService( xmlEventReader, startElement); 
-            spSSODescriptor.addAssertionConsumerService( endpoint );
+         else if (JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE.get().equals(localPart))
+         {
+            IndexedEndpointType endpoint = parseAssertionConsumerService(xmlEventReader, startElement);
+            spSSODescriptor.addAssertionConsumerService(endpoint);
          }
-         else if( JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE.get().equals( localPart ))
-         { 
-            AttributeConsumingServiceType attributeConsumer = parseAttributeConsumingService(xmlEventReader, startElement);
+         else if (JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE.get().equals(localPart))
+         {
+            AttributeConsumingServiceType attributeConsumer = parseAttributeConsumingService(xmlEventReader,
+                  startElement);
             spSSODescriptor.addAttributeConsumerService(attributeConsumer);
          }
-         else if( JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get() );
-            
-            spSSODescriptor.addSingleLogoutService( endpoint );
-         } 
-         else if( JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get() );
-            
-            spSSODescriptor.addManageNameIDService( endpoint );
-         } 
-         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals(localPart))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            spSSODescriptor.addNameIDFormat( StaxParserUtil.getElementText(xmlEventReader) ); 
-         } 
-         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase( localPart ))
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get());
+
+            spSSODescriptor.addSingleLogoutService(endpoint);
+         }
+         else if (JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get());
+
+            spSSODescriptor.addManageNameIDService(endpoint);
+         }
+         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            spSSODescriptor.addNameIDFormat(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart))
          {
             KeyDescriptorType keyDescriptor = new KeyDescriptorType();
-            String use = StaxParserUtil.getAttributeValue(startElement, "use" );
-            if( use != null )
-               keyDescriptor.setUse( KeyTypes.fromValue(use) );
-            
+            String use = StaxParserUtil.getAttributeValue(startElement, "use");
+            if (use != null)
+               keyDescriptor.setUse(KeyTypes.fromValue(use));
+
             Element key = StaxParserUtil.getDOMElement(xmlEventReader);
             keyDescriptor.setKeyInfo(key);
             spSSODescriptor.addKeyDescriptor(keyDescriptor);
          }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {
-            StaxParserUtil.bypassElementBlock(xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            spSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException( "Unknown " + localPart ); 
+            throw new RuntimeException("Unknown " + localPart);
       }
       return spSSODescriptor;
    }
-   
-   
-   
-   
-   private IDPSSODescriptorType parseIDPSSODescriptor( XMLEventReader xmlEventReader ) throws ParsingException
+
+   private IDPSSODescriptorType parseIDPSSODescriptor(XMLEventReader xmlEventReader) throws ParsingException
    {
-      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get() );
-      
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get());
+
       List<String> protocolEnum = SAMLParserUtil.parseProtocolEnumeration(startElement);
-      IDPSSODescriptorType idpSSODescriptor = new IDPSSODescriptorType( protocolEnum );
-      
-      Attribute wantAuthnSigned = startElement.getAttributeByName( new QName( JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get() ) );
-      if( wantAuthnSigned != null )
+      IDPSSODescriptorType idpSSODescriptor = new IDPSSODescriptorType(protocolEnum);
+
+      Attribute wantAuthnSigned = startElement.getAttributeByName(new QName(
+            JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get()));
+      if (wantAuthnSigned != null)
       {
-         idpSSODescriptor.setWantAuthnRequestsSigned( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( wantAuthnSigned ))); 
-      } 
-      
-      while( xmlEventReader.hasNext() )
+         idpSSODescriptor.setWantAuthnRequestsSigned(Boolean.parseBoolean(StaxParserUtil
+               .getAttributeValue(wantAuthnSigned)));
+      }
+
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get() ); 
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get().equals( localPart ))
-         { 
+
+         if (JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get().equals(localPart))
+         {
             IndexedEndpointType endpoint = parseArtifactResolutionService(xmlEventReader, startElement);
             idpSSODescriptor.addArtifactResolutionService(endpoint);
          }
-         else if( JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get() );
-            
-            idpSSODescriptor.addAssertionIDRequestService( endpoint );
-         }
-         else if( JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get() );
-            
-            idpSSODescriptor.addSingleLogoutService( endpoint );
-         }
-         else if( JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get() );
-            
-            idpSSODescriptor.addSingleSignOnService( endpoint );
-         }
-         else if( JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get() );
-            
-            idpSSODescriptor.addManageNameIDService( endpoint );
-         }
-         else if( JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            EndpointType endpoint = getEndpointType(startElement); 
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get() );
-            
-            idpSSODescriptor.addNameIDMappingService( endpoint );
-         }
-         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get().equals(localPart))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            idpSSODescriptor.addNameIDFormat( StaxParserUtil.getElementText(xmlEventReader) ); 
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.ASSERTION_ID_REQUEST_SERVICE.get());
+
+            idpSSODescriptor.addAssertionIDRequestService(endpoint);
          }
-         else if (JBossSAMLConstants.ATTRIBUTE.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.SINGLE_LOGOUT_SERVICE.get());
+
+            idpSSODescriptor.addSingleLogoutService(endpoint);
+         }
+         else if (JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.SINGLE_SIGNON_SERVICE.get());
+
+            idpSSODescriptor.addSingleSignOnService(endpoint);
+         }
+         else if (JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.MANAGE_NAMEID_SERVICE.get());
+
+            idpSSODescriptor.addManageNameIDService(endpoint);
+         }
+         else if (JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            EndpointType endpoint = getEndpointType(startElement);
+
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.NAMEID_MAPPING_SERVICE.get());
+
+            idpSSODescriptor.addNameIDMappingService(endpoint);
+         }
+         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            idpSSODescriptor.addNameIDFormat(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.ATTRIBUTE.get().equalsIgnoreCase(localPart))
          {
             AttributeType attribute = SAMLParserUtil.parseAttribute(xmlEventReader);
-            idpSSODescriptor.addAttribute(attribute);  
+            idpSSODescriptor.addAttribute(attribute);
          }
-         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart))
          {
             KeyDescriptorType keyDescriptor = new KeyDescriptorType();
-            String use = StaxParserUtil.getAttributeValue(startElement, "use" );
-            if( use != null && !use.isEmpty())
+            String use = StaxParserUtil.getAttributeValue(startElement, "use");
+            if (use != null && !use.isEmpty())
             {
-               keyDescriptor.setUse( KeyTypes.fromValue(use) ); 
+               keyDescriptor.setUse(KeyTypes.fromValue(use));
             }
-            
+
             Element key = StaxParserUtil.getDOMElement(xmlEventReader);
             keyDescriptor.setKeyInfo(key);
             idpSSODescriptor.addKeyDescriptor(keyDescriptor);
          }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            idpSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
          }
-         else 
-            throw new RuntimeException( "Unknown " + localPart ); 
+         else
+            throw new RuntimeException("Unknown " + localPart);
       }
       return idpSSODescriptor;
    }
 
    private EndpointType getEndpointType(StartElement startElement)
    {
-      Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
+      Attribute bindingAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.BINDING.get()));
       String binding = StaxParserUtil.getAttributeValue(bindingAttr);
-      
-      Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
-      String location = StaxParserUtil.getAttributeValue( locationAttr );
-      
-      EndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
-            URI.create( location ));
-      Attribute responseLocation = startElement.getAttributeByName( new QName( JBossSAMLConstants.RESPONSE_LOCATION.get() ));
-      if( responseLocation != null )
+
+      Attribute locationAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.LOCATION.get()));
+      String location = StaxParserUtil.getAttributeValue(locationAttr);
+
+      EndpointType endpoint = new IndexedEndpointType(URI.create(binding), URI.create(location));
+      Attribute responseLocation = startElement
+            .getAttributeByName(new QName(JBossSAMLConstants.RESPONSE_LOCATION.get()));
+      if (responseLocation != null)
       {
-         endpoint.setResponseLocation( URI.create( StaxParserUtil.getAttributeValue( responseLocation )));
+         endpoint.setResponseLocation(URI.create(StaxParserUtil.getAttributeValue(responseLocation)));
       }
       return endpoint;
    }
-   
-   private AttributeAuthorityDescriptorType parseAttributeAuthorityDescriptor( XMLEventReader xmlEventReader ) throws ParsingException
+
+   private AttributeAuthorityDescriptorType parseAttributeAuthorityDescriptor(XMLEventReader xmlEventReader)
+         throws ParsingException
    {
-      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get() );
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get());
       List<String> protocolEnum = SAMLParserUtil.parseProtocolEnumeration(startElement);
-      AttributeAuthorityDescriptorType attributeAuthority = new AttributeAuthorityDescriptorType( protocolEnum );
-      
-      while( xmlEventReader.hasNext() )
+      AttributeAuthorityDescriptorType attributeAuthority = new AttributeAuthorityDescriptorType(protocolEnum);
+
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get() );
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.ATTRIBUTE_AUTHORITY_DESCRIPTOR.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.ATTRIBUTE_SERVICE.get().equals( localPart ))
-         { 
+
+         if (JBossSAMLConstants.ATTRIBUTE_SERVICE.get().equals(localPart))
+         {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
+            Attribute bindingAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.BINDING.get()));
             String binding = StaxParserUtil.getAttributeValue(bindingAttr);
-            
-            Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
-            String location = StaxParserUtil.getAttributeValue( locationAttr );
-            
-            IndexedEndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
-                  URI.create( location )); 
-            
+
+            Attribute locationAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.LOCATION.get()));
+            String location = StaxParserUtil.getAttributeValue(locationAttr);
+
+            IndexedEndpointType endpoint = new IndexedEndpointType(URI.create(binding), URI.create(location));
+
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.ATTRIBUTE_SERVICE.get() );
-            
-            attributeAuthority.addAttributeService( endpoint );
-         }  
-         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase( localPart ))
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.ATTRIBUTE_SERVICE.get());
+
+            attributeAuthority.addAttributeService(endpoint);
+         }
+         else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart))
          {
             KeyDescriptorType keyDescriptor = new KeyDescriptorType();
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             
+
             Element key = StaxParserUtil.getDOMElement(xmlEventReader);
-            keyDescriptor.setKeyInfo( key );
-            
+            keyDescriptor.setKeyInfo(key);
+
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate( endElement, JBossSAMLConstants.KEY_DESCRIPTOR.get() );
-            
-            attributeAuthority.addKeyDescriptor( keyDescriptor );  
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.KEY_DESCRIPTOR.get());
+
+            attributeAuthority.addKeyDescriptor(keyDescriptor);
          }
-         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase(localPart))
          {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            attributeAuthority.addNameIDFormat( StaxParserUtil.getElementText(xmlEventReader) ); 
+            attributeAuthority.addNameIDFormat(StaxParserUtil.getElementText(xmlEventReader));
          }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            attributeAuthority.setExtensions(parseExtensions(xmlEventReader));
          }
-         else 
-            throw new RuntimeException( "Unknown " + localPart );
-         
+         else
+            throw new RuntimeException("Unknown " + localPart);
+
       }
       return attributeAuthority;
    }
-   
-   private OrganizationType parseOrganization( XMLEventReader xmlEventReader ) throws ParsingException
+
+   private OrganizationType parseOrganization(XMLEventReader xmlEventReader) throws ParsingException
    {
-      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.ORGANIZATION.get() );
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.ORGANIZATION.get());
 
       OrganizationType org = new OrganizationType();
-      
-      while( xmlEventReader.hasNext() )
+
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.ORGANIZATION.get() );
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.ORGANIZATION.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.ORGANIZATION_NAME.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
-            org.addOrganizationName(localName);  
-         }  
-         else if( JBossSAMLConstants.ORGANIZATION_DISPLAY_NAME.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
-            org.addOrganizationDisplayName( localName ) ;  
-         }
-         else if( JBossSAMLConstants.ORGANIZATION_URL.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
-            String langVal = StaxParserUtil.getAttributeValue(lang);
-            LocalizedURIType localName = new LocalizedURIType( langVal );
-            localName.setValue( URI.create( StaxParserUtil.getElementText( xmlEventReader )));
-            org.addOrganizationURL( localName ) ;  
-         }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+
+         if (JBossSAMLConstants.ORGANIZATION_NAME.get().equals(localPart))
          {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
+            org.addOrganizationName(localName);
          }
-         else 
-            throw new RuntimeException( "Unknown " + localPart ); 
+         else if (JBossSAMLConstants.ORGANIZATION_DISPLAY_NAME.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
+            org.addOrganizationDisplayName(localName);
+         }
+         else if (JBossSAMLConstants.ORGANIZATION_URL.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            Attribute lang = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XML.get(), "lang"));
+            String langVal = StaxParserUtil.getAttributeValue(lang);
+            LocalizedURIType localName = new LocalizedURIType(langVal);
+            localName.setValue(URI.create(StaxParserUtil.getElementText(xmlEventReader)));
+            org.addOrganizationURL(localName);
+         }
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
+         {
+            org.setExtensions(parseExtensions(xmlEventReader));
+         }
+         else
+            throw new RuntimeException("Unknown " + localPart);
       }
       return org;
    }
-   
-   private ContactType parseContactPerson( XMLEventReader xmlEventReader ) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.CONTACT_PERSON.get() );
 
-      Attribute attr = startElement.getAttributeByName( new QName( JBossSAMLConstants.CONTACT_TYPE.get() ));
-      if( attr == null )
-         throw new ParsingException( "attribute contactType required" );
-      ContactType contactType = new ContactType(ContactTypeType.fromValue( StaxParserUtil.getAttributeValue(attr)));
-      
-      while( xmlEventReader.hasNext() )
+   private ContactType parseContactPerson(XMLEventReader xmlEventReader) throws ParsingException
+   {
+      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.CONTACT_PERSON.get());
+
+      Attribute attr = startElement.getAttributeByName(new QName(JBossSAMLConstants.CONTACT_TYPE.get()));
+      if (attr == null)
+         throw new ParsingException("attribute contactType required");
+      ContactType contactType = new ContactType(ContactTypeType.fromValue(StaxParserUtil.getAttributeValue(attr)));
+
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.CONTACT_PERSON.get() );
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.CONTACT_PERSON.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.COMPANY.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            contactType.setCompany( StaxParserUtil.getElementText(xmlEventReader) ); 
-         }  
-         else if( JBossSAMLConstants.GIVEN_NAME.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            contactType.setGivenName( StaxParserUtil.getElementText(xmlEventReader) ); 
-         }
-         else if( JBossSAMLConstants.SURNAME.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            contactType.setSurName( StaxParserUtil.getElementText(xmlEventReader) ); 
-         }
-         else if( JBossSAMLConstants.EMAIL_ADDRESS.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            contactType.addEmailAddress( StaxParserUtil.getElementText(xmlEventReader) ); 
-         }
-         else if( JBossSAMLConstants.TELEPHONE_NUMBER.get().equals( localPart ))
-         { 
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            contactType.addTelephone( StaxParserUtil.getElementText(xmlEventReader) ); 
-         }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
+
+         if (JBossSAMLConstants.COMPANY.get().equals(localPart))
          {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setCompany(StaxParserUtil.getElementText(xmlEventReader));
          }
-         else 
-            throw new RuntimeException( "Unknown " + localPart ); 
+         else if (JBossSAMLConstants.GIVEN_NAME.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setGivenName(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.SURNAME.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.setSurName(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.EMAIL_ADDRESS.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.addEmailAddress(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.TELEPHONE_NUMBER.get().equals(localPart))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            contactType.addTelephone(StaxParserUtil.getElementText(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
+         {
+            contactType.setExtensions(parseExtensions(xmlEventReader));
+         }
+         else
+            throw new RuntimeException("Unknown " + localPart);
       }
       return contactType;
    }
@@ -573,126 +578,135 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
    private LocalizedNameType getLocalizedName(XMLEventReader xmlEventReader, StartElement startElement)
          throws ParsingException
    {
-      Attribute lang = startElement.getAttributeByName( new QName( JBossSAMLURIConstants.XML.get(), "lang" ));
+      Attribute lang = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XML.get(), "lang"));
       String langVal = StaxParserUtil.getAttributeValue(lang);
       LocalizedNameType localName = new LocalizedNameType(langVal);
-      localName.setValue( StaxParserUtil.getElementText(xmlEventReader));
+      localName.setValue(StaxParserUtil.getElementText(xmlEventReader));
       return localName;
    }
-   
-   private IndexedEndpointType parseAssertionConsumerService( XMLEventReader xmlEventReader, StartElement startElement ) throws ParsingException
+
+   private IndexedEndpointType parseAssertionConsumerService(XMLEventReader xmlEventReader, StartElement startElement)
+         throws ParsingException
    {
       startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       IndexedEndpointType endpoint = parseIndexedEndpoint(xmlEventReader, startElement);
-      
+
       EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-      StaxParserUtil.validate( endElement, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE.get() );
-      
+      StaxParserUtil.validate(endElement, JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE.get());
+
       return endpoint;
    }
-   
-   private IndexedEndpointType parseArtifactResolutionService( XMLEventReader xmlEventReader, StartElement startElement ) throws ParsingException
+
+   private IndexedEndpointType parseArtifactResolutionService(XMLEventReader xmlEventReader, StartElement startElement)
+         throws ParsingException
    {
       startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       IndexedEndpointType endpoint = parseIndexedEndpoint(xmlEventReader, startElement);
-      
+
       EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-      StaxParserUtil.validate( endElement, JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get() );
-      
+      StaxParserUtil.validate(endElement, JBossSAMLConstants.ARTIFACT_RESOLUTION_SERVICE.get());
+
       return endpoint;
    }
-   
-   private IndexedEndpointType parseIndexedEndpoint( XMLEventReader xmlEventReader, StartElement startElement )
+
+   private IndexedEndpointType parseIndexedEndpoint(XMLEventReader xmlEventReader, StartElement startElement)
    {
-      Attribute bindingAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.BINDING.get() ) );
+      Attribute bindingAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.BINDING.get()));
       String binding = StaxParserUtil.getAttributeValue(bindingAttr);
-      
-      Attribute locationAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.LOCATION.get() ) );
-      String location = StaxParserUtil.getAttributeValue( locationAttr );
-      
-      IndexedEndpointType endpoint = new IndexedEndpointType( URI.create( binding ), 
-            URI.create( location ));
-      Attribute isDefault = startElement.getAttributeByName( new QName( JBossSAMLConstants.ISDEFAULT.get() ));
-      if( isDefault != null )
+
+      Attribute locationAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.LOCATION.get()));
+      String location = StaxParserUtil.getAttributeValue(locationAttr);
+
+      IndexedEndpointType endpoint = new IndexedEndpointType(URI.create(binding), URI.create(location));
+      Attribute isDefault = startElement.getAttributeByName(new QName(JBossSAMLConstants.ISDEFAULT.get()));
+      if (isDefault != null)
       {
-         endpoint.setIsDefault( Boolean.parseBoolean( StaxParserUtil.getAttributeValue( isDefault )));
+         endpoint.setIsDefault(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(isDefault)));
       }
-      Attribute index = startElement.getAttributeByName( new QName( JBossSAMLConstants.INDEX.get() ));
-      if( index != null )
+      Attribute index = startElement.getAttributeByName(new QName(JBossSAMLConstants.INDEX.get()));
+      if (index != null)
       {
-         endpoint.setIndex( Integer.parseInt( StaxParserUtil.getAttributeValue( index )));
+         endpoint.setIndex(Integer.parseInt(StaxParserUtil.getAttributeValue(index)));
       }
       return endpoint;
    }
-   
-   private AttributeConsumingServiceType parseAttributeConsumingService( XMLEventReader xmlEventReader, StartElement startElement ) throws ParsingException
-   { 
+
+   private AttributeConsumingServiceType parseAttributeConsumingService(XMLEventReader xmlEventReader,
+         StartElement startElement) throws ParsingException
+   {
       startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      
-      Attribute indexAttr = startElement.getAttributeByName( new QName( JBossSAMLConstants.INDEX.get() ) );
-      if( indexAttr == null )
-         throw new ParsingException( "attribute index required" );
-      
-      AttributeConsumingServiceType attributeConsumer = new AttributeConsumingServiceType( Integer.parseInt( StaxParserUtil.getAttributeValue(indexAttr)));
-      while( xmlEventReader.hasNext() )
+
+      Attribute indexAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.INDEX.get()));
+      if (indexAttr == null)
+         throw new ParsingException("attribute index required");
+
+      AttributeConsumingServiceType attributeConsumer = new AttributeConsumingServiceType(
+            Integer.parseInt(StaxParserUtil.getAttributeValue(indexAttr)));
+      while (xmlEventReader.hasNext())
       {
          XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if( xmlEvent instanceof EndElement )
+         if (xmlEvent instanceof EndElement)
          {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader); 
-            StaxParserUtil.validate( end , JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE.get() );
+            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(end, JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE.get());
             break;
          }
-         
-         startElement = (StartElement) xmlEvent; 
+
+         startElement = (StartElement) xmlEvent;
          String localPart = startElement.getName().getLocalPart();
-         
-         if( JBossSAMLConstants.SERVICE_NAME.get().equals( localPart ))
-         { 
+
+         if (JBossSAMLConstants.SERVICE_NAME.get().equals(localPart))
+         {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
             attributeConsumer.addServiceName(localName);
-         }  
-         else if( JBossSAMLConstants.SERVICE_DESCRIPTION.get().equals( localPart ))
-         { 
+         }
+         else if (JBossSAMLConstants.SERVICE_DESCRIPTION.get().equals(localPart))
+         {
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
             LocalizedNameType localName = getLocalizedName(xmlEventReader, startElement);
             attributeConsumer.addServiceDescription(localName);
          }
-         else if( JBossSAMLConstants.REQUESTED_ATTRIBUTE.get().equals( localPart ))
-         { 
+         else if (JBossSAMLConstants.REQUESTED_ATTRIBUTE.get().equals(localPart))
+         {
             RequestedAttributeType attType = parseRequestedAttributeType(xmlEventReader, startElement);
             attributeConsumer.addRequestedAttribute(attType);
          }
-         else if( JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase( localPart ))
-         {
-            StaxParserUtil.bypassElementBlock( xmlEventReader, JBossSAMLConstants.EXTENSIONS.get() );
-         }
-         else 
-            throw new RuntimeException( "Unknown " + localPart ); 
+         else
+            throw new RuntimeException("Unknown " + localPart);
       }
-      
+
       return attributeConsumer;
    }
-   
-   private RequestedAttributeType parseRequestedAttributeType( XMLEventReader xmlEventReader, StartElement startElement ) throws ParsingException 
+
+   private RequestedAttributeType parseRequestedAttributeType(XMLEventReader xmlEventReader, StartElement startElement)
+         throws ParsingException
    {
-      startElement = StaxParserUtil.getNextStartElement(xmlEventReader); 
-      StaxParserUtil.validate( startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get() );
+      startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StaxParserUtil.validate(startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get());
       RequestedAttributeType attributeType = null;
-       
-      Attribute name = startElement.getAttributeByName( new QName( JBossSAMLConstants.NAME.get() ));
-      if( name == null )
-         throw new RuntimeException( "Required attribute Name in Attribute" );
-      attributeType = new RequestedAttributeType( StaxParserUtil.getAttributeValue( name ));
-      
-      Attribute isRequired = startElement.getAttributeByName( new QName( JBossSAMLConstants.IS_REQUIRED.get() ));
-      if( isRequired != null )
+
+      Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
+      if (name == null)
+         throw new RuntimeException("Required attribute Name in Attribute");
+      attributeType = new RequestedAttributeType(StaxParserUtil.getAttributeValue(name));
+
+      Attribute isRequired = startElement.getAttributeByName(new QName(JBossSAMLConstants.IS_REQUIRED.get()));
+      if (isRequired != null)
       {
-         attributeType.setIsRequired( Boolean.parseBoolean( StaxParserUtil.getAttributeValue(isRequired) ));
+         attributeType.setIsRequired(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(isRequired)));
       }
-      
-      SAMLParserUtil.parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get(), attributeType);
+
+      SAMLParserUtil.parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.REQUESTED_ATTRIBUTE.get(),
+            attributeType);
       return attributeType;
+   }
+
+   private ExtensionsType parseExtensions(XMLEventReader xmlEventReader) throws ParsingException
+   {
+      ExtensionsType extensions = new ExtensionsType();
+      Element extElement = StaxParserUtil.getDOMElement(xmlEventReader);
+      extensions.setElement(extElement);
+      return extensions;
    }
 }

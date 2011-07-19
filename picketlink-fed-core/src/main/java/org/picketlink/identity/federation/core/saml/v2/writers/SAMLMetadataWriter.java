@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorTyp
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.ExtensionsType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
@@ -96,6 +97,17 @@ public class SAMLMetadataWriter extends BaseWriter
          StaxUtil.writeAttribute(writer, JBossSAMLConstants.NAME.get(), entities.getName());
       }
 
+      Element signature = entities.getSignature();
+      if (signature != null)
+      {
+         StaxUtil.writeDOMElement(writer, signature);
+      }
+      ExtensionsType extensions = entities.getExtensions();
+      if (extensions != null)
+      {
+         StaxUtil.writeDOMElement(writer, extensions.getElement());
+      }
+
       List<Object> entityDescriptors = entities.getEntityDescriptor();
       for (Object ed : entityDescriptors)
       {
@@ -129,6 +141,17 @@ public class SAMLMetadataWriter extends BaseWriter
       if (entityDescriptor.getID() != null)
       {
          StaxUtil.writeAttribute(writer, JBossSAMLConstants.ID.get(), entityDescriptor.getID());
+      }
+
+      Element signature = entityDescriptor.getSignature();
+      if (signature != null)
+      {
+         StaxUtil.writeDOMElement(writer, signature);
+      }
+      ExtensionsType extensions = entityDescriptor.getExtensions();
+      if (extensions != null)
+      {
+         StaxUtil.writeDOMElement(writer, extensions.getElement());
       }
 
       List<EDTChoiceType> choiceTypes = entityDescriptor.getChoiceType();
@@ -304,6 +327,17 @@ public class SAMLMetadataWriter extends BaseWriter
 
       writeProtocolSupportEnumeration(attributeAuthority.getProtocolSupportEnumeration());
 
+      Element signature = attributeAuthority.getSignature();
+      if (signature != null)
+      {
+         StaxUtil.writeDOMElement(writer, signature);
+      }
+      ExtensionsType extensions = attributeAuthority.getExtensions();
+      if (extensions != null)
+      {
+         StaxUtil.writeDOMElement(writer, extensions.getElement());
+      }
+
       List<KeyDescriptorType> keyDescriptorList = attributeAuthority.getKeyDescriptor();
       for (KeyDescriptorType keyDescriptor : keyDescriptorList)
       {
@@ -406,6 +440,12 @@ public class SAMLMetadataWriter extends BaseWriter
          throw new ProcessingException("Organization is null");
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ORGANIZATION.get(), METADATA_NSURI.get());
 
+      ExtensionsType extensions = org.getExtensions();
+      if (extensions != null)
+      {
+         StaxUtil.writeDOMElement(writer, extensions.getElement());
+      }
+
       //Write the name
       List<LocalizedNameType> nameList = org.getOrganizationName();
       for (LocalizedNameType localName : nameList)
@@ -451,6 +491,11 @@ public class SAMLMetadataWriter extends BaseWriter
       StaxUtil
             .writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.CONTACT_PERSON.get(), METADATA_NSURI.get());
 
+      ExtensionsType extensions = contact.getExtensions();
+      if (extensions != null)
+      {
+         StaxUtil.writeDOMElement(writer, extensions.getElement());
+      }
       ContactTypeType attribs = contact.getContactType();
       StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONTACT_TYPE.get(), attribs.value());
 
