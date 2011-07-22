@@ -138,7 +138,7 @@ public class SAMLRequestWriter extends BaseWriter
       NameIDType issuer = request.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
 
       Element sig = request.getSignature();
@@ -186,7 +186,7 @@ public class SAMLRequestWriter extends BaseWriter
          StaxUtil.writeAttribute(writer, JBossSAMLConstants.CONSENT.get(), consent);
 
       NameIDType issuer = logOutRequest.getIssuer();
-      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
 
       NameIDType nameID = logOutRequest.getNameID();
       if (nameID != null)
@@ -254,7 +254,7 @@ public class SAMLRequestWriter extends BaseWriter
       NameIDType issuer = request.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
       Element sig = request.getSignature();
       if (sig != null)
@@ -296,7 +296,7 @@ public class SAMLRequestWriter extends BaseWriter
       NameIDType issuer = request.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
       Element sig = request.getSignature();
       if (sig != null)
@@ -355,7 +355,7 @@ public class SAMLRequestWriter extends BaseWriter
       NameIDType issuer = xacmlQuery.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
 
       RequestType xacmlRequest = xacmlQuery.getRequest();

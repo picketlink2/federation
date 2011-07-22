@@ -90,7 +90,7 @@ public class SAMLAssertionWriter extends BaseWriter
 
       NameIDType issuer = assertion.getIssuer();
       if (issuer != null)
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
 
       Element sig = assertion.getSignature();
       if (sig != null)

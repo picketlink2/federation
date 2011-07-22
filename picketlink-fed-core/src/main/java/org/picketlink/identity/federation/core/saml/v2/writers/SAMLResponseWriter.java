@@ -74,14 +74,14 @@ public class SAMLResponseWriter extends BaseWriter
 
       StaxUtil.writeNameSpace(writer, PROTOCOL_PREFIX, PROTOCOL_NSURI.get());
       StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
-      StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
+      //StaxUtil.writeDefaultNameSpace(writer, ASSERTION_NSURI.get());
 
       writeBaseAttributes(response);
 
       NameIDType issuer = response.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
 
       Element sig = response.getSignature();
@@ -130,7 +130,7 @@ public class SAMLResponseWriter extends BaseWriter
       NameIDType issuer = response.getIssuer();
       if (issuer != null)
       {
-         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+         write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
       }
 
       Element sig = response.getSignature();
@@ -186,7 +186,7 @@ public class SAMLResponseWriter extends BaseWriter
       writeBaseAttributes(response);
 
       NameIDType issuer = response.getIssuer();
-      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get()));
+      write(issuer, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get(), ASSERTION_PREFIX));
 
       StatusType status = response.getStatus();
       write(status);
