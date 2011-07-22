@@ -36,13 +36,36 @@ public enum JBossSAMLURIConstants
    AC_UNSPECIFIED("urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified"),
    AC_IP("urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocol"),
 
-
-   BEARER( "urn:oasis:names:tc:SAML:2.0:cm:bearer" ),
-   
    ASSERTION_NSURI("urn:oasis:names:tc:SAML:2.0:assertion"),
    ATTRIBUTE_FORMAT_BASIC("urn:oasis:names:tc:SAML:2.0:attrname-format:basic"), 
    ATTRIBUTE_FORMAT_URI("urn:oasis:names:tc:SAML:2.0:attrname-format:uri"), 
+
+
+   BEARER( "urn:oasis:names:tc:SAML:2.0:cm:bearer" ),
    
+   CLAIMS_EMAIL_ADDRESS_2005( "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"),
+   CLAIMS_EMAIL_ADDRESS( "http://schemas.xmlsoap.org/claims/EmailAddress"), 
+   CLAIMS_GIVEN_NAME( "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"),
+   CLAIMS_NAME("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"),
+   CLAIMS_USER_PRINCIPAL_NAME_2005("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn"),
+   CLAIMS_USER_PRINCIPAL_NAME("http://schemas.xmlsoap.org/claims/UPN"),
+   CLAIMS_COMMON_NAME("http://schemas.xmlsoap.org/claims/CommonName"),
+   CLAIMS_GROUP("http://schemas.xmlsoap.org/claims/Group"), 
+   CLAIMS_ROLE("http://schemas.microsoft.com/ws/2008/06/identity/claims/role"),
+   CLAIMS_SURNAME("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"),
+   CLAIMS_PRIVATE_ID("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier"),
+   CLAIMS_NAME_IDENTIFIER("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"),
+   CLAIMS_AUTHENTICATION_METHOD("http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationmethod"),
+   CLAIMS_DENY_ONLY_GROUP_SID("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/denyonlysid"),
+   CLAIMS_DENY_ONLY_PRIMARY_SID("http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarysid"),
+   CLAIMS_DENY_ONLY_PRIMARY_GROUP_SID("http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarygroupsid"),
+   CLAIMS_GROUP_SID("http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid"),
+   CLAIMS_PRIMARY_GROUP_SID("http://schemas.microsoft.com/ws/2008/06/identity/claims/primarygroupsid"),
+   CLAIMS_PRIMARY_SID("http://schemas.microsoft.com/ws/2008/06/identity/claims/primarysid"),
+   CLAIMS_WINDOWS_ACCOUNT_NAME("http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname"),
+   CLAIMS_PUID("http://schemas.xmlsoap.org/claims/PUID"),
+   
+
    HOLDER_OF_KEY( "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" ),
    
    METADATA_NSURI( "urn:oasis:names:tc:SAML:2.0:metadata" ),

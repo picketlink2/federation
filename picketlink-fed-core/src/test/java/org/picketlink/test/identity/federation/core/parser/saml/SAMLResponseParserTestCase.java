@@ -29,18 +29,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
@@ -243,5 +247,50 @@ public class SAMLResponseParserTestCase extends AbstractParserTest
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
       validateSchema(writtenString);
+   }
+
+   @Test
+   public void testSAMLResponseADFSClaims() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-response-adfs-claims.xml");
+
+      SAMLParser parser = new SAMLParser();
+      ResponseType response = (ResponseType) parser.parse(configStream);
+      assertNotNull("ResponseType is not null", response);
+
+      List<RTChoiceType> choices = response.getAssertions();
+      assertEquals(1, choices.size());
+      RTChoiceType rtc = choices.get(0);
+      AssertionType assertion = rtc.getAssertion();
+      Set<StatementAbstractType> statements = assertion.getStatements();
+      for (StatementAbstractType statement : statements)
+      {
+         if (statement instanceof AuthnStatementType)
+         {
+            AuthnStatementType authnStat = (AuthnStatementType) statement;
+            AuthnContextType authnContext = authnStat.getAuthnContext();
+
+            AuthnContextTypeSequence sequence = authnContext.getSequence();
+            assertNotNull(sequence);
+            assertEquals("urn:federation:authentication:windows", sequence.getClassRef().getValue().toString());
+         }
+         else if (statement instanceof AttributeStatementType)
+         {
+            AttributeStatementType attribStat = (AttributeStatementType) statement;
+            List<ASTChoiceType> attributes = attribStat.getAttributes();
+            assertEquals(2, attributes.size());
+            for (ASTChoiceType astChoice : attributes)
+            {
+               AttributeType attribute = astChoice.getAttribute();
+               String attributeName = attribute.getName();
+               if (!(JBossSAMLURIConstants.CLAIMS_EMAIL_ADDRESS.get().equals(attributeName) || JBossSAMLURIConstants.CLAIMS_PUID
+                     .get().equals(attributeName)))
+                  throw new RuntimeException("Unknown attr name:" + attributeName);
+            }
+         }
+         else
+            throw new RuntimeException("Unknown statement type:" + statement);
+      }
    }
 }

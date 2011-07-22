@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
@@ -310,7 +311,10 @@ public class SAMLParserUtil
          String text = StaxParserUtil.getElementText(xmlEventReader);
 
          AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType(URI.create(text));
-         authnContextType.addURIType(aAuthnContextClassRefType);
+         AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
+         authnContextSequence.setClassRef(aAuthnContextClassRefType);
+
+         authnContextType.setSequence(authnContextSequence);
          EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
       }
