@@ -292,5 +292,13 @@ public class SAMLResponseParserTestCase extends AbstractParserTest
          else
             throw new RuntimeException("Unknown statement type:" + statement);
       }
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      //Lets do the writing
+      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      writer.write(response);
+      String writtenString = new String(baos.toByteArray());
+      System.out.println(writtenString);
+      validateSchema(writtenString);
    }
 }

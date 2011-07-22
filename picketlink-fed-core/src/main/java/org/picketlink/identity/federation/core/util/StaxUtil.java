@@ -373,6 +373,10 @@ public class StaxUtil
          // writeNameSpace(writer, domElementPrefix, domElementNS );
          registeredNSStack.get().push(domElementNS);
       }
+      else if (domElementPrefix == "" && domElementNS != null)
+      {
+         writeNameSpace(writer, "xmlns", domElementNS);
+      }
 
       // Deal with Attributes
       NamedNodeMap attrs = domElement.getAttributes();
@@ -385,11 +389,7 @@ public class StaxUtil
 
          if (attributePrefix == null || attributePrefix.length() == 0)
          {
-            if ("xmlns".equals(attribLocalName))
-            {
-               writeDefaultNameSpace(writer, attribValue);
-            }
-            else
+            if (!("xmlns".equals(attribLocalName)))
             {
                writeAttribute(writer, attribLocalName, attribValue);
             }

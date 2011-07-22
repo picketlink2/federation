@@ -50,6 +50,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -106,6 +107,31 @@ public class DocumentUtil
          throw new ConfigurationException(e);
       }
       return builder.newDocument();
+   }
+
+   /**
+    * Create a document with the root element of the form  &lt;someElement  xmlns="customNamespace"
+    * @param baseNamespace
+    * @return
+    * @throws ProcessingException
+    */
+   public static Document createDocumentWithBaseNamespace(String baseNamespace, String localPart)
+         throws ProcessingException
+   {
+      try
+      {
+         DocumentBuilderFactory factory = getDocumentBuilderFactory();
+         DocumentBuilder builder = factory.newDocumentBuilder();
+         return builder.getDOMImplementation().createDocument(baseNamespace, localPart, null);
+      }
+      catch (DOMException e)
+      {
+         throw new ProcessingException(e);
+      }
+      catch (ParserConfigurationException e)
+      {
+         throw new ProcessingException(e);
+      }
    }
 
    /**

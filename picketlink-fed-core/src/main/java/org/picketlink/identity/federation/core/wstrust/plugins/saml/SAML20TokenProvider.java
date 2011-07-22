@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
@@ -66,6 +67,8 @@ import org.w3c.dom.Element;
 public class SAML20TokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider
 {
    protected static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
+
+   protected boolean trace = logger.isTraceEnabled();
 
    private SAML20TokenAttributeProvider attributeProvider;
 
@@ -340,6 +343,10 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
       {
          try
          {
+            if (trace)
+            {
+               logger.trace("Assertion Element=" + DocumentUtil.getNodeAsString(assertionElement));
+            }
             assertion = SAMLUtil.fromElement(assertionElement);
          }
          catch (Exception e)

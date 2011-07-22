@@ -54,7 +54,9 @@ import javax.xml.transform.stax.StAXSource;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -226,7 +228,7 @@ public class TransformerUtil
                }
             }
          }
-         catch (ParsingException e)
+         catch (Exception e)
          {
             throw new TransformerException(e);
          }
@@ -293,7 +295,7 @@ public class TransformerUtil
       }
 
       private Element handleStartElement(XMLEventReader xmlEventReader, StartElement startElement, CustomHolder holder)
-            throws ParsingException
+            throws ParsingException, ProcessingException
       {
          Document doc = holder.doc;
 
@@ -303,8 +305,15 @@ public class TransformerUtil
          String localPart = elementName.getLocalPart();
 
          String qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart;
+
          Element el = doc.createElementNS(ns, qual);
 
+         String containsBaseNamespace = containsBaseNamespace(startElement);
+         if (StringUtil.isNotNull(containsBaseNamespace))
+         {
+            el = DocumentUtil.createDocumentWithBaseNamespace(containsBaseNamespace, localPart).getDocumentElement();
+            el = (Element) doc.importNode(el, true);
+         }
          if (StringUtil.isNotNull(prefix))
          {
             el.setPrefix(prefix);
@@ -342,9 +351,12 @@ public class TransformerUtil
             if (prefix != null && prefix != "")
                qual = (localPart != null && localPart != "") ? prefix + ":" + localPart : prefix;
 
+            if (qual.equals("xmlns"))
+               continue;
             if (trace)
             {
-               log.trace("Set Attribute Namespace=" + name.getNamespaceURI() + ":" + qual);
+               log.trace("Set Attribute Namespace=" + name.getNamespaceURI() + "::Qual=:" + qual + "::Value="
+                     + namespace.getNamespaceURI());
             }
             el.setAttributeNS(name.getNamespaceURI(), qual, namespace.getNamespaceURI());
          }
@@ -381,6 +393,27 @@ public class TransformerUtil
             }
          }
          return el;
+      }
+
+      @SuppressWarnings("unchecked")
+      private String containsBaseNamespace(StartElement startElement)
+      {
+         String localPart, prefix, qual = null;
+
+         Iterator<Namespace> namespaces = startElement.getNamespaces();
+         while (namespaces != null && namespaces.hasNext())
+         {
+            Namespace namespace = namespaces.next();
+            QName name = namespace.getName();
+            localPart = name.getLocalPart();
+            prefix = name.getPrefix();
+            if (prefix != null && prefix != "")
+               qual = (localPart != null && localPart != "") ? prefix + ":" + localPart : prefix;
+
+            if (qual.equals("xmlns"))
+               return namespace.getNamespaceURI();
+         }
+         return null;
       }
 
       private class CustomHolder

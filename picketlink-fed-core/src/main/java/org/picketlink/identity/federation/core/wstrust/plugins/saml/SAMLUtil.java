@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.GeneralSecurityException;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -48,6 +49,9 @@ import org.w3c.dom.Element;
  */
 public class SAMLUtil
 {
+   protected static Logger log = Logger.getLogger(SAMLUtil.class);
+
+   protected static boolean trace = log.isTraceEnabled();
 
    public static final String SAML11_BEARER_URI = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
 
@@ -88,6 +92,11 @@ public class SAMLUtil
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
       Document document = DocumentUtil.getDocument(bis);
+
+      if (trace)
+      {
+         log.trace("Written Assertion=" + DocumentUtil.asString(document));
+      }
 
       return document.getDocumentElement();
    }
