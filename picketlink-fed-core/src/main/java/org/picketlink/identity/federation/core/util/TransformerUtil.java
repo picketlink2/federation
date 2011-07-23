@@ -358,7 +358,10 @@ public class TransformerUtil
                log.trace("Set Attribute Namespace=" + name.getNamespaceURI() + "::Qual=:" + qual + "::Value="
                      + namespace.getNamespaceURI());
             }
-            el.setAttributeNS(name.getNamespaceURI(), qual, namespace.getNamespaceURI());
+            if (qual != null && qual.startsWith("xmlns"))
+            {
+               el.setAttributeNS(name.getNamespaceURI(), qual, namespace.getNamespaceURI());
+            }
          }
 
          XMLEvent nextEvent = StaxParserUtil.peek(xmlEventReader);
@@ -410,7 +413,7 @@ public class TransformerUtil
             if (prefix != null && prefix != "")
                qual = (localPart != null && localPart != "") ? prefix + ":" + localPart : prefix;
 
-            if (qual.equals("xmlns"))
+            if (qual != null && qual.equals("xmlns"))
                return namespace.getNamespaceURI();
          }
          return null;
