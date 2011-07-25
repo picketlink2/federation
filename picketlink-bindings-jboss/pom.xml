@@ -87,18 +87,17 @@
             <artifactId>trove</artifactId>
            </exclusion>
          </exclusions>
-
+      </dependency>
+      <dependency>
+        <groupId>trove</groupId>
+        <artifactId>trove</artifactId>
+        <version>1.0.2</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jacc-api</artifactId>
-         <version>1.1.0.GA</version>
-  	 <scope>provided</scope>
       </dependency>
    </dependencies>
    
