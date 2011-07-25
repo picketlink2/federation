@@ -61,7 +61,7 @@
         <artifactId>xmlsec</artifactId>
       </dependency>
       <dependency>
-        <groupId>apache-logging</groupId>
+        <groupId>commons-logging</groupId>
         <artifactId>commons-logging-api</artifactId>
       </dependency>
       <dependency>
