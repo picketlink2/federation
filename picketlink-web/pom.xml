@@ -158,19 +158,6 @@
           <version>6.0.29</version>
          <scope>test</scope>
       </dependency>
-
-      <dependency>
-         <groupId>httpunit</groupId>
-         <artifactId>httpunit</artifactId>
-         <version>1.5.4</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>nekohtml</groupId>
-         <artifactId>nekohtml</artifactId>
-         <version>1.9.12</version>
-         <scope>test</scope>
-      </dependency>
       <dependency>
          <groupId>commons-httpclient</groupId>
          <artifactId>commons-httpclient</artifactId>
