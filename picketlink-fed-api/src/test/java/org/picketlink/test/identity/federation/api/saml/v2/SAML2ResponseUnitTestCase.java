@@ -29,24 +29,33 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.test.identity.federation.api.util.KeyUtilUnitTestCase;
 import org.w3c.dom.Document;
 
 /**
- * Parse a {@link ResponseType} that contains A
+ * Unit test the {@link SAML2Response} API
  * @author Anil.Saldhana@redhat.com
  * @since Jul 21, 2011
  */
 public class SAML2ResponseUnitTestCase
 {
-
    private final String keystoreLocation = "keystore/jbid_test_keystore.jks";
 
    private final String keystorePass = "store123";
@@ -71,6 +80,47 @@ public class SAML2ResponseUnitTestCase
 
       SAML2Signature sig = new SAML2Signature();
       Document signedDoc = sig.sign((ResponseType) samlObject, getKeyPair());
+      assertNotNull(signedDoc);
+
+      System.out.println("Signed Response=" + DocumentUtil.asString(signedDoc));
+   }
+
+   /**
+    * This test constructs the {@link ResponseType}. An {@link AssertionType}
+    * is locally constructed and then passed to the construct method
+    * @throws Exception
+    */
+   @Test
+   public void constructAndSign() throws Exception
+   {
+      SAML2Response samlResponse = new SAML2Response();
+      String ID = IDGenerator.create("ID_");
+
+      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("picketlink");
+
+      IDPInfoHolder idp = new IDPInfoHolder();
+      idp.setNameIDFormatValue("anil");
+
+      //create the service provider(in this case BAS) holder object
+      SPInfoHolder sp = new SPInfoHolder();
+      sp.setResponseDestinationURI("http://sombody");
+
+      Map<String, Object> attributes = new HashMap<String, Object>();
+
+      attributes.put("TOKEN_USER_ID", String.valueOf(2));
+      attributes.put("TOKEN_ORGANIZATION_DISPLAY_NAME", "Test Org");
+      attributes.put("TOKEN_USER_DISPLAY_NAME", "Test User");
+
+      AttributeStatementType attributeStatement = StatementUtil.createAttributeStatement(attributes);
+
+      String assertionId = IDGenerator.create("ID_");
+
+      AssertionType assertion = AssertionUtil.createAssertion(assertionId, issuerInfo.getIssuer());
+      assertion.addStatement(attributeStatement);
+
+      ResponseType responseType = samlResponse.createResponseType(ID, sp, idp, issuerInfo, assertion);
+      SAML2Signature sig = new SAML2Signature();
+      Document signedDoc = sig.sign(responseType, getKeyPair());
       assertNotNull(signedDoc);
 
       System.out.println("Signed Response=" + DocumentUtil.asString(signedDoc));

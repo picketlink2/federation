@@ -142,7 +142,70 @@ public class SAML2Response
    }
 
    /**
+    * Construct a {@link ResponseType} without calling PicketLink STS for the assertion.  
+    * The {@link AssertionType} is generated within this method
+    * @param ID id of the {@link ResponseType}
+    * @param sp
+    * @param idp
+    * @param issuerInfo
+    * @return
+    * @throws ConfigurationException
+    * @throws ProcessingException
+    */
+   public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo,
+         AssertionType assertion) throws ConfigurationException, ProcessingException
+   {
+      String responseDestinationURI = sp.getResponseDestinationURI();
+
+      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+
+      //Create assertion -> subject
+      SubjectType subjectType = new SubjectType();
+
+      //subject -> nameid
+      NameIDType nameIDType = new NameIDType();
+      nameIDType.setFormat(URI.create(idp.getNameIDFormat()));
+      nameIDType.setValue(idp.getNameIDFormatValue());
+
+      SubjectType.STSubType subType = new SubjectType.STSubType();
+      subType.addBaseID(nameIDType);
+      subjectType.setSubType(subType);
+
+      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType();
+      subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
+
+      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
+      subjectConfirmationData.setInResponseTo(sp.getRequestID());
+      subjectConfirmationData.setRecipient(responseDestinationURI);
+      subjectConfirmationData.setNotBefore(issueInstant);
+      subjectConfirmationData.setNotOnOrAfter(issueInstant);
+
+      subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
+
+      subjectType.addConfirmation(subjectConfirmation);
+
+      //Update the subjectConfirmationData expiry based on the assertion
+      if (assertion.getConditions() != null)
+      {
+         subjectConfirmationData.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter());
+      }
+
+      ResponseType responseType = createResponseType(ID, issuerInfo, assertion);
+      //InResponseTo ID
+      responseType.setInResponseTo(sp.getRequestID());
+      //Destination
+      responseType.setDestination(responseDestinationURI);
+
+      return responseType;
+   }
+
+   /**
     * Create a ResponseType
+    * 
+    * <b>NOTE:</b>: The PicketLink STS is used to issue/update the assertion
+    * 
+    * If you want to control over the assertion being issued, then 
+    * use {@link #createResponseType(String, SPInfoHolder, IDPInfoHolder, IssuerInfoHolder, AssertionType)}
     * @param ID id of the response
     * @param sp holder with the information about the Service Provider
     * @param idp holder with the information on the Identity Provider
@@ -157,9 +220,6 @@ public class SAML2Response
       String responseDestinationURI = sp.getResponseDestinationURI();
 
       XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
-
-      //Create an assertion
-      //String id = IDGenerator.create( "ID_" ); 
 
       //Create assertion -> subject
       SubjectType subjectType = new SubjectType();
@@ -204,7 +264,10 @@ public class SAML2Response
       assertionType = samlProtocolContext.getIssuedAssertion();
 
       //Update the subjectConfirmationData expiry based on the assertion
-      subjectConfirmationData.setNotOnOrAfter(assertionType.getConditions().getNotOnOrAfter());
+      if (assertionType.getConditions() != null)
+      {
+         subjectConfirmationData.setNotOnOrAfter(assertionType.getConditions().getNotOnOrAfter());
+      }
 
       ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
       //InResponseTo ID
