@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.AdditionalMetadataLocationType;
 import org.picketlink.identity.federation.saml.v2.metadata.AffiliationDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.AttributeAuthorityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.AttributeConsumingServiceType;
@@ -53,6 +54,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.PDPDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
@@ -184,6 +186,10 @@ public class SAMLMetadataWriter extends BaseWriter
             AuthnAuthorityDescriptorType authNDesc = edtDescChoice.getAuthnDescriptor();
             if (authNDesc != null)
                throw new RuntimeException("NYI");
+
+            PDPDescriptorType pdpDesc = edtDescChoice.getPdpDescriptor();
+            if (pdpDesc != null)
+               throw new RuntimeException("NYI");
          }
       }
       OrganizationType organization = entityDescriptor.getOrganization();
@@ -197,6 +203,10 @@ public class SAMLMetadataWriter extends BaseWriter
       {
          write(contact);
       }
+
+      List<AdditionalMetadataLocationType> addl = entityDescriptor.getAdditionalMetadataLocation();
+      if (addl.size() > 0)
+         throw new RuntimeException("NYI");
 
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);
