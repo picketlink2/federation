@@ -134,6 +134,18 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
             entityDescriptorType.addChoiceType(edtChoice);
          }
+         else if (JBossSAMLConstants.AUTHN_AUTHORITY_DESCRIPTOR.get().equals(localPart))
+         {
+            throw new ParsingException("AuthnAuthorityDescriptor type not supported");
+         }
+         else if (JBossSAMLConstants.AFFILIATION_DESCRIPTOR.get().equals(localPart))
+         {
+            throw new ParsingException("AffiliationDescriptor type not supported");
+         }
+         else if (JBossSAMLConstants.PDP_DESCRIPTOR.get().equals(localPart))
+         {
+            throw new ParsingException("PDPDescriptor type not supported");
+         }
          else if (localPart.equals(JBossSAMLConstants.SIGNATURE.get()))
          {
             entityDescriptorType.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
@@ -147,6 +159,10 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          else if (JBossSAMLConstants.CONTACT_PERSON.get().equals(localPart))
          {
             entityDescriptorType.addContactPerson(parseContactPerson(xmlEventReader));
+         }
+         else if (JBossSAMLConstants.ADDITIONAL_METADATA_LOCATION.get().equals(localPart))
+         {
+            throw new ParsingException("AdditionalMetadataLocation type not supported");
          }
          else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {

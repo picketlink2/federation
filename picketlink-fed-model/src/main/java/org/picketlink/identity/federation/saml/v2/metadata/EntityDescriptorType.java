@@ -337,6 +337,24 @@ public class EntityDescriptorType extends TypeWithOtherAttributes
    }
 
    /**
+    * Add a {@link AdditionalMetadataLocationType}
+    * @param amld
+    */
+   public void addAdditionalMetadataLocationType(AdditionalMetadataLocationType amld)
+   {
+      this.additionalMetadataLocation.add(amld);
+   }
+
+   /**
+    * Remove a {@link AdditionalMetadataLocationType}
+    * @param amld
+    */
+   public void removeAdditionalMetadataLocationType(AdditionalMetadataLocationType amld)
+   {
+      this.additionalMetadataLocation.remove(amld);
+   }
+
+   /**
     * Gets the value of the additionalMetadataLocation property.
     * 
     * <p>

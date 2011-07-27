@@ -29,6 +29,8 @@ package org.picketlink.identity.federation.core.saml.v2.constants;
 public enum JBossSAMLConstants 
 {
    ADDRESS( "Address" ),
+   ADDITIONAL_METADATA_LOCATION("AdditionalMetadataLocation"),
+   AFFILIATION_DESCRIPTOR("AffiliationDescriptor"),
    ALLOW_CREATE( "AllowCreate" ),
    ARTIFACT( "Artifact" ),
    ARTIFACT_RESOLVE( "ArtifactResolve" ),
@@ -51,6 +53,7 @@ public enum JBossSAMLConstants
    AUDIENCE_RESTRICTION( "AudienceRestriction" ),
    AUTHN_CONTEXT( "AuthnContext" ),
    AUTHENTICATING_AUTHORITY( "AuthenticatingAuthority" ),
+   AUTHN_AUTHORITY_DESCRIPTOR("AuthnAuthorityDescriptor"),
    AUTHN_CONTEXT_CLASS_REF( "AuthnContextClassRef" ),
    AUTHN_CONTEXT_DECLARATION( "AuthnContextDecl" ),
    AUTHN_CONTEXT_DECLARATION_REF( "AuthnContextDeclRef" ),
@@ -111,6 +114,7 @@ public enum JBossSAMLConstants
    ORGANIZATION_NAME( "OrganizationName" ),
    ORGANIZATION_DISPLAY_NAME( "OrganizationDisplayName" ),
    ORGANIZATION_URL( "OrganizationURL" ),
+   PDP_DESCRIPTOR("PDPDescriptor"),
    PROTOCOL_BINDING( "ProtocolBinding" ),
    PROTOCOL_SUPPORT_ENUMERATION( "protocolSupportEnumeration" ),
    PROVIDER_NAME( "ProviderName" ),
