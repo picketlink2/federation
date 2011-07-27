@@ -242,6 +242,32 @@ public class StaxUtil
    }
 
    /**
+    * Write an xml attribute
+    * 
+    * @param writer
+    * @param prefix  prefix for the attribute
+    * @param localName
+    *           localpart
+    * @param type
+    *           typically xsi:type
+    * @param value
+    *           value of the attribute
+    * @throws ProcessingException
+    */
+   public static void writeAttribute(XMLStreamWriter writer, String prefix, String localName, String type, String value)
+         throws ProcessingException
+   {
+      try
+      {
+         writer.writeAttribute(prefix, localName, type, value);
+      }
+      catch (XMLStreamException e)
+      {
+         throw new ProcessingException(e);
+      }
+   }
+
+   /**
     * Write a string as text node
     * 
     * @param writer

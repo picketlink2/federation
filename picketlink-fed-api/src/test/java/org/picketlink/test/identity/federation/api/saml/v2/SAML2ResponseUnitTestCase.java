@@ -23,6 +23,8 @@ package org.picketlink.test.identity.federation.api.saml.v2;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyPair;
@@ -42,6 +44,9 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
@@ -124,6 +129,18 @@ public class SAML2ResponseUnitTestCase
       assertNotNull(signedDoc);
 
       System.out.println("Signed Response=" + DocumentUtil.asString(signedDoc));
+
+      Document convertedDoc = samlResponse.convert(responseType);
+      assertNotNull(convertedDoc);
+
+      //Now for the writing part
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      SAMLResponseWriter samlWriter = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+      samlWriter.write(responseType);
+
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 
    /**
