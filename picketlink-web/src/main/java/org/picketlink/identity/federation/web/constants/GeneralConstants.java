@@ -60,6 +60,8 @@ public interface GeneralConstants
 
    String KEYPAIR = "KEYPAIR";
 
+   String LOGIN_TYPE = "LOGIN_TYPE";
+
    String LOGOUT_PAGE = "LOGOUT_PAGE";
 
    String LOGOUT_PAGE_NAME = "/logout.jsp";

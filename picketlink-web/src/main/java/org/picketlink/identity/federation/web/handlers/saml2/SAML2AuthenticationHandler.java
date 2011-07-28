@@ -238,6 +238,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
          Document samlResponseDocument = null;
 
+         String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
+
          if (trace)
             log.trace("AssertionConsumerURL=" + assertionConsumerURL + "::assertion validity=" + assertionValidity);
          ResponseType responseType = null;
@@ -275,8 +277,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          //Create an AuthnStatementType
          if (handlerConfig.getParameter(DISABLE_AUTHN_STATEMENT) == null)
          {
+            String authContextRef = JBossSAMLURIConstants.AC_PASSWORD.get();
+            if (StringUtil.isNotNull(authMethod))
+               authContextRef = authMethod;
+
             AuthnStatementType authnStatement = StatementUtil.createAuthnStatement(XMLTimeUtil.getIssueInstant(),
-                  JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get());
+                  authContextRef);
             assertion.addStatement(authnStatement);
          }
 
