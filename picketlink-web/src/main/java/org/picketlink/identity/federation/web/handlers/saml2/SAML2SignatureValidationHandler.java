@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -41,61 +42,62 @@ import org.w3c.dom.Document;
  */
 public class SAML2SignatureValidationHandler extends BaseSAML2Handler
 {
-   private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class); 
-   private boolean trace = log.isTraceEnabled();
-   
+   private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
+
+   private final boolean trace = log.isTraceEnabled();
+
    /**
     * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
     */
    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
    {
-      Map<String,Object> requestOptions = request.getOptions();
-      Boolean ignoreSignatures =  (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-      if(ignoreSignatures == Boolean.TRUE)
+      Map<String, Object> requestOptions = request.getOptions();
+      Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+      if (ignoreSignatures == Boolean.TRUE)
          return;
-      
+
       Document signedDocument = request.getRequestDocument();
-       
-      if(trace)
+
+      if (trace)
       {
-         log.trace("Will validate :" + DocumentUtil.asString(signedDocument));  
+         log.trace("Will validate :" + DocumentUtil.asString(signedDocument));
       }
       PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
       try
       {
-          boolean isValid = this.validateSender(signedDocument, publicKey); 
-          if(!isValid)
-            throw new ProcessingException();
+         boolean isValid = this.validateSender(signedDocument, publicKey);
+         if (!isValid)
+            throw constructSignatureException();
       }
-      catch(ProcessingException pe)
+      catch (ProcessingException pe)
       {
-    	  response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, 
-    	        "Signature Validation Failed");
-    	  throw pe;
+         response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
+         throw pe;
       }
    }
 
    @Override
    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
          throws ProcessingException
-   {  
-      Map<String,Object> requestOptions = request.getOptions();
-      Boolean ignoreSignatures =  (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-      if(ignoreSignatures == Boolean.TRUE)
+   {
+      Map<String, Object> requestOptions = request.getOptions();
+      Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+      if (ignoreSignatures == Boolean.TRUE)
          return;
-      
+
       Document signedDocument = request.getRequestDocument();
-      if(trace)
+      if (trace)
       {
-         log.trace("Document for validation=" + DocumentUtil.asString(signedDocument)); 
+         log.trace("Document for validation=" + DocumentUtil.asString(signedDocument));
       }
-      
+
       PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
-      this.validateSender(signedDocument, publicKey);
+      boolean isValid = this.validateSender(signedDocument, publicKey);
+      if (!isValid)
+         throw constructSignatureException();
    }
-   
-   private boolean validateSender(Document signedDocument, PublicKey publicKey) 
-   throws ProcessingException
+
+   private boolean validateSender(Document signedDocument, PublicKey publicKey) throws ProcessingException
    {
       try
       {
@@ -103,8 +105,14 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler
       }
       catch (Exception e)
       {
-         log.error("Error validating signature:" , e);
+         log.error("Error validating signature:", e);
          throw new ProcessingException("Error validating signature.");
-      }  
-   } 
+      }
+   }
+
+   private ProcessingException constructSignatureException()
+   {
+      SignatureValidationException sv = new SignatureValidationException("Signature Validation Failed");
+      return new ProcessingException(sv);
+   }
 }
