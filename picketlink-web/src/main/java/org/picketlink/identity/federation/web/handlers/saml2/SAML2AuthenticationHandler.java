@@ -91,6 +91,7 @@ import org.w3c.dom.Node;
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
+ * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL
  * </p>
  * 
  * @author Anil.Saldhana@redhat.com
@@ -339,6 +340,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          SAML2Request samlRequest = new SAML2Request();
          String id = IDGenerator.create("ID_");
 
+         String assertionConsumerURL = (String) handlerConfig.getParameter(SAML2Handler.ASSERTION_CONSUMER_URL);
+         if (StringUtil.isNullOrEmpty(assertionConsumerURL))
+         {
+            assertionConsumerURL = issuerValue;
+         }
+
          //Check if there is a nameid policy
          String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
          if (StringUtil.isNotNull(nameIDFormat))
@@ -347,8 +354,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          try
          {
-            AuthnRequestType authn = samlRequest.createAuthnRequestType(id, issuerValue, response.getDestination(),
-                  issuerValue);
+            AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
+                  response.getDestination(), issuerValue);
 
             response.setResultingDocument(samlRequest.convert(authn));
             response.setSendRequest(true);

@@ -20,7 +20,6 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.saml.v2.interfaces;
- 
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -31,36 +30,38 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
  * @since Sep 17, 2009
  */
 public interface SAML2Handler
-{ 
+{
    //Define some constants
+   String ASSERTION_CONSUMER_URL = "ASSERTION_CONSUMER_URL";
+
    String DISABLE_AUTHN_STATEMENT = "DISABLE_AUTHN_STATEMENT";
-   String DISABLE_SENDING_ROLES = "DISABLE_SENDING_ROLES"; 
+
+   String DISABLE_SENDING_ROLES = "DISABLE_SENDING_ROLES";
+
    String DISABLE_ROLE_PICKING = "DISABLE_ROLE_PICKING";
+
    String ROLE_KEY = "ROLE_KEY";
-   
+
    /**
     * Processing Point - idp side 
     * or service side
     */
-   public enum HANDLER_TYPE
-   { 
-      IDP,SP;
+   public enum HANDLER_TYPE {
+      IDP, SP;
    };
-   
+
    /**
     * Initialize the handler
     * @param handlerConfig Handler Config
     */
-   void initChainConfig(SAML2HandlerChainConfig handlerChainConfig)
-   throws ConfigurationException;
-   
+   void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException;
+
    /**
     * Initialize the handler from configuration
     * @param options
     */
-   void initHandlerConfig(SAML2HandlerConfig handlerConfig)
-   throws ConfigurationException;
-   
+   void initHandlerConfig(SAML2HandlerConfig handlerConfig) throws ConfigurationException;
+
    /**
     * Generate a SAML Request to be sent to the IDP
     * if the handler is invoked at the SP and vice-versa
@@ -68,9 +69,7 @@ public interface SAML2Handler
     * @param response
     * @throws ProcessingException
     */
-   void generateSAMLRequest(SAML2HandlerRequest request, 
-         SAML2HandlerResponse response) throws ProcessingException;
-   
+   void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;
 
    /**
     * Get the type of handler 
@@ -78,25 +77,23 @@ public interface SAML2Handler
     * @return
     */
    HANDLER_TYPE getType();
-   
+
    /**
     * Handle a SAML2 RequestAbstractType
     * @param requestAbstractType
     * @param resultingDocument
     * @return
     */
-   void handleRequestType(SAML2HandlerRequest request, 
-         SAML2HandlerResponse response) throws ProcessingException;
-   
+   void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;
+
    /**
     * Handle a SAML2 Status Response Type
     * @param statusResponseType
     * @param resultingDocument
     * @return
     */
-   void handleStatusResponseType(SAML2HandlerRequest request,  
-         SAML2HandlerResponse response) throws ProcessingException;
-   
+   void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;
+
    /**
     * Shed all state
     * @throws ProcessingException
