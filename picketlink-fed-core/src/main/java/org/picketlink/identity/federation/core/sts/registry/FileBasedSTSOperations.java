@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * A base class for file based STS operations
@@ -33,9 +34,10 @@ import org.apache.log4j.Logger;
  */
 public abstract class FileBasedSTSOperations
 {
-   private static Logger logger = Logger.getLogger( FileBasedSTSOperations.class );
+   private static Logger logger = Logger.getLogger(FileBasedSTSOperations.class);
+
    protected File directory;
-   
+
    public FileBasedSTSOperations()
    {
       // use the default location registry file location.
@@ -48,21 +50,21 @@ public abstract class FileBasedSTSOperations
       directory = new File(builder.toString());
       if (!directory.exists())
          directory.mkdirs();
-   } 
-   
+   }
+
    /**
     * Create a file with the provided name
     * @param fileName
     * @return {@code File} handle
     */
-   protected File create( String fileName )
+   protected File create(String fileName)
    {
-      if ( fileName == null)
-         throw new IllegalArgumentException("The file name cannot be null");
+      if (fileName == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "file name");
 
       // check if the specified file exists. If not, create it.
-      File createdFile =  new File( fileName );
-      if (! createdFile.exists())
+      File createdFile = new File(fileName);
+      if (!createdFile.exists())
       {
          try
          {
@@ -74,7 +76,7 @@ public abstract class FileBasedSTSOperations
                logger.debug("Error creating file: " + ioe.getMessage());
             ioe.printStackTrace();
          }
-      } 
+      }
       return createdFile;
-   } 
+   }
 }

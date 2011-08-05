@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
@@ -145,7 +146,7 @@ public class JBossSAMLAuthnResponseFactory
       //Status
       String statusCode = issuerInfo.getStatusCode();
       if (statusCode == null)
-         throw new IllegalArgumentException("issuerInfo missing status code");
+         throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
 
       responseType.setStatus(createStatusType(statusCode));
 
@@ -173,7 +174,7 @@ public class JBossSAMLAuthnResponseFactory
       //Status
       String statusCode = issuerInfo.getStatusCode();
       if (statusCode == null)
-         throw new IllegalArgumentException("issuerInfo missing status code");
+         throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
 
       responseType.setStatus(createStatusType(statusCode));
 

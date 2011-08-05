@@ -26,6 +26,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -107,7 +108,7 @@ public class SAMLParser extends AbstractParser
                   SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
                   return samlXacmlParser.parse(xmlEventReader);
                }
-               throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
             }
             else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
                   && JBossSAMLConstants.ARTIFACT_RESOLVE.get().equals(startElementName.getLocalPart()))
@@ -155,14 +156,15 @@ public class SAMLParser extends AbstractParser
                return reqParser.parse(xmlEventReader);
             }
             else
-               throw new RuntimeException("Unknown Tag:" + elementName + "::location=" + startElement.getLocation());
+               throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                     + startElement.getLocation());
          }
          else
          {
             StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException("SAML Parsing has failed");
+      throw new RuntimeException(ErrorCodes.FAILED_PARSING + "SAML Parsing has failed");
    }
 
    /**

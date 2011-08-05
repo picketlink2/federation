@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.web.util;
 
 import java.io.InputStream;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -46,7 +47,7 @@ public class ConfigurationUtil
    public static IDPType getIDPConfiguration(InputStream is) throws ParsingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
 
       SAMLConfigParser parser = new SAMLConfigParser();
       return (IDPType) parser.parse(is);
@@ -62,7 +63,7 @@ public class ConfigurationUtil
    public static SPType getSPConfiguration(InputStream is) throws ParsingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
       return (SPType) (new SAMLConfigParser()).parse(is);
    }
 
@@ -75,7 +76,7 @@ public class ConfigurationUtil
    public static Handlers getHandlers(InputStream is) throws ParsingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
       return (Handlers) (new SAMLConfigParser()).parse(is);
    }
 }

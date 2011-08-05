@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -143,7 +144,7 @@ public class SOAPSAMLXACML
             }
          }
          if (node == null)
-            throw new RuntimeException("Did not find Response node");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Did not find Response node");
 
          XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(node));
          SAMLResponseParser samlResponseParser = new SAMLResponseParser();

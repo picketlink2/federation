@@ -49,6 +49,7 @@ import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -336,7 +337,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
          securityDomain = (String) options.get(SecurityConstants.SECURITY_DOMAIN_OPTION);
          if (securityDomain == null || securityDomain.isEmpty())
-            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
+            throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + SecurityConstants.SECURITY_DOMAIN_OPTION);
       }
 
       String callerPrincipalGroup = (String) options.get("inject.callerprincipal");
@@ -389,7 +390,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
          if (token == null)
          {
             // Throw an exception as returing false only says that this login module should be ignored.
-            throw new LoginException("Could not issue a SAML Security Token");
+            throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not issue a SAML Security Token");
          }
          setSuccess(true);
          setSamlToken(token);
@@ -398,7 +399,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       }
       catch (WSTrustException e)
       {
-         throw new LoginException("WSTrustException : " + e.getMessage());
+         throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "WSTrustException : " + e.getMessage());
       }
    }
 
@@ -467,11 +468,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule
             //password is masked
             String salt = (String) options.get(PicketLinkFederationConstants.SALT);
             if (StringUtil.isNullOrEmpty(salt))
-               throw new RuntimeException("Salt is not configured as module option");
+               throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Salt");
 
             String iCount = (String) options.get(PicketLinkFederationConstants.ITERATION_COUNT);
             if (StringUtil.isNullOrEmpty(iCount))
-               throw new RuntimeException("Iteration Count is not configured as module option");
+               throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Iteration Count");
 
             int iterationCount = Integer.parseInt(iCount);
             try
@@ -480,7 +481,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule
             }
             catch (Exception e)
             {
-               throw new RuntimeException("Unable to decode password:" + passwordString);
+               throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to decode password:"
+                     + passwordString);
             }
          }
          return builder;
@@ -575,7 +577,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
       }
       catch (final ParsingException e)
       {
-         throw new IllegalStateException("Could not create WSTrustClient:", e);
+         throw new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not create WSTrustClient:", e);
       }
    }
 
@@ -583,8 +585,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule
    {
       final String option = (String) options.get(optionName);
       if (option == null)
-         throw new IllegalArgumentException("Required option '" + optionName
-               + "' was missing from the login modules configuration");
+         throw new IllegalArgumentException(ErrorCodes.OPTION_NOT_SET + optionName);
 
       return option;
    }

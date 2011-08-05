@@ -27,6 +27,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -52,54 +53,56 @@ import org.w3c.dom.Element;
  */
 public class STSValidatingLoginModule extends AbstractSTSLoginModule
 {
-    private Logger log = Logger.getLogger(STSValidatingLoginModule.class);
-    
-    /**
-     * This method will validate the token with the configured STS. 
-     * 
-     * @return Element The token that was validated.
-     * @throws LoginException If it was not possible to validate the token for any reason.
-     */
-    public Element invokeSTS(final STSClient stsClient) throws WSTrustException, LoginException
-    {
-        try
-        {
-            // See if a previous stacked login module stored the token.
-            Element token = (Element) getSharedToken();
-            
-            if (token == null)
-	            token = getSamlTokenFromCaller();
-            
-            final boolean result = stsClient.validateToken(token);
-            log.debug("Validation result: " + result);
-            if (result == false)
-            {
-                // Throw an exception as returing false only says that this login module should be ignored.
-                throw new LoginException("Could not validate the SAML Security Token :" + token);
-            }
-            
-            return token;
-        }
-        catch (final IOException e)
-        {
-            throw new LoginException("IOException : " + e.getMessage());
-        }
-        catch (final UnsupportedCallbackException e)
-        {
-            throw new LoginException("UnsupportedCallbackException : " + e.getMessage());
-        }
-    }
-    
-    private Element getSamlTokenFromCaller() throws UnsupportedCallbackException, LoginException, IOException
-    {
-        final TokenCallback callback = new TokenCallback();
-        
-        getCallbackHandler().handle(new Callback[] { callback });
+   private final Logger log = Logger.getLogger(STSValidatingLoginModule.class);
 
-        final Element token = (Element) callback.getToken();
-        if (token == null)
-            throw new LoginException("Could not locate a Security Token from the callback.");
-        
-        return token;
-    }
+   /**
+    * This method will validate the token with the configured STS. 
+    * 
+    * @return Element The token that was validated.
+    * @throws LoginException If it was not possible to validate the token for any reason.
+    */
+   public Element invokeSTS(final STSClient stsClient) throws WSTrustException, LoginException
+   {
+      try
+      {
+         // See if a previous stacked login module stored the token.
+         Element token = (Element) getSharedToken();
+
+         if (token == null)
+            token = getSamlTokenFromCaller();
+
+         final boolean result = stsClient.validateToken(token);
+         log.debug("Validation result: " + result);
+         if (result == false)
+         {
+            // Throw an exception as returing false only says that this login module should be ignored.
+            throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not validate the SAML Security Token :"
+                  + token);
+         }
+
+         return token;
+      }
+      catch (final IOException e)
+      {
+         throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "IOException : " + e.getMessage());
+      }
+      catch (final UnsupportedCallbackException e)
+      {
+         throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "UnsupportedCallbackException : " + e.getMessage());
+      }
+   }
+
+   private Element getSamlTokenFromCaller() throws UnsupportedCallbackException, LoginException, IOException
+   {
+      final TokenCallback callback = new TokenCallback();
+
+      getCallbackHandler().handle(new Callback[]
+      {callback});
+
+      final Element token = (Element) callback.getToken();
+      if (token == null)
+         throw new LoginException(ErrorCodes.NULL_VALUE + "Could not locate a Security Token from the callback.");
+
+      return token;
+   }
 }

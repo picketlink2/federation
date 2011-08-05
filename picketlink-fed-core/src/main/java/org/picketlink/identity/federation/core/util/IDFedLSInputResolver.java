@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
@@ -116,7 +117,7 @@ public class IDFedLSInputResolver implements LSResourceResolver
          final String baseURI)
    {
       if (systemId == null)
-         throw new RuntimeException("systemid null");
+         throw new RuntimeException(ErrorCodes.NULL_VALUE + "systemid");
       LSInput lsi = lsmap.get(systemId);
       if (lsi == null)
       {
@@ -141,10 +142,10 @@ public class IDFedLSInputResolver implements LSResourceResolver
                }
                catch (IOException e)
                {
-                  throw new RuntimeException(loc + " could not be loaded");
+                  throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + loc);
                }
                if (is == null)
-                  throw new RuntimeException("inputstream is null for " + loc);
+                  throw new RuntimeException(ErrorCodes.NULL_VALUE + "inputstream is null for " + loc);
                return is;
             }
 

@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -37,43 +38,48 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
  * @since Apr 21, 2009
  */
 public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider
-implements IMetadataProvider<EntityDescriptorType>
+      implements
+         IMetadataProvider<EntityDescriptorType>
 {
 
    private static final String FILENAME_KEY = "FileName";
+
    private String fileName;
+
    private InputStream metadataFileStream;
+
    @SuppressWarnings("unused")
    private PublicKey encryptionKey;
+
    @SuppressWarnings("unused")
    private PublicKey signingKey;
-   
+
    @Override
    public void init(Map<String, String> options)
    {
       super.init(options);
       fileName = options.get(FILENAME_KEY);
-      if(fileName == null)
-         throw new IllegalStateException("FileName option not set"); 
-   }   
-   
+      if (fileName == null)
+         throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "FileName");
+   }
+
    /**
     * @see IMetadataProvider#getMetaData()
-    */ 
+    */
    public EntityDescriptorType getMetaData()
-   {  
-      if(this.metadataFileStream == null)
-         throw new RuntimeException("Metadata file is not injected");
-      
+   {
+      if (this.metadataFileStream == null)
+         throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Metadata file");
+
       try
-      { 
+      {
          SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
-         return (EntityDescriptorType) parser.parse( StaxParserUtil.getXMLEventReader(metadataFileStream));
-       }
-      catch(Exception e)
+         return (EntityDescriptorType) parser.parse(StaxParserUtil.getXMLEventReader(metadataFileStream));
+      }
+      catch (Exception e)
       {
          throw new RuntimeException(e);
-      } 
+      }
    }
 
    /**
@@ -96,11 +102,11 @@ implements IMetadataProvider<EntityDescriptorType>
 
    public void injectSigningKey(PublicKey publicKey)
    {
-      this.signingKey = publicKey;  
+      this.signingKey = publicKey;
    }
 
    public String requireFileInjection()
    {
       return this.fileName;
-   } 
+   }
 }

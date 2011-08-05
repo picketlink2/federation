@@ -28,6 +28,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -92,7 +93,8 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
             continue;
          }
          else
-            throw new RuntimeException("Unknown Element:" + elementName + "::location=" + startElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                  + startElement.getLocation());
       }
       return authnRequest;
    }
@@ -118,7 +120,8 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       //Let us get the attributes
       super.parseBaseAttributes(startElement, authnRequest);
 
-      Attribute assertionConsumerServiceURL = startElement.getAttributeByName(new QName("AssertionConsumerServiceURL"));
+      Attribute assertionConsumerServiceURL = startElement.getAttributeByName(new QName(
+            JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_URL.get()));
       if (assertionConsumerServiceURL != null)
       {
          String uri = StaxParserUtil.getAttributeValue(assertionConsumerServiceURL);
@@ -126,33 +129,33 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
       }
 
       Attribute assertionConsumerServiceIndex = startElement.getAttributeByName(new QName(
-            "AssertionConsumerServiceIndex"));
+            JBossSAMLConstants.ASSERTION_CONSUMER_SERVICE_INDEX.get()));
       if (assertionConsumerServiceIndex != null)
          authnRequest.setAssertionConsumerServiceIndex(Integer.parseInt(StaxParserUtil
                .getAttributeValue(assertionConsumerServiceIndex)));
 
-      Attribute protocolBinding = startElement.getAttributeByName(new QName("ProtocolBinding"));
+      Attribute protocolBinding = startElement.getAttributeByName(new QName(JBossSAMLConstants.PROTOCOL_BINDING.get()));
       if (protocolBinding != null)
          authnRequest.setProtocolBinding(URI.create(StaxParserUtil.getAttributeValue(protocolBinding)));
 
-      Attribute providerName = startElement.getAttributeByName(new QName("ProviderName"));
+      Attribute providerName = startElement.getAttributeByName(new QName(JBossSAMLConstants.PROVIDER_NAME.get()));
       if (providerName != null)
          authnRequest.setProviderName(StaxParserUtil.getAttributeValue(providerName));
 
-      Attribute forceAuthn = startElement.getAttributeByName(new QName("ForceAuthn"));
+      Attribute forceAuthn = startElement.getAttributeByName(new QName(JBossSAMLConstants.FORCE_AUTHN.get()));
       if (forceAuthn != null)
       {
          authnRequest.setForceAuthn(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(forceAuthn)));
       }
 
-      Attribute isPassive = startElement.getAttributeByName(new QName("IsPassive"));
+      Attribute isPassive = startElement.getAttributeByName(new QName(JBossSAMLConstants.IS_PASSIVE.get()));
       if (isPassive != null)
       {
          authnRequest.setIsPassive(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(isPassive)));
       }
 
       Attribute attributeConsumingServiceIndex = startElement.getAttributeByName(new QName(
-            "AttributeConsumingServiceIndex"));
+            JBossSAMLConstants.ATTRIBUTE_CONSUMING_SERVICE_INDEX.get()));
       if (attributeConsumingServiceIndex != null)
          authnRequest.setAttributeConsumingServiceIndex(Integer.parseInt(StaxParserUtil
                .getAttributeValue(attributeConsumingServiceIndex)));
@@ -168,11 +171,11 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
    private NameIDPolicyType getNameIDPolicy(StartElement startElement)
    {
       NameIDPolicyType nameIDPolicy = new NameIDPolicyType();
-      Attribute format = startElement.getAttributeByName(new QName("Format"));
+      Attribute format = startElement.getAttributeByName(new QName(JBossSAMLConstants.FORMAT.get()));
       if (format != null)
          nameIDPolicy.setFormat(URI.create(StaxParserUtil.getAttributeValue(format)));
 
-      Attribute allowCreate = startElement.getAttributeByName(new QName("AllowCreate"));
+      Attribute allowCreate = startElement.getAttributeByName(new QName(JBossSAMLConstants.ALLOW_CREATE.get()));
       if (allowCreate != null)
          nameIDPolicy.setAllowCreate(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowCreate)));
 
@@ -195,7 +198,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
          ract.addAuthnContextClassRef(value);
       }
       else
-         throw new RuntimeException("SAMLAuthNRequestParser::unknown :" + elName);
+         throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elName);
 
       return ract;
    }

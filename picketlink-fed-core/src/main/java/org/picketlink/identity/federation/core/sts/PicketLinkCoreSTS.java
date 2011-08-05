@@ -30,6 +30,7 @@ import java.security.PrivilegedAction;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -137,8 +138,8 @@ public class PicketLinkCoreSTS
       SecurityTokenProvider provider = getProvider(protocolContext);
 
       if (provider == null)
-         throw new ProcessingException("No Security Token Provider found in configuration:[" + configuration
-               + "][ProtoCtx=" + protocolContext + "]");
+         throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "][ProtoCtx="
+               + protocolContext + "]");
 
       if (logger.isDebugEnabled())
       {
@@ -170,8 +171,8 @@ public class PicketLinkCoreSTS
          provider = getProviderBasedOnQName(protocolContext);
 
       if (provider == null)
-         throw new ProcessingException("No Security Token Provider found in configuration:" + configuration
-               + "[ProtoCtx=]" + protocolContext);
+         throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "[ProtoCtx=]"
+               + protocolContext);
 
       if (logger.isDebugEnabled())
       {
@@ -202,7 +203,7 @@ public class PicketLinkCoreSTS
          provider = getProviderBasedOnQName(protocolContext);
 
       if (provider == null)
-         throw new ProcessingException("No Security Token Provider found in configuration:" + protocolContext);
+         throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + protocolContext);
 
       if (logger.isDebugEnabled())
       {
@@ -234,8 +235,8 @@ public class PicketLinkCoreSTS
          provider = getProviderBasedOnQName(protocolContext);
 
       if (provider == null)
-         throw new ProcessingException("No Security Token Provider found in configuration:" + configuration
-               + "[ProtoCtx=]" + protocolContext);
+         throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "[ProtoCtx=]"
+               + protocolContext);
 
       if (logger.isDebugEnabled())
       {
@@ -248,7 +249,7 @@ public class PicketLinkCoreSTS
    private SecurityTokenProvider getProvider(ProtocolContext protocolContext)
    {
       if (configuration == null)
-         throw new RuntimeException("Configuration is not set");
+         throw new RuntimeException(ErrorCodes.STS_CONFIGURATION_NOT_SET);
 
       SecurityTokenProvider provider = null;
 
@@ -278,12 +279,12 @@ public class PicketLinkCoreSTS
       {
          qname = protocolContext.getQName();
          if (qname == null)
-            throw new ProcessingException("QName of the token type is null ");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "QName of the token type");
          provider = this.configuration.getProviderForTokenElementNS(protocolContext.family(), qname);
       }
 
       if (provider == null)
-         throw new ProcessingException("No SecurityTokenProvider configured for " + qname.getNamespaceURI() + ":"
+         throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + qname.getNamespaceURI() + ":"
                + qname.getLocalPart());
 
       return provider;
@@ -352,7 +353,7 @@ public class PicketLinkCoreSTS
       }
       catch (Exception e)
       {
-         throw new ConfigurationException("Error parsing the configuration file:", e);
+         throw new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR, e);
       }
    }
 }

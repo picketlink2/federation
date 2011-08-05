@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -98,7 +102,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
             if (endElementTag.equals(JBossSAMLConstants.ASSERTION.get()))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementTag);
+               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
          }
 
          StartElement peekedElement = null;
@@ -160,8 +164,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
             assertion.add(authzStat);
          }
          else
-            throw new RuntimeException("SAML11AssertionParser:: unknown: " + tag + "::location="
-                  + peekedElement.getLocation());
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
       }
       return assertion;
    }
@@ -182,7 +185,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport
    {
       Attribute idAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.ASSERTIONID));
       if (idAttribute == null)
-         throw new ParsingException("Required attribute AssertionID missing");
+         throw new ParsingException(REQD_ATTRIBUTE + "AssertionID");
       String id = StaxParserUtil.getAttributeValue(idAttribute);
 
       Attribute majVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));

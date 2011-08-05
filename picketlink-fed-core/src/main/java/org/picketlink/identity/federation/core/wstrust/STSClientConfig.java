@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
@@ -274,7 +275,7 @@ public class STSClientConfig
             in = getResource(configFile);
             if (in == null)
             {
-               throw new IllegalStateException("Could not find properties file " + configFile);
+               throw new IllegalStateException(ErrorCodes.NULL_VALUE + "properties file " + configFile);
 
             }
             final Properties properties = new Properties();
@@ -301,13 +302,15 @@ public class STSClientConfig
                }
                catch (Exception e)
                {
-                  throw new RuntimeException("Unable to decode password:" + this.password);
+                  throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to decode password:"
+                        + this.password);
                }
             }
          }
          catch (IOException e)
          {
-            throw new IllegalStateException("Could not load properties from " + configFile);
+            throw new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not load properties from "
+                  + configFile);
          }
          finally
          {
@@ -359,14 +362,13 @@ public class STSClientConfig
       private void checkPropertyShowValue(final String propertyName, final String propertyValue)
       {
          if (propertyValue == null || propertyValue.equals(""))
-            throw new IllegalArgumentException(propertyName + " property must not be null or empty was:"
-                  + propertyValue);
+            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + propertyName + " : was:" + propertyValue);
       }
 
       private void checkProperty(final String propertyName, final String propertyValue)
       {
          if (propertyValue == null || propertyValue.equals(""))
-            throw new IllegalArgumentException(propertyName + " property must not be null");
+            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + propertyValue);
       }
    }
 

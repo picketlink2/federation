@@ -32,6 +32,7 @@ import javax.management.MBeanServerFactory;
 
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextFactory;
+import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * Privileged blocks
@@ -75,7 +76,7 @@ class SecurityActions
             }
             if (cached != null)
                return cached; //We did not find one with jboss but there is "DefaultDomain" which is the norm in AS6
-            throw new IllegalStateException("No 'jboss' MBeanServer found!");
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No 'jboss' MBeanServer found!");
          }
       });
 

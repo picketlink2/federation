@@ -69,7 +69,8 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
       }
       catch (RuntimeException re)
       {
-         assertTrue(re.getCause().getMessage().contains("could not be loaded"));
+         String msg = re.getCause().getMessage();
+         assertTrue(msg.contains("Class Not Loaded"));
       }
    }
 
@@ -101,7 +102,8 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase
       }
       catch (RuntimeException re)
       {
-         assertTrue(re.getCause().getMessage().contains("could not be loaded"));
+         String msg = re.getCause().getMessage();
+         assertTrue(msg.contains("Class Not Loaded"));
       }
    }
 }

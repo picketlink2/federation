@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
@@ -36,11 +37,11 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 public class DelegatedAttributeManager implements AttributeManager
 {
    private AttributeManager delegate = new EmptyAttributeManager();
-   
+
    public DelegatedAttributeManager()
    {
    }
-   
+
    /**
     * Set the delegate
     * @param manager
@@ -49,7 +50,7 @@ public class DelegatedAttributeManager implements AttributeManager
    {
       this.delegate = manager;
    }
-   
+
    /**
     * Is the delegate set?
     * @return
@@ -64,8 +65,8 @@ public class DelegatedAttributeManager implements AttributeManager
     */
    public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
    {
-      if(delegate == null)
-         throw new RuntimeException("Delegate is not set");
+      if (delegate == null)
+         throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Delegate");
       return delegate.getAttributes(userPrincipal, attributeKeys);
    }
 }

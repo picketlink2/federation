@@ -34,6 +34,7 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -120,7 +121,7 @@ public class WSTrustRequestWriter
 
       List<RequestSecurityToken> tokenList = requestTokenCollection.getRequestSecurityTokens();
       if (tokenList == null)
-         throw new ProcessingException("RST list is null");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "RST list is null");
 
       for (RequestSecurityToken token : tokenList)
       {
@@ -296,7 +297,7 @@ public class WSTrustRequestWriter
             writeKeyValueType((KeyValueType) useKeyTypeValue);
          }
          else
-            throw new RuntimeException(" Unknown use key type:" + useKeyTypeValue.getClass().getName());
+            throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + useKeyTypeValue.getClass().getName());
 
       }
       /*Object useKeyTypeValue = useKeyType.getAny();
@@ -330,7 +331,7 @@ public class WSTrustRequestWriter
             WSTrustConstants.DSIG_NS);
       StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
       if (type.getContent().size() == 0)
-         throw new ProcessingException("KeyValueType must contain at least one value");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyValueType must contain at least one value");
 
       for (Object obj : type.getContent())
       {
@@ -400,7 +401,8 @@ public class WSTrustRequestWriter
             StaxUtil.writeDOMElement(writer, (Element) validateTargetObj);
          }
          else
-            throw new ProcessingException("Unknown validate target type=" + validateTargetObj.getClass().getName());
+            throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown validate target type="
+                  + validateTargetObj.getClass().getName());
       }
       /*Object validateTargetObj = validateTarget.getAny();
       if (validateTargetObj != null)
@@ -439,7 +441,8 @@ public class WSTrustRequestWriter
             StaxUtil.writeDOMElement(writer, (Element) renewTargetObj);
          }
          else
-            throw new ProcessingException("Unknown renew target type=" + renewTargetObj.getClass().getName());
+            throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown renew target type="
+                  + renewTargetObj.getClass().getName());
       }
       /*Object renewTargetObj = renewTarget.getAny();
       if (renewTargetObj != null)
@@ -485,7 +488,8 @@ public class WSTrustRequestWriter
             StaxUtil.writeDOMElement(writer, (Element) cancelTargetObj);
          }
          else
-            throw new ProcessingException("Unknown cancel target type=" + cancelTargetObj.getClass().getName());
+            throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown cancel target type="
+                  + cancelTargetObj.getClass().getName());
       }
 
       /*Object cancelTargetObj = cancelTarget.getAny();

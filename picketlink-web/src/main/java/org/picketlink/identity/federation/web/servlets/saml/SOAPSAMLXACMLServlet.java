@@ -41,6 +41,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -123,7 +124,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       catch (IOException e)
       {
          log("Exception loading PDP::", e);
-         throw new ServletException("Unable to load PDP");
+         throw new ServletException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to load PDP");
       }
       super.init(config);
    }
@@ -157,7 +158,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
                }
             }
             if (node == null)
-               throw new ServletException("Did not find XACML query nodes");
+               throw new ServletException(ErrorCodes.NULL_VALUE + "Did not find XACML query nodes");
             xacmlRequest = SOAPSAMLXACMLUtil.getXACMLQueryType(node);
          }
          catch (SOAPException e)
@@ -225,7 +226,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
           */
 
          if (xacmlRequest == null)
-            throw new IOException("XACML Request not parsed");
+            throw new IOException(ErrorCodes.NULL_VALUE + "XACML Request not parsed");
 
          org.picketlink.identity.federation.saml.v2.protocol.ResponseType samlResponseType = SOAPSAMLXACMLUtil
                .handleXACMLQuery(pdp, issuer, xacmlRequest);
@@ -295,7 +296,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          try
          {
             if (returnSOAPMessage == null)
-               throw new RuntimeException("SOAPMessage for return is null");
+               throw new RuntimeException(ErrorCodes.NULL_VALUE + "SOAPMessage for return is null");
             returnSOAPMessage.writeTo(os);
          }
          catch (Exception e)
@@ -309,7 +310,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
    {
       InputStream is = SecurityActions.loadResource(getClass(), this.policyConfigFileName).openStream();
       if (is == null)
-         throw new IllegalStateException(policyConfigFileName + " could not be located");
+         throw new IllegalStateException(ErrorCodes.RESOURCE_NOT_FOUND + policyConfigFileName + " could not be located");
       return new JBossPDP(is);
    }
 }

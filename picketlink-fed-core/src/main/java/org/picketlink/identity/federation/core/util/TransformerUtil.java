@@ -52,6 +52,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -155,16 +156,16 @@ public class TransformerUtil
       public void transform(Source xmlSource, Result outputTarget) throws TransformerException
       {
          if (!(xmlSource instanceof StAXSource))
-            throw new IllegalArgumentException("xmlSource should be a stax source");
+            throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "xmlSource should be a stax source");
          if (outputTarget instanceof DOMResult == false)
-            throw new IllegalArgumentException("outputTarget should be a dom result");
+            throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "outputTarget should be a dom result");
 
          String rootTag = null;
 
          StAXSource staxSource = (StAXSource) xmlSource;
          XMLEventReader xmlEventReader = staxSource.getXMLEventReader();
          if (xmlEventReader == null)
-            throw new TransformerException("The StaxSource is expected to be created using XMLEventReader");
+            throw new TransformerException(ErrorCodes.NULL_VALUE + "XMLEventReader");
 
          DOMResult domResult = (DOMResult) outputTarget;
          Document doc = (Document) domResult.getNode();
@@ -175,7 +176,7 @@ public class TransformerUtil
          {
             XMLEvent xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
             if (xmlEvent instanceof StartElement == false)
-               throw new TransformerException("Expected StartElement ");
+               throw new TransformerException(ErrorCodes.WRITER_SHOULD_START_ELEMENT);
 
             StartElement rootElement = (StartElement) xmlEvent;
             rootTag = StaxParserUtil.getStartElementName(rootElement);

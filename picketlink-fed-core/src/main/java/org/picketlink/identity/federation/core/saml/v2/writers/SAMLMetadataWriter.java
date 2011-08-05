@@ -29,6 +29,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -161,7 +162,7 @@ public class SAMLMetadataWriter extends BaseWriter
       {
          AffiliationDescriptorType affliationDesc = edtChoice.getAffiliationDescriptor();
          if (affliationDesc != null)
-            throw new RuntimeException("handle affliation"); //TODO: affiliation
+            throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "affliation"); //TODO: affiliation
 
          List<EDTDescriptorChoiceType> edtDescChoices = edtChoice.getDescriptors();
          for (EDTDescriptorChoiceType edtDescChoice : edtDescChoices)
@@ -169,7 +170,7 @@ public class SAMLMetadataWriter extends BaseWriter
             RoleDescriptorType roleDesc = edtDescChoice.getRoleDescriptor();
 
             if (roleDesc != null)
-               throw new RuntimeException("Role Descriptor type not handled");
+               throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Role Descriptor type");
 
             IDPSSODescriptorType idpSSO = edtDescChoice.getIdpDescriptor();
             if (idpSSO != null)
@@ -282,7 +283,7 @@ public class SAMLMetadataWriter extends BaseWriter
    public void write(IDPSSODescriptorType idpSSODescriptor) throws ProcessingException
    {
       if (idpSSODescriptor == null)
-         throw new ProcessingException("IDPSSODescriptorType is null");
+         throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "IDPSSODescriptorType");
 
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get(),
             METADATA_NSURI.get());
@@ -447,7 +448,7 @@ public class SAMLMetadataWriter extends BaseWriter
    public void writeOrganization(OrganizationType org) throws ProcessingException
    {
       if (org == null)
-         throw new ProcessingException("Organization is null");
+         throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Organization");
       StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ORGANIZATION.get(), METADATA_NSURI.get());
 
       ExtensionsType extensions = org.getExtensions();

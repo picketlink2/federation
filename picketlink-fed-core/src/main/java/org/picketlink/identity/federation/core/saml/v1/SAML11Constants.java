@@ -85,7 +85,7 @@ public interface SAML11Constants
    String FORMAT = "Format";
 
    String FORMAT_EMAIL_ADDRESS = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress";
-   
+
    String FORMAT_UNSPECIFIED = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified";
 
    String IN_RESPONSE_TO = "InResponseTo";
@@ -93,6 +93,8 @@ public interface SAML11Constants
    String IP_ADDRESS = "IPAddress";
 
    String ISSUER = "Issuer";
+
+   String ISSUE_INSTANT = "IssueInstant";
 
    String LOCATION = "Location";
 

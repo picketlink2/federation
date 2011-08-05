@@ -21,6 +21,9 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -52,13 +55,13 @@ public class SAML11RequestParser implements ParserNamespaceSupport
    {
       Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.REQUEST_ID));
       if (idAttr == null)
-         throw new RuntimeException(SAML11Constants.REQUEST_ID + " attribute is missing");
+         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.REQUEST_ID);
 
       String id = StaxParserUtil.getAttributeValue(idAttr);
 
-      Attribute issueInstantAttr = startElement.getAttributeByName(new QName("IssueInstant"));
+      Attribute issueInstantAttr = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
       if (issueInstantAttr == null)
-         throw new RuntimeException("IssueInstant attribute required in Request");
+         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
       XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
       return new SAML11RequestType(id, issueInstant);
    }
@@ -117,7 +120,7 @@ public class SAML11RequestParser implements ParserNamespaceSupport
             request.addAssertionIDRef(StaxParserUtil.getElementText(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown Element:" + elementName + "::location=" + startElement.getLocation());
+            throw new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + startElement.getLocation());
       }
       return request;
    }

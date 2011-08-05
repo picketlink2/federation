@@ -26,12 +26,12 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-
 
 /**
  * Parser for WS-Trust payload
@@ -39,55 +39,55 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
  * @since Oct 11, 2010
  */
 public class WSTrustParser extends AbstractParser
-{   
+{
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
-      while( xmlEventReader.hasNext() )
+      while (xmlEventReader.hasNext())
       {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader); 
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if( xmlEvent instanceof StartElement )
+         if (xmlEvent instanceof StartElement)
          {
             StartElement startElement = (StartElement) xmlEvent;
 
-            String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( WSTrustConstants.RST_COLLECTION ))
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equalsIgnoreCase(WSTrustConstants.RST_COLLECTION))
             {
                WSTRequestSecurityTokenCollectionParser wstrcoll = new WSTRequestSecurityTokenCollectionParser();
-               return wstrcoll.parse(xmlEventReader); 
-            } 
-            else if( elementName.equalsIgnoreCase( WSTrustConstants.RST ))
+               return wstrcoll.parse(xmlEventReader);
+            }
+            else if (elementName.equalsIgnoreCase(WSTrustConstants.RST))
             {
                WSTRequestSecurityTokenParser wst = new WSTRequestSecurityTokenParser();
-               return wst.parse(xmlEventReader); 
-            } 
-            else if( elementName.equalsIgnoreCase( WSTrustConstants.RSTR_COLLECTION ))
+               return wst.parse(xmlEventReader);
+            }
+            else if (elementName.equalsIgnoreCase(WSTrustConstants.RSTR_COLLECTION))
             {
                WSTRequestSecurityTokenResponseCollectionParser wstrcoll = new WSTRequestSecurityTokenResponseCollectionParser();
-               return wstrcoll.parse(xmlEventReader); 
-            } 
-            else if( elementName.equalsIgnoreCase( WSTrustConstants.RSTR ))
+               return wstrcoll.parse(xmlEventReader);
+            }
+            else if (elementName.equalsIgnoreCase(WSTrustConstants.RSTR))
             {
                WSTRequestSecurityTokenResponseParser wst = new WSTRequestSecurityTokenResponseParser();
-               return wst.parse(xmlEventReader); 
-            } 
+               return wst.parse(xmlEventReader);
+            }
          }
          else
          {
-            StaxParserUtil.getNextEvent(xmlEventReader); 
+            StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException( "WSTrust Parsing has failed" );
+      throw new RuntimeException(ErrorCodes.FAILED_PARSING);
    }
 
    /**
     * @see {@link ParserNamespaceSupport#supports(QName)}}
     */
-   public boolean supports( QName qname )
-   { 
-      return WSTrustConstants.BASE_NAMESPACE.equals( qname.getNamespaceURI() );
-   } 
+   public boolean supports(QName qname)
+   {
+      return WSTrustConstants.BASE_NAMESPACE.equals(qname.getNamespaceURI());
+   }
 }

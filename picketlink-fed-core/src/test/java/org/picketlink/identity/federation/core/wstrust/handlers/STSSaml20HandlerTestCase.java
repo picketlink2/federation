@@ -40,6 +40,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
@@ -121,7 +122,7 @@ public class STSSaml20HandlerTestCase
       catch (final Exception e)
       {
          assertTrue(e instanceof SOAPFaultException);
-         assertSoapFaultString(e, "No security token could be found in the SOAP Header");
+         assertSoapFaultString(e, ErrorCodes.NULL_VALUE + "No security token could be found in the SOAP Header");
       }
    }
 

@@ -25,6 +25,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
@@ -37,9 +38,8 @@ public class WebAttributeManager implements AttributeManager
    /**
     * @see AttributeManager#getAttributes(Principal, List)
     */
-   public Map<String, Object> getAttributes(Principal userPrincipal, 
-         List<String> attributeKeys)
+   public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
    {
-      throw new RuntimeException("Not implemented");
-   } 
+      throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+   }
 }

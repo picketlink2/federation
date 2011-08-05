@@ -35,6 +35,7 @@ import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -126,7 +127,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
          try
          {
             if (!this.verifySignature(documentHolder))
-               throw new ProcessingException("Signature Validation failed");
+               throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed");
          }
          catch (IssuerNotTrustedException e)
          {
@@ -173,14 +174,14 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
    private boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
    {
       if (keyManager == null)
-         throw new IllegalStateException("Key Manager is null");
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "Key Manager");
       Document samlResponse = samlDocumentHolder.getSamlDocument();
       StatusResponseType response = (StatusResponseType) samlDocumentHolder.getSamlObject();
 
       String issuerID = response.getIssuer().getValue();
 
       if (issuerID == null)
-         throw new IssuerNotTrustedException("Issue missing");
+         throw new IssuerNotTrustedException(ErrorCodes.NULL_VALUE + "Issue missing");
 
       URL issuerURL;
       try

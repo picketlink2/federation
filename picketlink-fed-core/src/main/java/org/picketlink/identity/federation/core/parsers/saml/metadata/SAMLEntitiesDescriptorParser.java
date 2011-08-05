@@ -28,6 +28,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -113,7 +114,7 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport
             entitiesDescriptorType.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart + " ::location=" + startElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart + " ::location=" + startElement.getLocation());
       }
       return entitiesDescriptorType;
    }

@@ -33,6 +33,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Node;
@@ -94,7 +95,7 @@ public class JAXPValidationUtil
       {
          Schema schema = getSchema();
          if (schema == null)
-            throw new RuntimeException("Could not get all the schemas");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema");
 
          validator = schema.newValidator();
          validator.setErrorHandler(new CustomErrorHandler());
@@ -131,7 +132,7 @@ public class JAXPValidationUtil
       {
          URL url = SecurityActions.loadResource(JAXPValidationUtil.class, schema);
          if (url == null)
-            throw new RuntimeException(schema + " is not available");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema url");
          sourceArr[i++] = new StreamSource(url.openStream());
       }
       return sourceArr;

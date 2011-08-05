@@ -25,11 +25,14 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants; 
+import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
@@ -37,8 +40,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 
 /**
  * SAML2 Metadata Builder API
@@ -46,7 +47,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.
  * @since Apr 19, 2009
  */
 public class MetaDataBuilderDelegate
-{    
+{
    /**
     * Create an Endpoint (SingleSignOnEndpoint or SingleLogoutEndpoint)
     * @param binding
@@ -54,15 +55,13 @@ public class MetaDataBuilderDelegate
     * @param responseLocation
     * @return
     */
-   public static EndpointType createEndpoint(String binding, String location,
-         String responseLocation)
+   public static EndpointType createEndpoint(String binding, String location, String responseLocation)
    {
-      EndpointType endpoint = new EndpointType( URI.create(binding),
-            URI.create(location));
-      endpoint.setResponseLocation( URI.create( responseLocation ));
+      EndpointType endpoint = new EndpointType(URI.create(binding), URI.create(location));
+      endpoint.setResponseLocation(URI.create(responseLocation));
       return endpoint;
    }
-   
+
    /**
     * Create an Organization
     * @param organizationName
@@ -71,56 +70,56 @@ public class MetaDataBuilderDelegate
     * @param lang
     * @return
     */
-   public static OrganizationType createOrganization(String organizationName,
-         String organizationDisplayName, String organizationURL, String lang)
+   public static OrganizationType createOrganization(String organizationName, String organizationDisplayName,
+         String organizationURL, String lang)
    {
-      if(organizationName == null)
-         throw new IllegalArgumentException("organizationName is null");
-      if(organizationDisplayName == null)
-         throw new IllegalArgumentException("organizationDisplayName is null");
-      if(organizationURL == null)
-         throw new IllegalArgumentException("organizationURL is null");
-      if(lang == null)
+      if (organizationName == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "organizationName");
+      if (organizationDisplayName == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "organizationDisplayName");
+      if (organizationURL == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "organizationURL");
+      if (lang == null)
          lang = JBossSAMLConstants.LANG_EN.get();
-      
+
       //orgName
-      LocalizedNameType orgName = new LocalizedNameType( lang );
-      orgName.setValue(organizationName); 
-      
+      LocalizedNameType orgName = new LocalizedNameType(lang);
+      orgName.setValue(organizationName);
+
       //orgDisplayName
-      LocalizedNameType orgDisplayName = new LocalizedNameType( lang );
-      orgDisplayName.setValue(organizationDisplayName); 
-      
+      LocalizedNameType orgDisplayName = new LocalizedNameType(lang);
+      orgDisplayName.setValue(organizationDisplayName);
+
       //orgURL
-      LocalizedURIType orgURL = new LocalizedURIType( lang );
-      orgURL.setValue( URI.create( organizationURL )); 
-      
+      LocalizedURIType orgURL = new LocalizedURIType(lang);
+      orgURL.setValue(URI.create(organizationURL));
+
       OrganizationType orgType = new OrganizationType();
-      orgType.addOrganizationName( orgName );
-      orgType.addOrganizationDisplayName( orgDisplayName );
-      orgType.addOrganizationURL( orgURL );
+      orgType.addOrganizationName(orgName);
+      orgType.addOrganizationDisplayName(orgDisplayName);
+      orgType.addOrganizationURL(orgURL);
       return orgType;
    }
-   
+
    /**
     * Create an Entity Descriptor
     * @param idpOrSPDescriptor a descriptor for either the IDP or SSO
     * @return
     */
-   public static EntityDescriptorType createEntityDescriptor( SSODescriptorType idpOrSPDescriptor)
+   public static EntityDescriptorType createEntityDescriptor(SSODescriptorType idpOrSPDescriptor)
    {
-      EDTDescriptorChoiceType edtDescriptorChoiceType = new EDTDescriptorChoiceType( idpOrSPDescriptor );
-      
+      EDTDescriptorChoiceType edtDescriptorChoiceType = new EDTDescriptorChoiceType(idpOrSPDescriptor);
+
       List<EDTDescriptorChoiceType> edtList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
       edtList.add(edtDescriptorChoiceType);
-      
+
       EDTChoiceType choiceType = new EDTChoiceType(edtList);
-      
-      EntityDescriptorType entity = new EntityDescriptorType( " ");
+
+      EntityDescriptorType entity = new EntityDescriptorType(" ");
       entity.addChoiceType(choiceType);
-      return entity; 
+      return entity;
    }
-   
+
    /**
     * Create a IDP SSO metadata descriptor
     * @param requestsSigned
@@ -131,28 +130,25 @@ public class MetaDataBuilderDelegate
     * @param org
     * @return
     */
-   public static IDPSSODescriptorType createIDPSSODescriptor(boolean requestsSigned, 
-         KeyDescriptorType keyDescriptorType, 
-         EndpointType ssoEndPoint, 
-         EndpointType sloEndPoint,
-         List<AttributeType> attributes,
-         OrganizationType org)
+   public static IDPSSODescriptorType createIDPSSODescriptor(boolean requestsSigned,
+         KeyDescriptorType keyDescriptorType, EndpointType ssoEndPoint, EndpointType sloEndPoint,
+         List<AttributeType> attributes, OrganizationType org)
    {
       List<String> emptyList = new ArrayList<String>();
-      IDPSSODescriptorType idp = new IDPSSODescriptorType( emptyList );
-      idp.addSingleSignOnService( ssoEndPoint );
-      idp.addSingleLogoutService( sloEndPoint ); 
-      
-      for( AttributeType attr: attributes )
+      IDPSSODescriptorType idp = new IDPSSODescriptorType(emptyList);
+      idp.addSingleSignOnService(ssoEndPoint);
+      idp.addSingleLogoutService(sloEndPoint);
+
+      for (AttributeType attr : attributes)
       {
          idp.addAttribute(attr);
       }
-      idp.addKeyDescriptor( keyDescriptorType);
+      idp.addKeyDescriptor(keyDescriptorType);
       idp.setWantAuthnRequestsSigned(requestsSigned);
       idp.setOrganization(org);
       return idp;
    }
-   
+
    /**
     * Create a IDP SSO metadata descriptor
     * @param requestsSigned
@@ -163,19 +159,16 @@ public class MetaDataBuilderDelegate
     * @param org
     * @return
     */
-   public static SPSSODescriptorType createSPSSODescriptor(boolean requestsSigned, 
-         KeyDescriptorType keyDescriptorType,  
-         EndpointType sloEndPoint,
-         List<AttributeType> attributes,
-         OrganizationType org)
+   public static SPSSODescriptorType createSPSSODescriptor(boolean requestsSigned, KeyDescriptorType keyDescriptorType,
+         EndpointType sloEndPoint, List<AttributeType> attributes, OrganizationType org)
    {
-      List<String> protocolEnumList = new ArrayList<String>(); 
-      protocolEnumList.add( JBossSAMLURIConstants.PROTOCOL_NSURI.get() );
-      
-      SPSSODescriptorType sp = new SPSSODescriptorType( protocolEnumList );
-      sp.addSingleLogoutService( sloEndPoint );
-      sp.addKeyDescriptor( keyDescriptorType );
-      sp.setAuthnRequestsSigned(requestsSigned); 
+      List<String> protocolEnumList = new ArrayList<String>();
+      protocolEnumList.add(JBossSAMLURIConstants.PROTOCOL_NSURI.get());
+
+      SPSSODescriptorType sp = new SPSSODescriptorType(protocolEnumList);
+      sp.addSingleLogoutService(sloEndPoint);
+      sp.addKeyDescriptor(keyDescriptorType);
+      sp.setAuthnRequestsSigned(requestsSigned);
       sp.setOrganization(org);
       return sp;
    }

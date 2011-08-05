@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -95,7 +96,8 @@ public class SAMLArtifactResponseParser extends SAMLStatusResponseTypeParser imp
             response.setStatus(parseStatus(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown tag=" + elementName + "::location=" + startElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                  + startElement.getLocation());
       }
 
       return response;

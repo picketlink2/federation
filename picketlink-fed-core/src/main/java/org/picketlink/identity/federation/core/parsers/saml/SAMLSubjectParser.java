@@ -24,6 +24,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
@@ -73,7 +74,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                break;
             }
             else
-               throw new RuntimeException("Unknown End Element:" + StaxParserUtil.getEndElementName(endElement));
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
          }
 
          StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -123,7 +124,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag  + "::location=" + peekedElement.getLocation() );
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
       }
       return subject;
    }
@@ -193,7 +194,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             subjectConfirmationData.setAnyType(StaxParserUtil.getDOMElement(xmlEventReader));
          }
          else
-            throw new RuntimeException("Handle:" + tag);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
       }
 
       // Get the end tag
@@ -223,13 +224,13 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                break;
             }
             else
-               throw new RuntimeException("unknown end element:" + tag);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
          }
          startElement = (StartElement) xmlEvent;
          tag = StaxParserUtil.getStartElementName(startElement);
          if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
          {
-            keyInfo.addContent( StaxParserUtil.getDOMElement(xmlEventReader) );
+            keyInfo.addContent(StaxParserUtil.getDOMElement(xmlEventReader));
          }
          else if (tag.equals(WSTrustConstants.XMLDSig.X509DATA))
          {
@@ -243,11 +244,11 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             X509CertificateType cert = new X509CertificateType();
             String certValue = StaxParserUtil.getElementText(xmlEventReader);
             cert.setEncodedCertificate(certValue.getBytes());
-            x509.add( cert );
+            x509.add(cert);
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA);
-            keyInfo.addContent( x509 );
+            keyInfo.addContent(x509);
          }
          else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE))
          {
@@ -265,12 +266,12 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                // TODO: parse the DSA key contents.
             }
             else
-               throw new ParsingException("Unknown element: " + tag);
+               throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
-            
-            keyInfo.addContent( keyValue ) ;
+
+            keyInfo.addContent(keyValue);
          }
       }
       return keyInfo;
@@ -298,7 +299,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                break;
             }
             else
-               throw new RuntimeException("unknown end element:" + tag);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
          }
 
          startElement = (StartElement) xmlEvent;
@@ -316,7 +317,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             rsaKeyValue.setExponent(text.getBytes());
          }
          else
-            throw new ParsingException("Unknown element: " + tag);
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
       }
       return rsaKeyValue;
    }

@@ -28,6 +28,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -70,18 +71,18 @@ public class WSSecurityParser extends AbstractParser
                UsernameTokenType userNameToken = new UsernameTokenType();
 
                //Get the Id attribute
-               QName idQName = new QName(WSTrustConstants.WSU_NS, "Id");
+               QName idQName = new QName(WSTrustConstants.WSU_NS, WSTrustConstants.WSSE.ID);
                Attribute idAttribute = startElement.getAttributeByName(idQName);
 
                if (idAttribute == null)
-                  throw new RuntimeException("missing wsu:Id attribute");
+                  throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Id");
 
                userNameToken.setId(StaxParserUtil.getAttributeValue(idAttribute));
 
                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
                if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException("userName is expected ahead");
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "userName");
 
                String userName = StaxParserUtil.getElementText(xmlEventReader);
 
@@ -106,7 +107,7 @@ public class WSSecurityParser extends AbstractParser
             StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException("WSSecurity Parsing has failed");
+      throw new RuntimeException(ErrorCodes.FAILED_PARSING);
    }
 
    /**
@@ -154,7 +155,7 @@ public class WSSecurityParser extends AbstractParser
                break;
             }
             else
-               throw new RuntimeException("unknown end element:" + tag);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
          }
 
          startElement = (StartElement) xmlEvent;

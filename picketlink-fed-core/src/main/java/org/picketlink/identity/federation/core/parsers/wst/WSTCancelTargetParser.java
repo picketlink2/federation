@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -48,7 +49,7 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
       // null start element indicates that the token to be canceled hasn't been specified.
       if (startElement == null)
       {
-         throw new ParsingException("Unable to parse cancel token request: security token is null");
+         throw new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
       }
       // this is an unknown type - parse using the transformer.
       try
@@ -57,7 +58,7 @@ public class WSTCancelTargetParser implements ParserNamespaceSupport
       }
       catch (Exception e)
       {
-         throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
+         throw new ParsingException(ErrorCodes.PARSING_ERROR + e.getMessage(), e);
       }
       return cancelTarget;
    }

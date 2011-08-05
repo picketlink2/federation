@@ -29,6 +29,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -144,7 +145,7 @@ public class SAMLAssertionWriter extends BaseWriter
 
       AdviceType advice = assertion.getAdvice();
       if (advice != null)
-         throw new RuntimeException("Advice needs to be handled");
+         throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Advice");
 
       Set<StatementAbstractType> statements = assertion.getStatements();
       if (statements != null)
@@ -164,7 +165,7 @@ public class SAMLAssertionWriter extends BaseWriter
                write((XACMLAuthzDecisionStatementType) statement);
             }
             else
-               throw new RuntimeException("unknown statement type=" + statement.getClass().getName());
+               throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + statement.getClass().getName());
          }
       }
 
@@ -202,7 +203,7 @@ public class SAMLAssertionWriter extends BaseWriter
             }
             EncryptedElementType encType = attr.getEncryptedAssertion();
             if (encType != null)
-               throw new RuntimeException("unable to write as it is NYI");
+               throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
          }
       }
 
@@ -250,51 +251,16 @@ public class SAMLAssertionWriter extends BaseWriter
 
       ResponseType responseType = xacmlStat.getResponse();
       if (responseType == null)
-         throw new RuntimeException(" XACML response is null");
+         throw new RuntimeException(ErrorCodes.WRITER_NULL_VALUE + "XACML response");
 
       Document doc = SAMLXACMLUtil.getXACMLResponse(responseType);
       StaxUtil.writeDOMElement(writer, doc.getDocumentElement());
-
-      /*try
-      {
-         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-         //Marshaller marshaller = getMarshaller();
-         JAXBElement<?> jaxb = (new ObjectFactory()).createResponse(responseType);
-         
-         StreamResult result = new StreamResult( baos );
-         
-         TransformerUtil.transform( SAMLXACMLUtil.getJAXBContext(), jaxb, result);
-         Document doc = DocumentUtil.getDocument( new String( baos.toByteArray() ));
-         StaxUtil.writeDOMNode(writer, doc.getDocumentElement() );
-         //marshaller.marshal(jaxb, writer);
-      }
-      catch ( Exception e)
-      { 
-         throw new ProcessingException( e );
-      }*/
 
       RequestType requestType = xacmlStat.getRequest();
       if (requestType != null)
       {
          StaxUtil.writeDOMNode(writer, SAMLXACMLUtil.getXACMLRequest(requestType).getDocumentElement());
 
-         /*try
-         {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            //Marshaller marshaller = getMarshaller();
-            JAXBElement<?> jaxb = (new ObjectFactory()).createRequest( requestType );
-            
-            StreamResult result = new StreamResult( baos );
-            
-            TransformerUtil.transform( getJAXBContext(), jaxb, result);
-            Document doc = DocumentUtil.getDocument( new String( baos.toByteArray() ));
-            StaxUtil.writeDOMNode(writer, doc.getDocumentElement() );
-            //marshaller.marshal( jaxb, writer );
-         }
-         catch ( Exception e )
-         {
-            throw new ProcessingException( e );
-         }*/
       }
       StaxUtil.writeEndElement(writer);
       StaxUtil.flush(writer);

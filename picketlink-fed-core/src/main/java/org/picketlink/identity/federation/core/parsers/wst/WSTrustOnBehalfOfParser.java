@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -57,7 +58,7 @@ public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport
          onBehalfType.add(userNameToken);
       }
       else
-         throw new RuntimeException("Unknown tag:" + tag);
+         throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
 
       return onBehalfType;
    }

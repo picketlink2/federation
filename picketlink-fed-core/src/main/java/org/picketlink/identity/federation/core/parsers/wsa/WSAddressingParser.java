@@ -27,6 +27,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -43,58 +44,58 @@ import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
  * @since Oct 14, 2010
  */
 public class WSAddressingParser extends AbstractParser
-{   
+{
    public static final String ENDPOINT_REFERENCE = "EndpointReference";
+
    public static final String ADDRESS = "Address";
-   
+
    /**
     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
     */
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   { 
-      while( xmlEventReader.hasNext() )
+   {
+      while (xmlEventReader.hasNext())
       {
-         XMLEvent xmlEvent = StaxParserUtil.peek( xmlEventReader ); 
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if( xmlEvent instanceof StartElement )
+         if (xmlEvent instanceof StartElement)
          {
             StartElement startElement = (StartElement) xmlEvent;
 
-            String elementName = StaxParserUtil.getStartElementName( startElement );
-            if( elementName.equalsIgnoreCase( ENDPOINT_REFERENCE ))
-            {   
-               startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-               StaxParserUtil.validate(startElement, ENDPOINT_REFERENCE );
-               
-               //Lets get the wsa:Address
-               startElement = StaxParserUtil.getNextStartElement( xmlEventReader );
-               StaxParserUtil.validate(startElement, ADDRESS );
-               
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equalsIgnoreCase(ENDPOINT_REFERENCE))
+            {
+               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(startElement, ENDPOINT_REFERENCE);
 
-               if( !StaxParserUtil.hasTextAhead( xmlEventReader ))
-                  throw new ParsingException( "endpointURI is expected ahead" );
-               
-               String endpointURI = StaxParserUtil.getElementText( xmlEventReader );
-               
+               //Lets get the wsa:Address
+               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+               StaxParserUtil.validate(startElement, ADDRESS);
+
+               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "endpointURI");
+
+               String endpointURI = StaxParserUtil.getElementText(xmlEventReader);
+
                AttributedURIType attributedURI = new AttributedURIType();
                attributedURI.setValue(endpointURI);
                EndpointReferenceType reference = new EndpointReferenceType();
-               reference.setAddress(attributedURI); 
-               
+               reference.setAddress(attributedURI);
+
                //Lets get the end element
-               xmlEvent =  StaxParserUtil.getNextEvent(xmlEventReader);
-               EndElement endElement = (EndElement)xmlEvent;
-               StaxParserUtil.validate( endElement, ENDPOINT_REFERENCE );
-               
-               return reference;                  
-            }  
+               xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+               EndElement endElement = (EndElement) xmlEvent;
+               StaxParserUtil.validate(endElement, ENDPOINT_REFERENCE);
+
+               return reference;
+            }
          }
          else
          {
-            StaxParserUtil.getNextEvent(xmlEventReader); 
+            StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException( "WSAddressing Parsing has failed" );
+      throw new RuntimeException(ErrorCodes.FAILED_PARSING);
    }
 
    /**
@@ -102,6 +103,6 @@ public class WSAddressingParser extends AbstractParser
     */
    public boolean supports(QName qname)
    {
-      return WSTrustConstants.WSA_NS.equals( qname.getNamespaceURI() );
+      return WSTrustConstants.WSA_NS.equals(qname.getNamespaceURI());
    }
 }

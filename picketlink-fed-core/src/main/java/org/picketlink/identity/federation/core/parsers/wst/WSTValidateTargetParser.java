@@ -25,13 +25,11 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 
 /**
@@ -51,7 +49,7 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
       // null start element indicates that the token to be validated hasn't been specified.
       if (startElement == null)
       {
-         throw new ParsingException("Unable to parse validate token request: security token is null");
+         throw new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
       }
 
       // this is an unknown type - parse using the transformer.
@@ -61,7 +59,7 @@ public class WSTValidateTargetParser implements ParserNamespaceSupport
       }
       catch (Exception e)
       {
-         throw new ParsingException("Error parsing security token: " + e.getMessage(), e);
+         throw new ParsingException(ErrorCodes.PARSING_ERROR + e.getMessage(), e);
       }
 
       return validateTargetType;

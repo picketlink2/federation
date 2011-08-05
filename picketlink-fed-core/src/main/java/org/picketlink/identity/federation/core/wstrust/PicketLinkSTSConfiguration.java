@@ -33,6 +33,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
@@ -181,14 +182,14 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
 
             Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
             if (clazz == null)
-               throw new RuntimeException(keyManagerClassName + " could not be loaded");
+               throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
             this.trustManager = (TrustKeyManager) clazz.newInstance();
             this.trustManager.setAuthProperties(authProperties);
             this.trustManager.setValidatingAlias(keyProviderType.getValidatingAlias());
          }
          catch (Exception e)
          {
-            throw new RuntimeException("Unable to construct the key manager:", e);
+            throw new RuntimeException(ErrorCodes.STS_UNABLE_TO_CONSTRUCT_KEYMGR, e);
          }
       }
    }
@@ -255,7 +256,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
    public SecurityTokenProvider getProviderForService(String serviceName)
    {
       if (serviceName == null)
-         throw new IllegalArgumentException("serviceName is null ");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "serviceName");
 
       ServiceProviderType provider = this.spMetadata.get(serviceName);
       if (provider != null)
@@ -273,7 +274,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
    public SecurityTokenProvider getProviderForTokenType(String tokenType)
    {
       if (tokenType == null)
-         throw new IllegalArgumentException("tokenType is null ");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "tokenType");
       return this.tokenProviders.get(tokenType);
    }
 
@@ -333,7 +334,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          }
          catch (Exception e)
          {
-            throw new RuntimeException("Error obtaining public key for service " + serviceName, e);
+            throw new RuntimeException(ErrorCodes.STS_PUBLIC_KEY_ERROR + serviceName, e);
          }
       }
       return key;
@@ -354,7 +355,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          }
          catch (Exception e)
          {
-            throw new RuntimeException("Error obtaining signing key pair:", e);
+            throw new RuntimeException(ErrorCodes.STS_SIGNING_KEYPAIR_ERROR, e);
          }
       }
       return keyPair;
@@ -375,7 +376,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration
          }
          catch (Exception e)
          {
-            throw new RuntimeException("Error obtaining public key certificate", e);
+            throw new RuntimeException(ErrorCodes.STS_PUBLIC_KEY_CERT, e);
          }
       }
       return certificate;

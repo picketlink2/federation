@@ -20,9 +20,9 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.INVALID_SECURITY;
 import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.FAILED_AUTHENTICATION;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.INVALID_SECURITY;
+import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,6 +42,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
@@ -118,228 +119,233 @@ import org.w3c.dom.Element;
  */
 public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageContext>
 {
-    /**
-     * Constant that can be used by handlers to set the username in the SOAPMessageContext.
-     */
-    public static final String USERNAME_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.username";
-    
-    /**
-     * Constant that can be used by handlers to set the password in the SOAPMessageContext.
-     */
-    public static final String PASSWORD_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.password";
-    
-    /**
-     * The path to the jboss-sts-client.properties file.
-     */
-    private String configFile = STSClientConfig.DEFAULT_CONFIG_FILE;
-    
-    /**
-     * The STSClient configuration builder.
-     */
-    private STSClientConfig.Builder configBuilder;
-    
-    /**
-     * Subclasses can return the QName of the Security header element in usage.
-     * 
-     * @return QName
-     */
-    public abstract QName getSecurityElementQName();
-    
-    /**
-     * Subclasses can return the QName of the Security Element that should be used 
-     * as the token for validation.
-     * 
-     * @return QName
-     */
-    public abstract QName getTokenElementQName();
-    
-    /**
-     * Post construct will be called when the handler is deployed.
-     * 
-     * @throws WebServiceException
-     */
-    @PostConstruct
-    public void parseSTSConfig() 
-    {
-        configBuilder = new STSClientConfig.Builder(configFile);
-    }
+   /**
+    * Constant that can be used by handlers to set the username in the SOAPMessageContext.
+    */
+   public static final String USERNAME_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.username";
 
-    /**
-     * Will process in-bound messages and extract a security token from the SOAP Header. This token
-     * will then be validated using by calling the STS..
-     * 
-     * @param messageContext The {@link SOAPMessageContext messageContext}.
-     * @return true If the security token was correctly validated or if this call was an outbound message.
-     * @throws WebServiceException If the security token could not be validated.
-     */
-    public boolean handleMessage(final SOAPMessageContext messageContext)
-    {
-        if (isOutBound(messageContext))
-            return true;
-        
-        try
-        {
-            final Element securityToken = extractSecurityToken(messageContext, getSecurityElementQName(), getTokenElementQName());
-            if (securityToken == null)
+   /**
+    * Constant that can be used by handlers to set the password in the SOAPMessageContext.
+    */
+   public static final String PASSWORD_MSG_CONTEXT_PROPERTY = "org.picketlink.identity.federation.core.wstrust.handlers.password";
+
+   /**
+    * The path to the jboss-sts-client.properties file.
+    */
+   private String configFile = STSClientConfig.DEFAULT_CONFIG_FILE;
+
+   /**
+    * The STSClient configuration builder.
+    */
+   private STSClientConfig.Builder configBuilder;
+
+   /**
+    * Subclasses can return the QName of the Security header element in usage.
+    * 
+    * @return QName
+    */
+   public abstract QName getSecurityElementQName();
+
+   /**
+    * Subclasses can return the QName of the Security Element that should be used 
+    * as the token for validation.
+    * 
+    * @return QName
+    */
+   public abstract QName getTokenElementQName();
+
+   /**
+    * Post construct will be called when the handler is deployed.
+    * 
+    * @throws WebServiceException
+    */
+   @PostConstruct
+   public void parseSTSConfig()
+   {
+      configBuilder = new STSClientConfig.Builder(configFile);
+   }
+
+   /**
+    * Will process in-bound messages and extract a security token from the SOAP Header. This token
+    * will then be validated using by calling the STS..
+    * 
+    * @param messageContext The {@link SOAPMessageContext messageContext}.
+    * @return true If the security token was correctly validated or if this call was an outbound message.
+    * @throws WebServiceException If the security token could not be validated.
+    */
+   public boolean handleMessage(final SOAPMessageContext messageContext)
+   {
+      if (isOutBound(messageContext))
+         return true;
+
+      try
+      {
+         final Element securityToken = extractSecurityToken(messageContext, getSecurityElementQName(),
+               getTokenElementQName());
+         if (securityToken == null)
+         {
+            throwSecurityTokenUnavailable();
+         }
+
+         setUsernameFromMessageContext(messageContext, configBuilder);
+         setPasswordFromMessageContext(messageContext, configBuilder);
+         final STSClient stsClient = createSTSClient(configBuilder);
+
+         if (stsClient.validateToken(securityToken) == false)
+         {
+            throwFailedAuthentication();
+         }
+      }
+      catch (final WSTrustException e)
+      {
+         throwInvalidSecurity();
+      }
+      catch (ParsingException e)
+      {
+         throwInvalidSecurity();
+      }
+
+      return true;
+   }
+
+   @SuppressWarnings(
+   {"rawtypes"})
+   private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName,
+         final QName tokenQName)
+   {
+      try
+      {
+         if (securityQName == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "securityQName from subclass");
+         if (tokenQName == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "tokenQName from subclass");
+
+         final SOAPHeader soapHeader = messageContext.getMessage().getSOAPHeader();
+         final Iterator securityHeaders = soapHeader.getChildElements(securityQName);
+         while (securityHeaders.hasNext())
+         {
+            final SOAPHeaderElement elem = (SOAPHeaderElement) securityHeaders.next();
+            // Check if the header is equal to the one this Handler is configured for.
+            if (elem.getElementQName().equals(securityQName))
             {
-                throwSecurityTokenUnavailable();
+               final Iterator childElements = elem.getChildElements(tokenQName);
+               while (childElements.hasNext())
+               {
+                  return (Element) childElements.next();
+               }
             }
-            
-            setUsernameFromMessageContext(messageContext, configBuilder);
-            setPasswordFromMessageContext(messageContext, configBuilder);
-            final STSClient stsClient = createSTSClient(configBuilder);
-            
-            if (stsClient.validateToken(securityToken) == false)
-            {
-	            throwFailedAuthentication();
-            }
-        }
-        catch (final WSTrustException e)
-        {
-            throwInvalidSecurity();
-        }
-        catch (ParsingException e)
-        {
-            throwInvalidSecurity();
-        }
-        
-        return true;
-    }
-     
-    @SuppressWarnings({"rawtypes"})
-    private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName, final QName tokenQName) 
-    {
-        try
-        {
-	        if (securityQName == null)
-	            throw new IllegalStateException("securityQName from subclass cannot be null!");
-	        if (tokenQName == null)
-	            throw new IllegalStateException("tokenQName from subclass cannot be null!");
-	        
-	        final SOAPHeader soapHeader = messageContext.getMessage().getSOAPHeader();
-	        final Iterator securityHeaders = soapHeader.getChildElements(securityQName);
-	        while (securityHeaders.hasNext())
-	        {
-	            final SOAPHeaderElement elem = (SOAPHeaderElement) securityHeaders.next();
-	            // Check if the header is equal to the one this Handler is configured for.
-	            if (elem.getElementQName().equals(securityQName))
-	            {
-	                final Iterator childElements = elem.getChildElements(tokenQName);
-	                while (childElements.hasNext())
-	                {
-	                    return (Element) childElements.next();
-	                }
-	            }
-	        }
-        }
-        catch (final SOAPException e)
-        {
-            throwInvalidSecurity();
-        }
-        return null;
-    }
+         }
+      }
+      catch (final SOAPException e)
+      {
+         throwInvalidSecurity();
+      }
+      return null;
+   }
 
-    private void throwSecurityTokenUnavailable () throws SOAPFaultException
-    {
-        SOAPFault soapFault = createSoapFault("No security token could be found in the SOAP Header", SECURITY_TOKEN_UNAVAILABLE);
-        throw new SOAPFaultException(soapFault);
-    }
-    
-    private void throwFailedAuthentication () throws SOAPFaultException
-    {
-        SOAPFault soapFault = createSoapFault("The security token could not be authenticated or authorized", FAILED_AUTHENTICATION);
-        throw new SOAPFaultException(soapFault);
-    }
+   private void throwSecurityTokenUnavailable() throws SOAPFaultException
+   {
+      SOAPFault soapFault = createSoapFault(ErrorCodes.NULL_VALUE
+            + "No security token could be found in the SOAP Header", SECURITY_TOKEN_UNAVAILABLE);
+      throw new SOAPFaultException(soapFault);
+   }
 
-    private void throwInvalidSecurity () throws SOAPFaultException
-    {
-        SOAPFault soapFault = createSoapFault("An error occurred while processing the security header", INVALID_SECURITY);
-        throw new SOAPFaultException(soapFault);
-    }
-    
-    private SOAPFault createSoapFault(final String msg, final QName qname)
-    {
-        try
-        {
-	        SOAPFactory soapFactory = SOAPFactory.newInstance();
-	        return soapFactory.createFault(msg, qname);
-        }
-        catch (SOAPException e)
-        {
-            throw new WebServiceException("Exception while trying to create SOAPFault", e);
-        }
-    }
+   private void throwFailedAuthentication() throws SOAPFaultException
+   {
+      SOAPFault soapFault = createSoapFault("The security token could not be authenticated or authorized",
+            FAILED_AUTHENTICATION);
+      throw new SOAPFaultException(soapFault);
+   }
 
-    /**
-     * If a property was set for the key {@link #USERNAME_MSG_CONTEXT_PROPERTY} it will be 
-     * retrieved by this method and set on the passed-in builder instance.
-     * 
-     * @param context The SOAPMessageContext which might contain a username property.
-     * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the username property.
-     */
-    private void setUsernameFromMessageContext(final SOAPMessageContext context, final STSClientConfig.Builder builder)
-    {
-        final String username = (String) context.get(USERNAME_MSG_CONTEXT_PROPERTY);
-        if (username != null)
-            configBuilder.username(username);
-    }
-    
-    /**
-     * If a property was set for the key {@link #PASSWORD_MSG_CONTEXT_PROPERTY} it will be 
-     * retrieved by this method and set on the passed-in builder instance.
-     * 
-     * @param context The SOAPMessageContext which might contain a password property.
-     * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the password property.
-     */
-    private void setPasswordFromMessageContext(final SOAPMessageContext context, final STSClientConfig.Builder builder)
-    {
-        final String password = (String) context.get(PASSWORD_MSG_CONTEXT_PROPERTY);
-        if (password != null)
-            configBuilder.password(password);
-    }
-    
-    public Set<QName> getHeaders()
-    {
-        return Collections.singleton(getSecurityElementQName());
-    }
+   private void throwInvalidSecurity() throws SOAPFaultException
+   {
+      SOAPFault soapFault = createSoapFault("An error occurred while processing the security header", INVALID_SECURITY);
+      throw new SOAPFaultException(soapFault);
+   }
 
-    public boolean handleFault(final SOAPMessageContext messageContext)
-    {
-        return true;
-    }
-    
-    public void close(final MessageContext messageContext)
-    {
-        // NoOp.
-    }
-    
-    /**
-     * This setter enables the injection of the jboss-sts-client.properties file
-     * path.
-     * 
-     * @param configFile
-     */
-    @Resource (name = "STSClientConfig")
-    public void setConfigFile(final String configFile)
-    {
-        if (configFile != null)
-        {
-            this.configFile = configFile;
-        }
-    }
+   private SOAPFault createSoapFault(final String msg, final QName qname)
+   {
+      try
+      {
+         SOAPFactory soapFactory = SOAPFactory.newInstance();
+         return soapFactory.createFault(msg, qname);
+      }
+      catch (SOAPException e)
+      {
+         throw new WebServiceException("Exception while trying to create SOAPFault", e);
+      }
+   }
 
-    STSClientConfig.Builder getConfigBuilder()
-    {
-        return configBuilder;
-    }
-    
-    STSClient createSTSClient(final STSClientConfig.Builder builder) throws ParsingException
-    {
-        return STSClientFactory.getInstance().create(builder.build());
-    }
+   /**
+    * If a property was set for the key {@link #USERNAME_MSG_CONTEXT_PROPERTY} it will be 
+    * retrieved by this method and set on the passed-in builder instance.
+    * 
+    * @param context The SOAPMessageContext which might contain a username property.
+    * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the username property.
+    */
+   private void setUsernameFromMessageContext(final SOAPMessageContext context, final STSClientConfig.Builder builder)
+   {
+      final String username = (String) context.get(USERNAME_MSG_CONTEXT_PROPERTY);
+      if (username != null)
+         configBuilder.username(username);
+   }
 
-    private boolean isOutBound(final SOAPMessageContext messageContext)
-    {
-        return ((Boolean) messageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)).booleanValue();
-    }
+   /**
+    * If a property was set for the key {@link #PASSWORD_MSG_CONTEXT_PROPERTY} it will be 
+    * retrieved by this method and set on the passed-in builder instance.
+    * 
+    * @param context The SOAPMessageContext which might contain a password property.
+    * @param builder The STSClientConfigBuilder which be updated if the SOAPMessageContext contains the password property.
+    */
+   private void setPasswordFromMessageContext(final SOAPMessageContext context, final STSClientConfig.Builder builder)
+   {
+      final String password = (String) context.get(PASSWORD_MSG_CONTEXT_PROPERTY);
+      if (password != null)
+         configBuilder.password(password);
+   }
+
+   public Set<QName> getHeaders()
+   {
+      return Collections.singleton(getSecurityElementQName());
+   }
+
+   public boolean handleFault(final SOAPMessageContext messageContext)
+   {
+      return true;
+   }
+
+   public void close(final MessageContext messageContext)
+   {
+      // NoOp.
+   }
+
+   /**
+    * This setter enables the injection of the jboss-sts-client.properties file
+    * path.
+    * 
+    * @param configFile
+    */
+   @Resource(name = "STSClientConfig")
+   public void setConfigFile(final String configFile)
+   {
+      if (configFile != null)
+      {
+         this.configFile = configFile;
+      }
+   }
+
+   STSClientConfig.Builder getConfigBuilder()
+   {
+      return configBuilder;
+   }
+
+   STSClient createSTSClient(final STSClientConfig.Builder builder) throws ParsingException
+   {
+      return STSClientFactory.getInstance().create(builder.build());
+   }
+
+   private boolean isOutBound(final SOAPMessageContext messageContext)
+   {
+      return ((Boolean) messageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY)).booleanValue();
+   }
 }

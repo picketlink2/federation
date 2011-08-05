@@ -21,6 +21,11 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_XSI;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +94,7 @@ public class SAMLParserUtil
             attributeStatementType.addAttribute(new ASTChoiceType(attribute));
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
       }
       return attributeStatementType;
    }
@@ -108,7 +113,7 @@ public class SAMLParserUtil
 
       Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
       if (name == null)
-         throw new RuntimeException("Required attribute Name in Attribute");
+         throw new RuntimeException(REQD_ATTRIBUTE + "Name");
       attributeType = new AttributeType(StaxParserUtil.getAttributeValue(name));
 
       parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.ATTRIBUTE.get(), attributeType);
@@ -166,7 +171,7 @@ public class SAMLParserUtil
             attributeType.addAttributeValue(attributeValue);
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
       }
    }
 
@@ -193,7 +198,7 @@ public class SAMLParserUtil
          return StaxParserUtil.getElementText(xmlEventReader);
       }
 
-      throw new RuntimeException("Unsupported xsi:type=" + typeValue);
+      throw new RuntimeException(UNKNOWN_XSI + typeValue);
    }
 
    /**
@@ -210,7 +215,7 @@ public class SAMLParserUtil
 
       Attribute authnInstant = startElement.getAttributeByName(new QName("AuthnInstant"));
       if (authnInstant == null)
-         throw new RuntimeException("Required attribute AuthnInstant in " + AUTHNSTATEMENT);
+         throw new RuntimeException(REQD_ATTRIBUTE + "AuthnInstant");
 
       XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authnInstant));
       AuthnStatementType authnStatementType = new AuthnStatementType(issueInstant);
@@ -233,7 +238,7 @@ public class SAMLParserUtil
             if (endElementTag.equals(AUTHNSTATEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementTag);
+               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
          }
          startElement = null;
 
@@ -273,7 +278,7 @@ public class SAMLParserUtil
             authnStatementType.setAuthnContext(parseAuthnContextType(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag + "::Location=" + startElement.getLocation());
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
 
       }
 
@@ -319,7 +324,7 @@ public class SAMLParserUtil
          StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
       }
       else
-         throw new RuntimeException("Unknown Tag:" + tag + "::Location=" + startElement.getLocation());
+         throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
 
       return authnContextType;
    }

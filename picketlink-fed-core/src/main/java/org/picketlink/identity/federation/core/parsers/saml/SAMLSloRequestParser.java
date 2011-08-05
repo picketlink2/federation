@@ -29,6 +29,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
@@ -90,7 +91,7 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
             continue;
          }
          else
-            throw new RuntimeException("unknown " + elementName);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elementName);
       }
       return logoutRequest;
    }
@@ -116,11 +117,11 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
       //Let us get the attributes
       super.parseBaseAttributes(startElement, logoutRequest);
 
-      Attribute reason = startElement.getAttributeByName(new QName("Reason"));
+      Attribute reason = startElement.getAttributeByName(new QName(JBossSAMLConstants.REASON.get()));
       if (reason != null)
          logoutRequest.setReason(StaxParserUtil.getAttributeValue(reason));
 
-      Attribute notOnOrAfter = startElement.getAttributeByName(new QName("NotOnOrAfter"));
+      Attribute notOnOrAfter = startElement.getAttributeByName(new QName(JBossSAMLConstants.NOT_ON_OR_AFTER.get()));
       if (notOnOrAfter != null)
          logoutRequest.setNotOnOrAfter(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notOnOrAfter)));
       return logoutRequest;

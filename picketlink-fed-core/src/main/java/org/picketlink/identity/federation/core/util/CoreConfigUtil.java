@@ -33,6 +33,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -84,11 +85,11 @@ public class CoreConfigUtil
       {
          String keyManagerClassName = keyProvider.getClassName();
          if (keyManagerClassName == null)
-            throw new RuntimeException("KeyManager class name is null");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
 
          Class<?> clazz = SecurityActions.loadClass(CoreConfigUtil.class, keyManagerClassName);
          if (clazz == null)
-            throw new RuntimeException(keyManagerClassName + " could not be loaded");
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
          trustKeyManager = (TrustKeyManager) clazz.newInstance();
       }
       catch (Exception e)
@@ -126,7 +127,7 @@ public class CoreConfigUtil
          throws ConfigurationException, ProcessingException
    {
       if (trustKeyManager == null)
-         throw new IllegalArgumentException("Trust Key Manager is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Trust Key Manager");
 
       return trustKeyManager.getValidatingKey(domain);
    }

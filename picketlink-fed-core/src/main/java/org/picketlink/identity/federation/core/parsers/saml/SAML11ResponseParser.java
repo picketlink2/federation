@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -59,14 +63,14 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       StaxParserUtil.validate(startElement, RESPONSE);
 
-      Attribute idAttr = startElement.getAttributeByName(new QName("ResponseID"));
+      Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.RESPONSE_ID));
       if (idAttr == null)
-         throw new RuntimeException("ID attribute is missing");
+         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.RESPONSE_ID);
       String id = StaxParserUtil.getAttributeValue(idAttr);
 
-      Attribute issueInstant = startElement.getAttributeByName(new QName("IssueInstant"));
+      Attribute issueInstant = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
       if (issueInstant == null)
-         throw new RuntimeException("IssueInstant attribute required in Response");
+         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
       XMLGregorianCalendar issueInstantVal = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant));
 
       SAML11ResponseType response = new SAML11ResponseType(id, issueInstantVal);
@@ -93,7 +97,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
             response.setStatus(parseStatus(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown tag=" + elementName + "::location=" + startElement.getLocation());
+            throw new RuntimeException(UNKNOWN_START_ELEMENT + "::location=" + startElement.getLocation());
       }
 
       return response;
@@ -168,7 +172,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport
             if (StaxParserUtil.matches(endElement, STATUS))
                break;
             else
-               throw new RuntimeException("unknown end element:" + StaxParserUtil.getEndElementName(endElement));
+               throw new RuntimeException(UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
          }
          else
             break;

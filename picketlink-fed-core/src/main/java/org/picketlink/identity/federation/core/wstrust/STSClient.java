@@ -35,6 +35,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -122,7 +123,7 @@ public class STSClient
    public void setDispatch(Dispatch<Source> dispatch)
    {
       if (dispatch == null)
-         throw new IllegalArgumentException("dispatch is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "dispatch");
 
       dispatchLocal.set(dispatch);
    }
@@ -189,7 +190,7 @@ public class STSClient
    public Element issueToken(String endpointURI, String tokenType) throws WSTrustException
    {
       if (endpointURI == null && tokenType == null)
-         throw new IllegalArgumentException("One of endpointURI or tokenType must be provided.");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "endpointURI or tokenType");
 
       RequestSecurityToken request = new RequestSecurityToken();
       if (wsaIssuerAddress != null)
@@ -223,7 +224,7 @@ public class STSClient
          throws WSTrustException
    {
       if (endpointURI == null && tokenType == null)
-         throw new IllegalArgumentException("One of endpointURI or tokenType must be provided.");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "endpointURI or tokenType");
 
       RequestSecurityToken request = new RequestSecurityToken();
       if (wsaIssuerAddress != null)
@@ -312,15 +313,15 @@ public class STSClient
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Exception in issuing token:", e);
+         throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + " issuing token:", e);
       }
 
       if (nodes == null)
-         throw new WSTrustException("NodeList is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "NodeList");
 
       Node rstr = nodes.item(0);
       if (rstr == null)
-         throw new WSTrustException("Have not found RSTR in the payload");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "RSTR in the payload");
 
       return (Element) rstr.getFirstChild();
    }
@@ -374,11 +375,11 @@ public class STSClient
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Exception in renewing token:", e);
+         throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "renewing token:", e);
       }
 
       if (nodes == null)
-         throw new WSTrustException("NodeList is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "NodeList");
 
       Node rstr = nodes.item(0);
 
@@ -423,7 +424,7 @@ public class STSClient
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Error parsing WS-Trust response: " + e.getMessage(), e);
+         throw new WSTrustException(ErrorCodes.PARSING_ERROR + "WS-Trust response: " + e.getMessage(), e);
       }
    }
 
@@ -464,7 +465,7 @@ public class STSClient
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Error parsing WS-Trust response: " + e.getMessage(), e);
+         throw new WSTrustException(ErrorCodes.PARSING_ERROR + "WS-Trust response: " + e.getMessage(), e);
       }
    }
 
@@ -488,7 +489,8 @@ public class STSClient
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Error creating source from request: " + e.getMessage(), e);
+         throw new WSTrustException(
+               ErrorCodes.PROCESSING_EXCEPTION + "creating source from request: " + e.getMessage(), e);
       }
    }
 
@@ -498,6 +500,6 @@ public class STSClient
    private void validateDispatch()
    {
       if (getDispatch() == null)
-         throw new RuntimeException("Dispatch has not been set");
+         throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Dispatch");
    }
 }

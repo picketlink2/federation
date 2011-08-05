@@ -43,6 +43,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
@@ -105,7 +106,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
             this.setUpKeyStore();
 
          if (ks == null)
-            throw new IllegalStateException("KeyStore is null");
+            throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
          return (PrivateKey) ks.getKey(this.signingAlias, this.signingKeyPass);
       }
       catch (KeyStoreException e)
@@ -170,10 +171,10 @@ public class KeyStoreKeyManager implements TrustKeyManager
             this.setUpKeyStore();
 
          if (ks == null)
-            throw new IllegalStateException("KeyStore is null");
+            throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
 
          if (alias == null || alias.length() == 0)
-            throw new IllegalArgumentException("Alias is null");
+            throw new IllegalArgumentException(ErrorCodes.KEYSTOREKEYMGR_NULL_ALIAS);
 
          return ks.getCertificate(alias);
       }
@@ -208,7 +209,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
          }
 
          if (ks == null)
-            throw new IllegalStateException("KeyStore is null");
+            throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
          Certificate cert = ks.getCertificate(alias);
          if (cert != null)
             publicKey = cert.getPublicKey();
@@ -247,10 +248,10 @@ public class KeyStoreKeyManager implements TrustKeyManager
             this.setUpKeyStore();
 
          if (ks == null)
-            throw new IllegalStateException("KeyStore is null");
+            throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
          String domainAlias = this.domainAliasMap.get(domain);
          if (domainAlias == null)
-            throw new IllegalStateException("Domain Alias missing for " + domain);
+            throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_DOMAIN_ALIAS_MISSING + domain);
          publicKey = null;
          try
          {
@@ -299,7 +300,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
 
       String keypass = this.authPropsMap.get(SIGNING_KEY_PASS);
       if (keypass == null || keypass.length() == 0)
-         throw new RuntimeException("Signing Key Pass is null");
+         throw new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_NULL_SIGNING_KEYPASS);
       this.signingKeyPass = keypass.toCharArray();
    }
 
@@ -411,7 +412,7 @@ public class KeyStoreKeyManager implements TrustKeyManager
          }
       }
       if (is == null)
-         throw new RuntimeException("Keystore not located:" + keyStore);
+         throw new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_KEYSTORE_NOT_LOCATED + keyStore);
       return is;
    }
 }

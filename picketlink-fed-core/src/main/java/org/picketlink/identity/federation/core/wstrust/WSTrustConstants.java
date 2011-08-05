@@ -197,6 +197,8 @@ public interface WSTrustConstants
 
    public interface WSSE
    {
+      String ID = "Id";
+
       String KEY_IDENTIFIER = "KeyIdentifier";
 
       String KEY_IDENTIFIER_VALUETYPE_SAML = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID";

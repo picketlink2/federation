@@ -34,6 +34,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
@@ -44,43 +45,42 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
 public class IdentityServer implements HttpSessionListener
 {
    private static Logger log = Logger.getLogger(IdentityServer.class);
-   private boolean trace = log.isTraceEnabled();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    //Configurable count for the active session count
    private static int count = AccessController.doPrivileged(new PrivilegedAction<Integer>()
    {
       public Integer run()
       {
-         String val = System.getProperty("identity.server.log.count", "100"); 
+         String val = System.getProperty("identity.server.log.count", "100");
          return Integer.parseInt(val);
       }
    });
-   
-   private static int activeSessionCount = 0;
-   
-   private IdentityParticipantStack stack = new STACK(); 
-   
-   public class STACK implements IdentityParticipantStack
-   {   
-      private ConcurrentHashMap<String,Stack<String>> sessionParticipantsMap = 
-         new ConcurrentHashMap<String, Stack<String>>();
 
-      private ConcurrentHashMap<String, Set<String>> inTransitMap =
-         new ConcurrentHashMap<String, Set<String>>();
-      
-      private ConcurrentHashMap<String, Boolean> postBindingMap = new ConcurrentHashMap<String, Boolean>();
-      
+   private static int activeSessionCount = 0;
+
+   private IdentityParticipantStack stack = new STACK();
+
+   public class STACK implements IdentityParticipantStack
+   {
+      private final ConcurrentHashMap<String, Stack<String>> sessionParticipantsMap = new ConcurrentHashMap<String, Stack<String>>();
+
+      private final ConcurrentHashMap<String, Set<String>> inTransitMap = new ConcurrentHashMap<String, Set<String>>();
+
+      private final ConcurrentHashMap<String, Boolean> postBindingMap = new ConcurrentHashMap<String, Boolean>();
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#peek(java.lang.String)
        */
       public String peek(String sessionID)
       {
          Stack<String> stack = sessionParticipantsMap.get(sessionID);
-         if(stack != null)
-           return stack.peek();
+         if (stack != null)
+            return stack.peek();
          return "";
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#pop(java.lang.String)
        */
@@ -88,12 +88,12 @@ public class IdentityServer implements HttpSessionListener
       {
          String result = null;
          Stack<String> stack = sessionParticipantsMap.get(sessionID);
-         if(stack != null && stack.isEmpty() == false)
+         if (stack != null && stack.isEmpty() == false)
          {
-            result = stack.pop(); 
-         } 
+            result = stack.pop();
+         }
          return result;
-      }      
+      }
 
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#register(java.lang.String, java.lang.String, boolean)
@@ -101,16 +101,16 @@ public class IdentityServer implements HttpSessionListener
       public void register(String sessionID, String participant, boolean postBinding)
       {
          Stack<String> stack = sessionParticipantsMap.get(sessionID);
-         if(stack == null)
+         if (stack == null)
          {
             stack = new Stack<String>();
-            sessionParticipantsMap.put(sessionID, stack );
+            sessionParticipantsMap.put(sessionID, stack);
          }
-         if(stack.contains(participant) == false)
+         if (stack.contains(participant) == false)
          {
-            stack.push(participant); 
-            postBindingMap.put(participant, Boolean.valueOf( postBinding ));
-         } 
+            stack.push(participant);
+            postBindingMap.put(participant, Boolean.valueOf(postBinding));
+         }
       }
 
       /**
@@ -119,59 +119,59 @@ public class IdentityServer implements HttpSessionListener
       public int getParticipants(String sessionID)
       {
          Stack<String> stack = sessionParticipantsMap.get(sessionID);
-         if(stack != null)
+         if (stack != null)
             return stack.size();
-         
-         return 0; 
+
+         return 0;
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#registerTransitParticipant(java.lang.String, java.lang.String)
        */
       public boolean registerTransitParticipant(String sessionID, String participant)
       {
          Set<String> transitSet = inTransitMap.get(sessionID);
-         if(transitSet == null)
+         if (transitSet == null)
          {
             transitSet = new HashSet<String>();
-            inTransitMap.put(sessionID, transitSet);  
+            inTransitMap.put(sessionID, transitSet);
          }
-         return transitSet.add(participant); 
+         return transitSet.add(participant);
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#deRegisterTransitParticipant(java.lang.String, java.lang.String)
        */
       public boolean deRegisterTransitParticipant(String sessionID, String participant)
       {
          Set<String> transitSet = inTransitMap.get(sessionID);
-         if(transitSet != null)
+         if (transitSet != null)
          {
-            postBindingMap.remove( participant );
+            postBindingMap.remove(participant);
             return transitSet.remove(participant);
          }
          return false;
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#getNumOfParticipantsInTransit(java.lang.String)
        */
       public int getNumOfParticipantsInTransit(String sessionID)
       {
          Set<String> transitSet = inTransitMap.get(sessionID);
-         if(transitSet != null)
+         if (transitSet != null)
             return transitSet.size();
-         return 0; 
+         return 0;
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#getBinding(java.lang.String)
        */
-      public Boolean getBinding(  String participant )
+      public Boolean getBinding(String participant)
       {
          return postBindingMap.get(participant);
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#totalSessions()
        */
@@ -179,26 +179,26 @@ public class IdentityServer implements HttpSessionListener
       {
          return sessionParticipantsMap.keySet().size();
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#createSession(java.lang.String)
        */
-      public void createSession( String id )
+      public void createSession(String id)
       {
          sessionParticipantsMap.put(id, new Stack<String>());
          inTransitMap.put(id, new HashSet<String>());
       }
-      
+
       /**
        * @see org.picketlink.identity.federation.web.core.IdentityParticipantStack#removeSession(java.lang.String)
        */
-      public void removeSession( String id )
+      public void removeSession(String id)
       {
          sessionParticipantsMap.remove(id);
          inTransitMap.remove(id);
-      } 
+      }
    }
-   
+
    /**
     * Return the active session count
     * @return
@@ -207,7 +207,7 @@ public class IdentityServer implements HttpSessionListener
    {
       return activeSessionCount;
    }
- 
+
    /**
     * Return a reference to the internal stack 
     * @return
@@ -216,49 +216,47 @@ public class IdentityServer implements HttpSessionListener
    {
       return stack;
    }
-   
+
    /**
     * Set a custom instance of the {@link IdentityParticipantStack}
     * @param theStack
     */
-   public void setStack( IdentityParticipantStack theStack )
+   public void setStack(IdentityParticipantStack theStack)
    {
       this.stack = theStack;
    }
-   
 
    /**
     * @see HttpSessionListener#sessionCreated(HttpSessionEvent)
     */
    public void sessionCreated(HttpSessionEvent sessionEvent)
-   {  
+   {
       activeSessionCount++;
-      
-      if(activeSessionCount % count == 0)
+
+      if (activeSessionCount % count == 0)
          log.info("Active Session Count=" + activeSessionCount);
-      
+
       HttpSession session = sessionEvent.getSession();
 
-      if(trace)
-         log.trace("Session Created with id=" + session.getId() +
-               "::active session count=" + activeSessionCount);
-      
+      if (trace)
+         log.trace("Session Created with id=" + session.getId() + "::active session count=" + activeSessionCount);
+
       //Ensure that the IdentityServer instance is set on the servlet context
       ServletContext servletContext = session.getServletContext();
-      
+
       IdentityServer idserver = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
-      
-      if(idserver == null)
+
+      if (idserver == null)
       {
          idserver = this;
          servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER, this);
       }
-      
-      if(idserver !=  this)
-         throw new IllegalStateException("Identity Server mismatch");
-      
+
+      if (idserver != this)
+         throw new IllegalStateException(ErrorCodes.NOT_EQUAL + "Identity Server mismatch");
+
       String id = sessionEvent.getSession().getId();
-      stack.createSession( id ); 
+      stack.createSession(id);
    }
 
    /**
@@ -269,9 +267,8 @@ public class IdentityServer implements HttpSessionListener
       --activeSessionCount;
 
       String id = sessionEvent.getSession().getId();
-      if(trace)
-         log.trace("Session Destroyed with id=" + id + "::active session count=" 
-               + activeSessionCount);
-      stack.removeSession( id ); 
+      if (trace)
+         log.trace("Session Destroyed with id=" + id + "::active session count=" + activeSessionCount);
+      stack.removeSession(id);
    }
 }

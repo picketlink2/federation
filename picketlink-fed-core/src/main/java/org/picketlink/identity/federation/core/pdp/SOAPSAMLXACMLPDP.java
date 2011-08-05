@@ -39,6 +39,7 @@ import javax.xml.ws.WebServiceProvider;
 import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
@@ -111,7 +112,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source>
 
       URL url = SecurityActions.loadResource(getClass(), policyConfigFileName);
       if (url == null)
-         throw new IllegalStateException(policyConfigFileName + " could not be located");
+         throw new IllegalStateException(ErrorCodes.FILE_NOT_LOCATED + policyConfigFileName);
 
       InputStream is;
       try

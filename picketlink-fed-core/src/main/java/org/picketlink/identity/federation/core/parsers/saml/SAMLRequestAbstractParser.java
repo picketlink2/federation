@@ -29,6 +29,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -52,20 +53,20 @@ public abstract class SAMLRequestAbstractParser
 
    protected void parseRequiredAttributes(StartElement startElement) throws ParsingException
    {
-      Attribute idAttr = startElement.getAttributeByName(new QName("ID"));
+      Attribute idAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ID.get()));
       if (idAttr == null)
-         throw new RuntimeException("ID attribute is missing");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "ID");
 
       id = StaxParserUtil.getAttributeValue(idAttr);
 
-      Attribute versionAttr = startElement.getAttributeByName(new QName("Version"));
+      Attribute versionAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.VERSION.get()));
       if (versionAttr == null)
-         throw new RuntimeException("Version attribute required in Request");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Version");
       version = StaxParserUtil.getAttributeValue(versionAttr);
 
-      Attribute issueInstantAttr = startElement.getAttributeByName(new QName("IssueInstant"));
+      Attribute issueInstantAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
       if (issueInstantAttr == null)
-         throw new RuntimeException("IssueInstant attribute required in Request");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "IssueInstant");
       issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
    }
 
@@ -77,11 +78,11 @@ public abstract class SAMLRequestAbstractParser
     */
    protected void parseBaseAttributes(StartElement startElement, RequestAbstractType request) throws ParsingException
    {
-      Attribute destinationAttr = startElement.getAttributeByName(new QName("Destination"));
+      Attribute destinationAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.DESTINATION.get()));
       if (destinationAttr != null)
          request.setDestination(URI.create(StaxParserUtil.getAttributeValue(destinationAttr)));
 
-      Attribute consent = startElement.getAttributeByName(new QName("Consent"));
+      Attribute consent = startElement.getAttributeByName(new QName(JBossSAMLConstants.CONSENT.get()));
       if (consent != null)
          request.setConsent(StaxParserUtil.getAttributeValue(consent));
    }
@@ -90,7 +91,7 @@ public abstract class SAMLRequestAbstractParser
          RequestAbstractType request) throws ParsingException
    {
       if (startElement == null)
-         throw new IllegalArgumentException(" startElement is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_START_ELEMENT);
       String elementName = StaxParserUtil.getStartElementName(startElement);
 
       if (JBossSAMLConstants.ISSUER.get().equals(elementName))

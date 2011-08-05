@@ -31,6 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -163,7 +164,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
          IdentityServer server = (IdentityServer) servletCtx.getAttribute("IDENTITY_SERVER");
 
          if (server == null)
-            throw new ProcessingException("Identity Server not found");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Identity Server not found");
 
          String sessionID = httpSession.getId();
 
@@ -248,7 +249,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             IdentityServer server = (IdentityServer) servletCtx.getAttribute(GeneralConstants.IDENTITY_SERVER);
 
             if (server == null)
-               throw new ProcessingException("Identity Server not found");
+               throw new ProcessingException(ErrorCodes.NULL_VALUE + "Identity Server not found");
 
             String originalIssuer = (relayState == null) ? issuer : relayState;
 

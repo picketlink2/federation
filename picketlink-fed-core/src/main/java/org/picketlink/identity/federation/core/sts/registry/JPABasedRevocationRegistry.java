@@ -27,6 +27,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * <p>
@@ -49,7 +50,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry
 
    private static Logger logger = Logger.getLogger(JPABasedRevocationRegistry.class);
 
-   private EntityManagerFactory factory;
+   private final EntityManagerFactory factory;
 
    /**
     * <p>
@@ -59,9 +60,9 @@ public class JPABasedRevocationRegistry implements RevocationRegistry
     */
    public JPABasedRevocationRegistry()
    {
-      this ("picketlink-sts");
+      this("picketlink-sts");
    }
-   
+
    /**
     * <p>
     * Creates an instance of {@code JPABasedRevocationRegistry} that uses the specified JPA configuration to persist
@@ -73,10 +74,10 @@ public class JPABasedRevocationRegistry implements RevocationRegistry
    public JPABasedRevocationRegistry(String configuration)
    {
       if (configuration == null)
-         throw new IllegalArgumentException("The JPA configuration name cannot be null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "JPA configuration name");
       this.factory = Persistence.createEntityManagerFactory(configuration);
    }
-   
+
    /*
     * (non-Javadoc)
     * @see org.picketlink.identity.federation.core.wstrust.plugins.RevocationRegistry#isRevoked(java.lang.String, java.lang.String)
@@ -87,7 +88,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry
       EntityManager manager = this.factory.createEntityManager();
       Object object = manager.find(RevokedToken.class, id);
       manager.close();
-      
+
       return object != null;
    }
 

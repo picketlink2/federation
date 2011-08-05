@@ -33,6 +33,7 @@ import org.apache.xml.security.encryption.EncryptedData;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
 import org.apache.xml.security.encryption.XMLEncryptionException;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -108,7 +109,7 @@ public class XMLEncryptionUtil
    {
       EncryptionAlgorithm ea = algorithms.get(certAlgo);
       if (ea == null)
-         throw new RuntimeException("Unknown jce algorithm:" + certAlgo);
+         throw new RuntimeException(ErrorCodes.UNKNOWN_ENC_ALGO + certAlgo);
       return ea.xmlSecName;
    }
 
@@ -121,7 +122,7 @@ public class XMLEncryptionUtil
    {
       EncryptionAlgorithm ea = algorithms.get(certAlgo);
       if (ea == null)
-         throw new RuntimeException("Unknown jce algorithm:" + certAlgo);
+         throw new RuntimeException(ErrorCodes.UNKNOWN_ENC_ALGO + certAlgo);
       return ea.size;
    }
 
@@ -179,17 +180,17 @@ public class XMLEncryptionUtil
          int keySize, QName wrappingElementQName, boolean addEncryptedKeyInKeyInfo) throws ProcessingException
    {
       if (elementQName == null)
-         throw new IllegalArgumentException("elementQName is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "elementQName");
       if (document == null)
-         throw new IllegalArgumentException("document is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "document");
       String wrappingElementPrefix = wrappingElementQName.getPrefix();
       if (wrappingElementPrefix == null || wrappingElementPrefix == "")
-         throw new IllegalArgumentException("Wrapping element prefix invalid");
+         throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "Wrapping element prefix invalid");
 
-      Element documentElement  = DocumentUtil.getElement(document , elementQName );
+      Element documentElement = DocumentUtil.getElement(document, elementQName);
 
       if (documentElement == null)
-         throw new IllegalStateException("Element could not be found in the document:" + elementQName.toString());
+         throw new IllegalStateException(ErrorCodes.DOM_MISSING_DOC_ELEMENT + elementQName.toString());
 
       XMLCipher cipher = null;
       EncryptedKey encryptedKey = encryptKey(document, secretKey, publicKey, keySize);
@@ -234,7 +235,7 @@ public class XMLEncryptionUtil
       //Get Hold of the Cipher Data
       NodeList cipherElements = encryptedDoc.getElementsByTagNameNS(XMLENC_NS, "EncryptedData");
       if (cipherElements == null || cipherElements.getLength() == 0)
-         throw new IllegalStateException("xenc:EncryptedData Element Missing");
+         throw new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT + "xenc:EncryptedData");
       Element encryptedDataElement = (Element) cipherElements.item(0);
 
       Node parentOfEncNode = encryptedDataElement.getParentNode();
@@ -252,7 +253,7 @@ public class XMLEncryptionUtil
          //Insert the Encrypted key before the CipherData element 
          NodeList nodeList = encryptedDoc.getElementsByTagNameNS(XMLENC_NS, CIPHER_DATA_LOCALNAME);
          if (nodeList == null || nodeList.getLength() == 0)
-            throw new IllegalStateException("xenc:CipherData Element Missing");
+            throw new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT + "xenc:CipherData");
          Element cipherDataElement = (Element) nodeList.item(0);
          Node cipherParent = cipherDataElement.getParentNode();
          cipherParent.insertBefore(sigElement, cipherDataElement);
@@ -304,9 +305,9 @@ public class XMLEncryptionUtil
          int keySize) throws ProcessingException
    {
       if (element == null)
-         throw new IllegalArgumentException("element is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "element");
       if (document == null)
-         throw new IllegalArgumentException("document is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "document");
 
       XMLCipher cipher = null;
       EncryptedKey encryptedKey = encryptKey(document, secretKey, publicKey, keySize);
@@ -344,7 +345,7 @@ public class XMLEncryptionUtil
       //Insert the Encrypted key before the CipherData element 
       NodeList nodeList = encryptedDoc.getElementsByTagNameNS(XMLENC_NS, CIPHER_DATA_LOCALNAME);
       if (nodeList == null || nodeList.getLength() == 0)
-         throw new IllegalStateException("xenc:CipherData Element Missing");
+         throw new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT + "xenc:CipherData");
       Element cipherDataElement = (Element) nodeList.item(0);
       Node cipherParent = cipherDataElement.getParentNode();
       cipherParent.insertBefore(sigElement, cipherDataElement);
@@ -373,7 +374,7 @@ public class XMLEncryptionUtil
    {
       String wrappingElementPrefix = wrappingElementQName.getPrefix();
       if (wrappingElementPrefix == null || wrappingElementPrefix == "")
-         throw new IllegalArgumentException("Wrapping element prefix invalid");
+         throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "Wrapping element prefix invalid");
 
       XMLCipher cipher = null;
       EncryptedKey encryptedKey = encryptKey(document, secretKey, publicKey, keySize);
@@ -431,7 +432,7 @@ public class XMLEncryptionUtil
          //Insert the Encrypted key before the CipherData element 
          NodeList nodeList = encryptedDocRootElement.getElementsByTagNameNS(XMLENC_NS, CIPHER_DATA_LOCALNAME);
          if (nodeList == null || nodeList.getLength() == 0)
-            throw new IllegalStateException("xenc:CipherData Element Missing");
+            throw new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT + "xenc:CipherData");
 
          Element cipherDataElement = (Element) nodeList.item(0);
          encryptedDocRootElement.insertBefore(sigElement, cipherDataElement);
@@ -463,7 +464,8 @@ public class XMLEncryptionUtil
       Element documentRoot = documentWithEncryptedElement.getDocumentElement();
       Element encDataElement = getNextElementNode(documentRoot.getFirstChild());
       if (encDataElement == null)
-         throw new IllegalStateException("No element representing the encrypted data found");
+         throw new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT
+               + "No element representing the encrypted data found");
 
       //Look at siblings for the key
       Element encKeyElement = getNextElementNode(encDataElement.getNextSibling());
@@ -473,7 +475,7 @@ public class XMLEncryptionUtil
          NodeList nodeList = encDataElement.getElementsByTagNameNS(XMLENC_NS, ENCRYPTED_KEY_LOCALNAME);
 
          if (nodeList == null || nodeList.getLength() == 0)
-            throw new IllegalStateException("Encrypted Key not found in the enc data");
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Encrypted Key not found in the enc data");
 
          encKeyElement = (Element) nodeList.item(0);
       }
@@ -517,7 +519,7 @@ public class XMLEncryptionUtil
       Element decryptedRoot = decryptedDoc.getDocumentElement();
       Element dataElement = getNextElementNode(decryptedRoot.getFirstChild());
       if (dataElement == null)
-         throw new IllegalStateException("Data Element after encryption is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Data Element after encryption is null");
 
       decryptedRoot.removeChild(dataElement);
       decryptedDoc.replaceChild(dataElement, decryptedRoot);
@@ -549,7 +551,7 @@ public class XMLEncryptionUtil
          return XMLCipher.RSA_v1dot5;
       if (publicKeyAlgo.contains("DES"))
          return XMLCipher.TRIPLEDES_KeyWrap;
-      throw new IllegalArgumentException("unsupported publicKey Algo:" + publicKeyAlgo);
+      throw new IllegalArgumentException(ErrorCodes.UNSUPPORTED_TYPE + "unsupported publicKey Algo:" + publicKeyAlgo);
    }
 
    /**
@@ -576,7 +578,7 @@ public class XMLEncryptionUtil
          return XMLCipher.RSA_v1dot5;
       if (algo.contains("DES"))
          return XMLCipher.TRIPLEDES_KeyWrap;
-      throw new IllegalArgumentException("Secret Key with unsupported algo:" + algo);
+      throw new IllegalArgumentException(ErrorCodes.UNSUPPORTED_TYPE + "Secret Key with unsupported algo:" + algo);
    }
 
    /**

@@ -33,6 +33,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -50,7 +51,7 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  */
 public class WSSecurityWriter
 {
-   private XMLStreamWriter writer;
+   private final XMLStreamWriter writer;
 
    public WSSecurityWriter(XMLStreamWriter writer)
    {
@@ -64,7 +65,7 @@ public class WSSecurityWriter
 
       String id = usernameToken.getId();
       if (StringUtil.isNullOrEmpty(id))
-         throw new ProcessingException(" Id on the UsernameToken is null");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "Id on the UsernameToken");
 
       QName wsuIDQName = new QName(WSU_NS, ID, WSU_PREFIX);
       StaxUtil.writeNameSpace(writer, WSU_PREFIX, WSU_NS);
@@ -72,7 +73,7 @@ public class WSSecurityWriter
 
       AttributedString userNameAttr = usernameToken.getUsername();
       if (userNameAttr == null)
-         throw new ProcessingException(" User Name is null on the UsernameToken");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "User Name is null on the UsernameToken");
 
       StaxUtil.writeStartElement(writer, WSSE_PREFIX, USERNAME, WSSE_NS);
       StaxUtil.writeCharacters(writer, userNameAttr.getValue());
@@ -103,7 +104,7 @@ public class WSSecurityWriter
    {
       Set<String> usedNamespaces = new HashSet<String>();
       usedNamespaces.add(WSSE_NS);
-      
+
       StaxUtil.writeStartElement(writer, WSSE_PREFIX, WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE, WSSE_NS);
       StaxUtil.writeNameSpace(writer, WSSE_PREFIX, WSSE_NS);
 
@@ -128,7 +129,7 @@ public class WSSecurityWriter
          }
          StaxUtil.writeAttribute(this.writer, key, entry.getValue());
       }
-      
+
       // write the key identifier, if available.
       for (Object obj : secRef.getAny())
       {
@@ -141,7 +142,7 @@ public class WSSecurityWriter
             StaxUtil.writeEndElement(this.writer);
          }
       }
-      
+
       StaxUtil.writeEndElement(this.writer);
       StaxUtil.flush(this.writer);
    }

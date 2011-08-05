@@ -23,6 +23,7 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -117,7 +118,7 @@ public class WSTrustResponseWriter
       // write all individual response messages.
       List<RequestSecurityTokenResponse> responses = collection.getRequestSecurityTokenResponses();
       if (responses == null)
-         throw new ProcessingException("WS-Trust response message doesn't contain any response");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "WS-Trust response message doesn't contain any response");
 
       for (RequestSecurityTokenResponse response : responses)
          this.write(response);
@@ -198,7 +199,8 @@ public class WSTrustResponseWriter
                StaxUtil.writeDOMElement(this.writer, (Element) securityToken);
             }
             else
-               throw new ProcessingException("Unknown security token type=" + securityToken.getClass().getName());
+               throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown security token type="
+                     + securityToken.getClass().getName());
          }
          /*Object securityToken = response.getRequestedSecurityToken().getAny();
          if (securityToken != null)
@@ -297,7 +299,7 @@ public class WSTrustResponseWriter
 
          // write the status code.
          if (status.getCode() == null || status.getCode() == "")
-            throw new ProcessingException("Validation status code is missing");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Validation status code is missing");
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.CODE,
                WSTrustConstants.BASE_NAMESPACE);
          StaxUtil.writeCharacters(this.writer, response.getStatus().getCode());

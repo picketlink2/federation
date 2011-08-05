@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -34,26 +35,26 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 public class IssuerInfoHolder
 {
    private NameIDType issuer;
-   
+
    private String statusCodeURI = JBossSAMLURIConstants.STATUS_SUCCESS.get();
+
    private String samlVersion = JBossSAMLConstants.VERSION_2_0.get();
 
-   
    public IssuerInfoHolder(NameIDType issuer)
    {
-      if(issuer == null)
-         throw new IllegalArgumentException("issuer in ctr in null");
+      if (issuer == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "issuer");
       this.issuer = issuer;
    }
-   
+
    public IssuerInfoHolder(String issuerAsString)
    {
-      if(issuerAsString == null)
-         throw new IllegalArgumentException("issuerAsString is null"); 
+      if (issuerAsString == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "issuerAsString");
       issuer = new NameIDType();
       issuer.setValue(issuerAsString);
    }
-   
+
    public NameIDType getIssuer()
    {
       return issuer;
@@ -72,7 +73,7 @@ public class IssuerInfoHolder
    public void setStatusCode(String statusCode)
    {
       this.statusCodeURI = statusCode;
-   } 
+   }
 
    public String getSamlVersion()
    {
@@ -82,5 +83,5 @@ public class IssuerInfoHolder
    public void setSamlVersion(String samlVersion)
    {
       this.samlVersion = samlVersion;
-   } 
+   }
 }

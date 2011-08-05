@@ -33,6 +33,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -193,7 +194,8 @@ public class BaseWriter
                writeStringAttributeValue((String) attributeValue);
             }
             else
-               throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
+               throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE
+                     + attributeValue.getClass().getName());
          }
       }
    }
@@ -332,7 +334,7 @@ public class BaseWriter
          KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) subjectConfirmationData;
          KeyInfoType keyInfo = (KeyInfoType) kicd.getAnyType();
          if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
-            throw new ProcessingException("Invalid KeyInfo object: content cannot be empty");
+            throw new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
                WSTrustConstants.XMLDSig.KEYINFO, WSTrustConstants.XMLDSig.DSIG_NS);
          StaxUtil.writeNameSpace(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.DSIG_NS);
@@ -347,7 +349,7 @@ public class BaseWriter
          {
             X509DataType type = (X509DataType) content;
             if (type.getDataObjects().size() == 0)
-               throw new ProcessingException("X509Data cannot be empy");
+               throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "X509Data");
             StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
                   WSTrustConstants.XMLDSig.X509DATA, WSTrustConstants.XMLDSig.DSIG_NS);
             Object obj = type.getDataObjects().get(0);

@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.core.wstrust;
 
 import java.util.Map;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 
 /**
@@ -73,7 +74,7 @@ public class WSTrustServiceFactory
       {
          Class<?> clazz = SecurityActions.loadClass(getClass(), handlerClassName);
          if (clazz == null)
-            throw new RuntimeException(handlerClassName + " could not be loaded");
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + handlerClassName);
          WSTrustRequestHandler handler = (WSTrustRequestHandler) clazz.newInstance();
          handler.initialize(configuration);
          return handler;
@@ -100,14 +101,14 @@ public class WSTrustServiceFactory
       {
          Class<?> clazz = SecurityActions.loadClass(getClass(), providerClass);
          if (clazz == null)
-            throw new RuntimeException(providerClass + " could not be loaded");
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + providerClass);
          SecurityTokenProvider tokenProvider = (SecurityTokenProvider) clazz.newInstance();
          tokenProvider.initialize(properties);
          return tokenProvider;
       }
       catch (Exception pae)
       {
-         throw new RuntimeException("Unable to instantiate token provider " + providerClass, pae);
+         throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + providerClass, pae);
       }
    }
 
@@ -128,14 +129,14 @@ public class WSTrustServiceFactory
       {
          Class<?> clazz = SecurityActions.loadClass(getClass(), processorClass);
          if (clazz == null)
-            throw new RuntimeException(processorClass + " could not be loaded");
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + processorClass);
          ClaimsProcessor claimsProcessor = (ClaimsProcessor) clazz.newInstance();
          claimsProcessor.initialize(properties);
          return claimsProcessor;
       }
       catch (Exception pae)
       {
-         throw new RuntimeException("Unable to instantiate claims processor " + processorClass, pae);
+         throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + "claims processor " + processorClass, pae);
       }
    }
 }

@@ -31,6 +31,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -55,33 +56,33 @@ public abstract class SAMLStatusResponseTypeParser
     */
    protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException
    {
-      Attribute idAttr = startElement.getAttributeByName(new QName("ID"));
+      Attribute idAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ID.get()));
       if (idAttr == null)
-         throw new RuntimeException("ID attribute is missing");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "ID");
       String id = StaxParserUtil.getAttributeValue(idAttr);
 
-      Attribute version = startElement.getAttributeByName(new QName("Version"));
+      Attribute version = startElement.getAttributeByName(new QName(JBossSAMLConstants.VERSION.get()));
       if (version == null)
-         throw new RuntimeException("Version attribute required in Response");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Version");
 
       StringUtil.match(JBossSAMLConstants.VERSION_2_0.get(), StaxParserUtil.getAttributeValue(version));
 
-      Attribute issueInstant = startElement.getAttributeByName(new QName("IssueInstant"));
+      Attribute issueInstant = startElement.getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
       if (issueInstant == null)
-         throw new RuntimeException("IssueInstant attribute required in Response");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "IssueInstant");
       XMLGregorianCalendar issueInstantVal = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant));
 
       StatusResponseType response = new StatusResponseType(id, issueInstantVal);
 
-      Attribute destination = startElement.getAttributeByName(new QName("Destination"));
+      Attribute destination = startElement.getAttributeByName(new QName(JBossSAMLConstants.DESTINATION.get()));
       if (destination != null)
          response.setDestination(StaxParserUtil.getAttributeValue(destination));
 
-      Attribute consent = startElement.getAttributeByName(new QName("Consent"));
+      Attribute consent = startElement.getAttributeByName(new QName(JBossSAMLConstants.CONSENT.get()));
       if (consent != null)
          response.setConsent(StaxParserUtil.getAttributeValue(consent));
 
-      Attribute inResponseTo = startElement.getAttributeByName(new QName("InResponseTo"));
+      Attribute inResponseTo = startElement.getAttributeByName(new QName(JBossSAMLConstants.IN_RESPONSE_TO.get()));
       if (inResponseTo != null)
          response.setInResponseTo(StaxParserUtil.getAttributeValue(inResponseTo));
       return response;
@@ -155,7 +156,7 @@ public abstract class SAMLStatusResponseTypeParser
             if (StaxParserUtil.matches(endElement, STATUS))
                break;
             else
-               throw new RuntimeException("unknown end element:" + StaxParserUtil.getEndElementName(endElement));
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
          }
          else
             break;

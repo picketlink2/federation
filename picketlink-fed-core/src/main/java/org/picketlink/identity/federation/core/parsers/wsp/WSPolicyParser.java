@@ -27,6 +27,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserController;
@@ -74,7 +75,7 @@ public class WSPolicyParser extends AbstractParser
                QName qname = startElement.getName();
                ParserNamespaceSupport parser = ParserController.get(qname);
                if (parser == null)
-                  throw new RuntimeException("Unable to parse:" + qname);
+                  throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + qname);
 
                Object parsedObject = parser.parse(xmlEventReader);
                appliesTo.addAny(parsedObject);
@@ -89,7 +90,7 @@ public class WSPolicyParser extends AbstractParser
             StaxParserUtil.getNextEvent(xmlEventReader);
          }
       }
-      throw new RuntimeException("WSPolicy Parsing has failed");
+      throw new RuntimeException(ErrorCodes.FAILED_PARSING);
    }
 
    /**

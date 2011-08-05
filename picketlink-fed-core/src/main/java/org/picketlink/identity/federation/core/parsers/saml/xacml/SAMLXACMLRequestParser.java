@@ -31,6 +31,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.jboss.security.xacml.core.model.context.RequestType;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLRequestAbstractParser;
@@ -59,14 +60,14 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
             return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
          }
          else
-            throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
       }
       else if (tag.equals(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get()))
       {
          return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
       }
 
-      throw new RuntimeException("Parsing Failed: Unknown Tag=" + tag + "::location=" + startElement.getLocation());
+      throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + tag + "::location=" + startElement.getLocation());
    }
 
    public boolean supports(QName qname)
@@ -104,7 +105,7 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
             EndElement endElement = (EndElement) xmlEvent;
             if (!(StaxParserUtil.matches(endElement, JBossSAMLConstants.REQUEST_ABSTRACT.get()) || StaxParserUtil
                   .matches(endElement, JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get())))
-               throw new ParsingException("Expected endelement RequestAbstract or XACMLAuthzDecisionQuery");
+               throw new ParsingException(ErrorCodes.EXPECTED_END_TAG + "RequestAbstract or XACMLAuthzDecisionQuery");
             break;
          }
          startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);

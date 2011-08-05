@@ -35,6 +35,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -89,7 +90,7 @@ public class JAXBUtil
    public static Marshaller getMarshaller(String pkgName) throws JAXBException
    {
       if (pkgName == null)
-         throw new IllegalArgumentException("pkgName is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
 
       JAXBContext jc = getJAXBContext(pkgName);
       Marshaller marshaller = jc.createMarshaller();
@@ -107,7 +108,7 @@ public class JAXBUtil
    public static Unmarshaller getUnmarshaller(String pkgName) throws JAXBException
    {
       if (pkgName == null)
-         throw new IllegalArgumentException("pkgName is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
       JAXBContext jc = getJAXBContext(pkgName);
       return jc.createUnmarshaller();
    }
@@ -122,7 +123,7 @@ public class JAXBUtil
    public static Unmarshaller getUnmarshaller(String... pkgNames) throws JAXBException
    {
       if (pkgNames == null)
-         throw new IllegalArgumentException("pkgName is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
       int len = pkgNames.length;
       if (len == 0)
          return getUnmarshaller(pkgNames[0]);
@@ -155,7 +156,7 @@ public class JAXBUtil
       StringBuilder builder = new StringBuilder();
       int len = pkgNames.length;
       if (len == 0)
-         throw new IllegalArgumentException("Packages are empty");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Packages are empty");
 
       for (String pkg : pkgNames)
       {
@@ -175,7 +176,7 @@ public class JAXBUtil
       {
          URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
          if (schemaURL == null)
-            throw new IllegalStateException("Schema URL is null:" + schemaLocation);
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Schema URL :" + schemaLocation);
 
          schemaSources[i++] = new StreamSource(schemaURL.openStream());
       }
@@ -190,7 +191,7 @@ public class JAXBUtil
    {
       URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
       if (schemaURL == null)
-         throw new IllegalStateException("Schema URL is null:" + schemaLocation);
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Schema URL :" + schemaLocation);
       SchemaFactory scFact = getSchemaFactory();
       Schema schema = scFact.newSchema(schemaURL);
       return schema;

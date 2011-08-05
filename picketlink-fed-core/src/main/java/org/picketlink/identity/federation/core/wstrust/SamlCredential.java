@@ -27,13 +27,12 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -59,7 +58,7 @@ public final class SamlCredential implements Serializable
    public SamlCredential(final Element assertion)
    {
       if (assertion == null)
-         throw new IllegalArgumentException("assertion Element must not be null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
       this.assertion = SamlCredential.assertionToString(assertion);
    }
@@ -67,7 +66,7 @@ public final class SamlCredential implements Serializable
    public SamlCredential(final String assertion)
    {
       if (StringUtil.isNullOrEmpty(assertion))
-         throw new IllegalArgumentException("assertion String must not be null or empty");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
       this.assertion = assertion;
    }
@@ -129,7 +128,7 @@ public final class SamlCredential implements Serializable
    public static String assertionToString(final Element assertion)
    {
       if (assertion == null)
-         throw new IllegalArgumentException("assertion Element must not be null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
       try
       {
@@ -143,14 +142,6 @@ public final class SamlCredential implements Serializable
          transformer.transform(source, result);
 
          return writer.toString();
-      }
-      catch (final TransformerConfigurationException e)
-      {
-         throw new IllegalStateException(e.getMessage(), e);
-      }
-      catch (final TransformerFactoryConfigurationError e)
-      {
-         throw new IllegalStateException(e.getMessage(), e);
       }
       catch (final TransformerException e)
       {

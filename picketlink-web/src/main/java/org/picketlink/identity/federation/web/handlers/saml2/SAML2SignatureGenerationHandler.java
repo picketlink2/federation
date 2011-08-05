@@ -25,6 +25,7 @@ import java.security.KeyPair;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -39,74 +40,74 @@ import org.w3c.dom.Document;
 public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
 {
    private static Logger log = Logger.getLogger(SAML2SignatureGenerationHandler.class);
-   private boolean trace = log.isTraceEnabled();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    @Override
    public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response)
          throws ProcessingException
-   {  
+   {
       //Generate the signature
       Document samlDocument = response.getResultingDocument();
 
-      if(samlDocument == null && trace)
+      if (samlDocument == null && trace)
       {
          log.trace("No document generated in the handler chain. Cannot generate signature");
          return;
       }
 
       //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR); 
-      
-      if(keypair == null)
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+
+      if (keypair == null)
       {
          log.error("Key Pair cannot be found");
-         throw new ProcessingException("KeyPair not found");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
       }
 
-      sign(samlDocument, keypair );
+      sign(samlDocument, keypair);
    }
 
    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
-   { 
+   {
       Document responseDocument = response.getResultingDocument();
-      if(responseDocument == null)
+      if (responseDocument == null)
       {
-         if(trace)
+         if (trace)
          {
             log.trace("handleRequestType:No response document found");
          }
          return;
-      } 
+      }
 
       //Get the Key Pair
       KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-       
-      this.sign(responseDocument, keypair );
-   } 
+
+      this.sign(responseDocument, keypair);
+   }
 
    @Override
    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
          throws ProcessingException
    {
       Document responseDocument = response.getResultingDocument();
-      if(responseDocument == null)
+      if (responseDocument == null)
       {
-         if(trace)
+         if (trace)
          {
             log.trace("handleStatusResponseType:No response document found");
          }
          return;
-      } 
+      }
 
       //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);  
-      this.sign(responseDocument, keypair );
+      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+      this.sign(responseDocument, keypair);
    }
-    
-   
-   private void sign(Document samlDocument, KeyPair keypair ) throws ProcessingException
+
+   private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException
    {
-      SAML2Signature samlSignature = new SAML2Signature(); 
-      samlSignature.signSAMLDocument(samlDocument, keypair); 
-   } 
+      SAML2Signature samlSignature = new SAML2Signature();
+      samlSignature.signSAMLDocument(samlDocument, keypair);
+   }
 }

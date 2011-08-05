@@ -51,6 +51,7 @@ import org.jboss.security.auth.spi.AbstractServerLoginModule;
 import org.jboss.security.plugins.JaasSecurityDomain;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -213,7 +214,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
          this.securityDomain = (String) this.options.remove(SecurityConstants.SECURITY_DOMAIN_OPTION);
          if (this.securityDomain == null || this.securityDomain.isEmpty())
-            throw new RuntimeException("Please configure option:" + SecurityConstants.SECURITY_DOMAIN_OPTION);
+            throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + SecurityConstants.SECURITY_DOMAIN_OPTION);
       }
 
       String roleKeyStr = (String) options.get("roleKey");
@@ -260,7 +261,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             }
             catch (Exception e)
             {
-               throw new LoginException("Failed to create principal: " + e.getMessage());
+               throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to create principal: "
+                     + e.getMessage());
             }
          }
 
@@ -268,13 +270,14 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          if (credential instanceof SamlCredential)
             this.credential = (SamlCredential) credential;
          else
-            throw new LoginException("Shared credential is not a SAML credential");
+            throw new LoginException(ErrorCodes.WRONG_TYPE
+                  + "SAML2STSLoginModule: Shared credential is not a SAML credential");
          return true;
       }
 
       // if there is no shared data, validate the assertion using the STS.
       if (this.stsConfigurationFile == null)
-         throw new LoginException("Failed to validate assertion: STS configuration file not specified");
+         throw new LoginException(ErrorCodes.SAML2STSLM_CONF_FILE_MISSING);
 
       // obtain the assertion from the callback handler.
       ObjectCallback callback = new ObjectCallback(null);
@@ -284,14 +287,16 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          super.callbackHandler.handle(new Callback[]
          {callback});
          if (callback.getCredential() instanceof SamlCredential == false)
-            throw new IllegalArgumentException("Supplied credential is not a SAML credential.We got "
+            throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE
+                  + "SAML2STSLoginModule: Supplied credential is not a SAML credential.We got "
                   + callback.getCredential().getClass());
          this.credential = (SamlCredential) callback.getCredential();
          assertionElement = this.credential.getAssertionAsElement();
       }
       catch (Exception e)
       {
-         LoginException exception = new LoginException("Error handling callback::" + e.getMessage());
+         LoginException exception = new LoginException("PL00041: SAML2STSLoginModule: Error handling callback::"
+               + e.getMessage());
          exception.initCause(e);
          throw exception;
       }
@@ -333,11 +338,13 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             boolean isValid = client.validateToken(assertionElement);
             // if the STS says the assertion is invalid, throw an exception to signal that authentication has failed.
             if (isValid == false)
-               throw new LoginException("Supplied assertion was considered invalid by the STS");
+               throw new LoginException(ErrorCodes.INVALID_ASSERTION
+                     + "SAML2STSLoginModule: Supplied assertion was considered invalid by the STS");
          }
          catch (WSTrustException we)
          {
-            LoginException exception = new LoginException("Failed to validate assertion using STS: " + we.getMessage());
+            LoginException exception = new LoginException(ErrorCodes.INVALID_ASSERTION
+                  + "SAML2STSLoginModule: Failed to validate assertion using STS: " + we.getMessage());
             exception.initCause(we);
             throw exception;
          }
@@ -381,7 +388,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
       }
       catch (Exception e)
       {
-         LoginException exception = new LoginException("Failed to parse assertion element" + e.getMessage());
+         LoginException exception = new LoginException(
+               "PL00044: SAML2STSLoginModule: Failed to parse assertion element:" + e.getMessage());
          exception.initCause(e);
          throw exception;
       }
@@ -420,7 +428,8 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          }
          catch (Exception e)
          {
-            LoginException le = new LoginException("Failed to parse assertion element: " + e.getMessage());
+            LoginException le = new LoginException("PL00044: SAML2STSLoginModule: Failed to parse assertion element: "
+                  + e.getMessage());
             le.initCause(e);
             throw le;
          }
@@ -483,11 +492,11 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             //password is masked
             String salt = (String) rawOptions.get(PicketLinkFederationConstants.SALT);
             if (StringUtil.isNullOrEmpty(salt))
-               throw new RuntimeException("Salt is not configured as module option");
+               throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Salt");
 
             String iCount = (String) rawOptions.get(PicketLinkFederationConstants.ITERATION_COUNT);
             if (StringUtil.isNullOrEmpty(iCount))
-               throw new RuntimeException("Iteration Count is not configured as module option");
+               throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Iteration Count");
 
             int iterationCount = Integer.parseInt(iCount);
             try
@@ -496,7 +505,7 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
             }
             catch (Exception e)
             {
-               throw new RuntimeException("Unable to decode password:" + passwordString);
+               throw new RuntimeException(ErrorCodes.SAML2STSLM_UNABLE_DECODE_PWD + passwordString);
             }
          }
          client = new STSClient(builder.build());
@@ -528,23 +537,23 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
 
          if (ts == null)
          {
-            throw new LoginException("null truststore for " + sd.getName());
+            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + sd.getName());
          }
 
          String alias = sd.getKeyStoreAlias();
 
          if (alias == null)
          {
-            throw new LoginException("null KeyStoreAlias for " + sd.getName() + "; set 'KeyStoreAlias' in '"
-                  + sd.getName() + "' security domain configuration");
+            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for "
+                  + sd.getName() + "; set 'KeyStoreAlias' in '" + sd.getName() + "' security domain configuration");
          }
 
          Certificate cert = ts.getCertificate(alias);
 
          if (cert == null)
          {
-            throw new LoginException("no certificate found for alias '" + alias + "' in the '" + sd.getName()
-                  + "' security domain");
+            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
+                  + alias + "' in the '" + sd.getName() + "' security domain");
          }
 
          PublicKey publicKey = cert.getPublicKey();
@@ -552,15 +561,16 @@ public class SAML2STSLoginModule extends AbstractServerLoginModule
          boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
          if (!sigValid)
          {
-            throw new LoginException(WSTrustConstants.STATUS_CODE_INVALID + " invalid SAML V2.0 assertion signature");
+            throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
+                  + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
          }
 
          AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
          if (AssertionUtil.hasExpired(assertion))
          {
-            throw new LoginException(WSTrustConstants.STATUS_CODE_INVALID
-                  + "::assertion expired or used before its lifetime period");
+            throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
+                  + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
          }
       }
       catch (NamingException e)

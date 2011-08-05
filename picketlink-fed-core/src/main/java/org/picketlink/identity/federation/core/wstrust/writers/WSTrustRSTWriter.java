@@ -34,6 +34,7 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
@@ -117,7 +118,7 @@ public class WSTrustRSTWriter
 
       List<RequestSecurityToken> tokenList = requestTokenCollection.getRequestSecurityTokens();
       if (tokenList == null)
-         throw new ProcessingException("RST list is null");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "RST list is null");
 
       for (RequestSecurityToken token : tokenList)
       {
@@ -270,30 +271,9 @@ public class WSTrustRSTWriter
             writeKeyValueType((KeyValueType) useKeyTypeValue);
          }
          else
-            throw new RuntimeException(" Unknown use key type:" + useKeyTypeValue.getClass().getName());
+            throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown use key type:"
+                  + useKeyTypeValue.getClass().getName());
       }
-      /*Object useKeyTypeValue = useKeyType.getAny();
-      if( useKeyTypeValue instanceof Element )
-      {
-         Element domElement = (Element) useKeyTypeValue;
-         StaxUtil.writeDOMElement( writer, domElement ); 
-      }
-      else if (useKeyTypeValue instanceof byte[])
-      {
-         byte[] certificate = (byte[]) useKeyTypeValue;
-         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.XMLDSig.X509CERT, 
-               WSTrustConstants.DSIG_NS);
-         StaxUtil.writeNameSpace( writer, WSTrustConstants.XMLDSig.DSIG_PREFIX , WSTrustConstants.DSIG_NS);
-         StaxUtil.writeCharacters(writer, new String(certificate));
-         StaxUtil.writeEndElement(writer);
-      }
-      else if (useKeyTypeValue instanceof KeyValueType)
-      {
-         writeKeyValueType((KeyValueType) useKeyTypeValue);
-      }
-      else
-         throw new RuntimeException( " Unknown use key type:" + useKeyTypeValue.getClass().getName() );*/
-
       StaxUtil.writeEndElement(writer);
    }
 
@@ -303,7 +283,7 @@ public class WSTrustRSTWriter
             WSTrustConstants.DSIG_NS);
       StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
       if (type.getContent().size() == 0)
-         throw new ProcessingException("KeyValueType must contain at least one value");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyValueType must contain at least one value");
 
       for (Object obj : type.getContent())
       {
@@ -379,7 +359,8 @@ public class WSTrustRSTWriter
                StaxUtil.writeDOMElement(writer, (Element) validateTargetObj);
             }
             else
-               throw new ProcessingException("Unknown validate target type=" + validateTargetObj.getClass().getName());
+               throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown validate target type="
+                     + validateTargetObj.getClass().getName());
          }
       }
 
@@ -422,7 +403,8 @@ public class WSTrustRSTWriter
                StaxUtil.writeDOMElement(writer, (Element) renewTargetObj);
             }
             else
-               throw new ProcessingException("Unknown renew target type=" + renewTargetObj.getClass().getName());
+               throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown renew target type="
+                     + renewTargetObj.getClass().getName());
          }
       }
       /*Object renewTargetObj = renewTarget.getAny();
@@ -470,25 +452,10 @@ public class WSTrustRSTWriter
                StaxUtil.writeDOMElement(writer, (Element) cancelTargetObj);
             }
             else
-               throw new ProcessingException("Unknown cancel target type=" + cancelTargetObj.getClass().getName());
+               throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown cancel target type="
+                     + cancelTargetObj.getClass().getName());
          }
       }
-      /*Object cancelTargetObj = cancelTarget.getAny();
-      if (cancelTargetObj != null)
-      {
-         if (cancelTargetObj instanceof AssertionType)
-         {
-            AssertionType assertion = (AssertionType) cancelTargetObj;
-            SAMLAssertionWriter samlAssertionWriter = new SAMLAssertionWriter(this.writer);
-            samlAssertionWriter.write(assertion);
-         }
-         else if (cancelTargetObj instanceof Element)
-         {
-            StaxUtil.writeDOMElement(writer, (Element) cancelTargetObj);
-         }
-         else
-            throw new ProcessingException("Unknown cancel target type=" + cancelTargetObj.getClass().getName());
-      }*/
       StaxUtil.writeEndElement(writer);
    }
 

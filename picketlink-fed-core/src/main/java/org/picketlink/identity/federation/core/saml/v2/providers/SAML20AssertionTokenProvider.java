@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -71,53 +72,50 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
  */
 public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider
 {
-   public static final String NS = JBossSAMLURIConstants.ASSERTION_NSURI.get(); 
+   public static final String NS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
 
    private long ASSERTION_VALIDITY = 5000; //5secs in milis
-   
+
    private long CLOCK_SKEW = 2000; //2secs
-   
+
    public void initialize(Map<String, String> props)
-   { 
-      super.initialize(props);  
-      
-      String validity = this.properties.get( "ASSERTION_VALIDITY" );
-      if( validity != null )
+   {
+      super.initialize(props);
+
+      String validity = this.properties.get("ASSERTION_VALIDITY");
+      if (validity != null)
       {
-         ASSERTION_VALIDITY = Long.parseLong( validity );
+         ASSERTION_VALIDITY = Long.parseLong(validity);
       }
-      String skew = this.properties.get( "CLOCK_SKEW" );
-      if( skew != null )
+      String skew = this.properties.get("CLOCK_SKEW");
+      if (skew != null)
       {
-         CLOCK_SKEW = Long.parseLong( skew );
+         CLOCK_SKEW = Long.parseLong(skew);
       }
    }
-
 
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
     */
    public boolean supports(String namespace)
-   { 
-      return NS.equals( namespace ) ;
+   {
+      return NS.equals(namespace);
    }
-
 
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
     */
-   public void issueToken( ProtocolContext context ) throws ProcessingException
-   {  
-      if( !(context instanceof SAMLProtocolContext ))
+   public void issueToken(ProtocolContext context) throws ProcessingException
+   {
+      if (!(context instanceof SAMLProtocolContext))
          return;
-      
+
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
-      
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+
       SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
-      
+
       NameIDType issuerID = samlProtocolContext.getIssuerID();
       XMLGregorianCalendar issueInstant;
       try
@@ -126,151 +124,147 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
       }
       catch (ConfigurationException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
       ConditionsType conditions = samlProtocolContext.getConditions();
       SubjectType subject = samlProtocolContext.getSubjectType();
       List<StatementAbstractType> statements = samlProtocolContext.getStatements();
-      
-      // generate an id for the new assertion.
-      String assertionID = IDGenerator.create("ID_"); 
 
-      AssertionType assertionType = SAMLAssertionFactory.createAssertion( assertionID, 
-            issuerID , issueInstant, conditions, subject, statements );
-      
+      // generate an id for the new assertion.
+      String assertionID = IDGenerator.create("ID_");
+
+      AssertionType assertionType = SAMLAssertionFactory.createAssertion(assertionID, issuerID, issueInstant,
+            conditions, subject, statements);
+
       try
       {
-         AssertionUtil.createTimedConditions( assertionType, ASSERTION_VALIDITY, CLOCK_SKEW );
+         AssertionUtil.createTimedConditions(assertionType, ASSERTION_VALIDITY, CLOCK_SKEW);
       }
       catch (ConfigurationException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
       catch (IssueInstantMissingException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
-      
+
       try
       {
          this.tokenRegistry.addToken(assertionID, assertionType);
       }
       catch (IOException e)
-      { 
-         throw new ProcessingException( e );
-      } 
-      samlProtocolContext.setIssuedAssertion( assertionType );
+      {
+         throw new ProcessingException(e);
+      }
+      samlProtocolContext.setIssuedAssertion(assertionType);
    }
-  
+
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
     */
-   public void renewToken( ProtocolContext context ) throws ProcessingException
-   { 
-      if( !(context instanceof SAMLProtocolContext ))
+   public void renewToken(ProtocolContext context) throws ProcessingException
+   {
+      if (!(context instanceof SAMLProtocolContext))
          return;
 
-      
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
 
       SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
 
       AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
-      
+
       try
       {
          XMLGregorianCalendar currentTime = XMLTimeUtil.getIssueInstant();
-         issuedAssertion.updateIssueInstant( currentTime );
+         issuedAssertion.updateIssueInstant(currentTime);
       }
       catch (ConfigurationException e)
-      { 
-         throw new ProcessingException( e );
+      {
+         throw new ProcessingException(e);
       }
-       
+
       try
       {
-         AssertionUtil.createTimedConditions( issuedAssertion, ASSERTION_VALIDITY, CLOCK_SKEW );
+         AssertionUtil.createTimedConditions(issuedAssertion, ASSERTION_VALIDITY, CLOCK_SKEW);
       }
       catch (ConfigurationException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
       catch (IssueInstantMissingException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
 
-      
       try
       {
-         this.tokenRegistry.addToken( issuedAssertion.getID(), issuedAssertion );
+         this.tokenRegistry.addToken(issuedAssertion.getID(), issuedAssertion);
       }
       catch (IOException e)
-      { 
-         throw new ProcessingException( e );
-      }  
-      samlProtocolContext.setIssuedAssertion( issuedAssertion );
+      {
+         throw new ProcessingException(e);
+      }
+      samlProtocolContext.setIssuedAssertion(issuedAssertion);
    }
 
    /** 
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
     */
-   public void cancelToken( ProtocolContext context ) throws ProcessingException
-   {  
-      if( !(context instanceof SAMLProtocolContext ))
+   public void cancelToken(ProtocolContext context) throws ProcessingException
+   {
+      if (!(context instanceof SAMLProtocolContext))
          return;
-       
+
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte );
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
 
       SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
       AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
       try
       {
-         this.tokenRegistry.removeToken( issuedAssertion.getID() );
+         this.tokenRegistry.removeToken(issuedAssertion.getID());
       }
       catch (IOException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
    }
 
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
     */
-   public void validateToken( ProtocolContext context ) throws ProcessingException
-   {  
-      if( !(context instanceof SAMLProtocolContext ))
+   public void validateToken(ProtocolContext context) throws ProcessingException
+   {
+      if (!(context instanceof SAMLProtocolContext))
          return;
-       
+
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
 
       SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
-      
+
       AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
-      
+
       try
       {
-         if( !AssertionUtil.hasExpired( issuedAssertion ) )
-            throw new ProcessingException( "Assertion has expired" );
+         if (!AssertionUtil.hasExpired(issuedAssertion))
+            throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
       }
       catch (ConfigurationException e)
       {
-         throw new ProcessingException( e );
+         throw new ProcessingException(e);
       }
-      
-      if( issuedAssertion == null )
-         throw new ProcessingException( "Assertion is null" );
-      if( this.tokenRegistry.getToken( issuedAssertion.getID() ) == null )
-         throw new ProcessingException( "Invalid Assertion" );
-   }
 
+      if (issuedAssertion == null)
+         throw new ProcessingException(ErrorCodes.NULL_ASSERTION);
+      if (this.tokenRegistry.getToken(issuedAssertion.getID()) == null)
+         throw new ProcessingException(ErrorCodes.INVALID_ASSERTION);
+   }
 
    /**
     *
@@ -286,14 +280,14 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
     */
    public QName getSupportedQName()
    {
-      return new QName( NS, JBossSAMLConstants.ASSERTION.get() );
+      return new QName(NS, JBossSAMLConstants.ASSERTION.get());
    }
 
    /**
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#family()
     */
    public String family()
-   { 
+   {
       return SecurityTokenProvider.FAMILY_TYPE.SAML2.toString();
-   }  
+   }
 }

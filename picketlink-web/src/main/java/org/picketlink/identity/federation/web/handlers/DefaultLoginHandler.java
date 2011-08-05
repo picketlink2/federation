@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import javax.security.auth.login.LoginException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**
@@ -47,7 +48,7 @@ public class DefaultLoginHandler implements ILoginHandler
       {
          URL url = SecurityActions.loadResource(DefaultLoginHandler.class, "users.properties");
          if (url == null)
-            throw new RuntimeException("users.properties not found");
+            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "users.properties not found");
          props.load(url.openStream());
       }
       catch (IOException e)
@@ -68,7 +69,7 @@ public class DefaultLoginHandler implements ILoginHandler
          pass = (String) credential;
       }
       else
-         throw new RuntimeException("Unknown credential type:" + credential.getClass());
+         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown credential type:" + credential.getClass());
 
       String storedPass = (String) props.get(username);
       return storedPass != null ? storedPass.equals(pass) : false;

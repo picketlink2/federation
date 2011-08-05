@@ -24,6 +24,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -134,7 +135,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
 
       SAML11AdviceType advice = assertion.getAdvice();
       if (advice != null)
-         throw new RuntimeException("Advice needs to be handled");
+         throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Advice");
 
       List<SAML11StatementAbstractType> statements = assertion.getStatements();
       if (statements != null)
@@ -158,7 +159,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
                write((SAML11SubjectStatementType) statement);
             }
             else
-               throw new RuntimeException("unknown statement type=" + statement.getClass().getName());
+               throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + statement.getClass().getName());
          }
       }
 
@@ -179,12 +180,12 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
     */
    public void write(StatementAbstractType statement) throws ProcessingException
    {
-      throw new RuntimeException("NYI");
+      throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
    }
 
    public void write(SAML11SubjectStatementType statement) throws ProcessingException
    {
-      throw new ProcessingException("NYI");
+      throw new ProcessingException(ErrorCodes.NOT_IMPLEMENTED_YET);
    }
 
    public void write(SAML11AttributeStatementType statement) throws ProcessingException
@@ -377,7 +378,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
 
    public void writeSubjectConfirmationData(Object scData) throws ProcessingException
    {
-      throw new ProcessingException("NYI");
+      throw new ProcessingException(ErrorCodes.NOT_IMPLEMENTED_YET);
    }
 
    public void write(SAML11NameIdentifierType nameid) throws ProcessingException
@@ -423,12 +424,12 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
    {
       String attributeName = attributeType.getAttributeName();
       if (StringUtil.isNullOrEmpty(attributeName))
-         throw new ProcessingException("attribute name is null");
+         throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "attribute name");
       StaxUtil.writeAttribute(writer, SAML11Constants.ATTRIBUTE_NAME, attributeName);
 
       String attributeNamespace = attributeType.getAttributeNamespace().toString();
       if (StringUtil.isNullOrEmpty(attributeNamespace))
-         throw new ProcessingException("attribute namespace is null");
+         throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "attribute namespace");
       StaxUtil.writeAttribute(writer, SAML11Constants.ATTRIBUTE_NAMESPACE, attributeNamespace);
 
       List<Object> attributeValues = attributeType.get();
@@ -441,7 +442,8 @@ public class SAML11AssertionWriter extends BaseSAML11Writer
                writeStringAttributeValue((String) attributeValue);
             }
             else
-               throw new RuntimeException("Unsupported attribute value:" + attributeValue.getClass().getName());
+               throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE
+                     + attributeValue.getClass().getName());
          }
       }
    }

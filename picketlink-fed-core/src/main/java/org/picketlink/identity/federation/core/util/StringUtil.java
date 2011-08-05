@@ -32,6 +32,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 
 /**
@@ -85,7 +86,7 @@ public class StringUtil
    public static String getSystemPropertyAsString(String str)
    {
       if (str == null)
-         throw new IllegalArgumentException("str is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "str");
       if (str.contains("${"))
       {
          Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
@@ -109,7 +110,7 @@ public class StringUtil
             sysPropertyValue = SecurityActions.getSystemProperty(subString, defaultValue);
             if (sysPropertyValue.isEmpty())
             {
-               throw new IllegalArgumentException("System Property " + matcher.group(1) + " is not set");
+               throw new IllegalArgumentException(ErrorCodes.SYSTEM_PROPERTY_MISSING + matcher.group(1));
             }
             matcher.appendReplacement(buffer, sysPropertyValue);
          }
@@ -128,7 +129,7 @@ public class StringUtil
    public static void match(String first, String second)
    {
       if (first.equals(second) == false)
-         throw new RuntimeException(first + " does not match with " + second);
+         throw new RuntimeException(ErrorCodes.NOT_EQUAL + first + " and " + second);
    }
 
    /**

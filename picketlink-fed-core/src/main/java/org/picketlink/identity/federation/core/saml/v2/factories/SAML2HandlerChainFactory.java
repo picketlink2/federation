@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
@@ -40,11 +41,11 @@ public class SAML2HandlerChainFactory
    public static SAML2HandlerChain createChain(String fqn) throws ProcessingException
    {
       if (fqn == null)
-         throw new IllegalArgumentException("fqn is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fqn");
 
       Class<?> clazz = SecurityActions.loadClass(SAML2HandlerChainFactory.class, fqn);
       if (clazz == null)
-         throw new ProcessingException("Handler Chain could not be created");
+         throw new ProcessingException(ErrorCodes.CLASS_NOT_LOADED + fqn);
 
       try
       {
@@ -52,7 +53,7 @@ public class SAML2HandlerChainFactory
       }
       catch (Exception e)
       {
-         throw new ProcessingException("Cannot create chain:", e);
+         throw new ProcessingException(ErrorCodes.CANNOT_CREATE_INSTANCE + fqn, e);
       }
    }
 }

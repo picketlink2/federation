@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -118,7 +119,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
       String issuerID = samlProtocolContext.getIssuerID();
       if (issuerID == null)
-         throw new ProcessingException("Issuer in SAML Protocol Context is null");
+         throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Issuer in SAML Protocol Context");
 
       XMLGregorianCalendar issueInstant;
       try
@@ -257,7 +258,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
       try
       {
          if (!AssertionUtil.hasExpired(issuedAssertion))
-            throw new ProcessingException("Assertion has expired");
+            throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
       }
       catch (ConfigurationException e)
       {
@@ -265,9 +266,9 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
       }
 
       if (issuedAssertion == null)
-         throw new ProcessingException("Assertion is null");
+         throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Assertion");
       if (this.tokenRegistry.getToken(issuedAssertion.getID()) == null)
-         throw new ProcessingException("Invalid Assertion");
+         throw new ProcessingException(ErrorCodes.INVALID_ASSERTION);
    }
 
    /**

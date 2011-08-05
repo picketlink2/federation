@@ -24,6 +24,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
@@ -52,35 +53,62 @@ public class STSConfigParser extends AbstractParser
 
    // XML configuration elements.
    private static final String ROOT_ELEMENT = "PicketLinkSTS";
+
    private static final String KEY_PROVIDER_ELEMENT = "KeyProvider";
+
    private static final String AUTH_ELEMENT = "Auth";
+
    private static final String SIGNING_ALIAS_ELEMENT = "SigningAlias";
+
    private static final String VALIDATING_ALIAS_ELEMENT = "ValidatingAlias";
+
    private static final String REQUEST_HANDLER_ELEMENT = "RequestHandler";
+
    private static final String PROPERTY_ELEMENT = "Property";
+
    private static final String CLAIMS_PROCESSORS_ELEMENT = "ClaimsProcessors";
+
    private static final String CLAIMS_PROCESSOR_ELEMENT = "ClaimsProcessor";
+
    private static final String TOKEN_PROVIDERS_ELEMENT = "TokenProviders";
+
    private static final String TOKEN_PROVIDER_ELEMENT = "TokenProvider";
+
    private static final String SERVICE_PROVIDERS_ELEMENT = "ServiceProviders";
+
    private static final String SERVICE_PROVIDER_ELEMENT = "ServiceProvider";
 
    // XML configuration attributes.
    private static final String STS_NAME_ATTRIB = "STSName";
+
    private static final String TOKEN_TIMEOUT_ATTRIB = "TokenTimeout";
+
    private static final String SIGN_TOKEN_ATTRIB = "SignToken";
+
    private static final String ENCRYPT_TOKEN_ATTRIB = "EncryptToken";
+
    private static final String CANON_METHOD_ATTRIB = "CanonicalizationMethod";
+
    private static final String CLASS_NAME_ATTRIB = "ClassName";
+
    private static final String KEY_ATTRIB = "Key";
+
    private static final String VALUE_ATTRIB = "Value";
+
    private static final String DIALECT_ATTRIB = "Dialect";
+
    private static final String PROCESSOR_CLASS_ATTRIB = "ProcessorClass";
+
    private static final String PROVIDER_CLASS_ATTRIB = "ProviderClass";
+
    private static final String TOKEN_TYPE_ATTRIB = "TokenType";
+
    private static final String TOKEN_ELEMENT_ATTRIB = "TokenElement";
+
    private static final String TOKEN_ELEMENT_NS_ATTRIB = "TokenElementNS";
+
    private static final String ENDPOINT_ATTRIB = "Endpoint";
+
    private static final String TRUSTSTORE_ALIAS_ATTRIB = "TruststoreAlias";
 
    /*
@@ -133,7 +161,7 @@ public class STSConfigParser extends AbstractParser
             if (endElementName.equals(ROOT_ELEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementName);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
          }
 
          StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -148,7 +176,7 @@ public class STSConfigParser extends AbstractParser
          {
             subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
             if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-               throw new ParsingException("Request handler class expected as element value");
+               throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "RequestHandler");
             configType.setRequestHandler(StaxParserUtil.getElementText(xmlEventReader));
          }
          else if (CLAIMS_PROCESSORS_ELEMENT.equalsIgnoreCase(elementName))
@@ -164,7 +192,7 @@ public class STSConfigParser extends AbstractParser
             configType.setServiceProviders(this.parseServiceProviders(xmlEventReader));
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName + "::Location=" + subEvent.getLocation() );
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName + "::Location=" + subEvent.getLocation());
       }
       return configType;
    }
@@ -173,7 +201,7 @@ public class STSConfigParser extends AbstractParser
     * (non-Javadoc)
     * 
     * @see org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport#supports(javax.xml.namespace.QName)
-    */ 
+    */
    public boolean supports(QName qname)
    {
       return CONFIG_NS.equals(qname.getNamespaceURI());
@@ -199,7 +227,7 @@ public class STSConfigParser extends AbstractParser
       QName attributeQName = new QName("", CLASS_NAME_ATTRIB);
       Attribute attribute = startElement.getAttributeByName(attributeQName);
       if (attribute == null)
-         throw new ParsingException("The KeyProvider class name attribute must be specified");
+         throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "ClassName");
       keyProvider.setClassName(StaxParserUtil.getAttributeValue(attribute));
 
       // parse the inner elements.
@@ -215,7 +243,7 @@ public class STSConfigParser extends AbstractParser
             if (endElementName.equals(KEY_PROVIDER_ELEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementName);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
          }
 
          StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -227,7 +255,7 @@ public class STSConfigParser extends AbstractParser
          {
             subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
             if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-               throw new ParsingException("Signing alias expected as element value");
+               throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "SigningAlias");
             keyProvider.setSigningAlias(StaxParserUtil.getElementText(xmlEventReader));
          }
          else if (VALIDATING_ALIAS_ELEMENT.equalsIgnoreCase(elementName))
@@ -246,7 +274,7 @@ public class STSConfigParser extends AbstractParser
 
             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
             StaxParserUtil.validate(endElement, VALIDATING_ALIAS_ELEMENT);
-            keyProvider.add( keyValue );
+            keyProvider.add(keyValue);
          }
          else if (AUTH_ELEMENT.equalsIgnoreCase(elementName))
          {
@@ -267,7 +295,7 @@ public class STSConfigParser extends AbstractParser
             keyProvider.add(authProperty);
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName);
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
       }
       return keyProvider;
    }
@@ -301,7 +329,7 @@ public class STSConfigParser extends AbstractParser
             if (endElementName.equals(CLAIMS_PROCESSORS_ELEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementName);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
          }
 
          StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -338,7 +366,7 @@ public class STSConfigParser extends AbstractParser
                   if (endElementName.equals(CLAIMS_PROCESSOR_ELEMENT))
                      break;
                   else
-                     throw new RuntimeException("Unknown End Element:" + endElementName);
+                     throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
                }
 
                subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -365,12 +393,12 @@ public class STSConfigParser extends AbstractParser
                   claimsProcessor.add(keyValue);
                }
                else
-                  throw new ParsingException("Unknown Element: " + elementName);
+                  throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
             }
-            claimsProcessors.add( claimsProcessor );
+            claimsProcessors.add(claimsProcessor);
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName);
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
       }
       return claimsProcessors;
    }
@@ -404,7 +432,7 @@ public class STSConfigParser extends AbstractParser
             if (endElementName.equals(TOKEN_PROVIDERS_ELEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementName);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
          }
 
          StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -449,7 +477,7 @@ public class STSConfigParser extends AbstractParser
                   if (endElementName.equals(TOKEN_PROVIDER_ELEMENT))
                      break;
                   else
-                     throw new RuntimeException("Unknown End Element:" + endElementName);
+                     throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
                }
 
                subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -476,12 +504,12 @@ public class STSConfigParser extends AbstractParser
                   tokenProvider.add(keyValue);
                }
                else
-                  throw new ParsingException("Unknown Element: " + elementName);
+                  throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
             }
-            tokenProviders.add( tokenProvider );
+            tokenProviders.add(tokenProvider);
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName);
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
       }
       return tokenProviders;
    }
@@ -515,7 +543,7 @@ public class STSConfigParser extends AbstractParser
             if (endElementName.equals(SERVICE_PROVIDERS_ELEMENT))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementName);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
          }
 
          StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -548,7 +576,7 @@ public class STSConfigParser extends AbstractParser
             serviceProviders.add(serviceProvider);
          }
          else
-            throw new ParsingException("Unknown Element: " + elementName);
+            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
       }
       return serviceProviders;
    }

@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -174,7 +175,7 @@ public class IDPWebRequestUtil
    public void isTrusted(String issuer) throws IssuerNotTrustedException
    {
       if (idpConfiguration == null)
-         throw new IllegalStateException("IDP Configuration is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "IDP Configuration");
       try
       {
          String issuerDomain = getDomain(issuer);
@@ -223,7 +224,7 @@ public class IDPWebRequestUtil
       Document responseDoc = holder.getResponseDoc();
 
       if (responseDoc == null)
-         throw new IllegalArgumentException("responseType is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "responseType is null");
 
       String destination = holder.getDestination();
       String relayState = holder.getRelayState();

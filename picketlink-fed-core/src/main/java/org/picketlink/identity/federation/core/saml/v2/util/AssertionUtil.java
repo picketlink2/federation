@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
@@ -171,7 +172,7 @@ public class AssertionUtil
    {
       XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
       if (issueInstant == null)
-         throw new IssueInstantMissingException("assertion does not have issue instant");
+         throw new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis);
       ConditionsType conditionsType = new ConditionsType();
       conditionsType.setNotBefore(issueInstant);
@@ -192,7 +193,7 @@ public class AssertionUtil
    {
       XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
       if (issueInstant == null)
-         throw new IssueInstantMissingException("assertion does not have issue instant");
+         throw new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis + clockSkew);
 
       ConditionsType conditionsType = new ConditionsType();
@@ -217,7 +218,7 @@ public class AssertionUtil
    {
       XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
       if (issueInstant == null)
-         throw new IssueInstantMissingException("null issue instant");
+         throw new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
       XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis + clockSkew);
 
       SAML11ConditionsType conditionsType = new SAML11ConditionsType();
@@ -370,7 +371,7 @@ public class AssertionUtil
                         roles.add(roleNode.getFirstChild().getNodeValue());
                      }
                      else
-                        throw new RuntimeException("Unknown role object type : " + attrValue);
+                        throw new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
                   }
                }
             }
@@ -417,7 +418,7 @@ public class AssertionUtil
                         roles.add(roleNode.getFirstChild().getNodeValue());
                      }
                      else
-                        throw new RuntimeException("Unknown role object type : " + attrValue);
+                        throw new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
                   }
                }
             }

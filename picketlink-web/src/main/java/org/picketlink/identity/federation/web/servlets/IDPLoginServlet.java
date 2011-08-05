@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.handlers.DefaultLoginHandler;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
@@ -79,7 +80,8 @@ public class IDPLoginServlet extends HttpServlet
          this.saveRequest(request, session);
 
          if (response.isCommitted())
-            throw new RuntimeException("Response is committed. Cannot forward to login page.");
+            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION
+                  + "Response is committed. Cannot forward to login page.");
 
          this.redirectToLoginPage(request, response);
       }

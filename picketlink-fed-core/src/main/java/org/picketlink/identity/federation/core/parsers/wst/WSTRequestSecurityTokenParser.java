@@ -32,6 +32,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -98,7 +99,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             if (endElementTag.equals(WSTrustConstants.RST))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementTag);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementTag);
          }
 
          try
@@ -113,7 +114,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
                if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException("request type is expected ahead");
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "request type");
 
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setRequestType(new URI(value));
@@ -123,7 +124,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
                if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException("token type is expected ahead");
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "token type");
 
                String value = StaxParserUtil.getElementText(xmlEventReader);
                requestToken.setTokenType(new URI(value));
@@ -153,7 +154,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   lifeTime.setExpires(expires);
                }
                else
-                  throw new RuntimeException(subTag + " was unexpected");
+                  throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + subTag);
 
                requestToken.setLifetime(new Lifetime(lifeTime));
                EndElement lifeTimeElement = StaxParserUtil.getNextEndElement(xmlEventReader);
@@ -201,7 +202,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException("key type is expected ahead");
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "key type");
 
                String keyType = StaxParserUtil.getElementText(xmlEventReader);
                try
@@ -219,7 +220,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
                if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException("key size is expected ahead");
+                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "key size");
 
                String keySize = StaxParserUtil.getElementText(xmlEventReader);
                try
@@ -243,7 +244,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   binarySecret.setType(StaxParserUtil.getAttributeValue(typeAttribute));
 
                   if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                     throw new ParsingException("binary secret value is expected ahead");
+                     throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "binary secret value");
 
                   binarySecret.setValue(StaxParserUtil.getElementText(xmlEventReader).getBytes());
                   entropy.addAny(binarySecret);
@@ -298,7 +299,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                   StaxParserUtil.validate(endElement, WSTrustConstants.USE_KEY);
                }
                else
-                  throw new RuntimeException("unsupported " + StaxParserUtil.getStartElementName(subEvent));
+                  throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + StaxParserUtil.getStartElementName(subEvent));
             }
             else
             {
@@ -309,7 +310,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                }
                ParserNamespaceSupport parser = ParserController.get(qname);
                if (parser == null)
-                  throw new RuntimeException("Cannot parse " + qname);
+                  throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + qname);
 
                Object parsedObject = parser.parse(xmlEventReader);
                if (parsedObject instanceof AppliesTo)

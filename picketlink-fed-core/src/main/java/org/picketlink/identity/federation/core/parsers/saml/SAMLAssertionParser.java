@@ -34,6 +34,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -108,7 +109,7 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
             if (endElementTag.equals(JBossSAMLConstants.ASSERTION.get()))
                break;
             else
-               throw new RuntimeException("Unknown End Element:" + endElementTag);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementTag);
          }
 
          StartElement peekedElement = null;
@@ -192,11 +193,10 @@ public class SAMLAssertionParser implements ParserNamespaceSupport
                assertion.addStatement(authZStat);
             }
             else
-               throw new RuntimeException("Unknown xsi:type=" + xsiTypeValue);
+               throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
          }
          else
-            throw new RuntimeException("SAMLAssertionParser:: unknown: " + tag + "::location="
-                  + peekedElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
       }
       return assertion;
    }

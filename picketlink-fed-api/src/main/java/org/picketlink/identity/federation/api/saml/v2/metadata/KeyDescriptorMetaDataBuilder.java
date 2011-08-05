@@ -25,6 +25,7 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.math.BigInteger;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
@@ -53,10 +54,11 @@ public class KeyDescriptorMetaDataBuilder
          boolean isSigningKey, boolean isEncryptionKey)
    {
       if (keyInfo == null)
-         throw new IllegalArgumentException("keyInfo is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "keyInfo");
 
       if (isSigningKey == isEncryptionKey)
-         throw new IllegalArgumentException("Only one of isSigningKey " + "and isEncryptionKey should be true");
+         throw new IllegalArgumentException(ErrorCodes.SHOULD_NOT_BE_THE_SAME
+               + "Only one of isSigningKey and isEncryptionKey should be true");
 
       KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 
@@ -90,7 +92,7 @@ public class KeyDescriptorMetaDataBuilder
    public static KeyDescriptorType createKeyDescriptor(Element keyInfo, String algorithm, int keySize)
    {
       if (keyInfo == null)
-         throw new IllegalArgumentException("keyInfo is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "keyInfo");
       KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 
       if (isNotNull(algorithm))

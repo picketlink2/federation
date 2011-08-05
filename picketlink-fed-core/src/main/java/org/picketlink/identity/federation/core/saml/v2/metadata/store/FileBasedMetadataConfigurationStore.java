@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -47,10 +48,10 @@ import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWrite
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
 /**
  * File based metadata store that uses
@@ -81,7 +82,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    {
       userHome = SecurityActions.getSystemProperty("user.home");
       if (userHome == null)
-         throw new RuntimeException("user.home system property not set");
+         throw new RuntimeException(ErrorCodes.SYSTEM_PROPERTY_MISSING + "user.home");
 
       StringBuilder builder = new StringBuilder(userHome);
       builder.append(PicketLinkFederationConstants.FILE_STORE_DIRECTORY);
@@ -298,7 +299,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
       String serializationExtension = PicketLinkFederationConstants.SERIALIZATION_EXTENSION;
 
       if (id == null)
-         throw new IllegalArgumentException("id is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "id");
       if (!id.endsWith(serializationExtension))
          id += serializationExtension;
 
@@ -311,7 +312,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
    private File validateIdAndReturnTrustedProvidersFile(String id)
    {
       if (id == null)
-         throw new IllegalArgumentException("id is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "id");
 
       id += "-trusted" + PicketLinkFederationConstants.SERIALIZATION_EXTENSION;
 

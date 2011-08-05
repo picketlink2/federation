@@ -33,6 +33,7 @@ import java.net.URL;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -129,10 +130,10 @@ public class SAML2Request
          ParsingException
    {
       if (fileName == null)
-         throw new IllegalArgumentException("fileName is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileName");
       URL resourceURL = SecurityActions.loadResource(getClass(), fileName);
       if (resourceURL == null)
-         throw new ProcessingException(fileName + " could not be loaded");
+         throw new ProcessingException(ErrorCodes.RESOURCE_NOT_FOUND + fileName + " could not be loaded");
 
       InputStream is = null;
       try
@@ -157,7 +158,7 @@ public class SAML2Request
          ProcessingException
    {
       if (is == null)
-         throw new IllegalStateException("InputStream is null");
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
 
       Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -182,7 +183,7 @@ public class SAML2Request
          ProcessingException
    {
       if (is == null)
-         throw new IllegalStateException("InputStream is null");
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
 
       Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -208,7 +209,7 @@ public class SAML2Request
          ParsingException
    {
       if (is == null)
-         throw new IllegalStateException("InputStream is null");
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
 
       Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -309,7 +310,7 @@ public class SAML2Request
          samlRequestWriter.write((LogoutRequestType) requestType);
       }
       else
-         throw new RuntimeException("Unsupported");
+         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + requestType.getClass().getName());
    }
 
    /**
@@ -330,6 +331,6 @@ public class SAML2Request
          samlRequestWriter.write((LogoutRequestType) requestType);
       }
       else
-         throw new RuntimeException("Unsupported");
+         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + requestType.getClass().getName());
    }
 }

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
@@ -44,161 +45,160 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since Oct 8, 2009
  */
 public class SAML2IssuerTrustHandler extends BaseSAML2Handler
-{ 
+{
    private static Logger log = Logger.getLogger(SAML2IssuerTrustHandler.class);
-   private boolean trace = log.isTraceEnabled(); 
-   private IDPTrustHandler idp = new IDPTrustHandler();
-   private SPTrustHandler sp = new SPTrustHandler();
+
+   private final boolean trace = log.isTraceEnabled();
+
+   private final IDPTrustHandler idp = new IDPTrustHandler();
+
+   private final SPTrustHandler sp = new SPTrustHandler();
 
    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
-   {  
-      if(getType() == HANDLER_TYPE.IDP)
+   {
+      if (getType() == HANDLER_TYPE.IDP)
       {
-         idp.handleRequestType(request, response, 
+         idp.handleRequestType(request, response,
                (IDPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
       }
       else
       {
          sp.handleRequestType(request, response,
                (SPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
-      } 
+      }
    }
 
    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
          throws ProcessingException
    {
-      if(getType() == HANDLER_TYPE.IDP)
+      if (getType() == HANDLER_TYPE.IDP)
       {
-         idp.handleStatusResponseType(request, response, 
+         idp.handleStatusResponseType(request, response,
                (IDPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
       }
       else
       {
          sp.handleStatusResponseType(request, response,
                (SPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
-      } 
-   } 
-   
-   private class IDPTrustHandler
-   {  
-      public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response,
-            IDPType idpConfiguration) throws ProcessingException
-      {   
-         String issuer = request.getIssuer().getValue();
-         
-         trustIssuer(idpConfiguration, issuer);   
-      }
-
-
-      public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response
-            ,IDPType idpConfiguration)
-      throws ProcessingException
-      {
-         String issuer = request.getIssuer().getValue();
-         
-         trustIssuer(idpConfiguration, issuer);
-      }
-      
-      
-      private void trustIssuer(IDPType idpConfiguration, String issuer) throws ProcessingException
-      {
-         if(idpConfiguration == null)
-            throw new IllegalStateException("IDP Configuration is null");
-         try
-         {
-            String issuerDomain = getDomain(issuer);
-            TrustType idpTrust =  idpConfiguration.getTrust();
-            if(idpTrust != null)
-            {
-               String domainsTrusted = idpTrust.getDomains();
-               if(trace) 
-                  log.trace("Domains that IDP trusts="+domainsTrusted + " and issuer domain="+issuerDomain);
-               if(domainsTrusted.indexOf(issuerDomain) < 0)
-               {
-                  //Let us do string parts checking
-                  StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
-                  while(st != null && st.hasMoreTokens())
-                  {
-                     String uriBit = st.nextToken();
-                     if(trace) 
-                        log.trace("Matching uri bit="+ uriBit);
-                     if(issuerDomain.indexOf(uriBit) > 0)
-                     {
-                        if(trace) 
-                           log.trace("Matched " + uriBit + " trust for " + issuerDomain );
-                        return;
-                     } 
-                  } 
-                  throw new IssuerNotTrustedException(issuer);
-               } 
-            }
-            else
-               throw new ConfigurationException("trust element missing");
-         }
-         catch (Exception e)
-         {   
-            throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(),e));
-         }
       }
    }
-   
-   private class SPTrustHandler
-   {  
-      public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response,
-            SPType spConfiguration) throws ProcessingException
+
+   private class IDPTrustHandler
+   {
+      public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, IDPType idpConfiguration)
+            throws ProcessingException
       {
          String issuer = request.getIssuer().getValue();
-         
-         trustIssuer(spConfiguration, issuer);  
+
+         trustIssuer(idpConfiguration, issuer);
       }
 
       public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response,
-            SPType spConfiguration)
-      throws ProcessingException
+            IDPType idpConfiguration) throws ProcessingException
       {
          String issuer = request.getIssuer().getValue();
-         
-         trustIssuer(spConfiguration, issuer);
-      } 
-      
-      private void trustIssuer(SPType spConfiguration, String issuer) throws ProcessingException
+
+         trustIssuer(idpConfiguration, issuer);
+      }
+
+      private void trustIssuer(IDPType idpConfiguration, String issuer) throws ProcessingException
       {
-         if(spConfiguration == null)
-            throw new IllegalStateException("SP Configuration is null");
+         if (idpConfiguration == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "IDP Configuration");
          try
          {
             String issuerDomain = getDomain(issuer);
-            TrustType spTrust =  spConfiguration.getTrust();
-            if(spTrust != null)
+            TrustType idpTrust = idpConfiguration.getTrust();
+            if (idpTrust != null)
             {
-               String domainsTrusted = spTrust.getDomains();
-               if(trace) 
-                  log.trace("Domains that SP trusts="+domainsTrusted + " and issuer domain="+issuerDomain);
-               if(domainsTrusted.indexOf(issuerDomain) < 0)
+               String domainsTrusted = idpTrust.getDomains();
+               if (trace)
+                  log.trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+               if (domainsTrusted.indexOf(issuerDomain) < 0)
                {
                   //Let us do string parts checking
                   StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
-                  while(st != null && st.hasMoreTokens())
+                  while (st != null && st.hasMoreTokens())
                   {
                      String uriBit = st.nextToken();
-                     if(trace) 
-                        log.trace("Matching uri bit="+ uriBit);
-                     if(issuerDomain.indexOf(uriBit) > 0)
+                     if (trace)
+                        log.trace("Matching uri bit=" + uriBit);
+                     if (issuerDomain.indexOf(uriBit) > 0)
                      {
-                        if(trace) 
-                           log.trace("Matched " + uriBit + " trust for " + issuerDomain );
+                        if (trace)
+                           log.trace("Matched " + uriBit + " trust for " + issuerDomain);
                         return;
-                     } 
-                  } 
+                     }
+                  }
                   throw new IssuerNotTrustedException(issuer);
-               } 
+               }
             }
             else
-               throw new ConfigurationException("trust element missing");
+               throw new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
          }
          catch (Exception e)
-         {   
-            throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(),e));
+         {
+            throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(), e));
+         }
+      }
+   }
+
+   private class SPTrustHandler
+   {
+      public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, SPType spConfiguration)
+            throws ProcessingException
+      {
+         String issuer = request.getIssuer().getValue();
+
+         trustIssuer(spConfiguration, issuer);
+      }
+
+      public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response,
+            SPType spConfiguration) throws ProcessingException
+      {
+         String issuer = request.getIssuer().getValue();
+
+         trustIssuer(spConfiguration, issuer);
+      }
+
+      private void trustIssuer(SPType spConfiguration, String issuer) throws ProcessingException
+      {
+         if (spConfiguration == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "SP Configuration");
+         try
+         {
+            String issuerDomain = getDomain(issuer);
+            TrustType spTrust = spConfiguration.getTrust();
+            if (spTrust != null)
+            {
+               String domainsTrusted = spTrust.getDomains();
+               if (trace)
+                  log.trace("Domains that SP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+               if (domainsTrusted.indexOf(issuerDomain) < 0)
+               {
+                  //Let us do string parts checking
+                  StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
+                  while (st != null && st.hasMoreTokens())
+                  {
+                     String uriBit = st.nextToken();
+                     if (trace)
+                        log.trace("Matching uri bit=" + uriBit);
+                     if (issuerDomain.indexOf(uriBit) > 0)
+                     {
+                        if (trace)
+                           log.trace("Matched " + uriBit + " trust for " + issuerDomain);
+                        return;
+                     }
+                  }
+                  throw new IssuerNotTrustedException(issuer);
+               }
+            }
+            else
+               throw new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
+         }
+         catch (Exception e)
+         {
+            throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(), e));
          }
       }
    }
@@ -209,7 +209,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler
     * @return
     * @throws IOException  
     */
-   private static String getDomain(String domainURL) throws IOException  
+   private static String getDomain(String domainURL) throws IOException
    {
       URL url = new URL(domainURL);
       return url.getHost();

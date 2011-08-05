@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -70,7 +71,8 @@ public class SAMLArtifactResolveParser extends SAMLRequestAbstractParser impleme
             continue;
          }
          else
-            throw new RuntimeException("Unknown Element:" + elementName + "::location=" + startElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                  + startElement.getLocation());
       }
       return artifactResolve;
    }

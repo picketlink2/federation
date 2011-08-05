@@ -23,6 +23,8 @@ package org.picketlink.identity.federation.core.saml.v2.common;
 
 import java.util.UUID;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
+
 /**
  * Utility class that generates unique IDs
  * @author Anil.Saldhana@redhat.com
@@ -35,9 +37,9 @@ public class IDGenerator
     */
    public static String create()
    {
-      return UUID.randomUUID().toString(); 
+      return UUID.randomUUID().toString();
    }
-   
+
    /**
     * Create an id that is prefixed by a string
     * @param prefix
@@ -46,8 +48,8 @@ public class IDGenerator
     */
    public static String create(String prefix)
    {
-      if(prefix == null)
-         throw new IllegalArgumentException("prefix is null");
+      if (prefix == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "prefix");
       StringBuilder sb = new StringBuilder(prefix);
       sb.append(IDGenerator.create());
       return sb.toString();

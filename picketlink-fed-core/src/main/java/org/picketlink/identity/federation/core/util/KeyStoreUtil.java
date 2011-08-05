@@ -38,13 +38,15 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
+
 /**
  * Utility to handle Java Keystore
  * @author Anil.Saldhana@redhat.com
  * @since Jan 12, 2009
  */
 public class KeyStoreUtil
-{ 
+{
    /**
     * Get the KeyStore
     * @param keyStoreFile
@@ -56,9 +58,9 @@ public class KeyStoreUtil
    public static KeyStore getKeyStore(File keyStoreFile, char[] storePass) throws GeneralSecurityException, IOException
    {
       FileInputStream fis = new FileInputStream(keyStoreFile);
-      return getKeyStore(fis,storePass);
+      return getKeyStore(fis, storePass);
    }
-   
+
    /**
     * Get the Keystore given the url to the keystore file as a string
     * @param fileURL
@@ -69,14 +71,14 @@ public class KeyStoreUtil
     */
    public static KeyStore getKeyStore(String fileURL, char[] storePass) throws GeneralSecurityException, IOException
    {
-      if(fileURL == null)
-         throw new IllegalArgumentException("fileURL is null");
-      
+      if (fileURL == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileURL");
+
       File file = new File(fileURL);
       FileInputStream fis = new FileInputStream(file);
-      return getKeyStore(fis,storePass);
+      return getKeyStore(fis, storePass);
    }
-   
+
    /**
     * Get the Keystore given the URL to the keystore
     * @param url
@@ -87,12 +89,12 @@ public class KeyStoreUtil
     */
    public static KeyStore getKeyStore(URL url, char[] storePass) throws GeneralSecurityException, IOException
    {
-      if(url == null)
-         throw new IllegalArgumentException("url is null");
-      
+      if (url == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "url");
+
       return getKeyStore(url.openStream(), storePass);
    }
-   
+
    /**
     * Get the Key Store
     * <b>Note:</b> This method wants the InputStream to be not null. 
@@ -103,27 +105,28 @@ public class KeyStoreUtil
     * @throws IOException
     * @throws IllegalArgumentException if ksStream is null
     */
-   public static KeyStore getKeyStore(InputStream ksStream, char[] storePass) throws GeneralSecurityException, IOException
+   public static KeyStore getKeyStore(InputStream ksStream, char[] storePass) throws GeneralSecurityException,
+         IOException
    {
-      if(ksStream == null)
-         throw new IllegalArgumentException("InputStream for the KeyStore is null");
+      if (ksStream == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "InputStream for the KeyStore");
       KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
       ks.load(ksStream, storePass);
       return ks;
    }
-   
+
    /**
     * Generate a Key Pair
     * @param algo (RSA, DSA etc)
     * @return
     * @throws GeneralSecurityException 
     */
-   public static KeyPair generateKeyPair(String algo) throws GeneralSecurityException  
+   public static KeyPair generateKeyPair(String algo) throws GeneralSecurityException
    {
       KeyPairGenerator kpg = KeyPairGenerator.getInstance(algo);
       return kpg.genKeyPair();
    }
-   
+
    /**
     * Get the Public Key from the keystore
     * @param ks
@@ -132,30 +135,31 @@ public class KeyStoreUtil
     * @return 
     * @throws GeneralSecurityException  
     */
-   public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws KeyStoreException, NoSuchAlgorithmException, GeneralSecurityException
+   public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws KeyStoreException,
+         NoSuchAlgorithmException, GeneralSecurityException
    {
       PublicKey publicKey = null;
-      
+
       // Get private key
       Key key = ks.getKey(alias, password);
-      if (key instanceof PrivateKey) 
+      if (key instanceof PrivateKey)
       {
          // Get certificate of public key
          Certificate cert = ks.getCertificate(alias);
 
          // Get public key
          publicKey = cert.getPublicKey();
-      } 
+      }
       // if alias is a certificate alias, get the public key from the certificate.
-      if(publicKey == null)
+      if (publicKey == null)
       {
          Certificate cert = ks.getCertificate(alias);
-         if(cert != null)
+         if (cert != null)
             publicKey = cert.getPublicKey();
       }
-      return publicKey;      
+      return publicKey;
    }
-   
+
    /**
     * Add a certificate to the KeyStore
     * @param keystoreFile
@@ -166,7 +170,7 @@ public class KeyStoreUtil
     * @throws IOException
     */
    public static void addCertificate(File keystoreFile, char[] storePass, String alias, Certificate cert)
-   throws GeneralSecurityException, IOException
+         throws GeneralSecurityException, IOException
    {
       KeyStore keystore = getKeyStore(keystoreFile, storePass);
 
@@ -176,6 +180,6 @@ public class KeyStoreUtil
       // Save the new keystore contents
       FileOutputStream out = new FileOutputStream(keystoreFile);
       keystore.store(out, storePass);
-      out.close(); 
+      out.close();
    }
 }

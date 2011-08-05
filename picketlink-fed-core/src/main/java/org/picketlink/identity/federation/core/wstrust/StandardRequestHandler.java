@@ -31,6 +31,7 @@ import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
@@ -219,7 +220,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             }
             catch (Exception e)
             {
-               throw new WSTrustException("Error generating combined secret key", e);
+               throw new WSTrustException(ErrorCodes.STS_COMBINED_SECRET_KEY_ERROR, e);
             }
             requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo));
          }
@@ -276,7 +277,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             }*/
          }
          else
-            throw new WSTrustException("Unable to locate client public key");
+            throw new WSTrustException(ErrorCodes.STS_CLIENT_PUBLIC_KEY_ERROR);
       }
 
       // issue the security token using the constructed context.
@@ -295,15 +296,14 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       }
 
       if (requestContext.getSecurityToken() == null)
-         //throw new WSTrustException("Token issued by provider " + provider.getClass().getName() + " is null");
-         throw new WSTrustException("Token issued by STS is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "Token issued by STS");
 
       // construct the ws-trust security token response.
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
 
       SecurityToken contextSecurityToken = requestContext.getSecurityToken();
       if (contextSecurityToken == null)
-         throw new WSTrustException("Security Token from context is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "Security Token from context");
 
       requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
@@ -330,9 +330,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          response.setRequestedUnattachedReference(requestContext.getUnattachedReference());
 
       return response;
-      /*}
-      else
-         throw new WSTrustException("Unable to find a token provider for the token request");*/
    }
 
    /*
@@ -348,11 +345,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       if (trace)
          log.trace("Validating token for renew request " + request.getContext());
       if (request.getRenewTargetElement() == null)
-         throw new WSTrustException("Unable to renew token: request does not have a renew target");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE
+               + "Unable to renew token: request does not have a renew target");
 
       Node securityToken = request.getRenewTargetElement().getFirstChild();
       if (securityToken == null)
-         throw new WSTrustException("Unable to renew token: security token is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "Unable to renew token: security token is null");
 
       /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
@@ -369,11 +367,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             Node importedNode = tokenDocument.importNode(securityToken, true);
             tokenDocument.appendChild(importedNode);
             if (!XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()))
-               throw new WSTrustException("Validation failure during renewal: digital signature is invalid");
+               throw new WSTrustException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Validation failure during renewal");
          }
          catch (Exception e)
          {
-            throw new WSTrustException("Validation failure during renewal: unable to verify digital signature", e);
+            throw new WSTrustException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Validation failure during renewal:", e);
          }
       }
       else
@@ -423,7 +421,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
       RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
       SecurityToken contextSecurityToken = context.getSecurityToken();
       if (contextSecurityToken == null)
-         throw new WSTrustException("Security Token from context is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "Security Token from context");
       requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
       RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
@@ -451,20 +449,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler
          log.trace("Started validation for request " + request.getContext());
 
       if (request.getValidateTargetElement() == null)
-         throw new WSTrustException("Unable to validate token: request does not have a validate target");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE
+               + "request does not have a validate target. Unable to validate token");
 
       if (request.getTokenType() == null)
          request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
 
       Node securityToken = request.getValidateTargetElement().getFirstChild();
       if (securityToken == null)
-         throw new WSTrustException("Unable to validate token: security token is null");
-
-      /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
-            securityToken.getNamespaceURI());
-      if (provider == null)
-         throw new WSTrustException("No SecurityTokenProvider configured for " + securityToken.getNamespaceURI() + ":"
-               + securityToken.getLocalName());*/
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token:Unable to validate token");
 
       WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
       // if the validate request was made on behalf of another identity, get the principal of that identity.
@@ -556,12 +549,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
    {
       // check if request contains all required elements.
       if (request.getCancelTargetElement() == null)
-         throw new WSTrustException("Unable to cancel token: request does not have a cancel target");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE
+               + "request does not have a cancel target. Unable to cancel token");
 
       // obtain the token provider that will handle the request.
       Node securityToken = request.getCancelTargetElement().getFirstChild();
       if (securityToken == null)
-         throw new WSTrustException("Unable to cancel token: security token is null");
+         throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token. Unable to cancel token");
 
       /*SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
             securityToken.getNamespaceURI());
@@ -643,7 +637,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
             }
             catch (Exception e)
             {
-               throw new WSTrustException("Failed to sign security token", e);
+               throw new WSTrustException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
             }
          }
 
@@ -682,7 +676,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                }
                catch (ProcessingException e)
                {
-                  throw new WSTrustException("Unable to encrypt security token", e);
+                  throw new WSTrustException(ErrorCodes.ENCRYPTION_PROCESS_FAILURE, e);
                }
             }
          }

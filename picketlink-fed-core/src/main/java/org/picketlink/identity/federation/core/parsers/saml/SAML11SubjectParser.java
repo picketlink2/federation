@@ -17,6 +17,9 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
+
 import java.net.URI;
 
 import javax.xml.namespace.QName;
@@ -68,7 +71,7 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
                break;
             }
             else
-               throw new RuntimeException("Unknown End Element:" + StaxParserUtil.getEndElementName(endElement));
+               throw new RuntimeException(UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
          }
 
          StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -104,7 +107,7 @@ public class SAML11SubjectParser implements ParserNamespaceSupport
             subject.setSubjectConfirmation(subjectConfirmationType);
          }
          else
-            throw new RuntimeException("Unknown tag:" + tag + "::location=" + peekedElement.getLocation());
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
       }
       return subject;
    }

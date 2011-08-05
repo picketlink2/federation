@@ -53,6 +53,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -251,20 +252,20 @@ public class PicketLinkSTSUnitTestCase
       assertNull(config.getProviderForTokenElementNS(family, new QName("InvalidNamespace", "SpecialToken")));
 
       // check the service provider -> token type mapping.
-      assertEquals("Invalid token type for service provider 1", "http://www.tokens.org/SpecialToken", config
-            .getTokenTypeForService("http://services.testcorp.org/provider1"));
-      assertEquals("Invalid token type for service provider 2", SAMLUtil.SAML2_TOKEN_TYPE, config
-            .getTokenTypeForService("http://services.testcorp.org/provider2"));
+      assertEquals("Invalid token type for service provider 1", "http://www.tokens.org/SpecialToken",
+            config.getTokenTypeForService("http://services.testcorp.org/provider1"));
+      assertEquals("Invalid token type for service provider 2", SAMLUtil.SAML2_TOKEN_TYPE,
+            config.getTokenTypeForService("http://services.testcorp.org/provider2"));
       assertNull(config.getTokenTypeForService("http://invalid.service/service"));
 
       // check the keystore configuration.
       assertNotNull("Invalid null STS key pair", config.getSTSKeyPair());
       assertNotNull("Invalid null STS public key", config.getSTSKeyPair().getPublic());
       assertNotNull("Invalid null STS private key", config.getSTSKeyPair().getPrivate());
-      assertNotNull("Invalid null validating key for service provider 1", config
-            .getServiceProviderPublicKey("http://services.testcorp.org/provider1"));
-      assertNotNull("Invalid null validating key for service provider 2", config
-            .getServiceProviderPublicKey("http://services.testcorp.org/provider2"));
+      assertNotNull("Invalid null validating key for service provider 1",
+            config.getServiceProviderPublicKey("http://services.testcorp.org/provider1"));
+      assertNotNull("Invalid null validating key for service provider 2",
+            config.getServiceProviderPublicKey("http://services.testcorp.org/provider2"));
    }
 
    /**
@@ -851,12 +852,14 @@ public class PicketLinkSTSUnitTestCase
       SAML11AssertionType renewedAssertion = SAMLUtil.saml11FromElement(renewedAssertionElement);
 
       // assertions should have different ids and lifetimes.
-      assertFalse("Renewed assertion should have a unique id", originalAssertion.getID().equals(
-            renewedAssertion.getID()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotBefore().compare(
-            renewedAssertion.getConditions().getNotBefore()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotOnOrAfter().compare(
-            renewedAssertion.getConditions().getNotOnOrAfter()));
+      assertFalse("Renewed assertion should have a unique id",
+            originalAssertion.getID().equals(renewedAssertion.getID()));
+      assertEquals(DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotBefore().compare(renewedAssertion.getConditions().getNotBefore()));
+      assertEquals(
+            DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotOnOrAfter()
+                  .compare(renewedAssertion.getConditions().getNotOnOrAfter()));
    }
 
    /**
@@ -910,12 +913,14 @@ public class PicketLinkSTSUnitTestCase
       AssertionType renewedAssertion = SAMLUtil.fromElement(renewedAssertionElement);
 
       // assertions should have different ids and lifetimes.
-      assertFalse("Renewed assertion should have a unique id", originalAssertion.getID().equals(
-            renewedAssertion.getID()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotBefore().compare(
-            renewedAssertion.getConditions().getNotBefore()));
-      assertEquals(DatatypeConstants.LESSER, originalAssertion.getConditions().getNotOnOrAfter().compare(
-            renewedAssertion.getConditions().getNotOnOrAfter()));
+      assertFalse("Renewed assertion should have a unique id",
+            originalAssertion.getID().equals(renewedAssertion.getID()));
+      assertEquals(DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotBefore().compare(renewedAssertion.getConditions().getNotBefore()));
+      assertEquals(
+            DatatypeConstants.LESSER,
+            originalAssertion.getConditions().getNotOnOrAfter()
+                  .compare(renewedAssertion.getConditions().getNotOnOrAfter()));
    }
 
    /**
@@ -965,8 +970,8 @@ public class PicketLinkSTSUnitTestCase
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       assertEquals("Unexpected response context", "cancelcontext", response.getContext());
-      assertNotNull("Cancel response should contain a RequestedTokenCancelled element", response
-            .getRequestedTokenCancelled());
+      assertNotNull("Cancel response should contain a RequestedTokenCancelled element",
+            response.getRequestedTokenCancelled());
 
       // try to validate the canceled assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, null, null);
@@ -985,8 +990,9 @@ public class PicketLinkSTSUnitTestCase
       StatusType status = response.getStatus();
       assertNotNull("Unexpected null status", status);
       assertEquals("Unexpected status code", WSTrustConstants.STATUS_CODE_INVALID, status.getCode());
-      assertEquals("Unexpected status reason", "Validation failure: assertion with id "
-            + assertion.getAttribute("AssertionID") + " has been canceled", status.getReason());
+      assertEquals("Unexpected status reason",
+            "Validation failure: assertion with id " + assertion.getAttribute("AssertionID") + " has been canceled",
+            status.getReason());
 
       // now try to renew the canceled assertion.
       request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, null, null);
@@ -1002,10 +1008,11 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unexpected exception message", "SAMLV1.1 Assertion with id "
-               + assertion.getAttribute("AssertionID") + " has been canceled and cannot be renewed", we.getCause()
-               .getCause().getMessage());
+         Throwable t = we.getCause();
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("has been canceled and cannot be renewed") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
    }
 
@@ -1056,8 +1063,8 @@ public class PicketLinkSTSUnitTestCase
       assertEquals("Unexpected number of responses", 1, collection.getRequestSecurityTokenResponses().size());
       RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
       assertEquals("Unexpected response context", "cancelcontext", response.getContext());
-      assertNotNull("Cancel response should contain a RequestedTokenCancelled element", response
-            .getRequestedTokenCancelled());
+      assertNotNull("Cancel response should contain a RequestedTokenCancelled element",
+            response.getRequestedTokenCancelled());
 
       // try to validate the canceled assertion.
       request = this.createRequest("validatecontext", WSTrustConstants.VALIDATE_REQUEST, null, null);
@@ -1093,9 +1100,11 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unexpected exception message", "Assertion with id " + assertion.getAttribute("ID")
-               + " has been canceled and cannot be renewed", we.getCause().getCause().getMessage());
+         Throwable t = we.getCause();
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("has been canceled and cannot be renewed") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
    }
 
@@ -1173,9 +1182,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unexpected exception message", "Unable to locate client public key", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("Unable to locate client public key") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
    }
 
@@ -1203,9 +1215,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to renew token: request does not have a renew target", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("Unable to renew token: request does not have a renew target") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request with an empty renew target should also result in a failure.
@@ -1218,9 +1233,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
-         assertEquals("Unable to parse renew token request: security token is null", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof ParsingException);
+         String msg = t.getMessage();
+         if (msg.contains("Unable to parse token request: security token is null") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request to renew an unknown token (i.e. there's no provider can handle the token) should also fail.
@@ -1233,12 +1251,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         /*
-          * assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken",
-          * we.getCause() .getMessage());
-          */
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains(ErrorCodes.INVALID_DIGITAL_SIGNATURE) == false)
+            throw new RuntimeException("Unexpected error msg");
       }
    }
 
@@ -1266,9 +1284,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to validate token: request does not have a validate target", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("request does not have a validate target. Unable to validate token") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request with an empty validate target should also result in a failure.
@@ -1281,9 +1302,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
-         assertEquals("Unable to parse validate token request: security token is null", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof ParsingException);
+         String msg = t.getMessage();
+         if (msg.contains("Unable to parse token request: security token is null") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request to validate an unknown token (i.e. there's no provider can handle the token) should also fail.
@@ -1299,7 +1323,7 @@ public class PicketLinkSTSUnitTestCase
          RequestSecurityTokenResponse response = baseResponseColl.getRequestSecurityTokenResponses().get(0);
          StatusType status = response.getStatus();
          assertTrue(status.getCode().equals(WSTrustConstants.STATUS_CODE_INVALID));
-         // fail("An exception should have been raised by the security token service");
+         //fail("An exception should have been raised by the security token service");
       }
       catch (WebServiceException we)
       {
@@ -1334,9 +1358,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("Unable to cancel token: request does not have a cancel target", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains("request does not have a cancel target. Unable to cancel token") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request with an empty cancel target should also result in a failure.
@@ -1349,9 +1376,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof ParsingException);
-         assertEquals("Unable to parse cancel token request: security token is null", we.getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof ParsingException);
+         String msg = t.getMessage();
+         if (msg.contains("Unable to parse token request: security token is null") == false)
+            throw new RuntimeException("Unexpected exception message");
       }
 
       // a request to cancel an unknown token (i.e. there's no provider can handle the token) should also fail.
@@ -1364,10 +1394,12 @@ public class PicketLinkSTSUnitTestCase
       }
       catch (WebServiceException we)
       {
-         assertNotNull("Unexpected null cause", we.getCause());
-         assertTrue("Unexpected cause type", we.getCause() instanceof WSTrustException);
-         assertEquals("No SecurityTokenProvider configured for http://www.unknowntoken.org:UnknownToken", we.getCause()
-               .getCause().getMessage());
+         Throwable t = we.getCause();
+         assertNotNull("Unexpected null cause", t);
+         assertTrue("Unexpected cause type", t instanceof WSTrustException);
+         String msg = t.getMessage();
+         if (msg.contains(ErrorCodes.STS_NO_TOKEN_PROVIDER) == false)
+            throw new RuntimeException("Unexpected exception message");
       }
    }
 
@@ -1407,8 +1439,8 @@ public class PicketLinkSTSUnitTestCase
       Element element = (Element) requestedToken.getAny().get(0);
       assertEquals("Unexpected root element name", "SpecialToken", element.getLocalName());
       assertEquals("Unexpected namespace value", "http://www.tokens.org", element.getNamespaceURI());
-      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken", element
-            .getAttribute("TokenType"));
+      assertEquals("Unexpected attribute value", "http://www.tokens.org/SpecialToken",
+            element.getAttribute("TokenType"));
       element = (Element) element.getFirstChild();
       assertEquals("Unexpected child element name", "SpecialTokenValue", element.getLocalName());
       assertEquals("Unexpected token value", "Principal:jduke", element.getFirstChild().getNodeValue());
@@ -1615,8 +1647,8 @@ public class PicketLinkSTSUnitTestCase
       if (WSTrustConstants.KEY_TYPE_SYMMETRIC.equals(keyType))
       {
          Element encKeyElement = (Element) keyInfo.getContent().get(0);
-         assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY, encKeyElement
-               .getLocalName());
+         assertEquals("Unexpected key info content type", WSTrustConstants.XMLEnc.ENCRYPTED_KEY,
+               encKeyElement.getLocalName());
       }
       // if the key is public, KeyInfo should either contain an encoded certificate or an encoded public key.
       else if (WSTrustConstants.KEY_TYPE_PUBLIC.equals(keyType))

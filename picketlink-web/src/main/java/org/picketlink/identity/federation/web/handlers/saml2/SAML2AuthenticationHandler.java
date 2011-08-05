@@ -36,6 +36,7 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -178,7 +179,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
          AuthnRequestType art = (AuthnRequestType) request.getSAML2Object();
          if (art == null)
-            throw new ProcessingException("AuthnRequest is null");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
 
          String destination = art.getAssertionConsumerServiceURL().toASCIIString();
          if (trace)
@@ -216,7 +217,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          catch (Exception e)
          {
             log.error("Exception in processing authentication:", e);
-            throw new ProcessingException("authentication issue");
+            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "authentication issue");
          }
       }
 
@@ -373,7 +374,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          ResponseType responseType = (ResponseType) request.getSAML2Object();
          List<RTChoiceType> assertions = responseType.getAssertions();
          if (assertions.size() == 0)
-            throw new IllegalStateException("No assertions in reply from IDP");
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
 
          PrivateKey privateKey = (PrivateKey) request.getOptions().get(GeneralConstants.DECRYPTING_KEY);
 
@@ -412,7 +413,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             throws ProcessingException
       {
          if (privateKey == null)
-            throw new IllegalArgumentException("privateKey is null");
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "privateKey");
          SAML2Response saml2Response = new SAML2Response();
          try
          {
@@ -420,8 +421,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
             Element enc = DocumentUtil.getElement(doc, new QName(JBossSAMLConstants.ENCRYPTED_ASSERTION.get()));
             if (enc == null)
-               throw new ProcessingException("Null encrypted assertion element");
-            String oldID = enc.getAttribute("ID");
+               throw new ProcessingException(ErrorCodes.NULL_VALUE + "Null encrypted assertion element");
+            String oldID = enc.getAttribute(JBossSAMLConstants.ID.get());
             Document newDoc = DocumentUtil.createDocument();
             Node importedNode = newDoc.importNode(enc, true);
             newDoc.appendChild(importedNode);
@@ -446,19 +447,19 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             throws ProcessingException
       {
          if (responseType == null)
-            throw new IllegalArgumentException("response type is null");
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "response type");
 
          StatusType statusType = responseType.getStatus();
          if (statusType == null)
-            throw new IllegalArgumentException("Status Type from the IDP is null");
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Status Type from the IDP");
 
          String statusValue = statusType.getStatusCode().getValue().toASCIIString();
          if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
-            throw new SecurityException("IDP forbid the user");
+            throw new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
 
          List<RTChoiceType> assertions = responseType.getAssertions();
          if (assertions.size() == 0)
-            throw new IllegalStateException("No assertions in reply from IDP");
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
 
          AssertionType assertion = assertions.get(0).getAssertion();
          //Check for validity of assertion
@@ -474,7 +475,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if (expiredAssertion)
          {
             AssertionExpiredException aee = new AssertionExpiredException();
-            throw new ProcessingException("Assertion has expired", aee);
+            throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee);
          }
 
          SubjectType subject = assertion.getSubject();
@@ -482,15 +483,15 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          NameIDType nameID = jnameID.getValue();
          */
          if (subject == null)
-            throw new ProcessingException("Subject in the assertion is null");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Subject in the assertion");
 
          STSubType subType = subject.getSubType();
          if (subType == null)
-            throw new RuntimeException("Unable to find subtype via subject");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find subtype via subject");
          NameIDType nameID = (NameIDType) subType.getBaseID();
 
          if (nameID == null)
-            throw new RuntimeException("Unable to find username via subject");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find username via subject");
 
          final String userName = nameID.getValue();
          List<String> roles = new ArrayList<String>();
@@ -522,7 +523,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
             IRoleValidator roleValidator = (IRoleValidator) handlerChainConfig
                   .getParameter(GeneralConstants.ROLE_VALIDATOR);
             if (roleValidator == null)
-               throw new ProcessingException("Role Validator not provided");
+               throw new ProcessingException(ErrorCodes.NULL_VALUE + "Role Validator not provided");
 
             boolean validRole = roleValidator.userInRole(principal, roles);
             if (!validRole)
@@ -588,7 +589,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
                      roles.add(roleNode.getFirstChild().getNodeValue());
                   }
                   else
-                     throw new RuntimeException("Unknown role object type : " + attrValue);
+                     throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
                }
             }
          }

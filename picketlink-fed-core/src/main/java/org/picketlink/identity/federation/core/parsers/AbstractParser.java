@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.parsers;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.NULL_INPUT_STREAM;
+
 import java.io.InputStream;
 
 import javax.xml.stream.EventFilter;
@@ -32,7 +34,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-
 
 /**
  * Base class for parsers
@@ -48,36 +49,36 @@ public abstract class AbstractParser implements ParserNamespaceSupport
     * @throws {@link IllegalArgumentException}
     * @throws {@link IllegalArgumentException} when the configStream is null
     */
-   public Object parse( InputStream configStream ) throws ParsingException
+   public Object parse(InputStream configStream) throws ParsingException
    {
-      if( configStream == null )
-         throw new IllegalArgumentException( " Input Stream is null " );
+      if (configStream == null)
+         throw new IllegalArgumentException(NULL_INPUT_STREAM);
 
       XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader( configStream );
+      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(configStream);
 
       try
       {
-         xmlEventReader = xmlInputFactory.createFilteredReader( xmlEventReader, new EventFilter()
+         xmlEventReader = xmlInputFactory.createFilteredReader(xmlEventReader, new EventFilter()
          {
             public boolean accept(XMLEvent xmlEvent)
             {
                //We are going to disregard characters that are new line and whitespace
-               if( xmlEvent.isCharacters() )
+               if (xmlEvent.isCharacters())
                {
                   Characters chars = xmlEvent.asCharacters();
                   String data = chars.getData();
-                  data = valid( data ) ? data.trim() : null;
-                  return valid( data );
+                  data = valid(data) ? data.trim() : null;
+                  return valid(data);
                }
                else
                {
-                  return xmlEvent.isStartElement() || xmlEvent.isEndElement(); 
-               } 
+                  return xmlEvent.isStartElement() || xmlEvent.isEndElement();
+               }
             }
-            
-            private boolean valid( String str )
+
+            private boolean valid(String str)
             {
                return str != null && str.length() > 0;
             }
@@ -85,10 +86,10 @@ public abstract class AbstractParser implements ParserNamespaceSupport
       }
       catch (XMLStreamException e)
       {
-         throw new ParsingException( e );
+         throw new ParsingException(e);
       }
 
-      return parse( xmlEventReader ); 
-   } 
+      return parse(xmlEventReader);
+   }
 
 }

@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.policy.Policy;
@@ -1117,7 +1118,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    public Element getValidateTargetElement()
    {
       if (rstDocument == null)
-         throw new IllegalStateException("RST Document is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "RST Document");
 
       String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localPart = "ValidateTarget";
@@ -1140,7 +1141,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    public Element getRenewTargetElement()
    {
       if (this.rstDocument == null)
-         throw new IllegalStateException("RST Document is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "RST Document");
       String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localName = "RenewTarget";
 
@@ -1162,7 +1163,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    public Element getCancelTargetElement()
    {
       if (this.rstDocument == null)
-         throw new IllegalStateException("RST Document is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "RST Document");
       String ns = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
       String localName = "CancelTarget";
 

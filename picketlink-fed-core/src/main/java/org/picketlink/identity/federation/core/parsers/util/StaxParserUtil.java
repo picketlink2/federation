@@ -21,6 +21,11 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_END_TAG;
+import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_TAG;
+import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_XSI;
+import static org.picketlink.identity.federation.core.ErrorCodes.NULL_INPUT_STREAM;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -316,7 +321,7 @@ public class StaxParserUtil
       Attribute xsiType = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XSI_NSURI.get(),
             JBossSAMLConstants.TYPE.get()));
       if (xsiType == null)
-         throw new RuntimeException("xsi:type expected");
+         throw new RuntimeException(EXPECTED_XSI);
       return StaxParserUtil.getAttributeValue(xsiType);
    }
 
@@ -435,7 +440,7 @@ public class StaxParserUtil
    public static final String trim(String str)
    {
       if (str == null || str.length() == 0)
-         throw new IllegalArgumentException("Input str is null");
+         throw new IllegalArgumentException(NULL_INPUT_STREAM);
       return str.trim();
    }
 
@@ -449,7 +454,7 @@ public class StaxParserUtil
    {
       String elementTag = getStartElementName(startElement);
       if (!tag.equals(elementTag))
-         throw new RuntimeException("Expecting <" + tag + ">.  Found <" + elementTag + ">");
+         throw new RuntimeException(EXPECTED_TAG + tag + ">.  Found <" + elementTag + ">");
    }
 
    /**
@@ -462,7 +467,7 @@ public class StaxParserUtil
    {
       String elementTag = getEndElementName(endElement);
       if (!tag.equals(elementTag))
-         throw new RuntimeException("Expecting </" + tag + ">.  Found </" + elementTag + ">");
+         throw new RuntimeException(EXPECTED_END_TAG + tag + ">.  Found </" + elementTag + ">");
    }
 
    /**

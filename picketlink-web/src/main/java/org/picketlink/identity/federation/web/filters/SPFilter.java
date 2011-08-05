@@ -58,6 +58,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -256,7 +257,7 @@ public class SPFilter implements Filter
                {
                   if (trace)
                      log.trace("Exception:", e);
-                  throw new ServletException("Server Error");
+                  throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Error");
                }
                return;
             }
@@ -275,7 +276,7 @@ public class SPFilter implements Filter
                throw new ServletException(e);
             }
             if (!isValid)
-               throw new ServletException("Validity check failed");
+               throw new ServletException(ErrorCodes.VALIDATION_CHECK_FAILED + "Validity check failed");
 
             //deal with SAML response from IDP
             byte[] base64DecodedResponse = PostBindingUtil.base64Decode(samlResponse);
@@ -294,7 +295,7 @@ public class SPFilter implements Filter
                if (!ignoreSignatures)
                {
                   if (!verifySignature(documentHolder))
-                     throw new ServletException("Cannot verify sender");
+                     throw new ServletException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Cannot verify sender");
                }
 
                Set<SAML2Handler> handlers = chain.handlers();
@@ -359,7 +360,7 @@ public class SPFilter implements Filter
             {
                if (trace)
                   log.trace("Server Exception:", e);
-               throw new ServletException("Server Exception");
+               throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Exception");
             }
 
          }
@@ -384,7 +385,7 @@ public class SPFilter implements Filter
                if (!ignoreSignatures)
                {
                   if (!verifySignature(documentHolder))
-                     throw new ServletException("Cannot verify sender");
+                     throw new ServletException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Cannot verify sender");
                }
 
                Set<SAML2Handler> handlers = chain.handlers();
@@ -432,7 +433,7 @@ public class SPFilter implements Filter
             {
                if (trace)
                   log.trace("Server Exception:", e);
-               throw new ServletException("Server Exception");
+               throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Exception");
             }
          }
       }
@@ -443,7 +444,7 @@ public class SPFilter implements Filter
       this.context = filterConfig.getServletContext();
       InputStream is = context.getResourceAsStream(configFile);
       if (is == null)
-         throw new RuntimeException(configFile + " missing");
+         throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile + " missing");
       try
       {
          spConfiguration = ConfigurationUtil.getSPConfiguration(is);
@@ -535,12 +536,12 @@ public class SPFilter implements Filter
       {
          KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
          if (keyProvider == null)
-            throw new RuntimeException("KeyProvider is null");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyProvider");
          try
          {
             String keyManagerClassName = keyProvider.getClassName();
             if (keyManagerClassName == null)
-               throw new RuntimeException("KeyManager class name is null");
+               throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
 
             Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
             this.keyManager = (TrustKeyManager) clazz.newInstance();
@@ -574,9 +575,9 @@ public class SPFilter implements Filter
    private AuthnRequestType createSAMLRequest(String serviceURL, String identityURL) throws ConfigurationException
    {
       if (serviceURL == null)
-         throw new IllegalArgumentException("serviceURL is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "serviceURL");
       if (identityURL == null)
-         throw new IllegalArgumentException("identityURL is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "identityURL");
 
       SAML2Request saml2Request = new SAML2Request();
       String id = IDGenerator.create("ID_");
@@ -630,7 +631,7 @@ public class SPFilter implements Filter
       }
 
       if (issuerID == null)
-         throw new IssuerNotTrustedException("Issue missing");
+         throw new IssuerNotTrustedException(ErrorCodes.NULL_VALUE + "IssuerID missing");
 
       URL issuerURL;
       try
@@ -691,7 +692,7 @@ public class SPFilter implements Filter
 
    protected ResponseType decryptAssertion(ResponseType responseType)
    {
-      throw new RuntimeException("This authenticator does not handle encryption");
+      throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "This filter does not handle encryption");
    }
 
    /**
@@ -706,28 +707,28 @@ public class SPFilter implements Filter
          throws ConfigurationException, AssertionExpiredException
    {
       if (request == null)
-         throw new IllegalArgumentException("request is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "request");
       if (responseType == null)
-         throw new IllegalArgumentException("response type is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "response type");
 
       StatusType statusType = responseType.getStatus();
       if (statusType == null)
-         throw new IllegalArgumentException("Status Type from the IDP is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Status Type from the IDP");
 
       String statusValue = statusType.getStatusCode().getValue().toASCIIString();
       if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
-         throw new SecurityException("IDP forbid the user");
+         throw new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
 
       List<org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType> assertions = responseType
             .getAssertions();
       if (assertions.size() == 0)
-         throw new IllegalStateException("No assertions in reply from IDP");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
 
       AssertionType assertion = assertions.get(0).getAssertion();
       //Check for validity of assertion
       boolean expiredAssertion = AssertionUtil.hasExpired(assertion);
       if (expiredAssertion)
-         throw new AssertionExpiredException();
+         throw new AssertionExpiredException(ErrorCodes.EXPIRED_ASSERTION);
 
       SubjectType subject = assertion.getSubject();
       /*JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0);

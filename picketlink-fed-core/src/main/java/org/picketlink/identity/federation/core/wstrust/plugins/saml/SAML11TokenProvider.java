@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
@@ -49,7 +50,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * @seeorg.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.
     * federation.core.interfaces.ProtocolContext)
     */
-   @Override
    public void cancelToken(ProtocolContext context) throws ProcessingException
    {
       if (!(context instanceof WSTrustRequestContext))
@@ -60,10 +60,11 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       // get the SAML assertion that will be canceled.
       Element token = wstContext.getRequestSecurityToken().getCancelTargetElement();
       if (token == null)
-         throw new ProcessingException("Invalid cancel request: missing required CancelTarget");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid cancel request: missing required CancelTarget");
       Element assertionElement = (Element) token.getFirstChild();
       if (!this.isSAMLAssertion(assertionElement))
-         throw new ProcessingException("CancelTarget doesn't not contain a SAMLV1.1 assertion");
+         throw new ProcessingException(ErrorCodes.INVALID_ASSERTION
+               + "CancelTarget doesn't not contain a SAMLV1.1 assertion");
 
       // get the assertion ID and add it to the canceled assertions set.
       String assertionId = assertionElement.getAttribute("AssertionID");
@@ -77,7 +78,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#issueToken(org.picketlink.identity.federation
     * .core.interfaces.ProtocolContext)
     */
-   @Override
    public void issueToken(ProtocolContext context) throws ProcessingException
    {
       if (!(context instanceof WSTrustRequestContext))
@@ -124,6 +124,8 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       SAML11SubjectConfirmationType subjectConfirmation = new SAML11SubjectConfirmationType();
       subjectConfirmation.addConfirmationMethod(URI.create(confirmationMethod));
       // TODO: set the key info.
+      if (keyInfoType != null)
+         throw new IllegalStateException(ErrorCodes.NOT_IMPLEMENTED_YET);
 
       // create a subject using the caller principal or on-behalf-of principal.
       String subjectName = principal == null ? "ANONYMOUS" : principal.getName();
@@ -134,8 +136,8 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       subject.setSubjectConfirmation(subjectConfirmation);
 
       // add the subject to an auth statement.
-      SAML11AuthenticationStatementType authStatement = new SAML11AuthenticationStatementType(URI
-            .create("urn:picketlink:auth"), lifetime.getCreated());
+      SAML11AuthenticationStatementType authStatement = new SAML11AuthenticationStatementType(
+            URI.create("urn:picketlink:auth"), lifetime.getCreated());
       authStatement.setSubject(subject);
 
       // TODO: add attribute statements.
@@ -154,7 +156,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       }
       catch (Exception e)
       {
-         throw new ProcessingException("Failed to marshall SAMLV1.1 assertion", e);
+         throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", e);
       }
       SecurityToken token = new StandardSecurityToken(wstContext.getRequestSecurityToken().getTokenType().toString(),
             assertionElement, assertionID);
@@ -177,7 +179,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#renewToken(org.picketlink.identity.federation
     * .core.interfaces.ProtocolContext)
     */
-   @Override
    public void renewToken(ProtocolContext context) throws ProcessingException
    {
       if (!(context instanceof WSTrustRequestContext))
@@ -187,10 +188,11 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       // get the specified assertion that must be renewed.
       Element token = wstContext.getRequestSecurityToken().getRenewTargetElement();
       if (token == null)
-         throw new ProcessingException("Invalid renew request: missing required RenewTarget");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid renew request: missing required RenewTarget");
       Element oldAssertionElement = (Element) token.getFirstChild();
       if (!this.isSAMLAssertion(oldAssertionElement))
-         throw new ProcessingException("RenewTarget doesn't not contain a SAMLV1.1 assertion");
+         throw new ProcessingException(ErrorCodes.INVALID_ASSERTION
+               + "RenewTarget doesn't not contain a SAMLV1.1 assertion");
 
       // get the JAXB representation of the old assertion.
       SAML11AssertionType oldAssertion = null;
@@ -200,13 +202,13 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       }
       catch (Exception je)
       {
-         throw new ProcessingException("Error unmarshalling assertion", je);
+         throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Error unmarshalling assertion", je);
       }
 
       // canceled assertions cannot be renewed.
       if (this.revocationRegistry.isRevoked(SAMLUtil.SAML11_TOKEN_TYPE, oldAssertion.getID()))
-         throw new ProcessingException("SAMLV1.1 Assertion with id " + oldAssertion.getID()
-               + " has been canceled and cannot be renewed");
+         throw new ProcessingException(ErrorCodes.ASSERTION_RENEWAL_EXCEPTION + "SAMLV1.1 Assertion with id "
+               + oldAssertion.getID() + " has been canceled and cannot be renewed");
 
       // adjust the lifetime for the renewed assertion.
       SAML11ConditionsType conditions = oldAssertion.getConditions();
@@ -234,7 +236,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       }
       catch (Exception e)
       {
-         throw new ProcessingException("Failed to marshall SAMLV1.1 assertion", e);
+         throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", e);
       }
       SecurityToken securityToken = new StandardSecurityToken(wstContext.getRequestSecurityToken().getTokenType()
             .toString(), assertionElement, assertionID);
@@ -255,7 +257,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#validateToken(org.picketlink.identity
     * .federation.core.interfaces.ProtocolContext)
     */
-   @Override
    public void validateToken(ProtocolContext context) throws ProcessingException
    {
       if (!(context instanceof WSTrustRequestContext))
@@ -268,7 +269,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
       // get the SAML assertion that must be validated.
       Element token = wstContext.getRequestSecurityToken().getValidateTargetElement();
       if (token == null)
-         throw new ProcessingException("Bad validate request: missing required ValidateTarget");
+         throw new ProcessingException(ErrorCodes.NULL_VALUE + "Bad validate request: missing required ValidateTarget");
 
       String code = WSTrustConstants.STATUS_CODE_VALID;
       String reason = "SAMLV1.1 Assertion successfuly validated";
@@ -288,7 +289,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
          }
          catch (Exception e)
          {
-            throw new ProcessingException("Unmarshalling error:", e);
+            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Unmarshalling error:", e);
          }
       }
 
@@ -326,7 +327,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#family()
     */
-   @Override
    public String family()
    {
       return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
@@ -337,7 +337,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#getSupportedQName()
     */
-   @Override
    public QName getSupportedQName()
    {
       return new QName(tokenType(), JBossSAMLConstants.ASSERTION.get());
@@ -348,7 +347,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
     */
-   @Override
    public boolean supports(String namespace)
    {
       return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
@@ -359,7 +357,6 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider
     * 
     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
     */
-   @Override
    public String tokenType()
    {
       return SAMLUtil.SAML11_TOKEN_TYPE;

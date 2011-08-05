@@ -27,6 +27,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 
@@ -66,7 +67,7 @@ public class Lifetime
       }
       catch (DatatypeConfigurationException dce)
       {
-         throw new RuntimeException("Unable to get DatatypeFactory instance", dce);
+         throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get DatatypeFactory instance", dce);
       }
 
       // normalize the parameters (convert to UTC).
@@ -95,7 +96,7 @@ public class Lifetime
    public Lifetime(LifetimeType lifetime)
    {
       if (lifetime == null)
-         throw new IllegalArgumentException("Unable to create a Lifetime object from a null LifetimeType");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "LifetimeType");
 
       try
       {
@@ -103,7 +104,7 @@ public class Lifetime
       }
       catch (DatatypeConfigurationException dce)
       {
-         throw new RuntimeException("Unable to get DatatypeFactory instance", dce);
+         throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get DatatypeFactory instance", dce);
       }
       this.delegate = lifetime;
 
@@ -160,7 +161,7 @@ public class Lifetime
    {
       return this.created.toGregorianCalendar();
    }
-   
+
    /**
     * <p>
     * Sets the creation time.
@@ -172,7 +173,7 @@ public class Lifetime
    {
       this.setCreated(this.factory.newXMLGregorianCalendar(created));
    }
-   
+
    /**
     * <p>
     * Obtains the expiration time as a {@code XMLGregorianCalendar}.
@@ -209,7 +210,7 @@ public class Lifetime
    {
       return this.expires.toGregorianCalendar();
    }
-   
+
    /**
     * <p>
     * Sets the expiration time.
@@ -221,7 +222,7 @@ public class Lifetime
    {
       this.setExpires(this.factory.newXMLGregorianCalendar(expires));
    }
-   
+
    /**
     * <p>
     * Obtains a reference to the {@code LifetimeType} delegate.

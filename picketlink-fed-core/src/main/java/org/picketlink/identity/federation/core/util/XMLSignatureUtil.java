@@ -56,6 +56,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -179,7 +180,7 @@ public class XMLSignatureUtil
          MarshalException, XMLSignatureException
    {
       if (nodeToBeSigned == null)
-         throw new IllegalArgumentException("Node to be signed is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Node to be signed");
       if (trace)
       {
          log.trace("Document to be signed=" + DocumentUtil.asString(doc));
@@ -286,14 +287,14 @@ public class XMLSignatureUtil
    public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException
    {
       if (signedDoc == null)
-         throw new IllegalArgumentException("Signed Document is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Signed Document");
       NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
       if (nl == null || nl.getLength() == 0)
       {
-         throw new IllegalArgumentException("Cannot find Signature element");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Cannot find Signature element");
       }
       if (publicKey == null)
-         throw new IllegalArgumentException("Public Key is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Public Key");
 
       DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
       XMLSignature signature = fac.unmarshalXMLSignature(valContext);

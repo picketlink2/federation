@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.handler.config.Handler;
@@ -45,7 +46,7 @@ public class HandlerUtil
    public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException
    {
       if (handlers == null)
-         throw new IllegalArgumentException("handlers is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "handlers");
       List<Handler> handlerList = handlers.getHandler();
 
       Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
@@ -59,7 +60,7 @@ public class HandlerUtil
          {
             clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
             if (clazz == null)
-               throw new RuntimeException(clazzName + " could not be loaded");
+               throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + clazzName);
             SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
             List<KeyValueType> options = handler.getOption();
 

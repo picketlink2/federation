@@ -39,6 +39,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
@@ -167,7 +168,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          return convert(this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest));
       }
       else
-         throw new WebServiceException("Invalid security token request");
+         throw new WebServiceException(ErrorCodes.STS_INVALID_TOKEN_REQUEST);
    }
 
    private SOAPMessage convert(Source theResponse)
@@ -203,38 +204,6 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
       return null;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenService#invoke(javax.xml.transform.Source)
-    */
-   /*public Source invoke(Source request)
-   {
-      BaseRequestSecurityToken baseRequest;
-      Document document;
-      try
-      {
-         document = (Document) DocumentUtil.getNodeFromSource(request);
-         System.out.println(DocumentUtil.asString(document));
-         baseRequest = (BaseRequestSecurityToken) new WSTrustParser().parse(DocumentUtil.getSourceAsStream(request));
-      }
-      catch (Exception e)
-      {
-         throw new WebServiceException("Exception parsing token request: " + e.getMessage(), e);
-      }
-
-      if (baseRequest instanceof RequestSecurityToken)
-      {
-         RequestSecurityToken req = (RequestSecurityToken) baseRequest;
-         req.setRSTDocument(document);
-         return this.handleTokenRequest(req);
-      }
-      else if (baseRequest instanceof RequestSecurityTokenCollection)
-         return this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest);
-      else
-         throw new WebServiceException("Invalid security token request");
-   }*/
-
    /**
     * <p>
     * Process a security token request.
@@ -257,7 +226,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          }
          catch (ConfigurationException e)
          {
-            throw new WebServiceException("Encountered configuration exception:", e);
+            throw new WebServiceException(ErrorCodes.STS_CONFIGURATION_EXCEPTION, e);
          }
 
       WSTrustRequestHandler handler = this.config.getRequestHandler();
@@ -285,11 +254,11 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          else if (requestType.equals(WSTrustConstants.VALIDATE_REQUEST))
             return this.marshallResponse(handler.validate(request, this.context.getUserPrincipal()));
          else
-            throw new WSTrustException("Invalid request type: " + requestType);
+            throw new WSTrustException(ErrorCodes.STS_INVALID_REQUEST_TYPE + requestType);
       }
       catch (WSTrustException we)
       {
-         throw new WebServiceException("Exception in handling token request: " + we.getMessage(), we);
+         throw new WebServiceException(ErrorCodes.STS_EXCEPTION_HANDLING_TOKEN_REQ + we.getMessage(), we);
       }
    }
 
@@ -331,7 +300,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
       }
       catch (Exception e)
       {
-         throw new WebServiceException("Error writting response: " + e.getMessage(), e);
+         throw new WebServiceException(ErrorCodes.STS_RESPONSE_WRITING_ERROR + e.getMessage(), e);
       }
    }
 
@@ -373,7 +342,8 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
       }
       catch (Exception e)
       {
-         throw new ConfigurationException("Error parsing the configuration file:[" + configurationFileURL + "]", e);
+         throw new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR + configurationFileURL + "]",
+               e);
       }
    }
 }

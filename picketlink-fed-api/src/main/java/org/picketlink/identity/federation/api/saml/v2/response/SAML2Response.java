@@ -37,6 +37,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -347,7 +348,7 @@ public class SAML2Response
          ProcessingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
 
       Document samlDocument = DocumentUtil.getDocument(is);
       SAMLParser samlParser = new SAMLParser();
@@ -369,7 +370,7 @@ public class SAML2Response
          ProcessingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
       Document samlDocument = DocumentUtil.getDocument(is);
 
       SAMLParser samlParser = new SAMLParser();
@@ -397,7 +398,7 @@ public class SAML2Response
          ProcessingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
 
       Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -422,7 +423,7 @@ public class SAML2Response
          ProcessingException
    {
       if (is == null)
-         throw new IllegalArgumentException("inputstream is null");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
 
       Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -449,7 +450,7 @@ public class SAML2Response
    public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException
    {
       if (encryptedElementType == null)
-         throw new IllegalArgumentException("encryptedElementType is null ");
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "encryptedElementType");
       Document doc = DocumentUtil.createDocument();
       Node importedNode = doc.importNode(encryptedElementType.getEncryptedElement(), true);
       doc.appendChild(importedNode);

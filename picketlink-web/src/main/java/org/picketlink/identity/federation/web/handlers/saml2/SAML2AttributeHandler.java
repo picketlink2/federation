@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -169,7 +170,8 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
 
       AssertionType assertion = (AssertionType) request.getOptions().get(GeneralConstants.ASSERTION);
       if (assertion == null)
-         throw new RuntimeException("Assertion not found in the handler request:" + request.getOptions());
+         throw new RuntimeException(ErrorCodes.NULL_VALUE + "Assertion not found in the handler request:"
+               + request.getOptions());
       Set<StatementAbstractType> statements = assertion.getStatements();
       for (StatementAbstractType statement : statements)
       {

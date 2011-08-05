@@ -119,6 +119,7 @@ public enum JBossSAMLConstants
    PROTOCOL_SUPPORT_ENUMERATION( "protocolSupportEnumeration" ),
    PROVIDER_NAME( "ProviderName" ),
    REQUESTED_AUTHN_CONTEXT( "RequestedAuthnContext" ),
+   REASON("Reason"),
    RECIPIENT( "Recipient" ),
    REQUEST( "Request" ),
    REQUESTED_ATTRIBUTE( "RequestedAttribute" ),

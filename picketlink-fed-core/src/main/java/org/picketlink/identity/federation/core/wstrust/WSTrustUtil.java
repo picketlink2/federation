@@ -43,6 +43,7 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
@@ -427,7 +428,7 @@ public class WSTrustUtil
          }
          catch (Exception e)
          {
-            throw new WSTrustException("Error creating KeyInfoType", e);
+            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
          }
       }
       else
@@ -466,7 +467,7 @@ public class WSTrustUtil
       }
       catch (Exception e)
       {
-         throw new WSTrustException("Error creating KeyInfoType", e);
+         throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
       }
       return keyInfo;
    }

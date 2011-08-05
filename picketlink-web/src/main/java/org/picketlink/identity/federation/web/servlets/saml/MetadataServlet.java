@@ -42,6 +42,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.util.KeyUtil;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
@@ -105,7 +106,7 @@ public class MetadataServlet extends HttpServlet
             log.trace("Config File Location=" + configFileLocation);
          InputStream is = context.getResourceAsStream(configFileLocation);
          if (is == null)
-            throw new RuntimeException(configFileLocation + " missing");
+            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + configFileLocation + " missing");
 
          //Look for signing alias
          signingAlias = config.getInitParameter("signingAlias");
@@ -125,7 +126,7 @@ public class MetadataServlet extends HttpServlet
          }
          metadataProvider.init(options);
          if (metadataProvider.isMultiple())
-            throw new RuntimeException("Multiple Entities not currently supported");
+            throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Multiple Entities not currently supported");
 
          /**
           * Since a metadata provider does not have access to the servlet context.
@@ -144,7 +145,7 @@ public class MetadataServlet extends HttpServlet
          signingAlias = keyProvider.getSigningAlias();
          String keyManagerClassName = keyProvider.getClassName();
          if (keyManagerClassName == null)
-            throw new RuntimeException("KeyManager class name is null");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
 
          clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
@@ -176,7 +177,7 @@ public class MetadataServlet extends HttpServlet
       catch (Exception e)
       {
          log.error("Exception in starting servlet:", e);
-         throw new ServletException("Unable to start servlet");
+         throw new ServletException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to start servlet");
       }
 
    }

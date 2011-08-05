@@ -32,9 +32,10 @@ import org.jboss.logging.Logger;
 import org.jboss.security.SecurityContext;
 import org.picketlink.identity.federation.api.wstrust.WSTrustClient;
 import org.picketlink.identity.federation.api.wstrust.WSTrustClient.SecurityInfo;
+import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.w3c.dom.Element;
 
@@ -68,16 +69,16 @@ public class STSClientInterceptor implements Interceptor, Serializable
    private static final Logger log = Logger.getLogger(STSClientInterceptor.class);
 
    private static boolean trace = log.isTraceEnabled();
-   
+
    private String propertiesFile;
 
    private Builder builder;
-   
+
    public String getName()
    {
       return getClass().getName();
    }
-   
+
    public void setPropertiesFile(String propertiesFile)
    {
       this.propertiesFile = propertiesFile;
@@ -103,7 +104,7 @@ public class STSClientInterceptor implements Interceptor, Serializable
                builder = new Builder(propertiesFile);
             }
             else
-               throw new IllegalStateException("Attribute propertiesFile must be set");
+               throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "Attribute propertiesFile must be set");
          }
          WSTrustClient client = new WSTrustClient(builder.getServiceName(), builder.getPortName(),
                builder.getEndpointAddress(), new SecurityInfo(principal.getName(), credential));

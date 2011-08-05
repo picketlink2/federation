@@ -31,6 +31,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
@@ -136,15 +137,15 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          }
          else if (JBossSAMLConstants.AUTHN_AUTHORITY_DESCRIPTOR.get().equals(localPart))
          {
-            throw new ParsingException("AuthnAuthorityDescriptor type not supported");
+            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AuthnAuthorityDescriptor");
          }
          else if (JBossSAMLConstants.AFFILIATION_DESCRIPTOR.get().equals(localPart))
          {
-            throw new ParsingException("AffiliationDescriptor type not supported");
+            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AffiliationDescriptor");
          }
          else if (JBossSAMLConstants.PDP_DESCRIPTOR.get().equals(localPart))
          {
-            throw new ParsingException("PDPDescriptor type not supported");
+            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " PDPDescriptor");
          }
          else if (localPart.equals(JBossSAMLConstants.SIGNATURE.get()))
          {
@@ -162,14 +163,15 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
          }
          else if (JBossSAMLConstants.ADDITIONAL_METADATA_LOCATION.get().equals(localPart))
          {
-            throw new ParsingException("AdditionalMetadataLocation type not supported");
+            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AdditionalMetadataLocation");
          }
          else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart))
          {
             entityDescriptorType.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart + "::location=" + startElement.getLocation());
+            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + localPart + "::location="
+                  + startElement.getLocation());
       }
       return entityDescriptorType;
    }
@@ -276,7 +278,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             spSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
       }
       return spSSODescriptor;
    }
@@ -393,7 +395,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             idpSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
       }
       return idpSSODescriptor;
    }
@@ -476,7 +478,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             attributeAuthority.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
 
       }
       return attributeAuthority;
@@ -528,7 +530,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             org.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
       }
       return org;
    }
@@ -540,7 +542,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
 
       Attribute attr = startElement.getAttributeByName(new QName(JBossSAMLConstants.CONTACT_TYPE.get()));
       if (attr == null)
-         throw new ParsingException("attribute contactType required");
+         throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "contactType");
       ContactType contactType = new ContactType(ContactTypeType.fromValue(StaxParserUtil.getAttributeValue(attr)));
 
       while (xmlEventReader.hasNext())
@@ -586,7 +588,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             contactType.setExtensions(parseExtensions(xmlEventReader));
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
       }
       return contactType;
    }
@@ -654,7 +656,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
 
       Attribute indexAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.INDEX.get()));
       if (indexAttr == null)
-         throw new ParsingException("attribute index required");
+         throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "index");
 
       AttributeConsumingServiceType attributeConsumer = new AttributeConsumingServiceType(
             Integer.parseInt(StaxParserUtil.getAttributeValue(indexAttr)));
@@ -689,7 +691,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
             attributeConsumer.addRequestedAttribute(attType);
          }
          else
-            throw new RuntimeException("Unknown " + localPart);
+            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
       }
 
       return attributeConsumer;
@@ -704,7 +706,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport
 
       Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
       if (name == null)
-         throw new RuntimeException("Required attribute Name in Attribute");
+         throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Name");
       attributeType = new RequestedAttributeType(StaxParserUtil.getAttributeValue(name));
 
       Attribute isRequired = startElement.getAttributeByName(new QName(JBossSAMLConstants.IS_REQUIRED.get()));

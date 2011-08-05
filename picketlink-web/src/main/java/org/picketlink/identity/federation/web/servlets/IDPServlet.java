@@ -45,6 +45,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -150,7 +151,7 @@ public class IDPServlet extends HttpServlet
 
       InputStream is = context.getResourceAsStream(configFile);
       if (is == null)
-         throw new RuntimeException(configFile + " missing");
+         throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + configFile + " missing");
 
       //Get the chain from config
       chain = new DefaultSAML2HandlerChain();
@@ -208,13 +209,14 @@ public class IDPServlet extends HttpServlet
       {
          KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
          if (keyProvider == null)
-            throw new RuntimeException("Key Provider is null for context=" + context.getContextPath());
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Key Provider is null for context="
+                  + context.getContextPath());
 
          try
          {
             String keyManagerClassName = keyProvider.getClassName();
             if (keyManagerClassName == null)
-               throw new RuntimeException("KeyManager class name is null");
+               throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name is null");
 
             Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
             this.keyManager = (TrustKeyManager) clazz.newInstance();
@@ -373,7 +375,8 @@ public class IDPServlet extends HttpServlet
                   }
                }
                else
-                  throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+                  throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown type:"
+                        + samlObject.getClass().getName());
 
                samlResponse = saml2HandlerResponse.getResultingDocument();
                relayState = saml2HandlerResponse.getRelayState();
@@ -403,7 +406,7 @@ public class IDPServlet extends HttpServlet
                      samlRequestMessage, null), isPost);
 
                if (!isValid)
-                  throw new GeneralSecurityException("Validation check failed");
+                  throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED + "Validation check failed");
 
                String issuer = null;
                IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
@@ -451,7 +454,8 @@ public class IDPServlet extends HttpServlet
                   }
                }
                else
-                  throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+                  throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown type:"
+                        + samlObject.getClass().getName());
 
                samlResponse = saml2HandlerResponse.getResultingDocument();
                relayState = saml2HandlerResponse.getRelayState();
@@ -530,7 +534,7 @@ public class IDPServlet extends HttpServlet
          try
          {
             if (samlResponse == null)
-               throw new ServletException("SAML Response has not been generated");
+               throw new ServletException(ErrorCodes.NULL_VALUE + "SAML Response has not been generated");
 
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)

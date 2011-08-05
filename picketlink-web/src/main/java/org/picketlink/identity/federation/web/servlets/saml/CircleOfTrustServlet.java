@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
@@ -79,9 +80,9 @@ public class CircleOfTrustServlet extends HttpServlet
       String action = req.getParameter("action");
       String type = req.getParameter("type");
       if (action == null)
-         throw new ServletException("action is null");
+         throw new ServletException(ErrorCodes.NULL_VALUE + "action");
       if (type == null)
-         throw new ServletException("type is null");
+         throw new ServletException(ErrorCodes.NULL_VALUE + "type");
 
       //SP
       if ("sp".equalsIgnoreCase(type))
