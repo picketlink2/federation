@@ -69,6 +69,8 @@ public class KeyStoreKeyManager implements TrustKeyManager
     */
    private final Map<String, SecretKey> keys = new HashMap<String, SecretKey>();
 
+   private final Map<String, Object> options = new HashMap<String, Object>();
+
    private static Logger log = Logger.getLogger(KeyStoreKeyManager.class);
 
    private final boolean trace = log.isTraceEnabled();
@@ -337,6 +339,23 @@ public class KeyStoreKeyManager implements TrustKeyManager
          keys.put(domain, key);
       }
       return key;
+   }
+
+   /**
+    * @see org.picketlink.identity.federation.core.interfaces.TrustKeyManager#addAdditionalOption(java.lang.String, java.lang.Object)
+    */
+   public void addAdditionalOption(String key, Object value)
+   {
+      this.options.put(key, value);
+   }
+
+   /**
+    * 
+    * @see org.picketlink.identity.federation.core.interfaces.TrustKeyManager#getAdditionalOption(java.lang.String)
+    */
+   public Object getAdditionalOption(String key)
+   {
+      return this.options.get(key);
    }
 
    private void setUpKeyStore() throws GeneralSecurityException, IOException

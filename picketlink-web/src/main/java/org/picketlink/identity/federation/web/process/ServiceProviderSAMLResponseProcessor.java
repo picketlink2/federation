@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -152,7 +153,12 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             {
                log.trace("ServiceProviderSAMLResponseProcessor::Remote Host=" + remoteHost);
             }
-            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
+            String idpKey = (String) keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
+            if (StringUtil.isNullOrEmpty(idpKey))
+            {
+               idpKey = remoteHost;
+            }
+            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, idpKey);
             requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
             requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
          }

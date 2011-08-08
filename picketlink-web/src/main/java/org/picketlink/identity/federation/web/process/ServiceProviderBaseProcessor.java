@@ -40,10 +40,10 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
@@ -55,19 +55,24 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 public class ServiceProviderBaseProcessor
 {
    protected static Logger log = Logger.getLogger(ServiceProviderBaseProcessor.class);
+
    protected boolean trace = log.isTraceEnabled();
-   
+
    protected boolean postBinding;
+
    protected String serviceURL;
-   
+
    protected String identityURL;
-   
+
    protected SPType spConfiguration;
+
    protected TrustKeyManager keyManager;
-   
+
    protected String issuer = null;
-   
+
    protected boolean supportSignatures = false;
+
+   public static final String IDP_KEY = "idp.key";
 
    /**
     * Construct
@@ -79,7 +84,7 @@ public class ServiceProviderBaseProcessor
       this.postBinding = postBinding;
       this.serviceURL = serviceURL;
    }
-   
+
    /**
     * Set the SP configuration
     * @param sp
@@ -88,7 +93,7 @@ public class ServiceProviderBaseProcessor
    {
       this.spConfiguration = sp;
    }
-   
+
    /**
     * Set the {@code TrustKeyManager}
     * @param tkm
@@ -97,7 +102,7 @@ public class ServiceProviderBaseProcessor
    {
       this.keyManager = tkm;
    }
-   
+
    /**
     * Set the Identity URL
     * @param identityURL
@@ -114,8 +119,8 @@ public class ServiceProviderBaseProcessor
    public void setSupportSignatures(boolean supportSignatures)
    {
       this.supportSignatures = supportSignatures;
-   }   
-   
+   }
+
    /**
     * Set a separate issuer that is different from the service url
     * @param issuer
@@ -125,87 +130,82 @@ public class ServiceProviderBaseProcessor
       this.issuer = issuer;
    }
 
-   public SAML2HandlerResponse process(HTTPContext httpContext,
-         Set<SAML2Handler> handlers,
-         Lock chainLock) 
-   throws ProcessingException, IOException, ParsingException, ConfigurationException
+   public SAML2HandlerResponse process(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock)
+         throws ProcessingException, IOException, ParsingException, ConfigurationException
    {
-      if(trace)
+      if (trace)
          log.trace("Handlers are:" + handlers);
-      
+
       //Neither saml request nor response from IDP
       //So this is a user request
 
       //Ask the handler chain to generate the saml request
-      
+
       //Create the request/response
-      SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null,httpContext); 
+      SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
       SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-      
-      saml2HandlerResponse.setDestination( identityURL );
+
+      saml2HandlerResponse.setDestination(identityURL);
 
       //Reset the state
       try
       {
-         if(trace)
+         if (trace)
             log.trace("Handlers are : " + handlers);
-         
+
          chainLock.lock();
-         
-         for(SAML2Handler handler: handlers)
+
+         for (SAML2Handler handler : handlers)
          {
             handler.reset();
-            if(saml2HandlerResponse.isInError())
+            if (saml2HandlerResponse.isInError())
             {
                httpContext.getResponse().sendError(saml2HandlerResponse.getErrorCode());
                break;
-            }  
+            }
 
-            if(isLogOutRequest(httpContext))
+            if (isLogOutRequest(httpContext))
                saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.LOGOUT);
-            else   
+            else
                saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
             handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
-            if(trace)
+            if (trace)
                log.trace("Finished Processing handler:" + handler.getClass().getCanonicalName());
-         } 
+         }
       }
-      catch(ProcessingException pe)
+      catch (ProcessingException pe)
       {
          log.error("Processing Exception:", pe);
          throw new RuntimeException(pe);
-      } 
+      }
       finally
       {
          chainLock.unlock();
       }
-      
+
       return saml2HandlerResponse;
    }
-   
-   protected SAML2HandlerRequest getSAML2HandlerRequest(SAMLDocumentHolder documentHolder,
-         HTTPContext httpContext)
+
+   protected SAML2HandlerRequest getSAML2HandlerRequest(SAMLDocumentHolder documentHolder, HTTPContext httpContext)
    {
       IssuerInfoHolder holder = null;
-      
-      if( issuer == null )
+
+      if (issuer == null)
       {
          holder = new IssuerInfoHolder(this.serviceURL);
       }
       else
       {
-         holder = new IssuerInfoHolder( issuer );
-      } 
+         holder = new IssuerInfoHolder(issuer);
+      }
 
-      return  new DefaultSAML2HandlerRequest(httpContext,
-            holder.getIssuer(), documentHolder, 
-            HANDLER_TYPE.SP); 
+      return new DefaultSAML2HandlerRequest(httpContext, holder.getIssuer(), documentHolder, HANDLER_TYPE.SP);
    }
-   
+
    protected boolean isLogOutRequest(HTTPContext httpContext)
    {
       HttpServletRequest request = httpContext.getRequest();
       String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
-      return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr); 
-   } 
+      return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+   }
 }
