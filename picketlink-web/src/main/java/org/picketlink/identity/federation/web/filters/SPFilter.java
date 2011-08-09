@@ -358,9 +358,8 @@ public class SPFilter implements Filter
             }
             catch (Exception e)
             {
-               if (trace)
-                  log.trace("Server Exception:", e);
-               throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Exception");
+               log.error("Server Exception:", e);
+               throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
             }
 
          }
