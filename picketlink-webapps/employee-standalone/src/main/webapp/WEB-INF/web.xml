@@ -3,46 +3,23 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
    version="2.5"> 
+  <description>Employee Standalone Application</description>
 
-  <display-name>Test Employee Application</display-name>
-  <description>
-    Just a Test SP
-  </description>
+   <filter>
+     <description>
+        The SP Filter intersects all requests at the SP and sees if there is a need to contact the IDP.
+     </description>
+     <filter-name>SPFilter</filter-name>
+     <filter-class>org.picketlink.identity.federation.web.filters.SPFilter</filter-class>
+     <init-param>
+       <param-name>ROLES</param-name>
+       <param-value>employee,manager</param-value>
+     </init-param>
+   </filter>
 
-  <!-- Define a Security Constraint on this Application -->
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>EMPLOYEE Application</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-       <role-name>manager</role-name>
-    </auth-constraint>
-  </security-constraint>
-
-  <!-- Define a security constraint that gives unlimted access to freezone -->
-  <security-constraint>
-    <web-resource-collection>
-     <web-resource-name>freezone</web-resource-name>
-     <url-pattern>/freezone/*</url-pattern>
-    </web-resource-collection>
-  </security-constraint>
-
-  <!-- Define the Login Configuration for this Application -->
-  <login-config>
-    <auth-method>FORM</auth-method>
-    <realm-name>Tomcat EMPLOYEE Application</realm-name>
-    <form-login-config>
-       <form-login-page>/jsp/login.jsp</form-login-page>
-       <form-error-page>/jsp/loginerror.jsp</form-error-page>
-    </form-login-config>
-  </login-config>
-
-  <!-- Security roles referenced by this web application -->
-  <security-role>
-    <description>
-      The role that is required to log in to the EMPLOYEE Application
-    </description>
-    <role-name>manager</role-name>
-  </security-role>
+   <filter-mapping>
+     <filter-name>SPFilter</filter-name>
+     <url-pattern>/*</url-pattern>
+     <dispatcher>REQUEST</dispatcher>
+   </filter-mapping>
 </web-app>
