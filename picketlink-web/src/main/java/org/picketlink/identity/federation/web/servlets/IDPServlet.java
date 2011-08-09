@@ -91,6 +91,7 @@ import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
 
 /**
@@ -147,18 +148,44 @@ public class IDPServlet extends HttpServlet
       super.init(config);
       String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
 
+      String configProviderStr = config.getInitParameter(GeneralConstants.CONFIG_PROVIDER);
+      if (StringUtil.isNotNull(configProviderStr))
+      {
+         Class<?> clazz = SecurityActions.loadClass(getClass(), configProviderStr);
+         if (clazz == null)
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + configProviderStr);
+         try
+         {
+            idpConfiguration = ((SAMLConfigurationProvider) clazz.newInstance()).getIDPConfiguration();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+         }
+      }
       context = config.getServletContext();
 
-      InputStream is = context.getResourceAsStream(configFile);
-      if (is == null)
-         throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + configFile + " missing");
+      if (idpConfiguration == null)
+      {
+         InputStream is = context.getResourceAsStream(configFile);
+         if (is == null)
+            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + configFile + " missing");
+
+         try
+         {
+            idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+         }
+         catch (ParsingException e)
+         {
+            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+         }
+      }
 
       //Get the chain from config
       chain = new DefaultSAML2HandlerChain();
 
       try
       {
-         idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
          this.identityURL = idpConfiguration.getIdentityURL();
          log.trace("Identity Provider URL=" + this.identityURL);
          this.assertionValidity = idpConfiguration.getAssertionValidity();

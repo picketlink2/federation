@@ -48,6 +48,8 @@ public interface GeneralConstants
 
    String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
 
+   String CONFIG_PROVIDER = "CONFIG_PROVIDER";
+
    String LOCAL_LOGOUT = "LLO";
 
    String GLOBAL_LOGOUT = "GLO";

@@ -21,6 +21,9 @@
  */
 package org.picketlink.identity.federation.core.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 /**
@@ -60,7 +63,6 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
  */
 public class ProviderType
 {
-
    protected String identityURL;
 
    protected TrustType trust;
@@ -72,6 +74,8 @@ public class ProviderType
    protected String serverEnvironment;
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+
+   protected Map<String, Object> additionalOptions = new HashMap<String, Object>();
 
    /**
     * Gets the value of the identityURL property.
@@ -236,4 +240,32 @@ public class ProviderType
       this.canonicalizationMethod = canonicalizationMethod;
    }
 
+   /**
+    * Add an option
+    * @param key
+    * @param value
+    */
+   public void addAdditionalOption(String key, Object value)
+   {
+      additionalOptions.put(key, value);
+   }
+
+   /**
+    * Remove an option
+    * @param key
+    */
+   public void removeAdditionalOption(String key)
+   {
+      additionalOptions.remove(key);
+   }
+
+   /**
+    * Get option
+    * @param key
+    * @return
+    */
+   public Object getAdditionalOption(String key)
+   {
+      return additionalOptions.get(key);
+   }
 }
