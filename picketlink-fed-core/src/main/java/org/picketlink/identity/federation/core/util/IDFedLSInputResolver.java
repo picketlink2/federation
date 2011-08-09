@@ -44,6 +44,8 @@ public class IDFedLSInputResolver implements LSResourceResolver
 {
    protected static Logger log = Logger.getLogger(IDFedLSInputResolver.class);
 
+   protected static boolean trace = log.isTraceEnabled();
+
    private static Map<String, LSInput> lsmap = new HashMap<String, LSInput>();
 
    private static Map<String, String> schemaLocationMap = new LinkedHashMap<String, String>();
@@ -116,104 +118,137 @@ public class IDFedLSInputResolver implements LSResourceResolver
    public LSInput resolveResource(String type, String namespaceURI, final String publicId, final String systemId,
          final String baseURI)
    {
+      LSInput lsi = null;
       if (systemId == null)
          throw new RuntimeException(ErrorCodes.NULL_VALUE + "systemid");
-      LSInput lsi = lsmap.get(systemId);
+      if (StringUtil.isNotNull(systemId) && systemId.endsWith("dtd") && StringUtil.isNotNull(baseURI))
+      {
+         lsi = lsmap.get(baseURI);
+      }
+      if (lsi == null)
+         lsi = lsmap.get(systemId);
       if (lsi == null)
       {
          final String loc = schemaLocationMap.get(systemId);
          if (loc == null)
             return null;
 
-         lsi = new LSInput()
-         {
-            public String getBaseURI()
-            {
-               return baseURI;
-            }
+         lsi = new PicketLinkLSInput(baseURI, loc, publicId, systemId);
 
-            public InputStream getByteStream()
-            {
-               URL url = SecurityActions.loadResource(getClass(), loc);
-               InputStream is;
-               try
-               {
-                  is = url.openStream();
-               }
-               catch (IOException e)
-               {
-                  throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + loc);
-               }
-               if (is == null)
-                  throw new RuntimeException(ErrorCodes.NULL_VALUE + "inputstream is null for " + loc);
-               return is;
-            }
-
-            public boolean getCertifiedText()
-            {
-               return false;
-            }
-
-            public Reader getCharacterStream()
-            {
-               return null;
-            }
-
-            public String getEncoding()
-            {
-               return null;
-            }
-
-            public String getPublicId()
-            {
-               return publicId;
-            }
-
-            public String getStringData()
-            {
-               return null;
-            }
-
-            public String getSystemId()
-            {
-               return systemId;
-            }
-
-            public void setBaseURI(String baseURI)
-            {
-            }
-
-            public void setByteStream(InputStream byteStream)
-            {
-            }
-
-            public void setCertifiedText(boolean certifiedText)
-            {
-            }
-
-            public void setCharacterStream(Reader characterStream)
-            {
-            }
-
-            public void setEncoding(String encoding)
-            {
-            }
-
-            public void setPublicId(String publicId)
-            {
-            }
-
-            public void setStringData(String stringData)
-            {
-            }
-
-            public void setSystemId(String systemId)
-            {
-            }
-         };
-
+         if (trace)
+            log.trace("Loaded:" + lsi);
          lsmap.put(systemId, lsi);
       }
       return lsi;
+   }
+
+   public static class PicketLinkLSInput implements LSInput
+   {
+      private final String baseURI;
+
+      private final String loc;
+
+      private final String publicId;
+
+      private final String systemId;
+
+      public PicketLinkLSInput(String baseURI, String loc, String publicID, String systemID)
+      {
+         this.baseURI = baseURI;
+         this.loc = loc;
+         this.publicId = publicID;
+         this.systemId = systemID;
+      }
+
+      public String getBaseURI()
+      {
+         return baseURI;
+      }
+
+      public InputStream getByteStream()
+      {
+         URL url = SecurityActions.loadResource(getClass(), loc);
+         InputStream is;
+         try
+         {
+            is = url.openStream();
+         }
+         catch (IOException e)
+         {
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + loc);
+         }
+         if (is == null)
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "inputstream is null for " + loc);
+         return is;
+      }
+
+      public boolean getCertifiedText()
+      {
+         return false;
+      }
+
+      public Reader getCharacterStream()
+      {
+         return null;
+      }
+
+      public String getEncoding()
+      {
+         return null;
+      }
+
+      public String getPublicId()
+      {
+         return publicId;
+      }
+
+      public String getStringData()
+      {
+         return null;
+      }
+
+      public String getSystemId()
+      {
+         return systemId;
+      }
+
+      public void setBaseURI(String baseURI)
+      {
+      }
+
+      public void setByteStream(InputStream byteStream)
+      {
+      }
+
+      public void setCertifiedText(boolean certifiedText)
+      {
+      }
+
+      public void setCharacterStream(Reader characterStream)
+      {
+      }
+
+      public void setEncoding(String encoding)
+      {
+      }
+
+      public void setPublicId(String publicId)
+      {
+      }
+
+      public void setStringData(String stringData)
+      {
+      }
+
+      public void setSystemId(String systemId)
+      {
+      }
+
+      @Override
+      public String toString()
+      {
+         return "PicketLinkLSInput [baseURI=" + baseURI + ", loc=" + loc + ", publicId=" + publicId + ", systemId="
+               + systemId + "]";
+      }
    }
 }

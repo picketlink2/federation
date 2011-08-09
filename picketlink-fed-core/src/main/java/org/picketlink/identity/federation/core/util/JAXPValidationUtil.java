@@ -132,7 +132,7 @@ public class JAXPValidationUtil
       {
          URL url = SecurityActions.loadResource(JAXPValidationUtil.class, schema);
          if (url == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema url");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema url:" + schema);
          sourceArr[i++] = new StreamSource(url.openStream());
       }
       return sourceArr;
@@ -166,7 +166,10 @@ public class JAXPValidationUtil
 
          if (trace)
          {
-            builder.append("[").append(sax.getLineNumber()).append(",").append(sax.getColumnNumber()).append("]");
+            builder.append("[line:").append(sax.getLineNumber()).append(",").append("::col=")
+                  .append(sax.getColumnNumber()).append("]");
+            builder.append("[publicID:").append(sax.getPublicId()).append(",systemId=").append(sax.getSystemId())
+                  .append("]");
             builder.append(":").append(sax.getLocalizedMessage());
             log.trace(builder.toString());
          }
