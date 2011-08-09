@@ -70,13 +70,13 @@ public interface GeneralConstants
 
    String NAMEID_FORMAT = "NAMEID_FORMAT";
 
-   String PRINCIPAL_ID = "jboss_identity.principal";
+   String PRINCIPAL_ID = "picketlink.principal";
 
    String RELAY_STATE = "RelayState";
 
    String ROLES = "ROLES";
 
-   String ROLES_ID = "jboss_identity.roles";
+   String ROLES_ID = "picketlink.roles";
 
    String ROLE_GENERATOR = "ROLE_GENERATOR";
 
