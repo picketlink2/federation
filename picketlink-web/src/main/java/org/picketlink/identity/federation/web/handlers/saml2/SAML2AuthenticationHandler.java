@@ -87,6 +87,7 @@ import org.w3c.dom.Node;
  * </p>
  * <p>
  * Configuration Options:
+ * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP Setting)
  * @see SAML2Handler#DISABLE_AUTHN_STATEMENT  Setting a value will disable the generation of an AuthnStatement (IDP Setting)
  * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
@@ -466,7 +467,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          boolean expiredAssertion;
          try
          {
-            expiredAssertion = AssertionUtil.hasExpired(assertion);
+            String skew = (String) handlerConfig.getParameter(SAML2Handler.CLOCK_SKEW_MILIS);
+            if (StringUtil.isNotNull(skew))
+            {
+               long skewMilis = Long.parseLong(skew);
+               expiredAssertion = AssertionUtil.hasExpired(assertion, skewMilis);
+            }
+            else
+               expiredAssertion = AssertionUtil.hasExpired(assertion);
          }
          catch (ConfigurationException e)
          {

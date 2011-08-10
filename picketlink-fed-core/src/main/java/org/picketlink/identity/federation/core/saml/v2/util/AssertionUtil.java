@@ -285,6 +285,44 @@ public class AssertionUtil
    }
 
    /**
+    * Verify whether the assertion has expired. 
+    * You can add in a clock skew to adapt to conditions where in the IDP
+    * and SP are out of sync.
+    * 
+    * @param assertion
+    * @param clockSkewInMilis in miliseconds
+    * @return
+    * @throws ConfigurationException
+    */
+   public static boolean hasExpired(AssertionType assertion, long clockSkewInMilis) throws ConfigurationException
+   {
+      boolean expiry = false;
+
+      //Check for validity of assertion
+      ConditionsType conditionsType = assertion.getConditions();
+      if (conditionsType != null)
+      {
+         XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+         XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
+         XMLGregorianCalendar updatedNotBefore = XMLTimeUtil.subtract(notBefore, clockSkewInMilis);
+         XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
+         XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
+
+         if (trace)
+            log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
+                  + notOnOrAfter);
+         expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
+         if (expiry)
+         {
+            log.info("Assertion has expired with id=" + assertion.getID());
+         }
+      }
+
+      //TODO: if conditions do not exist, assume the assertion to be everlasting?
+      return expiry;
+   }
+
+   /**
     * Check whether the assertion has expired
     * @param assertion
     * @return
@@ -305,6 +343,44 @@ public class AssertionUtil
             log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
                   + notOnOrAfter);
          expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
+         if (expiry)
+         {
+            log.info("Assertion has expired with id=" + assertion.getID());
+         }
+      }
+
+      //TODO: if conditions do not exist, assume the assertion to be everlasting?
+      return expiry;
+   }
+
+   /**
+    * Verify whether the assertion has expired. 
+    * You can add in a clock skew to adapt to conditions where in the IDP
+    * and SP are out of sync.
+    * 
+    * @param assertion
+    * @param clockSkewInMilis in miliseconds
+    * @return
+    * @throws ConfigurationException
+    */
+   public static boolean hasExpired(SAML11AssertionType assertion, long clockSkewInMilis) throws ConfigurationException
+   {
+      boolean expiry = false;
+
+      //Check for validity of assertion
+      SAML11ConditionsType conditionsType = assertion.getConditions();
+      if (conditionsType != null)
+      {
+         XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+         XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
+         XMLGregorianCalendar updatedNotBefore = XMLTimeUtil.subtract(notBefore, clockSkewInMilis);
+         XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
+         XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
+
+         if (trace)
+            log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
+                  + notOnOrAfter);
+         expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
          if (expiry)
          {
             log.info("Assertion has expired with id=" + assertion.getID());

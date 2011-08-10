@@ -22,6 +22,7 @@
 package org.picketlink.test.identity.federation.core.saml.v2.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -88,6 +89,28 @@ public class AssertionUtilUnitTestCase
       conditions.setNotOnOrAfter(sometimeAgo);
       assertion.setConditions(conditions);
       assertTrue(AssertionUtil.hasExpired(assertion));
+   }
+
+   @Test
+   public void testExpiredAssertionWithClockSkew() throws Exception
+   {
+      NameIDType nameIdType = new NameIDType();
+      nameIdType.setValue("somename");
+
+      AssertionType assertion = new AssertionType("SomeID", XMLTimeUtil.getIssueInstant());
+      assertion.setIssuer(nameIdType);
+
+      XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+
+      XMLGregorianCalendar sometimeAgo = XMLTimeUtil.subtract(now, 55555);
+
+      ConditionsType conditions = new ConditionsType();
+      conditions.setNotBefore(XMLTimeUtil.subtract(now, 55575));
+      conditions.setNotOnOrAfter(sometimeAgo);
+      assertion.setConditions(conditions);
+
+      assertFalse(AssertionUtil.hasExpired(assertion, 60000));
+      assertTrue(AssertionUtil.hasExpired(assertion, 600));
    }
 
    @Test
