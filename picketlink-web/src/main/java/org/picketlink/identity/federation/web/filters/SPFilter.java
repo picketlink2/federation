@@ -163,7 +163,7 @@ public class SPFilter implements Filter
 
       HttpSession session = request.getSession();
 
-      Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);;
+      Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
 
       String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
       String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
