@@ -93,7 +93,7 @@ import org.w3c.dom.Node;
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
- * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL
+ * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL (SP Setting)
  * </p>
  * 
  * @author Anil.Saldhana@redhat.com
