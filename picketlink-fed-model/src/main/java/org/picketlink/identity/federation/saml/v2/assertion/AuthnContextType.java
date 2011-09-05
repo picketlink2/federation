@@ -170,8 +170,10 @@ public class AuthnContextType implements Serializable
        </choice>
     </sequence>
     */
-   public class AuthnContextTypeSequence
+   public class AuthnContextTypeSequence implements Serializable
    {
+      private static final long serialVersionUID = 1L;
+
       private AuthnContextClassRefType classRef;
 
       private final Set<URIType> URITypes = new HashSet<URIType>();
