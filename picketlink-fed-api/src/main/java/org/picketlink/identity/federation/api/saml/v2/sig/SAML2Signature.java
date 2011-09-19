@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
- 
+
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
@@ -40,7 +40,7 @@ import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil; 
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
@@ -55,8 +55,8 @@ import org.xml.sax.SAXException;
 public class SAML2Signature
 {
    private String signatureMethod = SignatureMethod.RSA_SHA1;
-   private String digestMethod = DigestMethod.SHA1; 
-   
+
+   private String digestMethod = DigestMethod.SHA1;
 
    public String getSignatureMethod()
    {
@@ -77,7 +77,21 @@ public class SAML2Signature
    {
       this.digestMethod = digestMethod;
    }
-    
+
+   /**
+    * Set to false, if you do not want to include keyinfo
+    * in the signature
+    * @param val
+    * @since v2.0.1
+    */
+   public void setSignatureIncludeKeyInfo(boolean val)
+   {
+      if (!val)
+      {
+         XMLSignatureUtil.setIncludeKeyInfoInSignature(false);
+      }
+   }
+
    /**
     * Sign an RequestType at the root
     * @param request
@@ -92,20 +106,18 @@ public class SAML2Signature
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException, ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
+   public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException,
+         ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
       SAML2Request saml2Request = new SAML2Request();
       Document doc = saml2Request.convert(request);
       doc.normalize();
-      
+
       String referenceURI = "#" + request.getID();
-       
-      return XMLSignatureUtil.sign(doc, 
-            keypair, 
-            digestMethod, signatureMethod, 
-            referenceURI);
+
+      return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
    }
-   
+
    /**
     * Sign an ResponseType at the root
     * @param response
@@ -118,15 +130,16 @@ public class SAML2Signature
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(ResponseType response,KeyPair keypair) throws ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
+   public Document sign(ResponseType response, KeyPair keypair) throws ParserConfigurationException,
+         GeneralSecurityException, MarshalException, XMLSignatureException
    {
       SAML2Response saml2Request = new SAML2Response();
       Document doc = saml2Request.convert(response);
       doc.normalize();
-      
-      return sign(doc, response.getID(), keypair); 
+
+      return sign(doc, response.getID(), keypair);
    }
-   
+
    /**
     * Sign an Document at the root
     * @param response
@@ -139,19 +152,14 @@ public class SAML2Signature
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(Document doc,
-         String referenceID, 
-         KeyPair keypair) throws 
-         ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException  
-   {  
+   public Document sign(Document doc, String referenceID, KeyPair keypair) throws ParserConfigurationException,
+         GeneralSecurityException, MarshalException, XMLSignatureException
+   {
       String referenceURI = "#" + referenceID;
-      
-      return XMLSignatureUtil.sign(doc, 
-            keypair, 
-            digestMethod, signatureMethod, 
-            referenceURI);
+
+      return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
    }
-   
+
    /**
     * Sign an assertion whose id value is provided in the response type
     * @param response
@@ -167,17 +175,16 @@ public class SAML2Signature
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(ResponseType response,
-         String idValueOfAssertion,
-         KeyPair keypair, 
-         String referenceURI) throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
+   public Document sign(ResponseType response, String idValueOfAssertion, KeyPair keypair, String referenceURI)
+         throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError,
+         TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
       SAML2Response saml2Response = new SAML2Response();
       Document doc = saml2Response.convert(response);
-       
-      return sign(doc,idValueOfAssertion, keypair, referenceURI);
+
+      return sign(doc, idValueOfAssertion, keypair, referenceURI);
    }
-   
+
    /**
     * Sign a document
     * @param doc
@@ -193,24 +200,17 @@ public class SAML2Signature
     * @throws MarshalException
     * @throws XMLSignatureException
     */
-   public Document sign(Document doc,
-         String idValueOfAssertion,
-         KeyPair keypair, 
-         String referenceURI) throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
+   public Document sign(Document doc, String idValueOfAssertion, KeyPair keypair, String referenceURI)
+         throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError,
+         TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
 
-      Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, 
-            JBossSAMLURIConstants.ASSERTION_NSURI.get(), 
-            "Assertion",
-            "ID", 
-            idValueOfAssertion);
-      
-      return XMLSignatureUtil.sign(doc, assertionNode, 
-            keypair, 
-            digestMethod, signatureMethod, 
-            referenceURI); 
+      Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+            "Assertion", "ID", idValueOfAssertion);
+
+      return XMLSignatureUtil.sign(doc, assertionNode, keypair, digestMethod, signatureMethod, referenceURI);
    }
-   
+
    /**
     * Sign a SAML Document
     * @param samlDocument
@@ -228,9 +228,9 @@ public class SAML2Signature
       catch (Exception e)
       {
          throw new ProcessingException(e);
-      } 
+      }
    }
-   
+
    /**
     * Validate the SAML2 Document
     * @param signedDocument
@@ -242,13 +242,13 @@ public class SAML2Signature
    {
       try
       {
-         return XMLSignatureUtil.validate(signedDocument, publicKey); 
+         return XMLSignatureUtil.validate(signedDocument, publicKey);
       }
-      catch(MarshalException me)
+      catch (MarshalException me)
       {
          throw new ProcessingException(me.getLocalizedMessage());
       }
-      catch(XMLSignatureException xse)
+      catch (XMLSignatureException xse)
       {
          throw new ProcessingException(xse.getLocalizedMessage());
       }

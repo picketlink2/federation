@@ -80,9 +80,45 @@ public class SignatureValidationUnitTestCase
       ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
       Document signedDoc = ss.sign(authnRequest, kp);
 
+      System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+
       // Validate the signature
       boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
       assertTrue(isValid);
+   }
+
+   /**
+    * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature
+    * with a public key. We test that the signature does not contain the keyinfo
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testNoKeyInfo() throws Exception
+   {
+      SAML2Request saml2Request = new SAML2Request();
+      String id = IDGenerator.create("ID_");
+      String assertionConsumerURL = "http://sp";
+      String destination = "http://idp";
+      String issuerValue = "http://sp";
+      AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination,
+            issuerValue);
+
+      KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+      KeyPair kp = kpg.genKeyPair();
+
+      SAML2Signature ss = new SAML2Signature();
+      ss.setSignatureIncludeKeyInfo(false);
+
+      ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
+      Document signedDoc = ss.sign(authnRequest, kp);
+
+      System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+
+      // Validate the signature
+      boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
+      assertTrue(isValid);
+      XMLSignatureUtil.setIncludeKeyInfoInSignature(true);
    }
 
    /**

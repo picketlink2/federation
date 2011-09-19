@@ -84,6 +84,11 @@ public class XMLSignatureUtil
 
    private static XMLSignatureFactory fac = getXMLSignatureFactory();
 
+   /**
+    * By default, we include the keyinfo in the signature
+    */
+   private static boolean includeKeyInfoInSignature = true;
+
    private static XMLSignatureFactory getXMLSignatureFactory()
    {
       XMLSignatureFactory xsf = null;
@@ -104,6 +109,11 @@ public class XMLSignatureUtil
    static
    {
       SystemPropertiesUtil.ensure();
+      String keyInfoProp = SecurityActions.getSystemProperty("picketlink.xmlsig.includeKeyInfo", null);
+      if (StringUtil.isNotNull(keyInfoProp))
+      {
+         includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
+      }
    };
 
    /**
@@ -115,6 +125,16 @@ public class XMLSignatureUtil
    {
       if (canonical != null)
          canonicalizationMethodType = canonical;
+   }
+
+   /**
+    * Use this method to not include the KeyInfo in the signature
+    * @param includeKeyInfoInSignature
+    * @since v2.0.1
+    */
+   public static void setIncludeKeyInfoInSignature(boolean includeKeyInfoInSignature)
+   {
+      XMLSignatureUtil.includeKeyInfoInSignature = includeKeyInfoInSignature;
    }
 
    /**
@@ -267,6 +287,10 @@ public class XMLSignatureUtil
       KeyValue kv = kif.newKeyValue(publicKey);
       KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
 
+      if (!includeKeyInfoInSignature)
+      {
+         ki = null;
+      }
       XMLSignature signature = fac.newXMLSignature(si, ki);
 
       signature.sign(dsc);
@@ -378,5 +402,4 @@ public class XMLSignatureUtil
       }
       return cert;
    }
-
 }
