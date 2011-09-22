@@ -1,0 +1,11 @@
+<ns:jbosspdp xmlns:ns="urn:jboss:xacml:2.0">
+   <ns:Policies>
+      <ns:PolicySet>
+         <ns:Location>policies/himss-policy.xml</ns:Location>
+     </ns:PolicySet>
+   </ns:Policies>
+   <ns:Locators>
+      <ns:Locator Name="org.jboss.security.xacml.locators.JBossPolicySetLocator">
+      </ns:Locator>
+   </ns:Locators>
+</ns:jbosspdp>

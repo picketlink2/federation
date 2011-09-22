@@ -42,9 +42,7 @@
 		<module>metadata</module>
 		<module>picketlink-sts</module>
 		<module>pdp</module>
-                <!--
-		<module>seam-sp</module>
-                -->
 		<module>assembly</module>
+		<module>as7</module>
 	</modules>
 </project>

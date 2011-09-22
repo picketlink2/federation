@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-fed-parent</artifactId>
+    <version>2.0.2-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>picketlink-federation-webapps-as7</artifactId>
+  <packaging>pom</packaging>
+  <name>PicketLink Federation Web Applications for JBoss AS7++</name>
+  <url>http://labs.jboss.org/portal/jbosssecurity/</url>
+  <description>PicketLink Web Applications contains the web
+    applications for Federated Identity Needs.</description>
+  <licenses>
+    <license>
+      <name>lgpl</name>
+      <url>http://repository.jboss.com/licenses/lgpl.txt</url>
+    </license>
+  </licenses>
+  <organization>
+    <name>JBoss Inc.</name>
+    <url>http://www.jboss.org</url>
+  </organization>
+  <modules>
+    <module>sales</module>
+    <module>employee</module>
+    <module>sales-post</module>
+    <module>employee-post</module>
+    <module>sales-saml11</module>
+    <module>employee-saml11</module>
+    <module>idp</module>
+    <module>picketlink-sts</module>
+    <module>pdp</module>
+    <module>assembly</module>
+  </modules>
+</project>

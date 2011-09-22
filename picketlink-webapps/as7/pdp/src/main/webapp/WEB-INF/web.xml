@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+   version="2.5">
+
+   <display-name>PDP Endpoint</display-name>
+   <description>
+     XACML PDP Web Application for the PicketLink project
+   </description>
+
+   <context-param>
+    <param-name>debug</param-name>
+    <param-value>false</param-value>
+   </context-param>
+   
+   
+   <servlet>
+     <servlet-name>SOAPServlet</servlet-name>
+     <servlet-class>org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet</servlet-class>
+     <!-- Issuer is the string used in the issuer of saml messages/assertions/statements-->
+     <init-param>
+        <param-name>issuer</param-name>
+        <param-value>redhatPdpEntity</param-value>
+     </init-param>
+     <init-param>
+        <param-name>debug</param-name>
+        <param-value>true</param-value>
+     </init-param>
+   </servlet>
+   
+   <servlet>
+     <servlet-name>SOAPSAMLXACMLPDPServlet</servlet-name>
+     <servlet-class>org.picketlink.identity.federation.core.pdp.SOAPSAMLXACMLPDP</servlet-class>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>SOAPSAMLXACMLPDPServlet</servlet-name>
+      <url-pattern>/SOAPSAMLXACMLPDP</url-pattern>
+   </servlet-mapping>
+</web-app>

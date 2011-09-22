@@ -1,0 +1,5 @@
+<Context>
+    <!--  log all incoming and outgoing messages. -->
+    <Valve className="org.apache.catalina.valves.RequestDumperValve" />
+    <Valve className="org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator" />
+</Context>
