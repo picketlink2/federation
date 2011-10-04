@@ -33,7 +33,6 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.7.1</version>
           <configuration>
               <printSummary>true</printSummary>
               <disableXmlReport>false</disableXmlReport>
@@ -60,7 +59,6 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4.3</version>
           <configuration>
               <childDelegation>true</childDelegation>
               <printSummary>true</printSummary>
@@ -84,7 +82,6 @@
      <plugins>
        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.7.1</version>
           <configuration>
             <additionalClasspathElements>
               <additionalClasspathElement>${basedir}/src/test/resources/endorsed/xercesImpl.jar</additionalClasspathElement>
