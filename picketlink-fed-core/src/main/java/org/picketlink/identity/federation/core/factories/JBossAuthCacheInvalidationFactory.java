@@ -29,6 +29,8 @@ import java.util.TimerTask;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.apache.log4j.Logger;
+
 /**
  * <p>
  * A factory that is used to obtain an expiration policy of type {@link TimeCacheExpiry}
@@ -49,7 +51,7 @@ public class JBossAuthCacheInvalidationFactory
    {
       return ExpiringPrincipalCacheInvalidation.get();
    }
-   
+
    public interface TimeCacheExpiry
    {
       /**
@@ -58,63 +60,86 @@ public class JBossAuthCacheInvalidationFactory
        * @param expiry when to expire the principal and hence the subject
        * @param principal the principal which needs to be expired
        */
-      void register( String securityDomain, Date expiry, Principal principal );
+      void register(String securityDomain, Date expiry, Principal principal);
    }
-   
+
    protected static class ExpiringPrincipalCacheInvalidation implements TimeCacheExpiry
    {
+      private static Logger log = Logger.getLogger(ExpiringPrincipalCacheInvalidation.class);
+
+      private final boolean trace = log.isTraceEnabled();
+
       protected static ExpiringPrincipalCacheInvalidation _instance = null;
-      
+
       protected static String objectName = "jboss.security:service=JaasSecurityManager";
-      
+
       protected static Timer timer = new Timer();
-      
+
       protected ExpiringPrincipalCacheInvalidation()
-      { 
+      {
       }
-      
+
       protected static ExpiringPrincipalCacheInvalidation get()
       {
-         if( _instance == null )
+         if (_instance == null)
             _instance = new ExpiringPrincipalCacheInvalidation();
          return _instance;
       }
-      
-      protected static void setObjectName( String oName )
+
+      protected static void setObjectName(String oName)
       {
          objectName = oName;
       }
-      
-      public void register( final String securityDomain, final Date expiry, final Principal principal )
-      { 
+
+      public void register(final String securityDomain, final Date expiry, final Principal principal)
+      {
          try
-         {  
-            timer.schedule( new TimerTask()
-            { 
+         {
+            timer.purge();
+         }
+         catch (Exception e)
+         {
+            if (trace)
+            {
+               log.trace("Exception in purging timer tasks:", e);
+            }
+         }
+         try
+         {
+            timer.schedule(new TimerTask()
+            {
                @Override
                public void run()
                {
                   try
                   {
-                     ObjectName on = new ObjectName( objectName );
+                     ObjectName on = new ObjectName(objectName);
                      MBeanServer server = SecurityActions.getJBossMBeanServer();
-                     Object[] obj = new Object[] { securityDomain, principal };
-                     String[] sig = new String[]{ "java.lang.String", "java.security.Principal" }; 
-                     
+                     Object[] obj = new Object[]
+                     {securityDomain, principal};
+                     String[] sig = new String[]
+                     {"java.lang.String", "java.security.Principal"};
+
                      //Flush the Authentication Cache
-                     server.invoke( on,"flushAuthenticationCache", obj, sig ); 
+                     server.invoke(on, "flushAuthenticationCache", obj, sig);
                   }
-                  catch ( Exception e)
+                  catch (Exception e)
                   {
-                     throw new RuntimeException( e );
+                     if (trace)
+                     {
+                        log.trace("Exception in scheduling timer:", e);
+                     }
                   }
                }
-            }, expiry );
+            }, expiry);
          }
-         catch ( Exception e )
+         catch (Exception e)
          {
-            throw new RuntimeException( e );
-         }      
-      } 
+            if (trace)
+            {
+               log.trace("Exception in scheduling timer:", e);
+            }
+         }
+      }
    }
 }
