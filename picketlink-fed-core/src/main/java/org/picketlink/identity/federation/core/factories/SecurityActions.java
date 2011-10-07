@@ -66,12 +66,17 @@ class SecurityActions
             {
                MBeanServer server = i.next();
 
-               if (server.getDefaultDomain().contains("Default"))
-                  cached = server;
+               String defaultDomain = server.getDefaultDomain();
 
-               if (server.getDefaultDomain().equals("jboss"))
+               if (defaultDomain != null)
                {
-                  return server;
+                  if (defaultDomain.contains("Default"))
+                     cached = server;
+
+                  if (defaultDomain.equals("jboss"))
+                  {
+                     return server;
+                  }
                }
             }
             if (cached != null)
