@@ -186,6 +186,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          if (trace)
             log.trace("Destination=" + destination);
 
+         response.setDestination(destination);
+
          HttpSession session = BaseSAML2Handler.getHttpSession(request);
          Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
          if (userPrincipal == null)
@@ -210,7 +212,6 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
                   .getAttribute(GeneralConstants.IDENTITY_SERVER);
             identityServer.stack().register(session.getId(), destination, isPost);
 
-            response.setDestination(destination);
             response.setResultingDocument(samlResponse);
             response.setRelayState(request.getRelayState());
             response.setPostBindingForResponse(isPost);
