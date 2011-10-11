@@ -189,13 +189,15 @@ public class BaseWriter
       {
          for (Object attributeValue : attributeValues)
          {
-            if (attributeValue instanceof String)
-            {
-               writeStringAttributeValue((String) attributeValue);
-            }
-            else
-               throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE
-                     + attributeValue.getClass().getName());
+        	 if (attributeValue != null) {
+	            if (attributeValue instanceof String)
+	            {
+	               writeStringAttributeValue((String) attributeValue);
+	            }
+	            else
+	               throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE
+	                     + attributeValue.getClass().getName());
+        	 }
          }
       }
    }
