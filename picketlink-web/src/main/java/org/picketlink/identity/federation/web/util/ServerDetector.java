@@ -51,10 +51,11 @@ public class ServerDetector
    private void detectServer()
    {
       //Detect JBoss 
-
+      Class<?> me = getClass();
+      Class<?> clazz = null;
       try
       {
-         Class<?> clazz = SecurityActions.loadClass(getClass(), "org.jboss.system.Service");
+         clazz = SecurityActions.loadClass(me, "org.jboss.system.Service");
          if (clazz != null)
          {
             jboss = true;
@@ -63,13 +64,21 @@ public class ServerDetector
       }
       catch (Exception e)
       {
-         //ignore  
+         try
+         {
+            clazz = SecurityActions.loadClass(me, "org.jboss.as.server.Bootstrap");
+            jboss = true;
+            return;
+         }
+         catch (Exception ee)
+         {
+         }
       }
 
       //Tomcat
       try
       {
-         Class<?> clazz = SecurityActions.loadClass(getClass(), "org.apache.cataline.Server");
+         clazz = SecurityActions.loadClass(getClass(), "org.apache.cataline.Server");
          if (clazz != null)
          {
             tomcat = true;
