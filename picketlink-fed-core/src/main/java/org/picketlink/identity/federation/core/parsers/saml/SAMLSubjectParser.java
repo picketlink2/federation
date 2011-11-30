@@ -110,7 +110,12 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                StartElement startElement = (StartElement) xmlEvent;
                String startTag = StaxParserUtil.getStartElementName(startElement);
 
-               if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get()))
+               if (startTag.equals(JBossSAMLConstants.NAMEID.get()))
+               {
+                  NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
+                  subjectConfirmationType.setNameID(nameID);
+               }
+               else if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get()))
                {
                   SubjectConfirmationDataType subjectConfirmationData = parseSubjectConfirmationData(xmlEventReader);
                   subjectConfirmationType.setSubjectConfirmationData(subjectConfirmationData);

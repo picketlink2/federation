@@ -227,4 +227,28 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest
       System.out.println(writtenString);
       validateSchema(writtenString);
    }
+
+   /**
+    * PLFED-251
+    * @throws Exception
+    */
+   @Test
+   public void testSAML2AssertionWithSubjectConfirmationHavingNameID() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-subjectconfirmation.xml");
+
+      SAMLParser parser = new SAMLParser();
+      AssertionType assertion = (AssertionType) parser.parse(configStream);
+      assertNotNull(assertion);
+
+      List<SubjectConfirmationType> subjectConfirmationTypes = assertion.getSubject().getConfirmation();
+      assertNotNull(subjectConfirmationTypes);
+      assertEquals(1, subjectConfirmationTypes.size());
+      SubjectConfirmationType sct = subjectConfirmationTypes.get(0);
+      assertEquals("urn:oasis:names:tc:SAML:2.0:cm:sender-vouches", sct.getMethod());
+      NameIDType nameID = sct.getNameID();
+      assertNotNull(nameID);
+      assertEquals("CN=theDUDE", nameID.getValue());
+   }
 }
