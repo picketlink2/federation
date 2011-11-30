@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
@@ -43,6 +44,7 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
+import org.w3c.dom.Element;
 
 /**
  * Parse the saml subject
@@ -90,6 +92,17 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
             subType.addBaseID(nameID);
             subject.setSubType(subType);
          }
+         else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag))
+         {
+            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
+         }
+         else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag))
+         {
+            Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+            STSubType subType = new STSubType();
+            subType.setEncryptedID(new EncryptedElementType(domElement));
+            subject.setSubType(subType);
+         }
          else if (JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase(tag))
          {
             StartElement subjectConfirmationElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -114,6 +127,15 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
                {
                   NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
                   subjectConfirmationType.setNameID(nameID);
+               }
+               else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag))
+               {
+                  throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
+               }
+               else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag))
+               {
+                  Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                  subjectConfirmationType.setEncryptedID(new EncryptedElementType(domElement));
                }
                else if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get()))
                {

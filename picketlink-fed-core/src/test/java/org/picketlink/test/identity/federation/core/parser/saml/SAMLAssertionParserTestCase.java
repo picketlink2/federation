@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
@@ -250,5 +251,26 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest
       NameIDType nameID = sct.getNameID();
       assertNotNull(nameID);
       assertEquals("CN=theDUDE", nameID.getValue());
+   }
+
+   /**
+    * PLFED-252
+    * @throws Exception
+    */
+   @Test
+   public void testSAML2AssertionWithEncryptedID() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-encryptedID.xml");
+
+      SAMLParser parser = new SAMLParser();
+      AssertionType assertion = (AssertionType) parser.parse(configStream);
+      assertNotNull(assertion);
+
+      //Subject
+      SubjectType subject = assertion.getSubject();
+      STSubType subType = subject.getSubType();
+      EncryptedElementType eet = subType.getEncryptedID();
+      assertNotNull(eet);
    }
 }
