@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.security.Principal;
 import java.security.PrivateKey;
@@ -518,13 +519,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
          response.setRoles(roles);
 
-         Principal principal = new Principal()
-         {
-            public String getName()
-            {
-               return userName;
-            }
-         };
+         Principal principal = new SerializablePrincipal(userName);
 
          if (handlerChainConfig.getParameter(GeneralConstants.ROLE_VALIDATOR_IGNORE) == null)
          {
@@ -604,5 +599,22 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
          }
          return roles;
       }
+   }
+   
+   private class SerializablePrincipal implements Principal, Serializable
+   {
+      private static final long serialVersionUID = 7701951188631723253L;
+
+      private String userName;
+      
+      private SerializablePrincipal(String userName)
+      {
+         this.userName = userName;
+      }
+
+      public String getName()
+      {
+         return userName;
+      }      
    }
 }
