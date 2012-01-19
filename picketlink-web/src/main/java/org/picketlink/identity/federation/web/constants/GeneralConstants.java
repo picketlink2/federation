@@ -105,4 +105,6 @@ public interface GeneralConstants
    String USERNAME_FIELD = "JBID_USERNAME";
 
    String PASS_FIELD = "JBID_PASSWORD";
+   
+   String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
 }

@@ -32,6 +32,8 @@ public interface ErrorCodes
 
    String AUTHENTICATOR_DOES_NOT_HANDLE_ENC = "PL00027: Authenticator does not handle encryption";
 
+   String AUTHN_REQUEST_ID_VERIFICATION_FAILED = "PL00104:Authn Request ID verification failed:";
+
    String CLASS_NOT_LOADED = "PL00085: Class Not Loaded:";
 
    String CANNOT_CREATE_INSTANCE = "PL00086: Cannot create instance of:";

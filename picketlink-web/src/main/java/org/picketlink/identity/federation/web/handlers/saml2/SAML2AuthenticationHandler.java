@@ -363,6 +363,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler
 
             response.setResultingDocument(samlRequest.convert(authn));
             response.setSendRequest(true);
+
+            // Save AuthnRequest ID into sharedState, so that we can later process it by another handler
+            request.addOption(GeneralConstants.AUTH_REQUEST_ID, id);
          }
          catch (Exception e)
          {
