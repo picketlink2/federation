@@ -258,7 +258,7 @@ public class STSClient
    private RequestSecurityToken setOnBehalfOf(Principal principal, RequestSecurityToken request)
    {
       if (principal != null)
-         request.setOnBehalfOf(WSTrustUtil.createOnBehalfOfWithUsername(principal.getName(), null));
+         request.setOnBehalfOf(WSTrustUtil.createOnBehalfOfWithUsername(principal.getName(), "ID"));
       return request;
    }
 
