@@ -12,6 +12,10 @@
   <!-- Listeners -->
   <listener>
     <listener-class>org.picketlink.identity.federation.web.core.IdentityServer</listener-class>
+  </listener> 
+  
+  <listener>
+    <listener-class>org.picketlink.identity.federation.web.listeners.IDPHttpSessionListener</listener-class>
   </listener>
 
 

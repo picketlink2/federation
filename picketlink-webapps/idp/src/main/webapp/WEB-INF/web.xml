@@ -9,6 +9,10 @@
     IDP Web Application for the PicketLink project
   </description>
 
+  <listener>
+    <listener-class>org.picketlink.identity.federation.web.listeners.IDPHttpSessionListener</listener-class>
+  </listener>
+  
   <!-- Define a security constraint that gives unlimted access to images -->
   <security-constraint>
     <web-resource-collection>

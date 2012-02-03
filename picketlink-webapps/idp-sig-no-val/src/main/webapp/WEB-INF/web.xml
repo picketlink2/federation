@@ -4,6 +4,11 @@
 	version="2.5">
 	<display-name>IDP</display-name>
 	<description> IDP Web Application for the PicketLink project</description>
+	
+    <listener>
+      <listener-class>org.picketlink.identity.federation.web.listeners.IDPHttpSessionListener</listener-class>
+    </listener>
+	
 	<!--
 		Define a security constraint that gives unlimted access to images
 	-->
