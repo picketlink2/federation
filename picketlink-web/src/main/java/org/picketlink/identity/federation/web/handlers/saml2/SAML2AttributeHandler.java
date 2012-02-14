@@ -91,7 +91,6 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
       }
    }
 
-   @SuppressWarnings("unchecked")
    @Override
    public void initHandlerConfig(SAML2HandlerConfig handlerConfig) throws ConfigurationException
    {
@@ -99,9 +98,12 @@ public class SAML2AttributeHandler extends BaseSAML2Handler
 
       String attribStr = (String) this.handlerConfig.getParameter(GeneralConstants.ATTIBUTE_MANAGER);
       this.insantiateAttributeManager(attribStr);
-      List<String> ak = (List<String>) this.handlerConfig.getParameter(GeneralConstants.ATTRIBUTE_KEYS);
-      if (ak != null)
-         this.attributeKeys.addAll(ak);
+      //Get a list of attributes we are interested in
+      String attribList = (String) this.handlerConfig.getParameter(GeneralConstants.ATTRIBUTE_KEYS);
+      if (StringUtil.isNotNull(attribList))
+      {
+         this.attributeKeys.addAll(StringUtil.tokenize(attribList));
+      }
 
       String chooseFriendlyNameStr = (String) handlerConfig
             .getParameter(GeneralConstants.ATTRIBUTE_CHOOSE_FRIENDLY_NAME);
