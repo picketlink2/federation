@@ -66,6 +66,8 @@ public interface ErrorCodes
 
    String IDP_WEBBROWSER_VALVE_NOT_STARTED = "PL00024: IDPWebBrowserSSOValve NotStarted";
 
+   String ILLEGAL_METHOD_CALLED = "PL00020: Illegal Method Called";
+
    String INVALID_ASSERTION = "PL00080: Invalid Assertion:";
 
    String INVALID_DIGITAL_SIGNATURE = "PL00009: Invalid Digital Signature:";

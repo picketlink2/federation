@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
+import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.ProviderType;
@@ -45,11 +46,15 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
 /**
  * Utility for configuration
@@ -287,24 +292,137 @@ public class CoreConfigUtil
       return returningList;
    }
 
+   /**
+    * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
+    * @param entityDescriptor
+    * @param bindingURI
+    * @return
+    */
    public static SPType getSPConfiguration(EntityDescriptorType entityDescriptor, String bindingURI)
    {
-      List<EDTChoiceType> edtChoices = entityDescriptor.getChoiceType();
-      for (EDTChoiceType edt : edtChoices)
+      SPType spType = new SPType();
+      String identityURL = null;
+      String serviceURL = null;
+
+      if (identityURL == null)
       {
-         List<EDTDescriptorChoiceType> edtDescriptors = edt.getDescriptors();
-         for (EDTDescriptorChoiceType edtDesc : edtDescriptors)
+         IDPSSODescriptorType idpSSO = getIDPDescriptor(entityDescriptor);
+         if (idpSSO != null)
          {
-            IDPSSODescriptorType idpSSO = edtDesc.getIdpDescriptor();
-            if (idpSSO != null)
-            {
-               return getSPConfiguration(idpSSO, bindingURI);
-            }
+            identityURL = getIdentityURL(idpSSO, bindingURI);
          }
+         spType.setIdentityURL(identityURL);
       }
-      return null;
+      if (serviceURL == null)
+      {
+         SPSSODescriptorType spSSO = getSPDescriptor(entityDescriptor);
+         if (spSSO != null)
+         {
+            serviceURL = getServiceURL(spSSO, bindingURI);
+         }
+         spType.setServiceURL(serviceURL);
+      }
+      return spType;
    }
 
+   /**
+    * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
+    * @param entityDescriptor
+    * @param bindingURI
+    * @return
+    */
+   public static SPType getSPConfiguration(EntitiesDescriptorType entitiesDescriptor, String bindingURI)
+   {
+      SPType spType = null;
+      String identityURL = null;
+      String serviceURL = null;
+
+      List<Object> list = entitiesDescriptor.getEntityDescriptor();
+      if (list != null)
+      {
+         for (Object theObject : list)
+         {
+            if (theObject instanceof EntitiesDescriptorType)
+            {
+               spType = getSPConfiguration((EntitiesDescriptorType) theObject, bindingURI);
+            }
+            else if (theObject instanceof EntityDescriptorType)
+            {
+               if (identityURL == null)
+               {
+                  IDPSSODescriptorType idpSSO = getIDPDescriptor((EntityDescriptorType) theObject);
+                  if (idpSSO != null)
+                  {
+                     identityURL = getIdentityURL(idpSSO, bindingURI);
+                  }
+                  if (identityURL != null && spType != null)
+                  {
+                     spType.setIdentityURL(identityURL);
+                  }
+                  else if (identityURL != null && spType == null)
+                  {
+                     spType = new SPType();
+                     spType.setIdentityURL(identityURL);
+                  }
+               }
+               if (serviceURL == null)
+               {
+                  SPSSODescriptorType spSSO = getSPDescriptor((EntityDescriptorType) theObject);
+                  if (spSSO != null)
+                  {
+                     serviceURL = getServiceURL(spSSO, bindingURI);
+                  }
+                  if (serviceURL != null && spType != null)
+                  {
+                     spType.setServiceURL(serviceURL);
+                  }
+                  else if (serviceURL != null && spType == null)
+                  {
+                     spType = new SPType();
+                     spType.setServiceURL(serviceURL);
+                  }
+               }
+            }
+            if (spType != null && !StringUtil.isNullOrEmpty(spType.getIdentityURL())
+                  && !StringUtil.isNullOrEmpty(spType.getServiceURL()))
+               break;
+         }
+      }
+      return spType;
+   }
+
+   /**
+    * Get the first metadata descriptor for an IDP
+    * @param entitiesDescriptor
+    * @return
+    */
+   public static IDPSSODescriptorType getIDPDescriptor(EntitiesDescriptorType entitiesDescriptor)
+   {
+      IDPSSODescriptorType idp = null;
+      List<Object> entitiesList = entitiesDescriptor.getEntityDescriptor();
+      for (Object theObject : entitiesList)
+      {
+         if (theObject instanceof EntitiesDescriptorType)
+         {
+            idp = getIDPDescriptor((EntitiesDescriptorType) theObject);
+         }
+         else if (theObject instanceof EntityDescriptorType)
+         {
+            idp = getIDPDescriptor((EntityDescriptorType) theObject);
+         }
+         if (idp != null)
+         {
+            break;
+         }
+      }
+      return idp;
+   }
+
+   /**
+    * Get the IDP metadata descriptor from an entity descriptor
+    * @param entityDescriptor
+    * @return
+    */
    public static IDPSSODescriptorType getIDPDescriptor(EntityDescriptorType entityDescriptor)
    {
       List<EDTChoiceType> edtChoices = entityDescriptor.getChoiceType();
@@ -323,11 +441,39 @@ public class CoreConfigUtil
       return null;
    }
 
-   public static SPType getSPConfiguration(IDPSSODescriptorType idp, String bindingURI)
+   /**
+    * Get the SP Descriptor from an entity descriptor
+    * @param entityDescriptor
+    * @return
+    */
+   public static SPSSODescriptorType getSPDescriptor(EntityDescriptorType entityDescriptor)
+   {
+      List<EDTChoiceType> edtChoices = entityDescriptor.getChoiceType();
+      for (EDTChoiceType edt : edtChoices)
+      {
+         List<EDTDescriptorChoiceType> edtDescriptors = edt.getDescriptors();
+         for (EDTDescriptorChoiceType edtDesc : edtDescriptors)
+         {
+            SPSSODescriptorType spSSO = edtDesc.getSpDescriptor();
+            if (spSSO != null)
+            {
+               return spSSO;
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Given a binding uri, get the IDP identity url
+    * @param idp
+    * @param bindingURI
+    * @return
+    */
+   public static String getIdentityURL(IDPSSODescriptorType idp, String bindingURI)
    {
       String identityURL = null;
 
-      SPType sp = new SPType();
       List<EndpointType> endpoints = idp.getSingleSignOnService();
       for (EndpointType endpoint : endpoints)
       {
@@ -338,8 +484,59 @@ public class CoreConfigUtil
          }
 
       }
-      //get identity url
-      sp.setIdentityURL(identityURL);
-      return sp;
+      return identityURL;
+   }
+
+   /**
+    * Get the service url for the SP
+    * @param sp
+    * @param bindingURI
+    * @return
+    */
+   public static String getServiceURL(SPSSODescriptorType sp, String bindingURI)
+   {
+      String serviceURL = null;
+
+      List<IndexedEndpointType> endpoints = sp.getAssertionConsumerService();
+      for (IndexedEndpointType endpoint : endpoints)
+      {
+         if (endpoint.getBinding().toString().equals(bindingURI))
+         {
+            serviceURL = endpoint.getLocation().toString();
+            break;
+         }
+
+      }
+      return serviceURL;
+   }
+
+   /**
+    * Get the IDP Type
+    * @param idpSSODescriptor
+    * @return
+    */
+   public static IDPType getIDPType(IDPSSODescriptorType idpSSODescriptor)
+   {
+      IDPType idp = new IDPType();
+
+      List<EndpointType> endpoints = idpSSODescriptor.getSingleSignOnService();
+
+      if (endpoints != null)
+      {
+         for (EndpointType endpoint : endpoints)
+         {
+            if (endpoint.getBinding().toString().equals(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get()))
+            {
+               idp.setIdentityURL(endpoint.getLocation().toString());
+               break;
+            }
+         }
+      }
+
+      if (StringUtil.isNullOrEmpty(idp.getIdentityURL()))
+      {
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "identity url");
+      }
+      return idp;
    }
 }
