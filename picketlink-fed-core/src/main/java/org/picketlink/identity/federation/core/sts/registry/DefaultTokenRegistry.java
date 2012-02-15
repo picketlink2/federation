@@ -22,8 +22,8 @@
 package org.picketlink.identity.federation.core.sts.registry;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
@@ -33,19 +33,19 @@ import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
  * @since Jan 4, 2011
  */
 public class DefaultTokenRegistry implements SecurityTokenRegistry
-{ 
-   protected Map<String, Object> tokens = new HashMap<String,Object>();
-   
+{
+   protected Map<String, Object> tokens = new ConcurrentHashMap<String, Object>();
+
    /**
     * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#addToken(java.lang.String, java.lang.Object)
     */
    public void addToken(String tokenID, Object token) throws IOException
    {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
-      tokens.put( tokenID, token );
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+
+      tokens.put(tokenID, token);
    }
 
    /**
@@ -54,20 +54,20 @@ public class DefaultTokenRegistry implements SecurityTokenRegistry
    public Object getToken(String tokenID)
    {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      
-      return tokens.get( tokenID );
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+
+      return tokens.get(tokenID);
    }
 
    /**
     * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#removeToken(java.lang.String)
     */
    public void removeToken(String tokenID) throws IOException
-   { 
+   {
       SecurityManager sm = System.getSecurityManager();
-      if( sm != null )
-         sm.checkPermission( PicketLinkCoreSTS.rte ); 
-      tokens.remove( tokenID );
+      if (sm != null)
+         sm.checkPermission(PicketLinkCoreSTS.rte);
+      tokens.remove(tokenID);
    }
 }
