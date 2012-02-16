@@ -197,6 +197,11 @@ public class SAMLParserUtil
       {
          return StaxParserUtil.getElementText(xmlEventReader);
       }
+      else if (typeValue.contains(":anyType"))
+      {
+         //TODO: for now assume that it is a text value that can be parsed and set as the attribute value
+         return StaxParserUtil.getElementText(xmlEventReader);
+      }
 
       throw new RuntimeException(UNKNOWN_XSI + typeValue);
    }

@@ -301,4 +301,16 @@ public class SAMLResponseParserTestCase extends AbstractParserTest
       System.out.println(writtenString);
       validateSchema(writtenString);
    }
+
+   @Test
+   public void testSalesforceResponse() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-response-salesforce.xml");
+      validateSchema(configStream);
+      configStream = tcl.getResourceAsStream("parser/saml2/saml2-response-salesforce.xml");
+      SAMLParser parser = new SAMLParser();
+      ResponseType response = (ResponseType) parser.parse(configStream);
+      assertNotNull("ResponseType is not null", response);
+   }
 }
