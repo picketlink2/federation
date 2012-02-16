@@ -64,21 +64,26 @@ public class ServerDetector
       }
       catch (Exception e)
       {
-         try
+      }
+
+      //If class is null
+      try
+      {
+         clazz = SecurityActions.loadClass(me, "org.jboss.as.server.Bootstrap");
+         if (clazz != null)
          {
-            clazz = SecurityActions.loadClass(me, "org.jboss.as.server.Bootstrap");
             jboss = true;
             return;
          }
-         catch (Exception ee)
-         {
-         }
+      }
+      catch (Exception e)
+      {
       }
 
       //Tomcat
       try
       {
-         clazz = SecurityActions.loadClass(getClass(), "org.apache.cataline.Server");
+         clazz = SecurityActions.loadClass(getClass(), "org.apache.catalina.Server");
          if (clazz != null)
          {
             tomcat = true;
