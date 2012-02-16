@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<samlp:Response Destination="https://xxx.indicee.com:8443/elements/elements.jsp" ID="_2bf8c7ab1057d96d2eb494473c31a3881329420450465" InResponseTo="ID_f7fd2a28-b187-46a5-b780-7cf74f68ec06" IssueInstant="2012-02-16T19:27:30.465Z" Version="2.0" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"><saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://indicee.my.salesforce.com</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<samlp:Response Destination="https://xxx.somecompany.com:8443/elements/elements.jsp" ID="_2bf8c7ab1057d96d2eb494473c31a3881329420450465" InResponseTo="ID_f7fd2a28-b187-46a5-b780-7cf74f68ec06" IssueInstant="2012-02-16T19:27:30.465Z" Version="2.0" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"><saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://somecompany.my.salesforce.com</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
 <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
@@ -45,14 +45,14 @@ GzGV15Vv86ziAPl37b0MApJ9ZloHuFxc8hFysqMrOdVWhSvzbmFybPnM/aHMjHhvj7ZL/g==</ds:X50
 Version="2.0" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
 <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://xxx.my.salesforce.com</saml:Issuer>
 <saml:Subject>
-<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">xxx@indicee.com</saml:NameID>
+<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">xxx@somecompany.com</saml:NameID>
 <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
 <saml:SubjectConfirmationData InResponseTo="ID_f7fd2a28-b187-46a5-b780-7cf74f68ec06" 
-NotOnOrAfter="2012-02-16T19:32:30.466Z" Recipient="https://xxx.indicee.com:8443/elements/elements.jsp"/>
+NotOnOrAfter="2012-02-16T19:32:30.466Z" Recipient="https://xxx.somecompany.com:8443/elements/elements.jsp"/>
 </saml:SubjectConfirmation>
 </saml:Subject>
 <saml:Conditions NotBefore="2012-02-16T19:27:30.466Z" NotOnOrAfter="2012-02-16T19:32:30.466Z">
-<saml:AudienceRestriction><saml:Audience>https://xxx.indicee.com:8443/elements/elements.jsp</saml:Audience>
+<saml:AudienceRestriction><saml:Audience>https://xxx.somecompany.com:8443/elements/elements.jsp</saml:Audience>
 </saml:AudienceRestriction></saml:Conditions><saml:AuthnStatement AuthnInstant="2012-02-16T19:27:30.465Z">
 <saml:AuthnContext><saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef></saml:AuthnContext>
 </saml:AuthnStatement>
@@ -62,10 +62,10 @@ xsi:type="xs:anyType">005700000018Mth</saml:AttributeValue>
 </saml:Attribute>
 <saml:Attribute Name="username" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
 <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:type="xs:anyType">xxx@indicee.com</saml:AttributeValue></saml:Attribute>
+xsi:type="xs:anyType">xxx@somecompany.com</saml:AttributeValue></saml:Attribute>
 <saml:Attribute Name="email" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
 <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:type="xs:anyType">xxx@indicee.com</saml:AttributeValue></saml:Attribute>
+xsi:type="xs:anyType">xxx@somecompany.com</saml:AttributeValue></saml:Attribute>
 
 <saml:Attribute Name="is_portal_user" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
 <saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
