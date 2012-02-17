@@ -66,10 +66,10 @@ public class ServerDetector
       {
       }
 
-      //If class is null
+      //If class is null - try the JBossAS7 and beyond
       try
       {
-         clazz = SecurityActions.loadClass(me, "org.jboss.as.server.Bootstrap");
+         clazz = SecurityActions.loadClass(me, "org.jboss.as.web.WebServer");
          if (clazz != null)
          {
             jboss = true;
