@@ -26,7 +26,9 @@
     <module>sales</module>
     <module>employee</module>
     <module>sales-post</module>
+    <module>sales-post-sig</module>
     <module>employee-post</module>
+    <module>employee-post-sig</module>
     <module>sales-saml11</module>
     <module>employee-saml11</module>
     <module>idp</module>
