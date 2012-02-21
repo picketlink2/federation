@@ -1,0 +1,6 @@
+<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" >
+<IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
+<Trust>
+   <Domains>localhost,jboss.com,jboss.org,amazonaws.com</Domains>
+</Trust>
+</PicketLinkIDP>

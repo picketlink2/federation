@@ -32,6 +32,7 @@
     <module>sales-saml11</module>
     <module>employee-saml11</module>
     <module>idp</module>
+    <module>idp-sig</module>
     <module>picketlink-sts</module>
     <module>pdp</module>
     <module>assembly</module>

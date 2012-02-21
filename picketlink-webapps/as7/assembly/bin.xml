@@ -10,6 +10,11 @@
       <fileMode>0444</fileMode>
     </file>
     <file>
+      <source>${basedir}/../idp-sig/target/idp-sig.war</source>
+      <outputDirectory>picketlink</outputDirectory>
+      <fileMode>0444</fileMode>
+    </file>
+    <file>
       <source>${basedir}/../sales/target/sales.war</source>
       <outputDirectory>picketlink</outputDirectory>
       <fileMode>0444</fileMode>
