@@ -60,7 +60,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source>
    protected Logger log = Logger.getLogger(SOAPSAMLXACMLPDP.class);
 
    @Resource
-   WebServiceContext context;
+   protected WebServiceContext context;
 
    protected String policyConfigFileName = "policyConfig.xml";
 
