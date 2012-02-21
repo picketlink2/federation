@@ -36,4 +36,12 @@
         </plugin>
      </plugins>
   </build>
+  <dependencies>
+      <dependency>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-fed-core</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+  </dependencies>
+
 </project>
