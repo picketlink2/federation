@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.config;
 
+
 /**
  * Service Provider Type
  * 
@@ -44,7 +45,6 @@ package org.picketlink.identity.federation.core.config;
  */
 public class SPType extends ProviderType
 {
-
    protected String serviceURL;
 
    protected String idpMetadataFile;

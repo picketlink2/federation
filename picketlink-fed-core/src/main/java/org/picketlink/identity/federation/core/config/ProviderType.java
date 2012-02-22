@@ -26,6 +26,8 @@ import java.util.Map;
 
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
+import org.picketlink.identity.federation.core.util.StringUtil;
+
 /**
  * Base Type for IDP and SP
  * 
@@ -267,5 +269,28 @@ public class ProviderType
    public Object getAdditionalOption(String key)
    {
       return additionalOptions.get(key);
+   }
+
+   /**
+    * Import values from another {@link IDPType}
+    * @param other
+    */
+   public void importFrom(ProviderType other)
+   {
+      KeyProviderType keyProvider = other.getKeyProvider();
+      if (keyProvider != null)
+      {
+         setKeyProvider(keyProvider);
+      }
+
+      String can = other.getCanonicalizationMethod();
+      if (StringUtil.isNotNull(can))
+      {
+         setCanonicalizationMethod(can);
+      }
+
+      trust = other.getTrust();
+
+      additionalOptions.putAll(other.additionalOptions);
    }
 }

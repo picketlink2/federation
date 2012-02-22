@@ -49,7 +49,9 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class IDPMetadataConfigurationProvider implements SAMLConfigurationProvider
+public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider
+      implements
+         SAMLConfigurationProvider
 {
    public static final String IDP_MD_FILE = "idp-metadata.xml";
 
@@ -74,6 +76,11 @@ public class IDPMetadataConfigurationProvider implements SAMLConfigurationProvid
          {
             throw new ProcessingException(e);
          }
+      }
+
+      if (configParsedIDPType != null)
+      {
+         idpType.importFrom(configParsedIDPType);
       }
 
       return idpType;

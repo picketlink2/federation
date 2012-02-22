@@ -98,4 +98,17 @@ public class KeyValueType
       this.value = value;
    }
 
+   /**
+    * Create a new instance
+    * @param key
+    * @param value
+    * @return
+    */
+   public static KeyValueType create(String key, String value)
+   {
+      KeyValueType keyValueType = new KeyValueType();
+      keyValueType.setKey(key);
+      keyValueType.setValue(value);
+      return keyValueType;
+   }
 }

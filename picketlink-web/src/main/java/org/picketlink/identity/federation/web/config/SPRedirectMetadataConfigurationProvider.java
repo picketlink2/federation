@@ -49,7 +49,9 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class SPRedirectMetadataConfigurationProvider implements SAMLConfigurationProvider
+public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider
+      implements
+         SAMLConfigurationProvider
 {
    public static final String SP_MD_FILE = "sp-metadata.xml";
 
@@ -81,7 +83,10 @@ public class SPRedirectMetadataConfigurationProvider implements SAMLConfiguratio
             throw new ProcessingException(e);
          }
       }
-
+      if (configParsedSPType != null)
+      {
+         spType.importFrom(configParsedSPType);
+      }
       return spType;
    }
 

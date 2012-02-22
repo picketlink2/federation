@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.config;
 
+import org.picketlink.identity.federation.core.util.StringUtil;
+
 /**
  * 
  * 				IDP Type defines the configuration for an Identity
@@ -220,4 +222,26 @@ public class IDPType extends ProviderType
       this.encrypt = value;
    }
 
+   /**
+    * Import values from another {@link IDPType}
+    * @param other
+    */
+   public void importFrom(IDPType other)
+   {
+      super.importFrom(other);
+
+      String attributeManager = other.getAttributeManager();
+      if (StringUtil.isNotNull(attributeManager))
+      {
+         setAttributeManager(attributeManager);
+      }
+      assertionValidity = other.getAssertionValidity();
+
+      encrypt = other.isEncrypt();
+
+      if (StringUtil.isNotNull(other.getRoleGenerator()))
+      {
+         this.roleGenerator = other.getRoleGenerator();
+      }
+   }
 }

@@ -24,8 +24,11 @@ package org.picketlink.test.identity.federation.web.saml.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.InputStream;
+
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.web.config.IDPMetadataConfigurationProvider;
 
@@ -45,4 +48,23 @@ public class IDPMetadataConfigurationProviderUnitTestCase
       assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", idp.getIdentityURL());
    }
 
+   @Test
+   public void testIDPTypeWithConfig() throws Exception
+   {
+      IDPMetadataConfigurationProvider provider = new IDPMetadataConfigurationProvider();
+      InputStream is = Thread.currentThread().getContextClassLoader()
+            .getResourceAsStream("saml2/logout/idp/WEB-INF/picketlink-idfed.xml");
+      assertNotNull(is);
+      provider.setConfigFile(is);
+
+      IDPType idp = provider.getIDPConfiguration();
+      assertNotNull(idp);
+      assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", idp.getIdentityURL());
+
+      TrustType trust = idp.getTrust();
+      assertNotNull(trust);
+      assertEquals("localhost,jboss.com,jboss.org", trust.getDomains());
+
+      assertEquals("org.picketlink.identity.federation.core.impl.EmptyAttributeManager", idp.getAttributeManager());
+   }
 }

@@ -24,6 +24,8 @@ package org.picketlink.test.identity.federation.web.saml.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.InputStream;
+
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -40,6 +42,20 @@ public class SPPostMetadataConfigurationProviderUnitTestCase
    public void testSPType() throws ProcessingException
    {
       SPPostMetadataConfigurationProvider provider = new SPPostMetadataConfigurationProvider();
+      SPType sp = provider.getSPConfiguration();
+      assertNotNull(sp);
+      assertEquals("https://sp.testshib.org/Shibboleth.sso/SAML2/POST", sp.getServiceURL());
+   }
+
+   @Test
+   public void testSPTypeWithConfig() throws Exception
+   {
+      SPPostMetadataConfigurationProvider provider = new SPPostMetadataConfigurationProvider();
+      InputStream is = Thread.currentThread().getContextClassLoader()
+            .getResourceAsStream("saml2/logout/sp/sales/WEB-INF/picketlink-idfed.xml");
+      assertNotNull(is);
+      provider.setConfigFile(is);
+
       SPType sp = provider.getSPConfiguration();
       assertNotNull(sp);
       assertEquals("https://sp.testshib.org/Shibboleth.sso/SAML2/POST", sp.getServiceURL());

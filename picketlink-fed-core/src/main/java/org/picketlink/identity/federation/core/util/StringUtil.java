@@ -22,7 +22,9 @@
 package org.picketlink.identity.federation.core.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -139,13 +141,42 @@ public class StringUtil
     */
    public static List<String> tokenize(String str)
    {
+      return tokenize(str, ",");
+   }
+
+   /**
+    * Given a delimited string, get the tokens as a {@link List}
+    * @param str
+    * @param delimiter  the delimiter
+    * @return
+    */
+   public static List<String> tokenize(String str, String delimiter)
+   {
       List<String> list = new ArrayList<String>();
-      StringTokenizer tokenizer = new StringTokenizer(str, ",");
+      StringTokenizer tokenizer = new StringTokenizer(str, delimiter);
       while (tokenizer.hasMoreTokens())
       {
          list.add(tokenizer.nextToken());
       }
       return list;
+   }
+
+   /**
+    * Given a string that is comma delimited and contains key-value pairs
+    * @param keyValuePairString
+    * @return
+    */
+   public static Map<String, String> tokenizeKeyValuePair(String keyValuePairString)
+   {
+      Map<String, String> map = new HashMap<String, String>();
+
+      List<String> tokens = tokenize(keyValuePairString);
+      for (String token : tokens)
+      {
+         int location = token.indexOf('=');
+         map.put(token.substring(0, location), token.substring(location + 1));
+      }
+      return map;
    }
 
    /**
