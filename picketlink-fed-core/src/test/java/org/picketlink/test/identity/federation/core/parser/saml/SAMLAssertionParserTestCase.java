@@ -243,7 +243,11 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest
       AssertionType assertion = (AssertionType) parser.parse(configStream);
       assertNotNull(assertion);
 
-      List<SubjectConfirmationType> subjectConfirmationTypes = assertion.getSubject().getConfirmation();
+      SubjectType subjectType = assertion.getSubject();
+      STSubType stType = subjectType.getSubType();
+      assertEquals("A_DUDE", ((NameIDType) stType.getBaseID()).getValue());
+
+      List<SubjectConfirmationType> subjectConfirmationTypes = subjectType.getConfirmation();
       assertNotNull(subjectConfirmationTypes);
       assertEquals(1, subjectConfirmationTypes.size());
       SubjectConfirmationType sct = subjectConfirmationTypes.get(0);
@@ -251,6 +255,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest
       NameIDType nameID = sct.getNameID();
       assertNotNull(nameID);
       assertEquals("CN=theDUDE", nameID.getValue());
+
    }
 
    /**
