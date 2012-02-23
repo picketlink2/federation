@@ -217,6 +217,8 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
     */
    protected Source handleTokenRequest(RequestSecurityToken request)
    {
+      if (context == null)
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "WebServiceContext");
       if (this.config == null)
          try
          {
@@ -230,6 +232,9 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
          }
 
       WSTrustRequestHandler handler = this.config.getRequestHandler();
+      if (handler == null)
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "WSTrustRequestHandler");
+
       String requestType = request.getRequestType().toString();
       if (logger.isDebugEnabled())
          logger.debug("STS received request of type " + requestType);
