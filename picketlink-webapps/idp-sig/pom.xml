@@ -27,11 +27,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.0.2</version>
+          <version>2.2</version>
           <configuration>
             <warName>idp-sig</warName>
-            <webappDirectory>${basedir}/src/main/webapp/</webappDirectory>
-            <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+            <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
           </configuration>
         </plugin>
      </plugins>
