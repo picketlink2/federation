@@ -24,6 +24,7 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 
+import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 
 /**
@@ -38,8 +39,12 @@ import org.picketlink.identity.federation.core.wstrust.PicketLinkSTS;
 @ServiceMode(value = Service.Mode.MESSAGE)
 public class PicketLinkSTService extends PicketLinkSTS 
 {
-
+   private static Logger log = Logger.getLogger(PicketLinkSTService.class);
+	
    @Resource
-   protected WebServiceContext context;
+   public void setWSC(WebServiceContext wctx) {
+	   log.debug("Setting WebServiceContext = " + wctx);
+	   this.context = wctx;
+   }
 
 }
