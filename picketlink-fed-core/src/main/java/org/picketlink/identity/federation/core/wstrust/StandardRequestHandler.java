@@ -617,8 +617,10 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                // Set the CanonicalizationMethod if any
                XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
+               /*rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
+                     signatureMethod, "#" + tokenElement.getAttribute("ID"));*/
                rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                     signatureMethod, "#" + tokenElement.getAttribute("ID"));
+                     signatureMethod, "");
                if (trace)
                {
                   try
