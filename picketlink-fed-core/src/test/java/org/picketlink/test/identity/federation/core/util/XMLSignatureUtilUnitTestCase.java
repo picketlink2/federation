@@ -90,7 +90,7 @@ public class XMLSignatureUtilUnitTestCase
    @Test
    public void testSAML2Assertion() throws Exception
    {
-      String fileName = "signatures/saml2assertion.xml";
+      String fileName = "signatures/saml11assertion.xml";
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(fileName);
       if (is == null)
@@ -103,9 +103,7 @@ public class XMLSignatureUtilUnitTestCase
       KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
 
       Element tokenElement = (Element) rstrDocument.getFirstChild();
-
-      rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1, signatureMethod, "#"
-            + tokenElement.getAttribute("ID"));
+      rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1, signatureMethod, "");
 
       assertNotNull(rstrDocument);
 
