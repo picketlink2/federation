@@ -123,7 +123,7 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache</groupId>
+         <groupId>org.apache.santuario</groupId>
          <artifactId>xmlsec</artifactId>
       </dependency>
       <dependency>
