@@ -29,58 +29,61 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-
 
 /**
  * Unit test the FileBasedMetadataConfigurationStore
  * @author Anil.Saldhana@redhat.com
  * @since Apr 28, 2009
  */
-public class FileBasedMetadataConfigurationStoreUnitTestCase 
+public class FileBasedMetadataConfigurationStoreUnitTestCase
 {
    String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
+
    String id = "test";
-   
+
+   @Before
+   public void setup() throws Exception
+   {
+      String userHome = System.getProperty("user.home");
+      if (StringUtil.isNotNull(userHome) && "?".equals(userHome))
+         System.setProperty("user.home", System.getProperty("user.dir"));
+   }
+
    @Test
    public void testStore() throws Exception
    {
       SAMLParser parser = new SAMLParser();
-      
+
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = 
-         tcl.getResourceAsStream("saml2/metadata/idp-entitydescriptor.xml");
-      assertNotNull("Inputstream not null", is); 
-      
+      InputStream is = tcl.getResourceAsStream("saml2/metadata/idp-entitydescriptor.xml");
+      assertNotNull("Inputstream not null", is);
+
       EntityDescriptorType edt = (EntityDescriptorType) parser.parse(is);
-      assertNotNull( edt );
-      /*
-      Unmarshaller un = JAXBUtil.getUnmarshaller(pkgName);
-      JAXBElement<EntityDescriptorType> je = (JAXBElement<EntityDescriptorType>) un.unmarshal(is);
-      EntityDescriptorType edt = je.getValue();
-      assertNotNull("EntityDescriptorType not null", edt);  
-      */
+      assertNotNull(edt);
       FileBasedMetadataConfigurationStore fbd = new FileBasedMetadataConfigurationStore();
       fbd.persist(edt, id);
-      
+
       EntityDescriptorType loaded = fbd.load(id);
       assertNotNull("loaded EntityDescriptorType not null", loaded);
       fbd.delete(id);
-     
+
       try
       {
          fbd.load(id);
          fail("Did not delete the metadata persistent file");
       }
-      catch(Exception t)
+      catch (Exception t)
       {
          //pass
       }
    }
-   
+
    @Test
    public void testTrustedProviders() throws Exception
    {
@@ -89,22 +92,22 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase
       trustedProviders.put("idp1", "http://localhost:8080/idp1/metadata");
       trustedProviders.put("idp2", "http://localhost:8080/idp2/metadata");
       fbd.persistTrustedProviders(id, trustedProviders);
-      
+
       //Lets get back
       Map<String, String> loadTP = fbd.loadTrustedProviders(id);
       assertNotNull("Loaded Trusted Providers not null", loadTP);
-      
+
       assertTrue("idp1", loadTP.containsKey("idp1"));
       assertTrue("idp2", loadTP.containsKey("idp2"));
       assertTrue("size 2", loadTP.size() == 2);
-      
+
       fbd.deleteTrustedProviders(id);
       try
       {
          fbd.loadTrustedProviders(id);
          fail("Did not delete the trusted providers file");
       }
-      catch(Exception t)
+      catch (Exception t)
       {
          //pass
       }
