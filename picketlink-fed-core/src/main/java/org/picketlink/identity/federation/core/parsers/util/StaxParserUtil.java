@@ -24,7 +24,6 @@ package org.picketlink.identity.federation.core.parsers.util;
 import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_END_TAG;
 import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_TAG;
 import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_XSI;
-import static org.picketlink.identity.federation.core.ErrorCodes.NULL_INPUT_STREAM;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +43,7 @@ import javax.xml.transform.stax.StAXSource;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -439,8 +439,8 @@ public class StaxParserUtil
     */
    public static final String trim(String str)
    {
-      if (str == null || str.length() == 0)
-         throw new IllegalArgumentException(NULL_INPUT_STREAM);
+      if (str == null)
+         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
       return str.trim();
    }
 

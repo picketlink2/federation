@@ -22,12 +22,14 @@
 package org.picketlink.test.identity.federation.core.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
@@ -79,5 +81,13 @@ public class StringUtilTestCase
          else
             throw new RuntimeException("Unknown");
       }
+   }
+
+   @Test
+   public void trim() throws Exception
+   {
+      assertNotNull("".trim());
+      assertEquals(0, "".trim().length());
+      assertEquals(0, StaxParserUtil.trim("").length());
    }
 }
