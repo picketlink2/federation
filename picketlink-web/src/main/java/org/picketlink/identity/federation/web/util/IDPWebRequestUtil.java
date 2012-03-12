@@ -81,6 +81,7 @@ public class IDPWebRequestUtil
 
    private final TrustKeyManager keyManager;
 
+
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
    public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym)
@@ -232,7 +233,7 @@ public class IDPWebRequestUtil
       boolean sendRequest = holder.isAreWeSendingRequest();
       HttpServletResponse response = holder.getServletResponse();
 
-      if (holder.isPostBindingRequested() == false)
+      if (holder.isPostBindingRequested() == false && !holder.isStrictPostBinding())
       {
          byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
 
@@ -432,7 +433,20 @@ public class IDPWebRequestUtil
       private boolean postBindingRequested;
 
       private boolean areWeSendingRequest;
+      
+      //Cater to SAML Web Browser SSO Profile demand that we do not reply in Redirect Binding
+      private boolean strictPostBinding = false;
+      
+      public boolean isStrictPostBinding()
+      {
+         return strictPostBinding;
+      }
 
+      public void setStrictPostBinding(boolean strictPostBinding)
+      {
+         this.strictPostBinding = strictPostBinding;
+      }
+      
       public Document getResponseDoc()
       {
          return responseDoc;

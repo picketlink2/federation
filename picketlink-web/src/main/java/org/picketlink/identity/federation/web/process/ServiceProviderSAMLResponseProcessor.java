@@ -67,6 +67,13 @@ import org.w3c.dom.Document;
 public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBaseProcessor
 {
    private boolean validateSignature = false;
+   
+   private boolean idpPostBinding = false;
+   
+   public void setIdpPostBinding(boolean idpPostBinding)
+   {
+      this.idpPostBinding = idpPostBinding;
+   }
 
    /**
     * Construct
@@ -106,23 +113,21 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
       SAMLDocumentHolder documentHolder = null;
       SAML2Object samlObject = null;
 
-      if (this.postBinding)
-      {
-         //we got a logout request 
+      InputStream dataStream = null;
+      
+      if (this.postBinding || idpPostBinding )
+      {  
          //deal with SAML response from IDP
-         InputStream is = PostBindingUtil.base64DecodeAsStream(samlResponse);
-
-         samlObject = saml2Response.getSAML2ObjectFromStream(is);
-         documentHolder = saml2Response.getSamlDocumentHolder();
+         dataStream = PostBindingUtil.base64DecodeAsStream(samlResponse);
       }
       else
       {
          //deal with SAML response from IDP
-         InputStream base64DecodedResponse = RedirectBindingUtil.base64DeflateDecode(samlResponse);
-
-         samlObject = saml2Response.getSAML2ObjectFromStream(base64DecodedResponse);
-         documentHolder = saml2Response.getSamlDocumentHolder();
+         dataStream = RedirectBindingUtil.base64DeflateDecode(samlResponse);
       }
+
+      samlObject = saml2Response.getSAML2ObjectFromStream(dataStream);
+      documentHolder = saml2Response.getSamlDocumentHolder();
 
       if (this.validateSignature)
          try

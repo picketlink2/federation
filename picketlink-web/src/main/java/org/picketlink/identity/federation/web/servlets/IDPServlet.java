@@ -130,6 +130,21 @@ public class IDPServlet extends HttpServlet
    protected transient ServletContext context = null;
 
    protected transient SAML2HandlerChain chain = null;
+   
+
+   //Cater to SAML Web Browser SSO Profile demand that we do not reply in Redirect Binding
+   private boolean strictPostBinding = false;
+   
+   public boolean isStrictPostBinding()
+   {
+      return strictPostBinding;
+   }
+
+   public void setStrictPostBinding(boolean strictPostBinding)
+   {
+      this.strictPostBinding = strictPostBinding;
+   }
+   
 
    /**
     * If the user wants to set a particular {@link IdentityParticipantStack}
@@ -163,6 +178,13 @@ public class IDPServlet extends HttpServlet
             throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
          }
       }
+      
+      String strictPostBindingStr = config.getInitParameter(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+      if(StringUtil.isNotNull(strictPostBindingStr))
+      {
+         strictPostBinding = Boolean.parseBoolean(strictPostBindingStr);
+      }
+      
       context = config.getServletContext();
 
       if (idpConfiguration == null)
@@ -572,12 +594,10 @@ public class IDPServlet extends HttpServlet
             if (this.signOutgoingMessages)
             {
                holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-               /*webRequestUtil.send(samlResponse, destination,relayState, response, true, 
-                     this.keyManager.getSigningKey(), willSendRequest);*/
             }
-            /*   
-            else
-               webRequestUtil.send(samlResponse, destination, relayState, response, false,null, willSendRequest);*/
+            
+            if(strictPostBinding)
+               holder.setStrictPostBinding(strictPostBinding);
             webRequestUtil.send(holder);
          }
          catch (ParsingException e)
@@ -614,12 +634,10 @@ public class IDPServlet extends HttpServlet
          if (this.signOutgoingMessages)
          {
             holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-            /*webRequestUtil.send(samlResponse, referrer, relayState, response, true, 
-                  this.keyManager.getSigningKey(), false);*/
          }
 
-         /* else
-             webRequestUtil.send(samlResponse, referrer, relayState, response, false,null, false);*/
+         if(strictPostBinding)
+            holder.setStrictPostBinding(true);
          webRequestUtil.send(holder);
       }
       catch (ParsingException e1)

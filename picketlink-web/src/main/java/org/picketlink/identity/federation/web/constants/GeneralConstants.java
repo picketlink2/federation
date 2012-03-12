@@ -93,6 +93,8 @@ public interface GeneralConstants
    String SAML_SIG_ALG_REQUEST_KEY = "SigAlg";
    
    String SAML_SIGNATURE_REQUEST_KEY = "Signature";
+   
+   String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
 
    String DECRYPTING_KEY = "DECRYPTING_KEY";
 
