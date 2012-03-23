@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-federation-webapps</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.3.Final</version>
     <relativePath>../</relativePath>
   </parent>
 
