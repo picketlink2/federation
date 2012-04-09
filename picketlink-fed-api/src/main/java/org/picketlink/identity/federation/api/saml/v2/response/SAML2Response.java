@@ -250,7 +250,7 @@ public class SAML2Response
       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
       SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
       samlProtocolContext.setSubjectType(subjectType);
-      samlProtocolContext.setIssuerID(nameIDType);
+      samlProtocolContext.setIssuerID(issuerInfo.getIssuer());
 
       AssertionType assertionType = idp.getAssertion();
       if (assertionType != null)
