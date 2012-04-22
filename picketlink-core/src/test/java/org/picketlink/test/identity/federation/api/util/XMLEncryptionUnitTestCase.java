@@ -98,8 +98,7 @@ public class XMLEncryptionUnitTestCase extends TestCase
       ResponseType newRT = sr.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
 
       AssertionType assertion = newRT.getAssertions().get(0).getAssertion();
-      assertEquals("testPrincipal", assertion.getIssuer().getValue());
-
+      assertEquals("http://identityurl", assertion.getIssuer().getValue());
    }
 
    public void testArbitraryXML() throws Exception

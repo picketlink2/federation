@@ -15,11 +15,7 @@
 
    <modules>
      <module>parent</module>
-     <module>picketlink-xmlsec-model</module>
-     <module>picketlink-fed-model</module>
-     <module>picketlink-fed-core</module>
-     <module>picketlink-fed-api</module>
-     <module>picketlink-web</module>
+     <module>picketlink-core</module>
      <module>picketlink-bindings</module>
      <module>picketlink-bindings-jboss</module>
      <module>picketlink-webapps</module>
