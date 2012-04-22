@@ -1,0 +1,43 @@
+<classpath>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes" excluding="**/*.java"/>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/javax/persistence/persistence-api/1.0/persistence-api-1.0.jar" sourcepath="M2_REPO/javax/persistence/persistence-api/1.0/persistence-api-1.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.4/servlet-api-2.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant/1.7.1/ant-1.7.1.jar" sourcepath="M2_REPO/org/apache/ant/ant/1.7.1/ant-1.7.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-launcher/1.7.1/ant-launcher-1.7.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.8.0/commons-beanutils-1.8.0.jar" sourcepath="M2_REPO/commons-beanutils/commons-beanutils/1.8.0/commons-beanutils-1.8.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.2/commons-codec-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1.jar" sourcepath="M2_REPO/commons-httpclient/commons-httpclient/3.0.1/commons-httpclient-3.0.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/apache-logging/commons-logging-api/1.0.3/commons-logging-api-1.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/gnu-getopt/getopt/1.0.13/getopt-1.0.13.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/security/jacc/jboss-jacc-api_1.4_spec/1.0.0.Final/jboss-jacc-api_1.4_spec-1.0.0.Final.jar" sourcepath="M2_REPO/org/jboss/spec/javax/security/jacc/jboss-jacc-api_1.4_spec/1.0.0.Final/jboss-jacc-api_1.4_spec-1.0.0.Final-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jboss/jaxbintros/jboss-jaxb-intros/1.0.2.GA/jboss-jaxb-intros-1.0.2.GA.jar" sourcepath="M2_REPO/jboss/jaxbintros/jboss-jaxb-intros/1.0.2.GA/jboss-jaxb-intros-1.0.2.GA-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/xml/ws/jboss-jaxws-api_2.2_spec/1.0.0.Final/jboss-jaxws-api_2.2_spec-1.0.0.Final.jar" sourcepath="M2_REPO/org/jboss/spec/javax/xml/ws/jboss-jaxws-api_2.2_spec/1.0.0.Final/jboss-jaxws-api_2.2_spec-1.0.0.Final-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging-spi/2.1.0.GA/jboss-logging-spi-2.1.0.GA.jar" sourcepath="M2_REPO/org/jboss/logging/jboss-logging-spi/2.1.0.GA/jboss-logging-spi-2.1.0.GA-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketbox/jboss-security-spi/3.0.0.Final/jboss-security-spi-3.0.0.Final.jar" sourcepath="M2_REPO/org/picketbox/jboss-security-spi/3.0.0.Final/jboss-security-spi-3.0.0.Final-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/servlet/jboss-servlet-api_3.0_spec/1.0.0.Final/jboss-servlet-api_3.0_spec-1.0.0.Final.jar" sourcepath="M2_REPO/org/jboss/spec/javax/servlet/jboss-servlet-api_3.0_spec/1.0.0.Final/jboss-servlet-api_3.0_spec-1.0.0.Final-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketbox/jbosssx/3.0.0.Final/jbosssx-3.0.0.Final.jar" sourcepath="M2_REPO/org/picketbox/jbosssx/3.0.0.Final/jbosssx-3.0.0.Final-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/ws/jbossws-common/1.4.1.GA/jbossws-common-1.4.1.GA.jar" sourcepath="M2_REPO/org/jboss/ws/jbossws-common/1.4.1.GA/jbossws-common-1.4.1.GA-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/ws/jbossws-spi/1.4.1.GA/jbossws-spi-1.4.1.GA.jar" sourcepath="M2_REPO/org/jboss/ws/jbossws-spi/1.4.1.GA/jbossws-spi-1.4.1.GA-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/security/jbossxacml/2.0.4/jbossxacml-2.0.4.jar" sourcepath="M2_REPO/org/jboss/security/jbossxacml/2.0.4/jbossxacml-2.0.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar" sourcepath="M2_REPO/junit/junit/4.4/junit-4.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/apache-log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/apache-log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openid4java/openid4java-nodeps/0.9.5/openid4java-nodeps-0.9.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-bindings/2.0.0-SNAPSHOT/picketlink-bindings-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-bindings/2.0.0-SNAPSHOT/picketlink-bindings-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-bindings-jboss/2.0.0-SNAPSHOT/picketlink-bindings-jboss-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-bindings-jboss/2.0.0-SNAPSHOT/picketlink-bindings-jboss-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-fed/2.0.0-SNAPSHOT/picketlink-fed-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-fed/2.0.0-SNAPSHOT/picketlink-fed-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-fed-api/2.0.0-SNAPSHOT/picketlink-fed-api-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-fed-api/2.0.0-SNAPSHOT/picketlink-fed-api-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-fed-core/2.0.0-SNAPSHOT/picketlink-fed-core-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-fed-core/2.0.0-SNAPSHOT/picketlink-fed-core-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-fed-model/2.0.0-SNAPSHOT/picketlink-fed-model-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-fed-model/2.0.0-SNAPSHOT/picketlink-fed-model-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-web/2.0.0-SNAPSHOT/picketlink-web-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-web/2.0.0-SNAPSHOT/picketlink-web-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/picketlink/picketlink-xmlsec-model/2.0.0-SNAPSHOT/picketlink-xmlsec-model-2.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/picketlink/picketlink-xmlsec-model/2.0.0-SNAPSHOT/picketlink-xmlsec-model-2.0.0-SNAPSHOT-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar" sourcepath="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/xmlsec/1.4.3/xmlsec-1.4.3.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
