@@ -21,7 +21,6 @@
  */
 package org.picketlink.test.identity.federation.bindings.jboss.auth;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -127,11 +126,16 @@ public class SAML2STSLoginModuleUnitTestCase
       lc.login();
 
       Set<Group> groups = subject.getPrincipals(Group.class);
-      assertNotNull(groups);
-      assertEquals(1, groups.size());
-      Group gp = groups.iterator().next();
-      assertTrue(gp.isMember(new SimplePrincipal("test1")));
-      assertTrue(gp.isMember(new SimplePrincipal("test2")));
-      assertTrue(gp.isMember(new SimplePrincipal("testX")));
+      Group roleGroup = null;
+      for(Group grp: groups){
+          if(grp.getName().equalsIgnoreCase("Roles")){
+              roleGroup = grp;
+              break;
+          }
+      }
+      assertNotNull(roleGroup);
+      assertTrue(roleGroup.isMember(new SimplePrincipal("test1")));
+      assertTrue(roleGroup.isMember(new SimplePrincipal("test2")));
+      assertTrue(roleGroup.isMember(new SimplePrincipal("testX")));
    }
 }
