@@ -6,11 +6,11 @@
       <relativePath>../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>picketlink-fed-model</artifactId>
+   <artifactId>picketlink-jbas5-single</artifactId>
    <packaging>jar</packaging>
-   <name>PicketLink Federation Model</name>
+   <name>PicketLink Federation Server Bindings for JBoss5/6</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
-   <description>PicketLink Federation Model contains the JAXB2 model.</description>
+   <description>PicketLink contains the foundation for Federated Identity Needs.</description>
    <licenses>
       <license>
          <name>lgpl</name>
@@ -43,13 +43,55 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.jboss.ws</groupId>
+         <artifactId>jbossws-common</artifactId>
+         <version>1.4.1.GA</version>
+      </dependency>
+      <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-xmlsec-model</artifactId>
+         <artifactId>picketlink-core</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.jboss.security</groupId>
-        <artifactId>jbossxacml</artifactId>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-jbas-common</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.security</groupId>
+         <artifactId>jboss-security-spi</artifactId>
+         <version>2.0.4</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.security</groupId>
+         <artifactId>jbosssx</artifactId>
+         <version>2.0.4</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.jbossas</groupId>
+         <artifactId>jboss-as-security</artifactId>
+         <version>6.0.0.Final</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.aop</groupId>
+         <artifactId>jboss-aop</artifactId>
+         <version>2.1.6.GA</version>
+  	 <scope>provided</scope>
+         <exclusions>
+           <exclusion>
+            <groupId>trove</groupId>
+            <artifactId>trove</artifactId>
+           </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>trove</groupId>
+        <artifactId>trove</artifactId>
+        <version>1.0.2</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
