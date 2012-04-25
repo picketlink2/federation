@@ -3,3 +3,4 @@
 *.sh   text
 *.bat  text
 *.xml  text
+* text=auto
