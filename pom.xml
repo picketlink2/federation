@@ -17,7 +17,6 @@
      <module>parent</module>
      <module>picketlink-core</module>
      <module>picketlink-bindings</module>
-     <module>picketlink-webapps</module>
    </modules>
 
    <reporting>
