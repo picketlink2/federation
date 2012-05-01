@@ -44,6 +44,9 @@ import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
+import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
@@ -90,14 +93,16 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
    @Test
    public void testSPLogOutRequestGeneration() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaSession session = new MockCatalinaSession();
-      session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
+      Principal principal = new Principal()
       {
-         public String getName()
-         {
-            return "anil";
-         }
-      });
+          public String getName()
+          {
+             return "anil";
+          }
+       };
+      session.setAttribute(GeneralConstants.PRINCIPAL_ID, principal); 
       List<String> rolesList = new ArrayList<String>();
       rolesList.add("manager");
       session.setAttribute(GeneralConstants.ROLES_ID, rolesList);
@@ -114,6 +119,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
       sp.testStart();
 
       MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
+      catalinaRequest.setUserPrincipal(principal);
       MockCatalinaResponse response = new MockCatalinaResponse();
       MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
 
@@ -135,6 +141,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
    @Test
    public void testSAML2LogOutFromIDP() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaSession session = new MockCatalinaSession();
 
       MockCatalinaContextClassLoader mclIDP = setupTCL(profile + "/idp");
@@ -306,6 +313,17 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
    {
       SAML2Request samlRequest = new SAML2Request();
       LogoutRequestType lot = samlRequest.createLogoutRequest(url);
+      
+      Principal userPrincipal = new Principal(){
+        @Override
+        public String getName() { 
+            return "test";
+        }          
+      };
+      NameIDType nameID = new NameIDType();
+      nameID.setValue(userPrincipal.getName());
+      lot.setNameID(nameID);
+      
       StringWriter sw = new StringWriter();
       samlRequest.marshall(lot, sw);
       return sw.toString();

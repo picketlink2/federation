@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.net.URI;
+import java.security.Principal;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +47,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -234,7 +236,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             throws ProcessingException
       {
          HTTPContext httpContext = (HTTPContext) request.getContext();
-         HttpSession session = httpContext.getRequest().getSession(false);
+         HttpServletRequest httpServletRequest = httpContext.getRequest();
+         HttpSession session = httpServletRequest.getSession(false);
          String sessionID = session.getId();
 
          String relayState = httpContext.getRequest().getParameter(GeneralConstants.RELAY_STATE);
@@ -289,6 +292,14 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
                response.setPostBindingForResponse(isPost);
 
                LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
+
+               Principal userPrincipal = httpServletRequest.getUserPrincipal();
+               if(userPrincipal == null){
+                   throw new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+               }
+               NameIDType nameID = new NameIDType();
+               nameID.setValue(userPrincipal.getName());
+               lort.setNameID(nameID);
 
                long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
 
@@ -388,10 +399,22 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
       {
          //Generate the LogOut Request
          SAML2Request samlRequest = new SAML2Request();
+
+         HTTPContext httpContext = (HTTPContext) request.getContext();
+         HttpServletRequest httpRequest = httpContext.getRequest();
+         Principal userPrincipal = httpRequest.getUserPrincipal();
+         if(userPrincipal == null)
+         {
+             throw new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+         }
          try
          {
             LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
 
+            NameIDType nameID = new NameIDType();
+            nameID.setValue(userPrincipal.getName());
+            lot.setNameID(nameID);
+            
             response.setResultingDocument(samlRequest.convert(lot));
             response.setSendRequest(true);
          }
