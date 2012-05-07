@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.PublicKey;
@@ -64,7 +65,10 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -74,6 +78,7 @@ import org.xml.sax.SAXException;
  * "picketlink.xmlsig.canonicalization"
  *
  * @author Anil.Saldhana@redhat.com
+ * @author alessio.soldano@jboss.com
  * @since Dec 15, 2008
  */
 public class XMLSignatureUtil {
@@ -94,23 +99,27 @@ public class XMLSignatureUtil {
         XMLSignatureFactory xsf = null;
 
         try {
-            xsf = XMLSignatureFactory.getInstance("DOM");
-        } catch (Exception err) {
-            Class<?> clazz = SecurityActions
-                    .loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-            if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-
-            Provider provider = null;
+            xsf = XMLSignatureFactory.getInstance("DOM", "ApacheXMLDSig");
+        } catch (NoSuchProviderException ex) {
             try {
-                provider = (Provider) clazz.newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + e.getLocalizedMessage());
+                xsf = XMLSignatureFactory.getInstance("DOM");
+            } catch (Exception err) {
+                Class<?> clazz = SecurityActions
+                        .loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
+                if (clazz == null)
+                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
+    
+                Provider provider = null;
+                try {
+                    provider = (Provider) clazz.newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + e.getLocalizedMessage());
+                }
+                xsf = XMLSignatureFactory.getInstance("DOM", provider);
+                /*
+                 * // JDK5 xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
+                 */
             }
-            xsf = XMLSignatureFactory.getInstance("DOM", provider);
-            /*
-             * // JDK5 xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
-             */
         }
         return xsf;
     }
@@ -211,6 +220,9 @@ public class XMLSignatureUtil {
         Node signingNode = newDoc.importNode(nodeToBeSigned, true);
         newDoc.appendChild(signingNode);
 
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(nodeToBeSigned, newDoc.getDocumentElement());
+        }
         newDoc = sign(newDoc, keyPair, digestMethod, signatureMethod, referenceURI);
 
         // if the signed element is a SAMLv2.0 assertion we need to move the signature element to the position
@@ -227,11 +239,33 @@ public class XMLSignatureUtil {
 
         // Now let us import this signed doc into the original document we got in the method call
         Node signedNode = doc.importNode(newDoc.getFirstChild(), true);
+        
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(newDoc.getDocumentElement(), (Element)signedNode);
+        }
 
         parentNode.replaceChild(signedNode, nodeToBeSigned);
         // doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);
 
         return doc;
+    }
+    
+    /**
+     * Setup the ID attribute into <code>destElement</code> depending on the
+     * <code>isId</code> flag of an attribute of <code>sourceNode</code>.
+     * 
+     * @param sourceNode
+     * @param destDocElement
+     */
+    public static void propagateIDAttributeSetup(Node sourceNode, Element destElement) {
+        NamedNodeMap nnm = sourceNode.getAttributes();
+        for (int i = 0; i < nnm.getLength(); i++) {
+            Attr attr = (Attr)nnm.item(i);
+            if (attr.isId()) {
+                destElement.setIdAttribute(attr.getName(), true); 
+                break;
+            }
+        }
     }
 
     /**
