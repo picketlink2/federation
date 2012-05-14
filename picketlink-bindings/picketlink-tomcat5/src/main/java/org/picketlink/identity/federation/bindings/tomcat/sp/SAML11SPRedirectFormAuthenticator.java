@@ -125,7 +125,7 @@ public class SAML11SPRedirectFormAuthenticator extends SPRedirectFormAuthenticat
                 if (saveRestoreRequest) {
                     this.restoreRequest(request, session);
                 }
-                register(request, response, principal, Constants.FORM_METHOD, username, password);
+                register(request, response, principal, org.apache.catalina.realm.Constants.FORM_METHOD, username, password);
 
                 return true;
             } catch (Exception e) {

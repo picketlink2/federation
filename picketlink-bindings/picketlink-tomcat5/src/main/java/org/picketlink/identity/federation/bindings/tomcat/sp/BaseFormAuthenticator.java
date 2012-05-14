@@ -258,7 +258,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      *      org.apache.catalina.connector.Response, java.security.Principal, java.lang.String, java.lang.String,
      *      java.lang.String)
      */
-    @Override
+    //@Override
     protected void register(Request request, Response response, Principal principal, String arg3, String arg4, String arg5) {
         // Try the JBossAS6 version
         if (theSuperRegisterMethod == null && seekSuperRegisterMethod) {

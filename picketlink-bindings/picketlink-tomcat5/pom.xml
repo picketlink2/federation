@@ -126,19 +126,8 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>catalina</artifactId>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>juli</artifactId>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>coyote</artifactId>
-         <scope>test</scope>
+         <groupId>org.jboss.web</groupId>
+         <artifactId>jbossweb</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

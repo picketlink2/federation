@@ -168,7 +168,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @see org.apache.catalina.authenticator.FormAuthenticator#authenticate(org.apache.catalina.connector.Request,
      * org.apache.catalina.connector.Response, org.apache.catalina.deploy.LoginConfig)
      */
-    @Override
+    //@Override
     public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException {
         try {
             Session session = request.getSessionInternal(true);
@@ -371,7 +371,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     this.restoreRequest(request, session);
                 }
 
-                register(request, response, principal, Constants.FORM_METHOD, username, password);
+                register(request, response, principal, org.apache.catalina.realm.Constants.FORM_METHOD, username, password);
 
                 return true;
             }
