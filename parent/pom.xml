@@ -1,14 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <parent>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-parent</artifactId>
-      <version>5</version>
+      <version>8-redhat-1</version>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.picketlink</groupId>
    <artifactId>picketlink-fed-parent</artifactId>
    <packaging>pom</packaging>
-   <version>2.1.1.Final</version>
+   <version>2.1.1.Final-redhat-1</version>
    <name>PicketLink Federation- Parent</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink is a cross-cutting project that handles identity  needs for the JEMS projects</description>
@@ -40,7 +41,6 @@
        <plugins>
           <plugin>
              <artifactId>maven-surefire-plugin</artifactId>
-             <version>2.10</version>
              <configuration>
                <printSummary>true</printSummary>
                <disableXmlReport>false</disableXmlReport>
@@ -54,122 +54,25 @@
                <trimStackTrace>false</trimStackTrace>
              </configuration>
           </plugin>
-          <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-antrun-plugin</artifactId>
-             <version>1.4</version>
-          </plugin>
-          <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-javadoc-plugin</artifactId>
-             <version>2.8</version>
-          </plugin>
        </plugins>
      </pluginManagement>
    </build>
   
-   <repositories>
-     <repository>
-       <id>jboss-public-repository-group</id>
-       <name>JBoss Public Maven Repository Group</name>
-       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-       <layout>default</layout>
-       <releases>
-         <enabled>true</enabled>
-         <updatePolicy>never</updatePolicy>
-       </releases>
-       <snapshots>
-         <enabled>true</enabled>
-         <updatePolicy>never</updatePolicy>
-       </snapshots>
-     </repository>
-    <repository>
-      <id>repository.jboss.org</id>
-      <name>JBoss Repository</name>
-      <layout>default</layout>
-      <url>http://repository.jboss.org/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>snapshots.jboss.org</id>
-      <name>JBoss Snapshots Repository</name>
-      <layout>default</layout>
-      <url>http://snapshots.jboss.org/maven2/</url>
-      <snapshots>
-         <enabled>true</enabled>
-      </snapshots>
-      <releases>
-         <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
-  
   <dependencyManagement>
    <dependencies>
       <dependency>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-war-plugin</artifactId>
-         <version>2.0.2</version>
+         <groupId>org.jboss.component.management</groupId>
+         <artifactId>jboss-dependency-management-all</artifactId>
+         <version>6.0.0-redhat-1</version>
+         <type>pom</type>
+         <scope>import</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>4.4</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>log4j</groupId>
-         <artifactId>log4j</artifactId>
-         <version>1.2.14</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.santuario</groupId>
-         <artifactId>xmlsec</artifactId>
-         <version>1.5.1</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>commons-logging</groupId>
-         <artifactId>commons-logging-api</artifactId>
-         <version>1.0.3</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>javax.persistence</groupId>
-         <artifactId>persistence-api</artifactId>
-         <version>1.0</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jbossxacml</artifactId>
-         <version>2.0.8.Final</version>
-      </dependency>
-      <dependency>
-         <groupId>org.openid4java</groupId>
-         <artifactId>openid4java-nodeps</artifactId>
-         <version>0.9.5</version>
-      </dependency>
-      <dependency>
-         <groupId>nekohtml</groupId>
-         <artifactId>nekohtml</artifactId>
-         <version>1.9.12</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.mortbay.jetty</groupId>
-         <artifactId>jetty</artifactId>
-         <version>6.1.18</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.mortbay.jetty</groupId>
-         <artifactId>jetty-util</artifactId>
-         <version>6.1.18</version>
-         <scope>test</scope>
+         <groupId>org.jboss.component.management</groupId>
+         <artifactId>jboss-project-dependency-relocations</artifactId>
+         <version>6.0.0-redhat-1</version>
+         <scope>import</scope>
+         <type>pom</type>
       </dependency>
    </dependencies>
   </dependencyManagement>
