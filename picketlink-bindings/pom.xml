@@ -16,8 +16,8 @@
 
    <modules>
      <module>picketlink-tomcat-common</module>
-<!--     <module>picketlink-tomcat5</module>
-     <module>picketlink-tomcat7</module> -->
+     <module>picketlink-tomcat5</module>
+     <!-- module>picketlink-tomcat7</module> -->
      <module>picketlink-jbas-common</module>
 <!--     <module>picketlink-jbas5</module> -->
      <module>picketlink-jbas7</module>
