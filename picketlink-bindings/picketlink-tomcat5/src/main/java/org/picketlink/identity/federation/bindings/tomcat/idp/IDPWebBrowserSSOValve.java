@@ -107,6 +107,7 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
@@ -133,11 +134,11 @@ import org.w3c.dom.Document;
 
 /**
  * Generic Web Browser SSO valve for the IDP
- *
+ * 
  * Handles both the SAML Redirect as well as Post Bindings
- *
+ * 
  * Note: Most of the work is done by {@code IDPWebRequestUtil}
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since May 18, 2009
  */
@@ -165,21 +166,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     // Normal (not-error) messages are signed with SAML2SignatureGenerationHandler
     private Boolean signOutgoingMessages = true;
 
-    /**
-     * Defines how the token's signature will be validated. If true is used the token's issuer, otherwise the
-     * request.getRemoteAddr. Default false.
-     */
-    private Boolean validatingAliasToTokenIssuer = false;
-
     private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
 
     private final List<String> attributeKeys = new ArrayList<String>();
 
     private transient SAML2HandlerChain chain = null;
-
-    private Context context = null;
-
-    private transient String samlHandlerChainClass = null;
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
@@ -197,99 +188,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      * A Lock for Handler operations in the chain
      */
     private final Lock chainLock = new ReentrantLock();
-
-    // Set a list of attributes we are interested in separated by comma
-    public void setAttributeList(String attribList) {
-        if (StringUtil.isNotNull(attribList)) {
-            this.attributeKeys.clear();
-            this.attributeKeys.addAll(StringUtil.tokenize(attribList));
-        }
-    }
-
-    public void setConfigProvider(String cp) {
-        if (cp == null)
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
-        Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
-        if (clazz == null)
-            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
-        try {
-            configProvider = (SAMLConfigurationProvider) clazz.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
-        }
-    }
-
-    @Deprecated
-    public void setStrictPostBinding(Boolean strictPostBinding) {
-        log.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
-    }
-
-    @Deprecated
-    public Boolean getIgnoreIncomingSignatures() {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if " +
-              "SAML2SignatureValidationHandler is available.");
-        return false;
-    }
-
-    @Deprecated
-    public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature) {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if " +
-              "SAML2SignatureValidationHandler is available.");
-    }
-
-    /**
-     * PLFED-248 Allows to validate the token's signature against the keystore using the token's issuer.
-     */
-    public void setValidatingAliasToTokenIssuer(Boolean validatingAliasToTokenIssuer) {
-        this.validatingAliasToTokenIssuer = validatingAliasToTokenIssuer;
-    }
-
-    public Boolean getValidatingAliasToTokenIssuer() {
-        return validatingAliasToTokenIssuer;
-    }
-
-    /**
-     * IDP should not do any attributes such as generation of roles etc
-     *
-     * @param ignoreAttributes
-     */
-    public void setIgnoreAttributesGeneration(Boolean ignoreAttributes) {
-        if (ignoreAttributes == Boolean.TRUE)
-            this.attribManager = null;
-    }
-
-    @Deprecated
-    public Boolean getSignOutgoingMessages() {
-        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
-              "signed by SAML2SignatureGenerationHandler.");
-        return signOutgoingMessages;
-    }
-
-    @Deprecated
-    public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
-       log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
-             "signed by SAML2SignatureGenerationHandler.");
-        this.signOutgoingMessages = signOutgoingMessages;
-    }
-
-    public void setRoleGenerator(String rgName) {
-        try {
-            Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
-            if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + rgName);
-            roleGenerator = (RoleGenerator) clazz.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setSamlHandlerChainClass(String samlHandlerChainClass) {
-        this.samlHandlerChainClass = samlHandlerChainClass;
-    }
-
-    public void setIdentityParticipantStack(String fqn) {
-        this.identityParticipantStack = fqn;
-    }
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
@@ -359,7 +257,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 }
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-                
+
                 webRequestUtil.send(holder);
             } catch (GeneralSecurityException e) {
                 throw new ServletException(e);
@@ -404,7 +302,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 } else {
                     if (trace)
                         log.trace("SAML 1.1::Proceeding to IDP index page");
-                    RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher("/hosted/");
+                    RequestDispatcher dispatch = getContext().getServletContext().getRequestDispatcher("/hosted/");
                     try {
                         dispatch.forward(request, response);
                     } catch (Exception e) {
@@ -470,7 +368,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
                 auditEvent.setDestination(target);
-                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
                 auditHelper.audit(auditEvent);
             }
             webRequestUtil.send(holder);
@@ -520,14 +418,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             RequestAbstractType requestAbstractType = (RequestAbstractType) samlObject;
             String issuer = requestAbstractType.getIssuer().getValue();
 
-            String tokenSignatureValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
-            boolean isValid = samlRequestMessage != null;
-
-            if (!isValid)
+            if (samlRequestMessage == null)
                 throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-            ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
+            ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
@@ -551,12 +446,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
 
             if (this.keyManager != null) {
-                if (trace) {
-                    log.trace("Remote Host=" + request.getRemoteAddr());
-                    log.trace("Validating Alias=" + tokenSignatureValidatingAlias);
-                }
-
-                PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, tokenSignatureValidatingAlias);
+                PublicKey validatingKey = getIssuerPublicKey(request, issuer);
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
             }
@@ -576,8 +466,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (trace) {
                 log.trace("Handlers are=" + handlers);
             }
-
-            webRequestUtil.isTrusted(issuer);
+            
+            // the trusted domains is done by a handler
+            // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
                 try {
@@ -642,7 +533,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
                     auditEvent.setDestination(destination);
-                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
                     auditHelper.audit(auditEvent);
                 }
                 webRequestUtil.send(holder);
@@ -658,27 +549,34 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     }
 
     /**
-     * Returns the alias to be used for the token's signature verification. If <code>validatingAliasToTokenIssuer</code> is true
-     * the token issuer will be returned.
-     *
+     * Returns the PublicKey to be used for the token's signature verification. This key is related with the issuer of the SAML
+     * message received by the IDP.
+     * 
      * @param request
      * @param issuer
      * @return
+     * @throws ProcessingException
+     * @throws ConfigurationException
      */
-    private String getTokenSignatureValidatingAlias(Request request, String issuer) {
+    private PublicKey getIssuerPublicKey(Request request, String issuer) throws ConfigurationException, ProcessingException {
         String issuerHost = request.getRemoteAddr();
 
-        if (this.validatingAliasToTokenIssuer) {
-            try {
-                issuerHost = new URL(issuer).getHost();
-            } catch (MalformedURLException e) {
-                if (trace) {
-                    log.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
-                }
+        try {
+            issuerHost = new URL(issuer).getHost();
+        } catch (MalformedURLException e) {
+            if (trace) {
+                log.warn("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
             }
         }
 
-        return issuerHost;
+        PublicKey issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
+
+        if (trace) {
+            log.trace("Remote Host=" + request.getRemoteAddr());
+            log.trace("Using Validating Alias=" + issuerHost + " to check signatures.");
+        }
+
+        return issuerPublicKey;
     }
 
     protected void processSAMLResponseMessage(IDPWebRequestUtil webRequestUtil, Request request, Response response)
@@ -714,7 +612,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
             String issuer = statusResponseType.getIssuer().getValue();
-            String tokenValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
 
             boolean isValid = samlResponseMessage != null;
 
@@ -722,14 +619,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-            ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
+            ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
             Map<String, Object> options = new HashMap<String, Object>();
-            
+
             if (signOutgoingMessages) {
-                PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
+                PublicKey publicKey = getIssuerPublicKey(request, issuer);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
 
@@ -742,7 +639,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             Set<SAML2Handler> handlers = chain.handlers();
 
-            webRequestUtil.isTrusted(issuer);
+            // the trusted domains is done by a handler
+            // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
                 try {
@@ -782,7 +680,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     throw new ServletException(ErrorCodes.NULL_VALUE + "Destination");
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                         .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setErrorResponse(isErrorResponse).setServletResponse(response).setPostBindingRequested(requestedPostProfile)
+                        .setErrorResponse(isErrorResponse).setServletResponse(response)
+                        .setPostBindingRequested(requestedPostProfile)
                         .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
                 /*
@@ -799,7 +698,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
-                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
                     auditEvent.setDestination(destination);
                     auditHelper.audit(auditEvent);
                 }
@@ -876,11 +775,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             }
 
             holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-            
+
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.ERROR_RESPONSE_TO_SP);
-                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
                 auditEvent.setDestination(referrer);
                 auditHelper.audit(auditEvent);
             }
@@ -905,7 +804,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Add a lifecycle event listener to this component.
-     *
+     * 
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
@@ -922,7 +821,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Remove a lifecycle event listener from this component.
-     *
+     * 
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
@@ -932,12 +831,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Prepare for the beginning of active use of the public methods of this component. This method should be called after
      * <code>configure()</code>, and before any of the public methods of the component are utilized.
-     *
+     * 
      * @exception LifecycleException if this component detects a fatal error that prevents this component from being used
      */
     public void start() throws LifecycleException {
-        Handlers handlers = null;
-
         // Validate and update our current component state
         if (started)
             throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_ALREADY_STARTED);
@@ -946,21 +843,131 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
         SystemPropertiesUtil.ensure();
 
-        // Get the chain from config
-        if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
-            chain = SAML2HandlerChainFactory.createChain();
-        else {
-            try {
-                chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
-            } catch (ProcessingException e1) {
-                throw new LifecycleException(e1);
+        initIDPConfiguration();
+        initSTSConfiguration();
+        initKeyManager();
+        initHandlersChain();
+        initIdentityServver();
+        
+        // Add some keys to the attibutes
+        String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
+                "facsimileTelephoneNumber" };
+
+        this.attributeKeys.addAll(Arrays.asList(ak));
+    }
+
+    /**
+     * <p>
+     * Initializes the {@link IdentityServer}.
+     * </p>
+     */
+    private void initIdentityServver() {
+        // The Identity Server on the servlet context gets set
+        // in the implementation of IdentityServer
+        // Create an Identity Server and set it on the context
+        IdentityServer identityServer = (IdentityServer) getContext().getServletContext().getAttribute(
+                GeneralConstants.IDENTITY_SERVER);
+        if (identityServer == null) {
+            identityServer = new IdentityServer();
+            getContext().getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
+            if (StringUtil.isNotNull(this.identityParticipantStack)) {
+                try {
+                    Class<?> clazz = SecurityActions.loadClass(getClass(), this.identityParticipantStack);
+                    if (clazz == null)
+                        throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.identityParticipantStack);
+
+                    identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
+                } catch (Exception e) {
+                    log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
+                }
             }
         }
+    }
 
+    /**
+     * <p>
+     * Initialize the Handlers chain.
+     * </p>
+     * 
+     * @throws LifecycleException
+     */
+    private void initHandlersChain() throws LifecycleException {
+        Handlers handlers = null;
+        
+        try {
+            if (picketLinkConfiguration != null) {
+                handlers = picketLinkConfiguration.getHandlers();
+            } else {
+                // Get the handlers
+                String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+                handlers = ConfigurationUtil
+                        .getHandlers(getContext().getServletContext().getResourceAsStream(handlerConfigFileName));
+            }
+
+            // Get the chain from config
+            String handlerChainClass = handlers.getHandlerChainClass();
+            
+            if (StringUtil.isNullOrEmpty(handlerChainClass))
+                chain = SAML2HandlerChainFactory.createChain();
+            else {
+                try {
+                    chain = SAML2HandlerChainFactory.createChain(handlerChainClass);
+                } catch (ProcessingException e1) {
+                    throw new LifecycleException(e1);
+                }
+            }
+
+            chain.addAll(HandlerUtil.getHandlers(handlers));
+
+            Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
+            chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
+            chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
+            chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
+            if (this.keyManager != null)
+                chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
+
+            SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+
+            Set<SAML2Handler> samlHandlers = chain.handlers();
+
+            for (SAML2Handler handler : samlHandlers) {
+                handler.initChainConfig(handlerChainConfig);
+            }
+        } catch (Exception e) {
+            log.error("Exception dealing with handler configuration:", e);
+            throw new LifecycleException(e.getLocalizedMessage());
+        }
+    }
+
+    private void initKeyManager() throws LifecycleException {
+        if (this.signOutgoingMessages) {
+            KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
+            if (keyProvider == null)
+                throw new LifecycleException(ErrorCodes.NULL_VALUE + "Key Provider is null for context=" + getContext().getName());
+
+            try {
+                this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
+
+                List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+                keyManager.setAuthProperties(authProperties);
+                keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+            } catch (Exception e) {
+                log.error("Exception reading configuration:", e);
+                throw new LifecycleException(e.getLocalizedMessage());
+            }
+            if (trace)
+                log.trace("Key Provider=" + keyProvider.getClassName());
+        }
+    }
+
+    /**
+     * <p>
+     * Initializes the IDP configuration.
+     * </p>
+     */
+    private void initIDPConfiguration() {
         String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
-        context = (Context) getContainer();
-
-        InputStream is = context.getServletContext().getResourceAsStream(configFile);
+        InputStream is = getContext().getServletContext().getResourceAsStream(configFile);
 
         // Work on the IDP Configuration
         if (configProvider != null) {
@@ -986,7 +993,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     enableAudit = picketLinkConfiguration.isEnableAudit();
 
                     if (enableAudit) {
-                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(context.getServletContext());
+                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
                         auditHelper = new PicketLinkAuditHelper(securityDomainName);
                     }
                 } catch (ParsingException e) {
@@ -1001,7 +1008,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             }
             if (is == null) {
                 // Try the older version
-                is = context.getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                is = getContext().getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
                 if (is == null)
                     throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
                 try {
@@ -1013,6 +1020,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 }
             }
         }
+        
         try {
             this.identityURL = idpConfiguration.getIdentityURL();
             if (trace)
@@ -1035,100 +1043,41 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         } catch (Exception e) {
             throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
         }
+    }
 
-        // Ensure that the Core STS has the SAML20 Token Provider
-        PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-        // Let us look for a file
-        String configPath = context.getServletContext().getRealPath("/WEB-INF/picketlink-sts.xml");
-        File stsTokenConfigFile = configPath != null ? new File(configPath) : null;
+    private Context getContext() {
+        return (Context) getContainer();
+    }
 
-        if (stsTokenConfigFile == null || stsTokenConfigFile.exists() == false) {
-            log.info("Did not find picketlink-sts.xml. We will install default configuration");
-            sts.installDefaultConfiguration();
-        } else
-            sts.installDefaultConfiguration(stsTokenConfigFile.toURI().toString());
+    /**
+     * Initializes the STS configuration.
+     */
+    private void initSTSConfiguration() {
+        // if the sts configuration is present in the picketlink.xml then load it.
+        if (this.picketLinkConfiguration != null && this.picketLinkConfiguration.getStsType() != null) {
+            PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+            sts.initialize(new PicketLinkSTSConfiguration(this.picketLinkConfiguration.getStsType()));
+        } else {
+            //Try to load from /WEB-INF/picketlink-sts.xml.
+            
+            // Ensure that the Core STS has the SAML20 Token Provider
+            PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+            // Let us look for a file
+            String configPath = getContext().getServletContext().getRealPath("/WEB-INF/picketlink-sts.xml");
+            File stsTokenConfigFile = configPath != null ? new File(configPath) : null;
 
-        if (this.signOutgoingMessages) {
-            KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
-            if (keyProvider == null)
-                throw new LifecycleException(ErrorCodes.NULL_VALUE + "Key Provider is null for context=" + context.getName());
-
-            try {
-                this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
-
-                List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-                keyManager.setAuthProperties(authProperties);
-                keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
-            } catch (Exception e) {
-                log.error("Exception reading configuration:", e);
-                throw new LifecycleException(e.getLocalizedMessage());
-            }
-            if (trace)
-                log.trace("Key Provider=" + keyProvider.getClassName());
-        }
-
-        try {
-            if (picketLinkConfiguration != null) {
-                handlers = picketLinkConfiguration.getHandlers();
-            } else {
-                // Get the handlers
-                String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-                handlers = ConfigurationUtil
-                        .getHandlers(context.getServletContext().getResourceAsStream(handlerConfigFileName));
-            }
-            chain.addAll(HandlerUtil.getHandlers(handlers));
-
-            Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
-            chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-            chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
-            chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
-            if (this.keyManager != null)
-                chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
-
-            SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
-
-            Set<SAML2Handler> samlHandlers = chain.handlers();
-
-            for (SAML2Handler handler : samlHandlers) {
-                handler.initChainConfig(handlerChainConfig);
-            }
-        } catch (Exception e) {
-            log.error("Exception dealing with handler configuration:", e);
-            throw new LifecycleException(e.getLocalizedMessage());
-        }
-
-        // Add some keys to the attibutes
-        String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
-                "facsimileTelephoneNumber" };
-
-        this.attributeKeys.addAll(Arrays.asList(ak));
-
-        // The Identity Server on the servlet context gets set
-        // in the implementation of IdentityServer
-        // Create an Identity Server and set it on the context
-        IdentityServer identityServer = (IdentityServer) context.getServletContext().getAttribute(
-                GeneralConstants.IDENTITY_SERVER);
-        if (identityServer == null) {
-            identityServer = new IdentityServer();
-            context.getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
-            if (StringUtil.isNotNull(this.identityParticipantStack)) {
-                try {
-                    Class<?> clazz = SecurityActions.loadClass(getClass(), this.identityParticipantStack);
-                    if (clazz == null)
-                        throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.identityParticipantStack);
-
-                    identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
-                } catch (Exception e) {
-                    log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
-                }
-            }
+            if (stsTokenConfigFile == null || stsTokenConfigFile.exists() == false) {
+                log.info("Did not find picketlink-sts.xml. We will install default configuration");
+                sts.installDefaultConfiguration();
+            } else
+                sts.installDefaultConfiguration(stsTokenConfigFile.toURI().toString());
         }
     }
 
     /**
      * Gracefully terminate the active use of the public methods of this component. This method should be the last one called on
      * a given instance of this component.
-     *
+     * 
      * @exception LifecycleException if this component detects a fatal error that needs to be reported
      */
     public void stop() throws LifecycleException {
@@ -1152,7 +1101,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     protected String determineLoginType(boolean isSecure) {
         String result = JBossSAMLURIConstants.AC_PASSWORD.get();
-        LoginConfig loginConfig = context.getLoginConfig();
+        LoginConfig loginConfig = getContext().getLoginConfig();
         if (loginConfig != null) {
             String auth = loginConfig.getAuthMethod();
             if (StringUtil.isNotNull(auth)) {
@@ -1167,7 +1116,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Given a set of roles, create an attribute statement
-     *
+     * 
      * @param roles
      * @return
      */
@@ -1180,4 +1129,96 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         }
         return attrStatement;
     }
+    
+ // Set a list of attributes we are interested in separated by comma
+    public void setAttributeList(String attribList) {
+        if (StringUtil.isNotNull(attribList)) {
+            this.attributeKeys.clear();
+            this.attributeKeys.addAll(StringUtil.tokenize(attribList));
+        }
+    }
+
+    public void setConfigProvider(String cp) {
+        if (cp == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
+        Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
+        if (clazz == null)
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
+        try {
+            configProvider = (SAMLConfigurationProvider) clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
+        }
+    }
+
+    public void setRoleGenerator(String rgName) {
+        try {
+            Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
+            if (clazz == null)
+                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + rgName);
+            roleGenerator = (RoleGenerator) clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Deprecated
+    public void setSamlHandlerChainClass(String samlHandlerChainClass) {
+        log.warn("Option 'samlHandlerChainClass' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+    }
+
+    public void setIdentityParticipantStack(String fqn) {
+        this.identityParticipantStack = fqn;
+    }
+    
+    @Deprecated
+    public void setStrictPostBinding(Boolean strictPostBinding) {
+        log.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+    }
+
+    @Deprecated
+    public Boolean getIgnoreIncomingSignatures() {
+        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if "
+                + "SAML2SignatureValidationHandler is available.");
+        return false;
+    }
+
+    @Deprecated
+    public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature) {
+        log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if "
+                + "SAML2SignatureValidationHandler is available.");
+    }
+
+    /**
+     * PLFED-248 Allows to validate the token's signature against the keystore using the token's issuer.
+     */
+    @Deprecated
+    public void setValidatingAliasToTokenIssuer(Boolean validatingAliasToTokenIssuer) {
+        log.warn("Option 'validatingAliasToTokenIssuer' is deprecated and not used. The IDP will always use the issuer host to validate signatures.");
+    }
+
+    /**
+     * IDP should not do any attributes such as generation of roles etc
+     * 
+     * @param ignoreAttributes
+     */
+    public void setIgnoreAttributesGeneration(Boolean ignoreAttributes) {
+        if (ignoreAttributes == Boolean.TRUE)
+            this.attribManager = null;
+    }
+
+    @Deprecated
+    public Boolean getSignOutgoingMessages() {
+        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+                + "signed by SAML2SignatureGenerationHandler.");
+        return signOutgoingMessages;
+    }
+
+    @Deprecated
+    public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
+        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+                + "signed by SAML2SignatureGenerationHandler.");
+        this.signOutgoingMessages = signOutgoingMessages;
+    }
+
 }
