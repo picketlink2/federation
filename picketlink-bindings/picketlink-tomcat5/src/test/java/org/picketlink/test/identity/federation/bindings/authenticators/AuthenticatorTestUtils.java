@@ -56,8 +56,6 @@ public class AuthenticatorTestUtils {
 
         idpWebBrowserSSOValve.setContainer(catalinaContext);
 
-        catalinaContext.setAttribute("IDENTITY_SERVER", new IdentityServer());
-
         try {
             idpWebBrowserSSOValve.start();
         } catch (LifecycleException e) {
