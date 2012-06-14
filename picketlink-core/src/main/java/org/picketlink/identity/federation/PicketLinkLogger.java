@@ -22,7 +22,11 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
+
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -109,10 +113,11 @@ public interface PicketLinkLogger {
 
     /**
      * <p>Creates a {@link RuntimeException} for not implemented methods or features.</p>
+     * @param string 
      * 
      * @return
      */
-    RuntimeException notImplementedYet();
+    RuntimeException notImplementedYet(String string);
 
     /**
      * <p>Creates a {@link ConfigurationException} for exceptions raised during the PicketLink Audit configuration.
@@ -200,13 +205,185 @@ public interface PicketLinkLogger {
     RuntimeException keyStoreNullSigningKeyPass();
 
     /**
+     * <p>Creates a {@link RuntimeException} for the case where key store are not located.</p>
+     * 
      * @param keyStore
      * @return
      */
     RuntimeException keyStoreNotLocated(String keyStore);
 
     /**
+     * <p>Creates a {@link IllegalStateException} for the case where the alias is null.</p>
+     * 
      * @return
      */
     IllegalStateException keyStoreNullAlias();
+
+    /**
+     * <p>Creates a {@link RuntimeException} for the case where parser founds a unknown end element.</p>
+     * 
+     * @param endElementName
+     * @return
+     */
+    RuntimeException parserUnknownEndElement(String endElementName);
+
+    /**
+     * @param tag
+     * @param location
+     * @return
+     */
+    RuntimeException parserUnknownTag(String tag, Location location);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserRequiredAttribute(String string);
+
+    /**
+     * @param elementName
+     * @param location
+     * @return
+     */
+    RuntimeException parserUnknownStartElement(String elementName, Location location);
+
+    /**
+     * @return
+     */
+    IllegalStateException parserNullStartElement();
+
+    /**
+     * @param xsiTypeValue
+     * @return
+     */
+    ParsingException parserUnknownXSI(String xsiTypeValue);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserExpectedEndTag(String tagName);
+
+    /**
+     * @param e
+     * @return
+     */
+    ParsingException parserException(Throwable t);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserExpectedTextValue(String string);
+
+    /**
+     * @param expectedXsi
+     * @return
+     */
+    RuntimeException parserExpectedXSI(String expectedXsi);
+
+    /**
+     * @param tag
+     * @param foundElementTag
+     * @return
+     */
+    RuntimeException parserExpectedTag(String tag, String foundElementTag);
+
+    /**
+     * @param elementName 
+     * @return
+     */
+    RuntimeException parserFailed(String elementName);
+
+    /**
+     * @return
+     */
+    ParsingException parserUnableParsingNullToken();
+
+    /**
+     * @param t
+     * @return
+     */
+    ParsingException parserError(Throwable t);
+
+    /**
+     * @param qname
+     */
+    void lookingParserForElement(QName qname);
+
+    /**
+     * @param asString
+     */
+    void receivedXACMLMessage(String asString);
+
+    /**
+     * 
+     * @param e
+     * @return
+     */
+    RuntimeException pdpMessageProcessingError(Throwable t);
+
+    /**
+     * @param policyConfigFileName
+     * @return
+     */
+    IllegalStateException fileNotLocated(String policyConfigFileName);
+
+    /**
+     * @param string
+     * @return
+     */
+    IllegalStateException optionNotSet(String option);
+
+    /**
+     * 
+     */
+    void securityTokenRegistryNotSpecified();
+
+    /**
+     * @param tokenRegistryOption
+     */
+    void securityTokenRegistryInvalidType(String tokenRegistryOption);
+
+    /**
+     * 
+     */
+    void securityTokenRegistryInstantiationError();
+
+    /**
+     * 
+     */
+    void revocationRegistryNotSpecified();
+
+    /**
+     * @param registryOption
+     */
+    void revocationRegistryInvalidType(String registryOption);
+
+    /**
+     * 
+     */
+    void revocationRegistryInstantiationError();
+
+    /**
+     * @return
+     */
+    ProcessingException assertionExpiredError();
+
+    /**
+     * @return
+     */
+    ProcessingException assertionInvalidError();
+
+    /**
+     * @param name
+     * @return
+     */
+    RuntimeException writerUnknownTypeError(String name);
+
+    /**
+     * @param string
+     * @return
+     */
+    ProcessingException writerNullValueError(String value);
 }

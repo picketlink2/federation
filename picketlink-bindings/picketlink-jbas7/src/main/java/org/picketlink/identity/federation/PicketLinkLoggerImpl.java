@@ -22,12 +22,20 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
+
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 
 
+/**
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
+ */
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
@@ -104,8 +112,8 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#notImplementedYet()
      */
-    public RuntimeException notImplementedYet() {
-        return PicketLinkMessages.MESSAGES.notImplementedYet();
+    public RuntimeException notImplementedYet(String feature) {
+        return PicketLinkMessages.MESSAGES.notImplementedYet(feature);
     }
 
     /* (non-Javadoc)
@@ -204,5 +212,205 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public IllegalStateException keyStoreNullAlias() {
         return PicketLinkMessages.MESSAGES.keyStoreNullAlias();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
+     */
+    public RuntimeException parserUnknownEndElement(String endElementName) {
+        return PicketLinkMessages.MESSAGES.parserUnknownEndElement(endElementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
+     */
+    public RuntimeException parserUnknownTag(String tag, Location location) {
+        return PicketLinkMessages.MESSAGES.parseUnknownTag(tag, location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
+     */
+    public ParsingException parserRequiredAttribute(String attribute) {
+        return PicketLinkMessages.MESSAGES.parseRequiredAttribute(attribute);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String, javax.xml.stream.Location)
+     */
+    public RuntimeException parserUnknownStartElement(String elementName, Location location) {
+        return PicketLinkMessages.MESSAGES.parserUnknownStartElement(elementName, location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
+     */
+    public IllegalStateException parserNullStartElement() {
+        return PicketLinkMessages.MESSAGES.parserNullStartElement();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
+     */
+    public ParsingException parserUnknownXSI(String xsiTypeValue) {
+        return PicketLinkMessages.MESSAGES.parserUnknownXSI(xsiTypeValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
+     */
+    public ParsingException parserExpectedEndTag(String tagName) {
+        return PicketLinkMessages.MESSAGES.parserExpectedEndTag(tagName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Throwable)
+     */
+    public ParsingException parserException(Throwable t) {
+        return PicketLinkMessages.MESSAGES.parserException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
+     */
+    public ParsingException parserExpectedTextValue(String string) {
+        return PicketLinkMessages.MESSAGES.parserExpectedTextValue(string);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedXSI(java.lang.String)
+     */
+    public RuntimeException parserExpectedXSI(String expectedXsi) {
+        return PicketLinkMessages.MESSAGES.parserExpectedXSI(expectedXsi);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTag(java.lang.String, java.lang.String)
+     */
+    public RuntimeException parserExpectedTag(String tag, String foundElementTag) {
+        return PicketLinkMessages.MESSAGES.parserExpectedTag(tag, foundElementTag);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserFailed()
+     */
+    public RuntimeException parserFailed(String elementName) {
+        return PicketLinkMessages.MESSAGES.parserFailed(elementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnableParsingNullToken()
+     */
+    public ParsingException parserUnableParsingNullToken() {
+        return PicketLinkMessages.MESSAGES.parserUnableParsingNullToken();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserError(java.lang.Throwable)
+     */
+    public ParsingException parserError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.parserError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#lookingParserForElement(javax.xml.namespace.QName)
+     */
+    public void lookingParserForElement(QName qname) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.lookingParserForElement(qname);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#receivedXACMLMessage(java.lang.String)
+     */
+    public void receivedXACMLMessage(String asString) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.receivedXACMLMessage(asString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#pdpMessageProcessingError(java.lang.Throwable)
+     */
+    public RuntimeException pdpMessageProcessingError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.pdpMessageProcessingError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#fileNotLocated(java.lang.String)
+     */
+    public IllegalStateException fileNotLocated(String policyConfigFileName) {
+        return PicketLinkMessages.MESSAGES.fileNotLocated(policyConfigFileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#optionNotSet(java.lang.String)
+     */
+    public IllegalStateException optionNotSet(String option) {
+        return PicketLinkMessages.MESSAGES.optionNotSet(option);
+    }
+
+    public void securityTokenRegistryNotSpecified() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.securityTokenRegistryNotSpecified();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInvalidType(java.lang.String)
+     */
+    public void securityTokenRegistryInvalidType(String tokenRegistryOption) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.securityTokenRegistryInvalidType(tokenRegistryOption);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInstantiationError()
+     */
+    public void securityTokenRegistryInstantiationError() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.securityTokenRegistryInstantiationError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryNotSpecified()
+     */
+    public void revocationRegistryNotSpecified() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.revocationRegistryNotSpecified();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInvalidType(java.lang.String)
+     */
+    public void revocationRegistryInvalidType(String registryOption) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.revocationRegistryInvalidType(registryOption);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInstantiationError()
+     */
+    public void revocationRegistryInstantiationError() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.revocationRegistryInstantiationError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
+     */
+    public ProcessingException assertionExpiredError() {
+        return PicketLinkMessages.MESSAGES.assertionExpiredError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionInvalidError()
+     */
+    public ProcessingException assertionInvalidError() {
+        return PicketLinkMessages.MESSAGES.assertionInvalidError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerUnknownTypeError(java.lang.String)
+     */
+    public RuntimeException writerUnknownTypeError(String name) {
+        return PicketLinkMessages.MESSAGES.writerUnknownTypeError(name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerNullValueError(java.lang.String)
+     */
+    public ProcessingException writerNullValueError(String value) {
+        return PicketLinkMessages.MESSAGES.writerNullValueError(value);
     }
 }

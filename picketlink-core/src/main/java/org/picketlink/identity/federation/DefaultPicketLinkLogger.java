@@ -22,9 +22,18 @@
 
 package org.picketlink.identity.federation;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_TAG;
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
+
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -124,8 +133,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#notImplementedYet()
      */
     @Override
-    public RuntimeException notImplementedYet() {
-        return new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+    public RuntimeException notImplementedYet(String feature) {
+        return new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + feature);
     }
 
     /* (non-Javadoc)
@@ -239,4 +248,234 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public IllegalStateException keyStoreNullAlias() {
         return new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_ALIAS);
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
+     */
+    @Override
+    public RuntimeException parserUnknownEndElement(String endElementName) {
+        return new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
+     */
+    @Override
+    public RuntimeException parserUnknownTag(String tag, Location location) {
+        return new RuntimeException(UNKNOWN_TAG + tag + "::location=" + location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
+     */
+    @Override
+    public ParsingException parserRequiredAttribute(String string) {
+        return new ParsingException(REQD_ATTRIBUTE + "AssertionID");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String, javax.xml.stream.Location)
+     */
+    @Override
+    public RuntimeException parserUnknownStartElement(String elementName, Location location) {
+        return new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
+     */
+    @Override
+    public IllegalStateException parserNullStartElement() {
+        return new IllegalStateException(ErrorCodes.NULL_START_ELEMENT);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
+     */
+    @Override
+    public ParsingException parserUnknownXSI(String xsiTypeValue) {
+        return new ParsingException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
+     */
+    @Override
+    public ParsingException parserExpectedEndTag(String tagName) {
+        return new ParsingException(ErrorCodes.EXPECTED_END_TAG + "RequestAbstract or XACMLAuthzDecisionQuery");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Exception)
+     */
+    @Override
+    public ParsingException parserException(Throwable t) {
+        return new ParsingException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
+     */
+    @Override
+    public ParsingException parserExpectedTextValue(String string) {
+        return new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "SigningAlias");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedXSI(java.lang.String)
+     */
+    @Override
+    public RuntimeException parserExpectedXSI(String expectedXsi) {
+        return new RuntimeException(expectedXsi);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTag(java.lang.String, java.lang.String)
+     */
+    @Override
+    public RuntimeException parserExpectedTag(String tag, String foundElementTag) {
+        return new RuntimeException(EXPECTED_TAG + tag + ">.  Found <" + foundElementTag + ">");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserFailed()
+     */
+    @Override
+    public RuntimeException parserFailed(String elementName) {
+        return new RuntimeException(ErrorCodes.FAILED_PARSING + elementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnableParsingNullToken()
+     */
+    @Override
+    public ParsingException parserUnableParsingNullToken() {
+        return new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserError(java.lang.Exception)
+     */
+    @Override
+    public ParsingException parserError(Throwable t) {
+        return new ParsingException(ErrorCodes.PARSING_ERROR + t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#lookingParserForElement(javax.xml.namespace.QName)
+     */
+    @Override
+    public void lookingParserForElement(QName qname) {
+        logger.trace("Looking for Parser for :" + qname);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#receivedXACMLMessage(java.lang.String)
+     */
+    @Override
+    public void receivedXACMLMessage(String asString) {
+        logger.debug("Received Message::" + asString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#pdpMessageProcessingError(java.lang.Exception)
+     */
+    @Override
+    public RuntimeException pdpMessageProcessingError(Throwable t) {
+        return new RuntimeException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#fileNotLocated(java.lang.String)
+     */
+    @Override
+    public IllegalStateException fileNotLocated(String policyConfigFileName) {
+        return new IllegalStateException(ErrorCodes.FILE_NOT_LOCATED + policyConfigFileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#optionNotSet(java.lang.String)
+     */
+    @Override
+    public IllegalStateException optionNotSet(String option) {
+        return new IllegalStateException(ErrorCodes.OPTION_NOT_SET + option);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryNotSpecified()
+     */
+    @Override
+    public void securityTokenRegistryNotSpecified() {
+        logger.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInvalidType(java.lang.String)
+     */
+    @Override
+    public void securityTokenRegistryInvalidType(String tokenRegistryOption) {
+        logger.warn(tokenRegistryOption + " is not an instance of SecurityTokenRegistry - using default registry");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInstantiationError()
+     */
+    @Override
+    public void securityTokenRegistryInstantiationError() {
+        logger.warn("Error instantiating token registry class - using default registry");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryNotSpecified()
+     */
+    @Override
+    public void revocationRegistryNotSpecified() {
+        logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInvalidType(java.lang.String)
+     */
+    @Override
+    public void revocationRegistryInvalidType(String registryOption) {
+        logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInstantiationError()
+     */
+    @Override
+    public void revocationRegistryInstantiationError() {
+        logger.warn("Error instantiating revocation registry class - using default registry");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
+     */
+    @Override
+    public ProcessingException assertionExpiredError() {
+        return new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionInvalidError()
+     */
+    @Override
+    public ProcessingException assertionInvalidError() {
+        return new ProcessingException(ErrorCodes.INVALID_ASSERTION);
+    }
+
+    @Override
+    public RuntimeException writerUnknownTypeError(String name) {
+        return new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerNullValueError(java.lang.String)
+     */
+    @Override
+    public ProcessingException writerNullValueError(String value) {
+        return new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + value);
+    }
+ 
 }
