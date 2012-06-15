@@ -25,11 +25,13 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -116,7 +118,7 @@ public interface PicketLinkLogger {
      * 
      * @param xacmlDecisionQueryDocument
      */
-    void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument);
+    void xacmlSendingDecisionQuery(String xacmlDecisionQueryDocument);
 
     /**
      * <p>Creates a {@link RuntimeException} for null values.</p>
@@ -324,19 +326,19 @@ public interface PicketLinkLogger {
     /**
      * @param qname
      */
-    void lookingParserForElement(QName qname);
+    void xmlLookingParserForElement(QName qname);
 
     /**
      * @param asString
      */
-    void receivedXACMLMessage(String asString);
+    void xacmlReceivedMessage(String asString);
 
     /**
      * 
      * @param e
      * @return
      */
-    RuntimeException pdpMessageProcessingError(Throwable t);
+    RuntimeException xacmlPDPMessageProcessingError(Throwable t);
 
     /**
      * @param policyConfigFileName
@@ -353,37 +355,37 @@ public interface PicketLinkLogger {
     /**
      * 
      */
-    void securityTokenRegistryNotSpecified();
+    void stsTokenRegistryNotSpecified();
 
     /**
      * @param tokenRegistryOption
      */
-    void securityTokenRegistryInvalidType(String tokenRegistryOption);
+    void stsTokenRegistryInvalidType(String tokenRegistryOption);
 
     /**
      * 
      */
-    void securityTokenRegistryInstantiationError();
+    void stsTokenRegistryInstantiationError();
 
     /**
      * 
      */
-    void revocationRegistryNotSpecified();
+    void stsRevocationRegistryNotSpecified();
 
     /**
      * @param registryOption
      */
-    void revocationRegistryInvalidType(String registryOption);
+    void stsRevocationRegistryInvalidType(String registryOption);
 
     /**
      * 
      */
-    void revocationRegistryInstantiationError();
+    void stsRevocationRegistryInstantiationError();
 
     /**
      * @return
      */
-    ProcessingException assertionExpiredError();
+    ProcessingException samlAssertionExpiredError();
 
     /**
      * @return
@@ -435,27 +437,27 @@ public interface PicketLinkLogger {
     /**
      * @param directory
      */
-    void metaDataStoreDirectoryCreation(String directory);
+    void samlMetaDataStoreDirectoryCreation(String directory);
 
     /**
      * @param t
      */
-    void metaDataIdentityProviderLoadingError(Throwable t);
+    void samlMetaDataIdentityProviderLoadingError(Throwable t);
 
     /**
      * @param t
      */
-    void metaDataServiceProviderLoadingError(Throwable t);
+    void samlMetaDataServiceProviderLoadingError(Throwable t);
 
     /**
      * @param path
      */
-    void metaDataPersistEntityDescriptor(String path);
+    void samlMetaDataPersistEntityDescriptor(String path);
 
     /**
      * @param path
      */
-    void metaDataPersistTrustedMap(String path);
+    void samlMetaDataPersistTrustedMap(String path);
 
     /**
      * @param t
@@ -467,12 +469,12 @@ public interface PicketLinkLogger {
      * @param notBefore
      * @param notOnOrAfter
      */
-    void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
+    void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
 
     /**
      * @param id
      */
-    void assertionExpired(String id);
+    void samlAssertionExpired(String id);
 
     /**
      * @param attrValue
@@ -575,7 +577,7 @@ public interface PicketLinkLogger {
     /**
      * @param t
      */
-    void couldNotGetXMLSchema(Throwable t);
+    void xmlCouldNotGetSchema(Throwable t);
 
     /**
      * @return
@@ -692,17 +694,17 @@ public interface PicketLinkLogger {
     /**
      * @param callerPrincipal
      */
-    void issuingTokenForPrincipal(Principal callerPrincipal);
+    void samlIssuingTokenForPrincipal(Principal callerPrincipal);
 
     /**
      * 
      */
-    void tokenTimeoutNotSpecified();
+    void stsTokenTimeoutNotSpecified();
 
     /**
      * @param dialect
      */
-    void claimsDialectProcessorNotFound(String dialect);
+    void wsTrustClaimsDialectProcessorNotFound(String dialect);
 
     /**
      * @param t
@@ -857,7 +859,7 @@ public interface PicketLinkLogger {
     /**
      * @param id
      */
-    void authSAMLAssertionWithoutExpiration(String id);
+    void samlAssertionWithoutExpiration(String id);
 
     /**
      * @param token
@@ -946,19 +948,19 @@ public interface PicketLinkLogger {
     /**
      * @param activeSessionCount
      */
-    void identityServerActiveSessionCount(int activeSessionCount);
+    void samlIdentityServerActiveSessionCount(int activeSessionCount);
 
     /**
      * @param id
      * @param activeSessionCount
      */
-    void identityServerSessionCreated(String id, int activeSessionCount);
+    void samlIdentityServerSessionCreated(String id, int activeSessionCount);
 
     /**
      * @param id
      * @param activeSessionCount
      */
-    void identityServerSessionDestroyed(String id, int activeSessionCount);
+    void samlIdentityServerSessionDestroyed(String id, int activeSessionCount);
 
     /**
      * @param name
@@ -1058,12 +1060,12 @@ public interface PicketLinkLogger {
      * @param domainsTrusted
      * @param issuerDomain
      */
-    void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain);
+    void samlTrustedDomains(String domainsTrusted, String issuerDomain);
 
     /**
      * @param uriBit
      */
-    void samlHandlerTrustDomainCheck(String uriBit);
+    void samlTrustedDomainCheck(String uriBit);
 
     /**
      * @param uriBit
@@ -1075,13 +1077,13 @@ public interface PicketLinkLogger {
      * @param issuer
      * @return
      */
-    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer);
+    IssuerNotTrustedException samlIssuerNotTrustedError(String issuer);
 
     /**
      * @param e
      * @return
      */
-    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(Throwable t);
+    IssuerNotTrustedException samlIssuerNotTrustedException(Throwable t);
 
     /**
      * @param domainsTrusted
@@ -1173,7 +1175,7 @@ public interface PicketLinkLogger {
     /**
      * @return
      */
-    ProcessingException samlHandlerSignatureNorPresentError();
+    ProcessingException samlHandlerSignatureNotPresentError();
 
     /**
      * @param t
@@ -1190,5 +1192,276 @@ public interface PicketLinkLogger {
      * @param t
      */
     void error(Throwable t);
+
+    /**
+     * @param handlers
+     */
+    void samlHandlerList(String handlers);
+
+    /**
+     * @param handlerClassName
+     */
+    void samlHandlerFinishedProcessing(String handlerClassName);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException samlHandlerChainProcessingError(Throwable t);
+
+    /**
+     * @return
+     */
+    TrustKeyConfigurationException trustKeyManagerMissing();
+
+    /**
+     * @param samlRequestDocument
+     */
+    void samlRequestDocument(String samlRequestDocument);
+
+    /**
+     * @param rte
+     */
+    void samlBase64DecodingError(Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlParsingError(Throwable t);
+
+    /**
+     * @param t
+     */
+    void trace(Throwable t);
+
+    /**
+     * 
+     */
+    void mappingContextNull();
+
+    /**
+     * @param t
+     */
+    void attributeManagerError(Throwable t);
+
+    /**
+     * 
+     */
+    void couldNotObtainSecurityContext();
+
+    /**
+     * @param size
+     */
+    void attributeManagerMapSize(int size);
+
+    /**
+     * 
+     */
+    void authenticationSubjectNotFound();
+
+    /**
+     * @param tokenRoleAttributeName
+     * @param attributes
+     */
+    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authFailedToCreatePrincipal(Throwable t);
+
+    /**
+     * @param class1 
+     * @return
+     */
+    LoginException authSharedCredentialIsNotSAMLCredential(String className);
+
+    /**
+     * @return
+     */
+    LoginException authSTSConfigFileNotFound();
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authErrorHandlingCallback(Throwable t);
+
+    /**
+     * 
+     */
+    void authPerformingLocalValidation();
+
+    /**
+     * 
+     */
+    void authSuccessfulLocalValidation();
+
+    /**
+     * 
+     */
+    void authLocalValidationDisabledCheckSTS();
+
+    /**
+     * @return
+     */
+    LoginException authInvalidSAMLAssertionBySTS();
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authAssertionValidationError(Throwable t);
+
+    /**
+     * @param date
+     * @param expiryDate
+     */
+    void authCreatingCacheEntry(Date date, Date expiryDate);
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authFailedToParseSAMLAssertion(Throwable t);
+
+    /**
+     * @param samlAssertion
+     */
+    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
+
+    void initializedWith(String string);
+
+    void authSharedTokenNotFound(String name, String sharedToken);
+
+    void authMappedRoles(String roles);
+
+    void authMappedPrincipal(String principal);
+
+    /**
+     * @param t
+     */
+    void authSAMLAssertionPasingFailed(Throwable t);
+
+    void determinedSecurityDomain(String securityDomain);
+
+    void cacheWillExpireForPrincipal(int seconds, String principal);
+
+    LoginException authNullKeyStoreFromSecurityDomainError(String name);
+
+    LoginException authNullKeyStoreAliasFromSecurityDomainError(String name);
+
+    LoginException authNoCertificateFoundForAliasError(String alias, String name);
+
+    LoginException authSAMLInvalidSignatureError();
+
+    LoginException authSAMLAssertionExpiredError();
+
+    /**
+     * @param propertiesFile
+     */
+    void authConstructingSTSClientInterceptor(String propertiesFile);
+
+    /**
+     * @param string
+     */
+    void authRetrievedSecurityContextFromInvocation(String string);
+
+    /**
+     * @param principalName
+     */
+    void authInvokingSTSForSAMLAssertion(String principalName);
+
+    /**
+     * @param principalName
+     */
+    void authSAMLAssertionObtainedForPrincipal(String principalName);
+
+    /**
+     * @param t
+     */
+    void authSAMLAssertionIssuingFailed(Throwable t);
+
+    /**
+     * 
+     */
+    void jbossWSHandlingOutboundMessage();
+
+    /**
+     * 
+     */
+    void jbossWSHandlingInboundMessage();
+    
+    /**
+     * @param t
+     */
+    void jbossWSUnableToCreateBinaryToken(Throwable t);
+
+    /**
+     * 
+     */
+    void jbossWSUnableToCreateSecurityToken();
+
+    /**
+     * @param ignore
+     */
+    void jbossWSUnableToWriteSOAPMessage(Throwable t);
+
+    /**
+     * @param headerValue
+     */
+    void jbossWSHeaderValueIdentified(String headerValue);
+
+    /**
+     * @param cookie
+     */
+    void jbossWSCookieValueIdentified(String cookie);
+
+    /**
+     * @param assertionAsString
+     */
+    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
+
+    /**
+     * @param string
+     */
+    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
+
+    /**
+     * @param roles
+     */
+    void jbossWSRolesInAssertion(String roles);
+
+    /**
+     * 
+     */
+    void jbossWSNoRolesFoundInAssertion();
+
+    /**
+     * 
+     */
+    void jbossWSNoAssertionsFound();
+
+    /**
+     * @param principal
+     * @param subject
+     */
+    void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject);
+
+    /**
+     * @return
+     */
+    RuntimeException jbossWSUnableToLoadJBossWSSEConfigError();
+
+    /**
+     * @return
+     */
+    RuntimeException jbossWSAuthorizationFailed();
+
+    /**
+     * @param t
+     */
+    void jbossWSErrorGettingOperationName(Throwable t);
 
 }
