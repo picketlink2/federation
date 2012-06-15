@@ -23,6 +23,7 @@
 package org.picketlink.identity.federation;
 
 import java.security.Principal;
+import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -52,7 +53,7 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 201, value = "Sending XACML Decision Query: %s")
-    void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument);
+    void xacmlSendingDecisionQuery(String xacmlDecisionQueryDocument);
 
     @LogMessage(level = Level.INFO)
     @Message(id = 202, value = "PicketLink Audit Event raised: %s")
@@ -68,55 +69,55 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 205, value = "Looking for parser for element: %s")
-    void lookingParserForElement(QName qname);
+    void xmllookingParserForElement(QName qname);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 206, value = "XACML Received Message: %s")
-    void receivedXACMLMessage(String asString);
+    void xacmlReceivedMessage(String asString);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 207, value = "Security Token registry option not specified: Issued Tokens will not be persisted!")
-    void securityTokenRegistryNotSpecified();
+    void stsTokenRegistryNotSpecified();
 
     @LogMessage(level = Level.WARN)
     @Message(id = 208, value = "%s is not an instance of SecurityTokenRegistry - using default registry")
-    void securityTokenRegistryInvalidType(String tokenRegistryOption);
+    void stsTokenRegistryInvalidType(String tokenRegistryOption);
 
     @LogMessage(level = Level.WARN)
     @Message(id = 209, value = "Error instantiating token registry class - using default registry")
-    void securityTokenRegistryInstantiationError();
+    void stsTokenRegistryInstantiationError();
 
     @LogMessage(level = Level.WARN)
     @Message(id = 210, value = "Revocation registry option not specified: cancelled ids will not be persisted!")
-    void revocationRegistryNotSpecified();
+    void stsRevocationRegistryNotSpecified();
 
     @LogMessage(level = Level.WARN)
     @Message(id = 211, value = "%s is not an instance of RevocationRegistry - using default registry")
-    void revocationRegistryInvalidType(String registryOption);
+    void stsRevocationRegistryInvalidType(String registryOption);
 
     @LogMessage(level = Level.WARN)
     @Message(id = 212, value = "Error instantiating revocation registry class - using default registry")
-    void revocationRegistryInstantiationError();
+    void stsRevocationRegistryInstantiationError();
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 213, value = "%s does not exist. Hence creating.")
-    void metaDataDirectoryCreation(String directory);
+    void samlMetaDataDirectoryCreation(String directory);
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 214, value = "Exception loading the identity providers")
-    void metaDataIdentityProviderLoadingError(@Cause Throwable t);
+    void samlMetaDataIdentityProviderLoadingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 215, value = "Exception loading the service providers")
-    void metaDataServiceProviderLoadingError(@Cause Throwable t);
+    void samlMetaDataServiceProviderLoadingError(@Cause Throwable t);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 216, value = "Persisted entity descriptor into %s")
-    void metaDataPersistEntityDescriptor(String path);
+    void samlMetaDataPersistEntityDescriptor(String path);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 217, value = "Persisted trusted map into %s")
-    void metaDataPersistTrustedMap(String path);
+    void samlMetaDataPersistTrustedMap(String path);
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 218, value = "Cannot validate signature of assertion")
@@ -124,15 +125,15 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 219, value = "Now=%s ::notBefore=%s ::notOnOrAfter=%s")
-    void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
+    void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
 
     @LogMessage(level = Level.INFO)
     @Message(id = 220, value = "Assertion has expired with id=%s")
-    void assertionExpired(String id);
+    void samlAssertionExpired(String id);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 221, value = "[InstallDefaultConfiguration] Configuration is null. Creating a new configuration")
-    void creatingDefaultSTSConfig();
+    void stsCreatingDefaultSTSConfig();
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 222, value = "[InstallDefaultConfiguration] Configuration file name=%s")
@@ -160,7 +161,7 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 228, value = "Cannot get schema")
-    void couldNotGetXMLSchema(@Cause Throwable t);
+    void xmlCouldNotGetSchema(@Cause Throwable t);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 229, value = "The provider %s could not be added")
@@ -168,15 +169,15 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 230, value = "Issuing token for principal %s")
-    void issuingTokenForPrincipal(Principal callerPrincipal);
+    void samlIssuingTokenForPrincipal(Principal callerPrincipal);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 231, value = "Lifetime has not been specified. Using the default timeout value.")
-    void tokenTimeoutNotSpecified();
+    void stsTokenTimeoutNotSpecified();
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 232, value = "Claims have been specified in the request but no processor was found for dialect %s")
-    void claimsDialectProcessorNotFound(String dialect);
+    void wsTrustClaimsDialectProcessorNotFound(String dialect);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 233, value = "Validating token for renew request %s")
@@ -240,7 +241,7 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 248, value = "UserName from callback is null")
-    void userNameFromCallbackisNull();
+    void authUserNameFromCallbackisNull();
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 249, value = "Password from callback is null")
@@ -276,11 +277,11 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.WARN)
     @Message(id = 257, value = "Active Session Count = %s")
-    void identityServerActiveSessionCount(int activeSessionCount);
+    void samlIdentityServerActiveSessionCount(int activeSessionCount);
 
     @LogMessage(level = Level.WARN)
     @Message(id = 258, value = "Session Created with id = %s ::active session count = %s")
-    void identityServerSessionCreated(String id, int activeSessionCount);
+    void samlIdentityServerSessionCreated(String id, int activeSessionCount);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 259, value = "RoleGenerator set to %s")
@@ -308,7 +309,7 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     @LogMessage(level = Level.WARN)
     @Message(id = 265, value = "Session Destroyed with id = %s ::active session count = %s")
-    void identityServerSessionDestroyed(String id, int activeSessionCount);
+    void samlIdentityServerSessionDestroyed(String id, int activeSessionCount);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 266, value = "ID of authentication request %s saved into HTTP session.")
@@ -377,4 +378,172 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.TRACE)
     @Message(id = 282, value = "User has closed the browser. So we proceed to cancel the STS issued token.")
     void samlIDPUserClosedBrowserCancelingToken();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 283, value = "SAML Handlers are: %s")
+    void samlHandlerList(String handlers);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 284, value = "Finished Processing handler: %s")
+    void samlHandlerFinishedProcessing(String handlerClassName);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 285, value = "SAML Request Document: %s")
+    void samlRequestDocument(String samlRequestDocument);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 286, value = "Error in base64 decoding saml message")
+    void samlBase64DecodingError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 287, value = "Exception in parsing saml message")
+    void samlParsingError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 288, value = "Mapping Context returned is null")
+    void attributeManagerMappingContextNull();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 289, value = "Exception in attribute mapping")
+    void attributeManagerError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 290, value = "Could not obtain security context.")
+    void couldNotObtainSecurityContext();
+    
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 291, value = "Final attribute map size: %s")
+    void attributeManagerMapSize(int size);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 292, value = "No authentication Subject found, cannot provide any user roles!")
+    void authenticationSubjectNotFound();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 293, value = "Returning an AttributeStatement with a [%s] attribute containing: %s")
+    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 294, value = "Local Validation is being Performed")
+    void authPerformingLocalValidation();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 295, value = "Local Validation passed.")
+    void authSuccessfulLocalValidation();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 296, value = "Local Validation is disabled. Verifying with STS")
+    void authLocalValidationDisabledCheckSTS();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 297, value = "Creating Cache Entry for JBoss at [%s] , with expiration set to SAML expiry = %s")
+    void authCreatingCacheEntry(Date date, Date expiryDate);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 298, value = "Assertion from where roles will be sought = %s")
+    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 299, value = "Initialized with %s")
+    void initializedWith(String string);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 300, value = "Did not find a token %s under %s in the map")
+    void authSharedTokenNotFound(String name, String sharedToken);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 301, value = "Mapped roles to %s")
+    void authMappedRoles(String roles);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 302, value = "Mapped principal = %s")
+    void authMappedPrincipal(String principal);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 303, value = "Failed to parse token")
+    void authSAMLAssertionParsingFailed(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 304, value = "Determined Security Domain = %s")
+    void determinedSecurityDomain(String securityDomain);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 305, value = "Will expire from cache in %s seconds, principal = %s")
+    void cacheWillExpireForPrincipal(int seconds, String principal);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 306, value = "Constructing STSClientInterceptor using %s as the configuration file")
+    void authConstructingSTSClientInterceptor(String propertiesFile);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 307, value = "Retrieved SecurityContext from invocation: %s")
+    void authRetrievedSecurityContextFromInvocation(String string);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 308, value = "Invoking token service to get SAML assertion for %s")
+    void authInvokingSTSForSAMLAssertion(String principalName);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 309, value = "SAML assertion for %s successfully obtained")
+    void authSAMLAssertionObtainedForPrincipal(String principalName);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 310, value = "Unable to issue assertion")
+    void authSAMLAssertionIssuingFailed(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 311, value = "Handling Outbound Message")
+    void jbossWSHandlingOutboundMessage();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 312, value = "Unable to create binary token")
+    void jbossWSUnableToCreateBinaryToken(@Cause Throwable t);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 313, value = "Was not able to create security token. Just sending message without binary token")
+    void jbossWSUnableToCreateSecurityToken();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 314, value = "Exception writing SOAP Message")
+    void jbossWSUnableToWriteSOAPMessage(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 315, value = "Header value has been identified %s")
+    void jbossWSHeaderValueIdentified(String headerValue);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 316, value = "Cookie value has been identified %s")
+    void jbossWSCookieValueIdentified(String cookie);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 317, value = "Handling Inbound Message")
+    void jbossWSHandlingInboundMessage();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 318, value = "Assertion included in SOAP payload: %s")
+    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 319, value = "Rolekeys to extract roles from the assertion: %s")
+    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 320, value = "Roles in the assertion: %s")
+    void jbossWSRolesInAssertion(String roles);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 321, value = "Did not find roles in the assertion")
+    void jbossWSNoRolesFoundInAssertion();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 322, value = "We did not find any assertion")
+    void jbossWSNoAssertionsFound();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 323, value = "Successfully Authenticated:Principal= %s ::subject = %s")
+    void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 324, value = "Exception using backup method to get op name")
+    void jbossWSErrorGettingOperationname(@Cause Throwable t);
 }
