@@ -28,6 +28,7 @@ import java.security.GeneralSecurityException;
 
 import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
+import javax.servlet.ServletException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
@@ -38,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -1222,6 +1224,43 @@ public interface PicketLinkLogger {
      */
     ConfigurationException auditSecurityDomainNotFound(Throwable t);
 
+    /**
+     * @param location
+     * @param t
+     * @return
+     */
     ConfigurationException auditAuditManagerNotFound(String location, Throwable t);
+
+    /**
+     * @return
+     */
+    IssueInstantMissingException samlIssueInstantMissingError();
+
+    /**
+     * @param response
+     * @return
+     */
+    RuntimeException samlSPResponseNotCatalinaResponseError(Object response);
+
+    /**
+     * @param t
+     */
+    void samlLogoutError(Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlErrorPageForwardError(String errorPage, Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlSPHandleRequestError(Throwable t);
+
+    /**
+     * @param t 
+     * @return
+     */
+    IOException samlSPProcessingExceptionError(Throwable t);
 
 }
