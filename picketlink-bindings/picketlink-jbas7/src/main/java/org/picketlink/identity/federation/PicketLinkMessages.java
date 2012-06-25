@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -117,6 +118,9 @@ public interface PicketLinkMessages {
 
     @Message(id = 23, value = "Trust Key Manager Missing")
     TrustKeyConfigurationException trustKeyManagerMissing();
+
+    @Message(id = 26, value = "Response was not of type catalina response. Received: %s")
+    RuntimeException samlSPResponseNotCatalinaResponseError(Object response);
 
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
@@ -231,6 +235,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 87, value = "System Property missing: %s")
     RuntimeException systemPropertyMissingError(String property);
+
+    @Message(id = 88, value = "Null IssueInstant")
+    IssueInstantMissingException samlIssueInstantMissingError();
 
     @Message (id = 89, value = "Unknown Object Type: %s")
     RuntimeException unknownObjectType(Object attrValue);
@@ -468,5 +475,8 @@ public interface PicketLinkMessages {
 
     @Message(id = 168, value = "Could not find a audit manager configuration. Location: %s")
     ConfigurationException auditAuditManagerNotFound(String location, @Cause Throwable t);
+
+    @Message(id = 169, value = "Service Provider processing error.")
+    IOException samlSPProcessingExceptionError(@Cause Throwable t);
 
 }

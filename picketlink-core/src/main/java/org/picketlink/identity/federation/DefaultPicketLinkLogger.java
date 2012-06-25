@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -1767,6 +1768,54 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ConfigurationException auditAuditManagerNotFound(String location, Throwable t) {
         return new ConfigurationException("Could not find a audit manager configuration. Location: " + location, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIssueInstantMissingError()
+     */
+    @Override
+    public IssueInstantMissingException samlIssueInstantMissingError() {
+        return new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPResponseNotCatalinaResponse()
+     */
+    @Override
+    public RuntimeException samlSPResponseNotCatalinaResponseError(Object response) {
+        return new RuntimeException(ErrorCodes.SERVICE_PROVIDER_NOT_CATALINA_RESPONSE + ". Received: " + response);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlLogoutError(java.lang.Throwable)
+     */
+    @Override
+    public void samlLogoutError(Throwable t) {
+        logger.error("Error during the logout.", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlErrorPageForwardError(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public void samlErrorPageForwardError(String errorPage, Throwable t) {
+        logger.error("Error forwarding to the error page: " + errorPage);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPHandleRequestError(java.lang.Throwable)
+     */
+    @Override
+    public void samlSPHandleRequestError(Throwable t) {
+        logger.error("Service Provider could not handle the request.", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPProcessingExceptionError()
+     */
+    @Override
+    public IOException samlSPProcessingExceptionError(Throwable t) {
+        return new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION, t);
     }
 
 }
