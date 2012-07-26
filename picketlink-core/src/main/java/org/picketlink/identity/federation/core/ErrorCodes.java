@@ -30,6 +30,8 @@ package org.picketlink.identity.federation.core;
 public interface ErrorCodes {
     String ASSERTION_RENEWAL_EXCEPTION = "PL00103:Assertion Renewal Exception:";
 
+    String AUDIT_MANAGER_NULL = "PL00028: Audit Manager Is Not Set";
+
     String AUTHENTICATOR_DOES_NOT_HANDLE_ENC = "PL00027: Authenticator does not handle encryption";
 
     String AUTHN_REQUEST_ID_VERIFICATION_FAILED = "PL00104:Authn Request ID verification failed:";
@@ -88,7 +90,7 @@ public interface ErrorCodes {
 
     String NOT_EQUAL = "PL00094: Not equal:";
 
-    String NOT_IMPLEMENTED_YET = "PL00082: Not Implemented Yet:";
+    String NOT_IMPLEMENTED_YET = "PL00082: Not Implemented Yet: ";
 
     String NOT_SERIALIZABLE = "PL00093: Not Serializable:";
 
@@ -195,4 +197,6 @@ public interface ErrorCodes {
     String WRITER_UNSUPPORTED_ATTRIB_VALUE = "PL00084: Writer: Unsupported Attribute Value:";
 
     String WRONG_TYPE = "PL00095: Wrong type:";
+    
+    String SOAP_MESSAGE_DUMP_ERROR = "PL00104: Error while dumping SOAP message:";
 }

@@ -35,6 +35,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathException;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -45,6 +47,7 @@ import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -53,9 +56,15 @@ import org.xml.sax.SAXException;
  * Class that deals with SAML2 Signature
  *
  * @author Anil.Saldhana@redhat.com
+ * @author alessio.soldano@jboss.com
  * @since May 26, 2009
  */
 public class SAML2Signature {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
+    private static final String ID_ATTRIBUTE_NAME = "ID";
+
     private String signatureMethod = SignatureMethod.RSA_SHA1;
 
     private String digestMethod = DigestMethod.SHA1;
@@ -245,11 +254,11 @@ public class SAML2Signature {
      */
     public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException {
         // Get the ID from the root
-        String id = samlDocument.getDocumentElement().getAttribute("ID");
+        String id = samlDocument.getDocumentElement().getAttribute(ID_ATTRIBUTE_NAME);
         try {
             sign(samlDocument, id, keypair);
         } catch (Exception e) {
-            throw new ProcessingException(e);
+            throw new ProcessingException(logger.signatureError(e));
         }
     }
 
@@ -266,9 +275,9 @@ public class SAML2Signature {
             configureIdAttribute(signedDocument);
             return XMLSignatureUtil.validate(signedDocument, publicKey);
         } catch (MarshalException me) {
-            throw new ProcessingException(me.getLocalizedMessage());
+            throw new ProcessingException(logger.signatureError(me));
         } catch (XMLSignatureException xse) {
-            throw new ProcessingException(xse.getLocalizedMessage());
+            throw new ProcessingException(logger.signatureError(xse));
         }
     }
 
@@ -278,11 +287,21 @@ public class SAML2Signature {
      * method should be called before signing/validating a saml document.
      * </p>
      *
-     * @param signedDocument SAML document to have its ID attribute configured.
+     * @param document SAML document to have its ID attribute configured.
      */
-    private void configureIdAttribute(Document signedDocument) {
+    private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
-        signedDocument.getDocumentElement().setIdAttribute("ID", true);
+        document.getDocumentElement().setIdAttribute(ID_ATTRIBUTE_NAME, true);
+        
+        NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+                JBossSAMLConstants.ASSERTION.get());
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            if (n instanceof Element) {
+                ((Element) n).setIdAttribute(ID_ATTRIBUTE_NAME, true);
+            }
+        }
     }
 
     public Node getNextSiblingOfIssuer(Document doc) {

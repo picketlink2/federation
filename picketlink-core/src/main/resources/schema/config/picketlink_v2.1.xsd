@@ -28,6 +28,16 @@
 				<attribute name="Encrypt" type="boolean" use="optional"
 					default="false">
 				</attribute>
+				<attribute name="StrictPostBinding" type="boolean" use="optional"
+					default="true">
+					<annotation>
+						<documentation>SAML Web Browser SSO Profile has a requirement that
+							the IDP does not respond back in Redirect Binding. Set this to
+							false if you want to force the IDP to respond to SPs using the
+							Redirect Binding.
+						</documentation>
+					</annotation>
+				</attribute>
 			</extension>
 		</complexContent>
 	</complexType>
@@ -35,7 +45,8 @@
 	<element name="PicketLinkIDP" type="tns:IDPType">
 		<annotation>
 			<documentation>The root configuration for an Identity Provider(IDP)
-				using picketlink Identity.</documentation>
+				using picketlink Identity.
+			</documentation>
 		</annotation>
 	</element>
 
@@ -43,13 +54,15 @@
 	<complexType name="TrustType">
 		<annotation>
 			<documentation>Aspects involved in trust decisions such as the
-				domains that the IDP or the Service Provider trusts.</documentation>
+				domains that the IDP or the Service Provider trusts.
+			</documentation>
 		</annotation>
 		<sequence>
 			<element name="Domains" type="string">
 				<annotation>
 					<documentation>Comma Separated domain names such as
-						localhost,picketlink.com,picketlink.org</documentation>
+						localhost,picketlink.com,picketlink.org
+					</documentation>
 				</annotation>
 			</element>
 		</sequence>
@@ -149,10 +162,12 @@
 						</restriction>
 					</simpleType>
 				</attribute>
-				<attribute name="RelayState" use="optional" type="string"/>
-				<attribute name="ErrorPage" use="optional" type="string"/>
-				<attribute name="IDPUsesPostBinding" use="optional" type="boolean" default="true"/>
-				<attribute name="SupportsSignature" use="optional" type="boolean" default="false"/>
+				<attribute name="RelayState" use="optional" type="string" />
+				<attribute name="ErrorPage" use="optional" type="string" />
+				<attribute name="IDPUsesPostBinding" use="optional" type="boolean"
+					default="true" />
+				<attribute name="SupportsSignature" use="optional" type="boolean"
+					default="false" />
 			</extension>
 		</complexContent>
 	</complexType>
@@ -205,7 +220,20 @@
 		<attribute name="STSName" default="PicketLinkSTS" type="string"
 			use="optional" />
 		<attribute name="TokenTimeout" default="3600" type="int"
-			use="optional" />
+			use="optional">
+			<annotation>
+				<documentation>
+					Defines the token timeout in miliseconds.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="ClockSkew" default="2000" type="int" use="optional">
+			<annotation>
+				<documentation>
+					Defines the clock skew, or timing skew, for the token timeout.
+				</documentation>
+			</annotation>
+		</attribute>
 		<attribute name="SignToken" default="true" type="boolean"
 			use="optional" />
 		<attribute name="EncryptToken" default="false" type="boolean"
@@ -314,6 +342,14 @@
 			<element name="Handler" type="tns:Handler" maxOccurs="unbounded"
 				minOccurs="1"></element>
 		</sequence>
+		<attribute name="ChainClass" type="string">
+			<annotation>
+				<documentation>Defines the subclass name of
+					org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain
+					to be used to manage the handlers.
+				</documentation>
+			</annotation>
+		</attribute>
 	</complexType>
 
 	<element name="Handlers" type="tns:Handlers" />
@@ -336,5 +372,6 @@
 			<element name="Handlers" type="tns:Handlers" maxOccurs="1"
 				minOccurs="0"></element>
 		</sequence>
+		<attribute name="EnableAudit" type="boolean"></attribute>
 	</complexType>
 </schema>

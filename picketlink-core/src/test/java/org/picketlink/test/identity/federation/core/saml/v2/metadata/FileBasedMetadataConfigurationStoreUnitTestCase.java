@@ -49,9 +49,20 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase {
 
     @Before
     public void setup() throws Exception {
+        // commented to allow build from jenkins openshift
         String userHome = System.getProperty("user.home");
-        if (StringUtil.isNotNull(userHome) && "?".equals(userHome))
+        
+        String testsUserHome = System.getProperty("user.home.tests");
+        
+        if (testsUserHome != null) {
+            userHome = testsUserHome;
+        }
+        
+        if (StringUtil.isNotNull(userHome) && "?".equals(userHome)) {
             System.setProperty("user.home", System.getProperty("user.dir"));
+        } else {
+            System.setProperty("user.home", userHome);
+        }
     }
 
     @Test

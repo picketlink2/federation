@@ -31,20 +31,15 @@ import org.apache.catalina.LifecycleException;
  */
 public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#start()
-     */
     @Override
-    public void start() throws LifecycleException {
-        super.start();
-        this.spConfiguration.setBindingType("POST");
+    protected String getContextPath() {
+        return getContext().getServletContext().getContextPath();
     }
 
-    public void testStart() throws LifecycleException {
-        super.testStart();
-        this.spConfiguration.setBindingType("POST");
+    @Override
+    protected void startPicketLink() throws LifecycleException{
+        super.startPicketLink();
+        this.spConfiguration.setBindingType("POST"); 
     }
 
 }

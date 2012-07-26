@@ -1,9 +1,11 @@
-<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1"
+     EnableAudit="true">
 	<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:2.1"
 		ServerEnvironment="tomcat"
         BindingType="REDIRECT"
         RelayState="someURL"
         ErrorPage="/someerror.jsp"
+        LogOutPage="/customLogoutPage.jsp"
         IDPUsesPostBinding="true"
         SupportsSignatures="true"
         >

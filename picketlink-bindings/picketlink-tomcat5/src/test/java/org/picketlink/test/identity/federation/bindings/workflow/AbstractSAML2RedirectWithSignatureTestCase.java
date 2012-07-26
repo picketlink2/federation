@@ -22,10 +22,6 @@
 package org.picketlink.test.identity.federation.bindings.workflow;
 
 import java.io.IOException;
-import java.net.URL;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -33,16 +29,14 @@ import junit.framework.Assert;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
 import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.test.identity.federation.bindings.authenticators.AuthenticatorTestUtils;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
@@ -61,27 +55,7 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase {
     private MockCatalinaSession idpHttpSession = new MockCatalinaSession();
 
     protected IDPWebBrowserSSOValve createIdentityProvider() {
-        Thread.currentThread().setContextClassLoader(setupTCL(IDP_PROFILE));
-
-        IDPWebBrowserSSOValve idpWebBrowserSSOValve = new IDPWebBrowserSSOValve();
-
-        MockCatalinaContext catalinaContext = new MockCatalinaContext();
-
-        idpWebBrowserSSOValve.setContainer(catalinaContext);
-
-        catalinaContext.setAttribute("IDENTITY_SERVER", new IdentityServer());
-
-        idpWebBrowserSSOValve.setSignOutgoingMessages(true);
-        idpWebBrowserSSOValve.setIgnoreIncomingSignatures(false);
-        idpWebBrowserSSOValve.setValidatingAliasToTokenIssuer(true);
-
-        try {
-            idpWebBrowserSSOValve.start();
-        } catch (LifecycleException e) {
-            e.printStackTrace();
-        }
-
-        return idpWebBrowserSSOValve;
+        return AuthenticatorTestUtils.createIdentityProvider(IDP_PROFILE);
     }
 
     protected void addIdentityServerParticipants(IDPWebBrowserSSOValve idp, String url) {
@@ -99,7 +73,7 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase {
     }
 
     protected ServiceProviderAuthenticator createServiceProvider(String spProfile) {
-        Thread.currentThread().setContextClassLoader(setupTCL(spProfile));
+        Thread.currentThread().setContextClassLoader(AuthenticatorTestUtils.createContextClassLoader(spProfile));
 
         SPRedirectSignatureFormAuthenticator sp = new SPRedirectSignatureFormAuthenticator();
 
@@ -196,60 +170,17 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase {
     }
 
     protected MockCatalinaRequest createRequest(HttpSession httpSession, boolean withUserPrincipal) {
-        MockCatalinaRequest request = createRequest("192.168.1.3", withUserPrincipal);
+        MockCatalinaRequest request = AuthenticatorTestUtils.createRequest("192.168.1.3", withUserPrincipal);
 
         request.setSession((Session) httpSession);
 
         return request;
     }
 
-    protected MockCatalinaRequest createRequest(String userAddress, boolean withUserPrincipal) {
-        MockCatalinaRequest request = new MockCatalinaRequest();
-
-        request = new MockCatalinaRequest();
-        request.setMethod("GET");
-        request.setRemoteAddr(userAddress);
-        request.setSession(new MockCatalinaSession());
-        request.setContext(new MockCatalinaContext());
-
-        if (withUserPrincipal) {
-            request.setUserPrincipal(createPrincipal());
-        }
-
-        return request;
-    }
+    
 
     protected MockCatalinaRequest createIDPRequest(boolean withUserPrincipal) {
         return createRequest(this.getIDPHttpSession(), withUserPrincipal);
-    }
-
-    protected GenericPrincipal createPrincipal() {
-        MockCatalinaRealm realm = new MockCatalinaRealm("user", "user", new Principal() {
-            public String getName() {
-                return "user";
-            }
-        });
-        List<String> roles = new ArrayList<String>();
-        roles.add("manager");
-        roles.add("employee");
-
-        List<String> rolesList = new ArrayList<String>();
-        rolesList.add("manager");
-
-        return new GenericPrincipal(realm, "user", "user", roles);
-    }
-
-    protected MockCatalinaContextClassLoader setupTCL(String resource) {
-        URL[] urls = new URL[]
-
-        { Thread.currentThread().getContextClassLoader().getResource(resource) };
-
-        MockCatalinaContextClassLoader mcl = new MockCatalinaContextClassLoader(urls);
-
-        mcl.setDelegate(Thread.currentThread().getContextClassLoader());
-        mcl.setProfile(resource);
-
-        return mcl;
     }
 
 }

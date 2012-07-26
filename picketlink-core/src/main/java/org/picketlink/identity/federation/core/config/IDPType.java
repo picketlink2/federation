@@ -22,18 +22,19 @@
 package org.picketlink.identity.federation.core.config;
 
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 
 /**
- *
+ * 
  * IDP Type defines the configuration for an Identity Provider.
- *
- *
+ * 
+ * 
  * <p>
  * Java class for IDPType complex type.
- *
+ * 
  * <p>
  * The following schema fragment specifies the expected content contained within this class.
- *
+ * 
  * <pre>
  * &lt;complexType name="IDPType">
  *   &lt;complexContent>
@@ -49,14 +50,12 @@ import org.picketlink.identity.federation.core.util.StringUtil;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
+ * 
+ * 
  */
 public class IDPType extends ProviderType {
 
     protected EncryptionType encryption;
-
-    protected Long assertionValidity;
 
     protected String roleGenerator;
 
@@ -65,10 +64,21 @@ public class IDPType extends ProviderType {
     protected Boolean encrypt;
 
     /**
+     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to false
+     * if you want to force the IDP to respond to SPs using the Redirect Binding.
+     */
+    private boolean strictPostBinding = true;
+
+    /**
+     * If the user wants to set a particular {@link IdentityParticipantStack}
+     */
+    private String identityParticipantStack = null;
+
+    /**
      * Gets the value of the encryption property.
-     *
+     * 
      * @return possible object is {@link EncryptionType }
-     *
+     * 
      */
     public EncryptionType getEncryption() {
         return encryption;
@@ -76,43 +86,19 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encryption property.
-     *
+     * 
      * @param value allowed object is {@link EncryptionType }
-     *
+     * 
      */
     public void setEncryption(EncryptionType value) {
         this.encryption = value;
     }
 
     /**
-     * Gets the value of the assertionValidity property.
-     *
-     * @return possible object is {@link Long }
-     *
-     */
-    public long getAssertionValidity() {
-        if (assertionValidity == null) {
-            return 300000L;
-        } else {
-            return assertionValidity;
-        }
-    }
-
-    /**
-     * Sets the value of the assertionValidity property.
-     *
-     * @param value allowed object is {@link Long }
-     *
-     */
-    public void setAssertionValidity(Long value) {
-        this.assertionValidity = value;
-    }
-
-    /**
      * Gets the value of the roleGenerator property.
-     *
+     * 
      * @return possible object is {@link String }
-     *
+     * 
      */
     public String getRoleGenerator() {
         if (roleGenerator == null) {
@@ -124,9 +110,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the roleGenerator property.
-     *
+     * 
      * @param value allowed object is {@link String }
-     *
+     * 
      */
     public void setRoleGenerator(String value) {
         this.roleGenerator = value;
@@ -134,9 +120,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the attributeManager property.
-     *
+     * 
      * @return possible object is {@link String }
-     *
+     * 
      */
     public String getAttributeManager() {
         if (attributeManager == null) {
@@ -148,9 +134,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the attributeManager property.
-     *
+     * 
      * @param value allowed object is {@link String }
-     *
+     * 
      */
     public void setAttributeManager(String value) {
         this.attributeManager = value;
@@ -158,9 +144,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the encrypt property.
-     *
+     * 
      * @return possible object is {@link Boolean }
-     *
+     * 
      */
     public boolean isEncrypt() {
         if (encrypt == null) {
@@ -172,9 +158,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encrypt property.
-     *
+     * 
      * @param value allowed object is {@link Boolean }
-     *
+     * 
      */
     public void setEncrypt(Boolean value) {
         this.encrypt = value;
@@ -182,7 +168,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Import values from another {@link IDPType}
-     *
+     * 
      * @param other
      */
     public void importFrom(IDPType other) {
@@ -192,12 +178,50 @@ public class IDPType extends ProviderType {
         if (StringUtil.isNotNull(attributeManager)) {
             setAttributeManager(attributeManager);
         }
-        assertionValidity = other.getAssertionValidity();
 
         encrypt = other.isEncrypt();
 
         if (StringUtil.isNotNull(other.getRoleGenerator())) {
             this.roleGenerator = other.getRoleGenerator();
         }
+    }
+
+    /**
+     * Sets the value of the strictPostBinding property.
+     * 
+     * @param value allowed object is {@link Boolean }
+     */
+    public void setStrictPostBinding(boolean strictPostBinding) {
+        this.strictPostBinding = strictPostBinding;
+    }
+
+    /**
+     * Gets the value of the strictPostBinding property.
+     * 
+     * @return possible object is {@link Boolean }
+     * 
+     */
+    public boolean isStrictPostBinding() {
+        return this.strictPostBinding;
+    }
+
+    /**
+     * Sets the value of the identityParticipantStack property. The value must be the name of a {@link IdentityParticipantStack}
+     * subclass.
+     * 
+     * @param value allowed object is {@link String }
+     */
+    public void setIdentityParticipantStack(String identityParticipantStack) {
+        this.identityParticipantStack = identityParticipantStack;
+    }
+
+    /**
+     * Gets the value of the identityParticipantStack property.
+     * 
+     * @return possible object is {@link String }
+     * 
+     */
+    public String getIdentityParticipantStack() {
+        return this.identityParticipantStack;
     }
 }

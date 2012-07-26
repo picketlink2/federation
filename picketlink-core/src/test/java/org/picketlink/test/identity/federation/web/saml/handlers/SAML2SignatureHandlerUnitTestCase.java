@@ -29,7 +29,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -62,7 +62,16 @@ import org.w3c.dom.Document;
  * @since Oct 12, 2009
  */
 public class SAML2SignatureHandlerUnitTestCase extends TestCase {
-    public void testSignatures() throws Exception {
+
+    public void testSignaturesPostBinding() throws Exception {
+        doSignatureTest(true);
+    }
+
+    public void testSignaturesRedirectBinding() throws Exception {
+        doSignatureTest(false);
+    }
+
+    private void doSignatureTest(boolean isPostBinding) throws Exception {
         SAML2Request saml2Request = new SAML2Request();
         String id = IDGenerator.create("ID_");
         String assertionConsumerURL = "http://sp";
@@ -81,7 +90,7 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        IDPType idpType = new IDPType();
+        SPType idpType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
         chainOptions.put(GeneralConstants.KEYPAIR, keypair);
         chainConfig.set(chainOptions);
@@ -93,7 +102,8 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         // Create a Protocol Context
         MockHttpSession session = new MockHttpSession();
         MockServletContext servletContext = new MockServletContext();
-        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        String httpMethod = isPostBinding ? "POST" : "GET";
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, httpMethod);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
@@ -104,10 +114,12 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
 
         SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        response.setPostBindingForResponse(isPostBinding);
 
         request.addOption(GeneralConstants.SENDER_PUBLIC_KEY, keypair.getPublic());
 
         SAML2AuthenticationHandler authHandler = new SAML2AuthenticationHandler();
+        authHandler.initChainConfig(chainConfig);
         authHandler.initHandlerConfig(handlerConfig);
         authHandler.generateSAMLRequest(request, response);
 
@@ -120,6 +132,10 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
                 SAML2Handler.HANDLER_TYPE.SP);
 
         request.addOption(GeneralConstants.SENDER_PUBLIC_KEY, keypair.getPublic());
+
+        if (!isPostBinding) {
+            servletRequest.setQueryString(response.getDestinationQueryStringWithSignature());
+        }
 
         SAML2SignatureValidationHandler validHandler = new SAML2SignatureValidationHandler();
         validHandler.initChainConfig(chainConfig);

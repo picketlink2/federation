@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -76,7 +77,41 @@ public class SAML11ResponseParserTestCase extends AbstractParserTest {
         SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11ResponseParserTestCase.class).debug(writtenString);
+        validateSchema(writtenString);
+    }
+    
+    @Test
+    public void testSAML11ResponseWithStatusMessage() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml1/saml1-response-status-message.xml");
+
+        SAMLParser parser = new SAMLParser();
+        SAML11ResponseType response = (SAML11ResponseType) parser.parse(configStream);
+        assertNotNull(response);
+
+        assertEquals(1, response.getMajorVersion());
+        assertEquals(1, response.getMinorVersion());
+        assertEquals("P1234", response.getID());
+        assertEquals(XMLTimeUtil.parse("2002-06-19T17:05:37.795Z"), response.getIssueInstant());
+
+        assertNotNull(response.getSignature());
+
+        SAML11StatusType status = response.getStatus();
+        SAML11StatusCodeType statusCode = status.getStatusCode();
+        assertEquals("samlp:Success", statusCode.getValue().toString());
+
+        List<SAML11AssertionType> assertions = response.get();
+        assertEquals(1, assertions.size());
+        SAML11AssertionType assertion = assertions.get(0);
+        assertEquals("buGxcG4gILg5NlocyLccDz6iXrUa", assertion.getID());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // Lets do the writing
+        SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(response);
+        String writtenString = new String(baos.toByteArray());
+        Logger.getLogger(SAML11ResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 }

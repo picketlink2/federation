@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.config;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -35,6 +33,7 @@ import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -53,6 +52,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String BINDING_TYPE = "BindingType";
 
     public static final String ERROR_PAGE = "ErrorPage";
+    
+    public static final String LOGOUT_PAGE = "LogOutPage";
 
     public static final String IDP = "PicketLinkIDP";
 
@@ -86,8 +87,6 @@ public class SAMLConfigParser extends AbstractParser {
 
     public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
-    public static final String ASSERTION_VALIDITY = "AssertionValidity";
-
     public static final String ROLE_GENERATOR = "RoleGenerator";
 
     public static final String ENCRYPT = "Encrypt";
@@ -97,6 +96,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String CANONICALIZATION_METHOD = "CanonicalizationMethod";
 
     public static final String HANDLERS = "Handlers";
+    
+    public static final String HANDLERS_CHAIN_CLASS = "ChainClass";
 
     public static final String HANDLER = "Handler";
 
@@ -107,6 +108,10 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
 
     public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
+    
+    public static final String IDENTITY_PARTICIPANT_STACK = "IdentityParticipantStack";
+    
+    public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -129,6 +134,12 @@ public class SAMLConfigParser extends AbstractParser {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, HANDLERS);
 
+        // parse and set the root element attributes.
+        QName attributeQName = new QName("", HANDLERS_CHAIN_CLASS);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            handlers.setHandlerChainClass(StaxParserUtil.getAttributeValue(attribute));
+        
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
             if (xmlEvent == null)
@@ -139,7 +150,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(HANDLERS))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -160,14 +171,9 @@ public class SAMLConfigParser extends AbstractParser {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, IDP);
 
-        // parse and set the root element attributes.
-        QName attributeQName = new QName("", ASSERTION_VALIDITY);
+        QName attributeQName = new QName("", ROLE_GENERATOR);
         Attribute attribute = startElement.getAttributeByName(attributeQName);
-        if (attribute != null)
-            idp.setAssertionValidity(Long.parseLong(StaxParserUtil.getAttributeValue(attribute)));
-
-        attributeQName = new QName("", ROLE_GENERATOR);
-        attribute = startElement.getAttributeByName(attributeQName);
+        
         if (attribute != null)
             idp.setRoleGenerator(StaxParserUtil.getAttributeValue(attribute));
 
@@ -186,6 +192,23 @@ public class SAMLConfigParser extends AbstractParser {
         if (attribute != null)
             idp.setAttributeManager(StaxParserUtil.getAttributeValue(attribute));
 
+        attributeQName = new QName("", STRICT_POST_BINDING);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setStrictPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        
+        attributeQName = new QName("", SUPPORTS_SIGNATURES);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
+
+        attributeQName = new QName("", IDENTITY_PARTICIPANT_STACK);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setIdentityParticipantStack(StaxParserUtil.getAttributeValue(attribute));
+        }
+
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
             if (xmlEvent == null)
@@ -196,7 +219,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(IDP))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -224,7 +247,7 @@ public class SAMLConfigParser extends AbstractParser {
         return idp;
     }
 
-    protected SPType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
+    protected ProviderType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
         SPType sp = new SPType();
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, SP);
@@ -258,6 +281,12 @@ public class SAMLConfigParser extends AbstractParser {
             sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));
         }
 
+        attributeQName = new QName("", LOGOUT_PAGE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setLogOutPage(StaxParserUtil.getAttributeValue(attribute));
+        }
+
         attributeQName = new QName("", IDP_USES_POST_BINDING);
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
@@ -280,7 +309,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(SP))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);

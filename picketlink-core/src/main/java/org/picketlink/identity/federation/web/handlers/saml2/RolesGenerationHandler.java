@@ -22,11 +22,16 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -47,9 +52,6 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 7, 2009
  */
 public class RolesGenerationHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(RolesGenerationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private transient RoleGenerator roleGenerator = new EmptyRoleGenerator();
 
@@ -87,11 +89,22 @@ public class RolesGenerationHandler extends BaseSAML2Handler {
         HTTPContext httpContext = (HTTPContext) request.getContext();
         HttpSession session = httpContext.getRequest().getSession(false);
 
+        Map<String, Object> requestOptions = request.getOptions();
+        PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+        String contextPath = (String) requestOptions.get(GeneralConstants.CONTEXT_PATH);
+
         Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
         List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
 
         if (roles == null) {
             roles = roleGenerator.generateRoles(userPrincipal);
+            if (auditHelper != null) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setWhoIsAuditing(contextPath);
+                auditEvent.setType(PicketLinkAuditEventType.GENERATED_ROLES);
+                auditEvent.setOptionalString(userPrincipal.getName() + "(" + Arrays.toString(roles.toArray()) + ")");
+                auditHelper.audit(auditEvent);
+            }
             session.setAttribute(GeneralConstants.ROLES_ID, roles);
         }
         response.setRoles(roles);
@@ -102,11 +115,10 @@ public class RolesGenerationHandler extends BaseSAML2Handler {
             try {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attribStr);
                 roleGenerator = (RoleGenerator) clazz.newInstance();
-                if (trace)
-                    log.trace("RoleGenerator set to " + this.roleGenerator);
+                logger.trace("RoleGenerator set to " + this.roleGenerator);
             } catch (Exception e) {
-                log.error("Exception initializing role generator:", e);
-                throw new ConfigurationException();
+                logger.samlHandlerRoleGeneratorSetupError(e);
+                throw logger.configurationError(e);
             }
         }
     }

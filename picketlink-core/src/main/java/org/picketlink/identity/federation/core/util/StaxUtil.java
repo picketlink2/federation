@@ -28,10 +28,15 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Attr;
@@ -47,6 +52,9 @@ import org.w3c.dom.Node;
  * @since Oct 19, 2010
  */
 public class StaxUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static ThreadLocal<Stack<String>> registeredNSStack = new ThreadLocal<Stack<String>>();
 
     /**
@@ -59,7 +67,7 @@ public class StaxUtil {
         try {
             writer.flush();
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -75,7 +83,7 @@ public class StaxUtil {
         try {
             return xmlOutputFactory.createXMLEventWriter(outStream, "UTF-8");
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -91,7 +99,7 @@ public class StaxUtil {
         try {
             return xmlOutputFactory.createXMLStreamWriter(outStream, "UTF-8");
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -107,7 +115,7 @@ public class StaxUtil {
         try {
             return xmlOutputFactory.createXMLStreamWriter(writer);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -116,7 +124,7 @@ public class StaxUtil {
         try {
             return factory.createXMLStreamWriter(result);
         } catch (XMLStreamException xe) {
-            throw new ProcessingException(xe);
+            throw logger.processingError(xe);
         }
     }
 
@@ -132,7 +140,7 @@ public class StaxUtil {
         try {
             writer.setPrefix(prefix, nsURI);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -163,7 +171,7 @@ public class StaxUtil {
             writer.writeAttribute(attributeName.getPrefix(), attributeName.getNamespaceURI(), attributeName.getLocalPart(),
                     attributeValue);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -179,7 +187,7 @@ public class StaxUtil {
         try {
             writer.writeAttribute(localName, value);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -197,7 +205,7 @@ public class StaxUtil {
         try {
             writer.writeAttribute(localName, type, value);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -216,7 +224,7 @@ public class StaxUtil {
         try {
             writer.writeAttribute(prefix, localName, type, value);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -231,7 +239,7 @@ public class StaxUtil {
         try {
             writer.writeCharacters(value);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -246,7 +254,7 @@ public class StaxUtil {
         try {
             writer.writeCData(value);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -261,7 +269,7 @@ public class StaxUtil {
         try {
             writer.writeDefaultNamespace(ns);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -293,9 +301,9 @@ public class StaxUtil {
                     // Don't care
             }
         } catch (DOMException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -371,7 +379,7 @@ public class StaxUtil {
         try {
             writer.writeNamespace(prefix, ns);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -389,7 +397,7 @@ public class StaxUtil {
         try {
             writer.writeStartElement(prefix, localPart, ns);
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -405,13 +413,19 @@ public class StaxUtil {
         try {
             writer.writeEndElement();
         } catch (XMLStreamException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
+    /**
+     * Write the {@link KeyInfoType}
+     * @param writer
+     * @param keyInfo
+     * @throws ProcessingException
+     */
     public static void writeKeyInfo(XMLStreamWriter writer, KeyInfoType keyInfo) throws ProcessingException {
         if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
-            throw new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
+            throw logger.writerInvalidKeyInfoNullContentError();
         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYINFO,
                 WSTrustConstants.XMLDSig.DSIG_NS);
         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.DSIG_NS);
@@ -423,7 +437,7 @@ public class StaxUtil {
         } else if (content instanceof X509DataType) {
             X509DataType type = (X509DataType) content;
             if (type.getDataObjects().size() == 0)
-                throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "X509Data");
+                throw logger.writerNullValueError("X509Data");
             StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.X509DATA,
                     WSTrustConstants.XMLDSig.DSIG_NS);
             Object obj = type.getDataObjects().get(0);
@@ -438,8 +452,85 @@ public class StaxUtil {
                 StaxUtil.writeEndElement(writer);
             }
             StaxUtil.writeEndElement(writer);
-        }
+        } else if( content instanceof KeyValueType){
+            KeyValueType keyvalueType = (KeyValueType) content;
+            StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYVALUE,
+                    WSTrustConstants.XMLDSig.DSIG_NS);
+            if(keyvalueType instanceof DSAKeyValueType){
+                StaxUtil.writeDSAKeyValueType(writer, (DSAKeyValueType) keyvalueType);
+            }
+            if(keyvalueType instanceof RSAKeyValueType){
+                StaxUtil.writeRSAKeyValueType(writer, (RSAKeyValueType) keyvalueType);
+            }
+            StaxUtil.writeEndElement(writer);
+        } else
+            throw new ProcessingException(ErrorCodes.UNSUPPORTED_TYPE + content);
 
         StaxUtil.writeEndElement(writer);
+    }
+    
+    public static void writeRSAKeyValueType(XMLStreamWriter writer, RSAKeyValueType type) throws ProcessingException {
+        String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
+        
+        StaxUtil.writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.RSA_KEYVALUE, WSTrustConstants.DSIG_NS);
+        // write the rsa key modulus.
+        byte[] modulus = type.getModulus();
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.MODULUS, WSTrustConstants.DSIG_NS);
+        writeCharacters(writer, new String(modulus));
+        writeEndElement(writer);
+
+        // write the rsa key exponent.
+        byte[] exponent = type.getExponent();
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.EXPONENT, WSTrustConstants.DSIG_NS);
+        writeCharacters(writer, new String(exponent));
+        writeEndElement(writer);
+
+        writeEndElement(writer);
+    }
+    
+    public static void writeDSAKeyValueType(XMLStreamWriter writer, DSAKeyValueType type) throws ProcessingException {
+        
+        String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
+        
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.DSA_KEYVALUE, WSTrustConstants.DSIG_NS);
+        
+        byte[] p = type.getP();
+        if(p != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.P, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(p));
+            writeEndElement(writer);    
+        }
+        byte[] q = type.getQ();
+        if(q != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.Q, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(q));
+            writeEndElement(writer);    
+        }
+        byte[] g = type.getG();
+        if(g != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.G, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(g));
+            writeEndElement(writer);    
+        }
+        byte[] y = type.getY();
+        if(y != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.Y, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(y));
+            writeEndElement(writer);    
+        }
+        byte[] seed = type.getSeed();
+        if(seed != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.SEED, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(seed));
+            writeEndElement(writer);    
+        }
+        byte[] pgen = type.getPgenCounter();
+        if(pgen != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.PGEN_COUNTER, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(pgen));
+            writeEndElement(writer);    
+        }
+        
+        writeEndElement(writer);
     }
 }

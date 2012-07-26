@@ -28,7 +28,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -45,10 +46,16 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 31, 2011
  */
-public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport {
+public class SAMLEntitiesDescriptorParser extends AbstractDescriptorParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final String EDT = JBossSAMLConstants.ENTITIES_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+
+        xmlEventReader = filterWhiteSpaceCharacters(xmlEventReader);
+
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, EDT);
 
@@ -99,7 +106,7 @@ public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport {
             } else if (localPart.equals(JBossSAMLConstants.SIGNATURE.get())) {
                 entitiesDescriptorType.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart + " ::location=" + startElement.getLocation());
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return entitiesDescriptorType;
     }

@@ -30,8 +30,11 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Util class dealing with xml based time
@@ -40,6 +43,9 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
  * @since Jan 6, 2009
  */
 public class XMLTimeUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Add additional time in miliseconds
      *
@@ -55,7 +61,7 @@ public class XMLTimeUtil {
         try {
             duration = DatatypeFactory.newInstance().newDuration(milis);
         } catch (DatatypeConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         }
         newVal.add(duration);
         return newVal;
@@ -71,7 +77,7 @@ public class XMLTimeUtil {
      */
     public static XMLGregorianCalendar subtract(XMLGregorianCalendar value, long milis) throws ConfigurationException {
         if (milis < 0)
-            throw new IllegalArgumentException("milis should be a positive value");
+            throw logger.invalidArgumentError("milis should be a positive value");
         return add(value, -1 * milis);
     }
 
@@ -89,7 +95,7 @@ public class XMLTimeUtil {
         try {
             dtf = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         }
 
         GregorianCalendar gc = new GregorianCalendar(tz);
@@ -105,9 +111,21 @@ public class XMLTimeUtil {
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar getIssueInstant() throws ConfigurationException {
-        return getIssueInstant(TimeZone.getDefault().getID());
+        return getIssueInstant(getCurrentTimeZoneID());
     }
 
+    public static String getCurrentTimeZoneID() {
+       String timezonePropertyValue = SecurityActions.getSystemProperty(GeneralConstants.TIMEZONE, "GMT");
+
+       TimeZone timezone;
+       if (GeneralConstants.TIMEZONE_DEFAULT.equals(timezonePropertyValue)) {
+          timezone = TimeZone.getDefault();
+       } else {
+          timezone = TimeZone.getTimeZone(timezonePropertyValue);
+       }
+
+       return timezone.getID();
+    }
     /**
      * Convert the minutes into miliseconds
      *
@@ -128,9 +146,9 @@ public class XMLTimeUtil {
      */
     public static boolean isValid(XMLGregorianCalendar now, XMLGregorianCalendar notbefore, XMLGregorianCalendar notOnOrAfter) {
         if (notbefore == null)
-            throw new IllegalArgumentException("notbefore argument is null");
+            throw logger.nullArgumentError("notbefore argument is null");
         if (notOnOrAfter == null)
-            throw new IllegalArgumentException("notOnOrAfter argument is null");
+            throw logger.nullArgumentError("notOnOrAfter argument is null");
 
         int val = notbefore.compare(now);
 
@@ -155,7 +173,7 @@ public class XMLTimeUtil {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         }
         return factory.newDuration(Long.parseLong(timeValue));
     }
@@ -172,7 +190,7 @@ public class XMLTimeUtil {
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         }
         return factory.newXMLGregorianCalendar(timeString);
     }

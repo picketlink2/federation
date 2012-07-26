@@ -25,17 +25,24 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.PublicKey;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
@@ -45,6 +52,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
@@ -55,9 +63,8 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 27, 2009
  */
 public class ServiceProviderBaseProcessor {
-    protected static Logger log = Logger.getLogger(ServiceProviderBaseProcessor.class);
-
-    protected boolean trace = log.isTraceEnabled();
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected boolean postBinding;
 
@@ -65,13 +72,13 @@ public class ServiceProviderBaseProcessor {
 
     protected String identityURL;
 
-    protected SPType spConfiguration;
+    protected ProviderType spConfiguration;
 
     protected TrustKeyManager keyManager;
 
     protected String issuer = null;
-
-    protected boolean supportSignatures = false;
+    
+    protected PicketLinkAuditHelper auditHelper = null;
 
     public static final String IDP_KEY = "idp.key";
 
@@ -91,7 +98,7 @@ public class ServiceProviderBaseProcessor {
      *
      * @param sp
      */
-    public void setConfiguration(SPType sp) {
+    public void setConfiguration(ProviderType sp) {
         this.spConfiguration = sp;
     }
 
@@ -114,15 +121,6 @@ public class ServiceProviderBaseProcessor {
     }
 
     /**
-     * Whether we support signatures during the current processing
-     *
-     * @param supportSignatures
-     */
-    public void setSupportSignatures(boolean supportSignatures) {
-        this.supportSignatures = supportSignatures;
-    }
-
-    /**
      * Set a separate issuer that is different from the service url
      *
      * @param issuer
@@ -130,11 +128,19 @@ public class ServiceProviderBaseProcessor {
     public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
+    
+    /**
+     * Set the {@link PicketLinkAuditHelper}
+     * @param helper
+     */
+    public void setAuditHelper(PicketLinkAuditHelper helper){
+        this.auditHelper = helper;
+    }
 
     public SAML2HandlerResponse process(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock)
             throws ProcessingException, IOException, ParsingException, ConfigurationException {
-        if (trace)
-            log.trace("Handlers are:" + handlers);
+
+        logger.trace("SAML Handlers are: " + handlers);
 
         // Neither saml request nor response from IDP
         // So this is a user request
@@ -143,14 +149,16 @@ public class ServiceProviderBaseProcessor {
 
         // Create the request/response
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
+        saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
+        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
+        
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
+        saml2HandlerResponse.setPostBindingForResponse(postBinding);
         saml2HandlerResponse.setDestination(identityURL);
 
         // Reset the state
         try {
-            if (trace)
-                log.trace("Handlers are : " + handlers);
 
             chainLock.lock();
 
@@ -166,12 +174,12 @@ public class ServiceProviderBaseProcessor {
                 else
                     saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
                 handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
-                if (trace)
-                    log.trace("Finished Processing handler:" + handler.getClass().getCanonicalName());
+
+                logger.trace("Finished Processing handler: " + handler.getClass().getCanonicalName());
             }
         } catch (ProcessingException pe) {
-            log.error("Processing Exception:", pe);
-            throw new RuntimeException(pe);
+            logger.error(pe);
+            throw logger.samlHandlerChainProcessingError(pe);
         } finally {
             chainLock.unlock();
         }
@@ -204,4 +212,50 @@ public class ServiceProviderBaseProcessor {
         }
         return null;
     }
+
+    /**
+     * <p>
+     * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
+     * </p>
+     *
+     * @return
+     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException
+     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException
+     */
+    protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (this.keyManager == null) {
+            throw logger.trustKeyManagerMissing();
+        }
+        String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
+
+        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
+            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
+        }
+
+        return keyManager.getValidatingKey(idpValidatingAlias);
+    }
+
+    protected void setRequestOptions(SAML2HandlerRequest saml2HandlerRequest) throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (spConfiguration != null) {
+            Map<String, Object> requestOptions = new HashMap<String, Object>();
+
+            requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+            
+            if(auditHelper != null){
+                requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
+            }
+
+            if (keyManager != null) {
+                PublicKey validatingKey = getIDPPublicKey();
+
+                requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+            }
+            
+            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
+
+            saml2HandlerRequest.setOptions(requestOptions);
+        }
+    }
+
 }

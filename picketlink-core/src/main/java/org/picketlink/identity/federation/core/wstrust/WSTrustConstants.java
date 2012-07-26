@@ -106,6 +106,8 @@ public interface WSTrustConstants {
     String BINARY_SECRET = "BinarySecret";
 
     String CREATED = "Created";
+    
+    String COMPUTED_KEY_ALGORITHM = "ComputedKeyAlgorithm";
 
     String ENTROPY = "Entropy";
 
@@ -192,6 +194,13 @@ public interface WSTrustConstants {
         String X509DATA = "X509Data";
 
         String X509CERT = "X509Certificate";
+        
+        String P = "P";
+        String Q = "Q";
+        String G = "G";
+        String Y = "Y";
+        String SEED = "Seed";
+        String PGEN_COUNTER = "PgenCounter";
     }
 
     public interface XMLEnc {

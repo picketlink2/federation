@@ -22,11 +22,13 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,15 +58,22 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -74,12 +83,22 @@ import org.xml.sax.SAXException;
  * "picketlink.xmlsig.canonicalization"
  *
  * @author Anil.Saldhana@redhat.com
+ * @author alessio.soldano@jboss.com
  * @since Dec 15, 2008
  */
 public class XMLSignatureUtil {
-    private static Logger log = Logger.getLogger(XMLSignatureUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
+    // Set some system properties and Santuario providers. Run this block before any other class initialization.
+    static {
+        ProvidersUtil.ensure();
+        SystemPropertiesUtil.ensure();
+        String keyInfoProp = SecurityActions.getSystemProperty("picketlink.xmlsig.includeKeyInfo", null);
+        if (StringUtil.isNotNull(keyInfoProp)) {
+            includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
+        }
+    };
 
     private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
@@ -94,35 +113,16 @@ public class XMLSignatureUtil {
         XMLSignatureFactory xsf = null;
 
         try {
-            xsf = XMLSignatureFactory.getInstance("DOM");
-        } catch (Exception err) {
-            Class<?> clazz = SecurityActions
-                    .loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-            if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-
-            Provider provider = null;
+            xsf = XMLSignatureFactory.getInstance("DOM", "ApacheXMLDSig");
+        } catch (NoSuchProviderException ex) {
             try {
-                provider = (Provider) clazz.newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + e.getLocalizedMessage());
+                xsf = XMLSignatureFactory.getInstance("DOM");
+            } catch (Exception err) {
+                throw new RuntimeException(logger.couldNotCreateInstance("DOM", err));
             }
-            xsf = XMLSignatureFactory.getInstance("DOM", provider);
-            /*
-             * // JDK5 xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
-             */
         }
         return xsf;
     }
-
-    // Set some system properties
-    static {
-        SystemPropertiesUtil.ensure();
-        String keyInfoProp = SecurityActions.getSystemProperty("picketlink.xmlsig.includeKeyInfo", null);
-        if (StringUtil.isNotNull(keyInfoProp)) {
-            includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
-        }
-    };
 
     /**
      * Set the canonicalization method type
@@ -198,9 +198,10 @@ public class XMLSignatureUtil {
             String signatureMethod, String referenceURI) throws ParserConfigurationException, GeneralSecurityException,
             MarshalException, XMLSignatureException {
         if (nodeToBeSigned == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Node to be signed");
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
+            throw logger.nullArgumentError("Node to be signed");
+        
+        if (logger.isTraceEnabled()) {
+            logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
         }
 
         Node parentNode = nodeToBeSigned.getParentNode();
@@ -211,6 +212,9 @@ public class XMLSignatureUtil {
         Node signingNode = newDoc.importNode(nodeToBeSigned, true);
         newDoc.appendChild(signingNode);
 
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(nodeToBeSigned, newDoc.getDocumentElement());
+        }
         newDoc = sign(newDoc, keyPair, digestMethod, signatureMethod, referenceURI);
 
         // if the signed element is a SAMLv2.0 assertion we need to move the signature element to the position
@@ -228,10 +232,32 @@ public class XMLSignatureUtil {
         // Now let us import this signed doc into the original document we got in the method call
         Node signedNode = doc.importNode(newDoc.getFirstChild(), true);
 
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(newDoc.getDocumentElement(), (Element) signedNode);
+        }
+
         parentNode.replaceChild(signedNode, nodeToBeSigned);
         // doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);
 
         return doc;
+    }
+
+    /**
+     * Setup the ID attribute into <code>destElement</code> depending on the <code>isId</code> flag of an attribute of
+     * <code>sourceNode</code>.
+     *
+     * @param sourceNode
+     * @param destDocElement
+     */
+    public static void propagateIDAttributeSetup(Node sourceNode, Element destElement) {
+        NamedNodeMap nnm = sourceNode.getAttributes();
+        for (int i = 0; i < nnm.getLength(); i++) {
+            Attr attr = (Attr) nnm.item(i);
+            if (attr.isId()) {
+                destElement.setIdAttribute(attr.getName(), true);
+                break;
+            }
+        }
     }
 
     /**
@@ -250,9 +276,7 @@ public class XMLSignatureUtil {
      */
     public static Document sign(Document doc, KeyPair keyPair, String digestMethod, String signatureMethod, String referenceURI)
             throws GeneralSecurityException, MarshalException, XMLSignatureException {
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
-        }
+        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
         PrivateKey signingKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
@@ -305,7 +329,7 @@ public class XMLSignatureUtil {
      * @throws MarshalException
      */
     public static Document sign(SignatureUtilTransferObject dto) throws GeneralSecurityException, MarshalException,
-            XMLSignatureException {
+    XMLSignatureException {
         Document doc = dto.getDocumentToBeSigned();
         KeyPair keyPair = dto.getKeyPair();
         Node nextSibling = dto.getNextSibling();
@@ -313,9 +337,8 @@ public class XMLSignatureUtil {
         String referenceURI = dto.getReferenceURI();
         String signatureMethod = dto.getSignatureMethod();
 
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
-        }
+        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
+
         PrivateKey signingKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
@@ -365,25 +388,29 @@ public class XMLSignatureUtil {
     @SuppressWarnings("unchecked")
     public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException {
         if (signedDoc == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Signed Document");
+            throw logger.nullArgumentError("Signed Document");
+
+        propagateIDAttributeSetup(signedDoc.getDocumentElement(), signedDoc.getDocumentElement());
+
         NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl == null || nl.getLength() == 0) {
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Cannot find Signature element");
+            throw logger.nullValueError("Cannot find Signature element");
         }
         if (publicKey == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Public Key");
+            throw logger.nullValueError("Public Key");
 
         DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
         XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+
         boolean coreValidity = signature.validate(valContext);
 
-        if (trace && !coreValidity) {
+        if (logger.isTraceEnabled() && !coreValidity) {
             boolean sv = signature.getSignatureValue().validate(valContext);
-            log.trace("Signature validation status: " + sv);
+            logger.trace("Signature validation status: " + sv);
 
             List<Reference> references = signature.getSignedInfo().getReferences();
             for (Reference ref : references) {
-                log.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
+                logger.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
             }
         }
         return coreValidity;
@@ -398,7 +425,7 @@ public class XMLSignatureUtil {
      * @throws JAXBException
      */
     public static void marshall(SignatureType signature, OutputStream os) throws JAXBException, SAXException {
-        throw new RuntimeException("NYI");
+        throw logger.notImplementedYet("NYI");
         /*
          * JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature); Marshaller marshaller =
          * JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation); marshaller.marshal(jsig, os);
@@ -440,8 +467,111 @@ public class XMLSignatureUtil {
                 cert = (X509Certificate) cf.generateCertificate(bais);
             }
         } catch (java.security.cert.CertificateException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         return cert;
+    }
+
+    /**
+     * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     * @param element
+     * @return
+     * @throws ProcessingException
+     */
+    public static DSAKeyValueType getDSAKeyValue(Element element) throws ParsingException {
+        DSAKeyValueType dsa = new DSAKeyValueType();
+        NodeList nl  = element.getChildNodes();
+        int length = nl.getLength();
+
+        for(int i = 0; i < length; i++){
+            Node node  = nl.item(i);
+            if(node instanceof Element){
+                Element childElement = (Element) node;
+                String tag = childElement.getLocalName();
+                
+                byte[] text = childElement.getTextContent().getBytes();
+                
+                if(WSTrustConstants.XMLDSig.P.equals(tag)){
+                    dsa.setP(text);
+                } else if(WSTrustConstants.XMLDSig.Q.equals(tag)){
+                    dsa.setQ(text);
+                } else if(WSTrustConstants.XMLDSig.G.equals(tag)){
+                    dsa.setG(text);
+                } else if(WSTrustConstants.XMLDSig.Y.equals(tag)){
+                    dsa.setY(text);
+                } else if(WSTrustConstants.XMLDSig.SEED.equals(tag)){
+                    dsa.setSeed(text);
+                } else if(WSTrustConstants.XMLDSig.PGEN_COUNTER.equals(tag)){
+                    dsa.setPgenCounter(text);
+                }
+            }
+        }
+
+        return dsa;
+    }
+    
+    /**
+     * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     * @param element
+     * @return
+     * @throws ProcessingException
+     */
+    public static RSAKeyValueType getRSAKeyValue(Element element) throws ParsingException {
+        RSAKeyValueType rsa = new RSAKeyValueType();
+        NodeList nl  = element.getChildNodes();
+        int length = nl.getLength();
+
+        for(int i = 0; i < length; i++){
+            Node node  = nl.item(i);
+            if(node instanceof Element){
+                Element childElement = (Element) node;
+                String tag = childElement.getLocalName();
+                
+                byte[] text = childElement.getTextContent().getBytes();
+                
+                if(WSTrustConstants.XMLDSig.MODULUS.equals(tag)){
+                    rsa.setModulus(text);
+                } else if(WSTrustConstants.XMLDSig.EXPONENT.equals(tag)){
+                    rsa.setExponent(text);
+                }
+            }
+        }
+
+        return rsa;
+    }
+
+    /**
+     * <p>
+     * Creates a {@code KeyValueType} that wraps the specified public key. This method supports DSA and RSA keys.
+     * </p>
+     *
+     * @param key the {@code PublicKey} that will be represented as a {@code KeyValueType}.
+     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
+     */
+    public static KeyValueType createKeyValue(PublicKey key) {
+        if (key instanceof RSAPublicKey) {
+            RSAPublicKey pubKey = (RSAPublicKey) key;
+            byte[] modulus = pubKey.getModulus().toByteArray();
+            byte[] exponent = pubKey.getPublicExponent().toByteArray();
+
+            RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
+            rsaKeyValue.setModulus(Base64.encodeBytes(modulus).getBytes());
+            rsaKeyValue.setExponent(Base64.encodeBytes(exponent).getBytes());
+            return rsaKeyValue;
+        } else if (key instanceof DSAPublicKey) {
+            DSAPublicKey pubKey = (DSAPublicKey) key;
+            byte[] P = pubKey.getParams().getP().toByteArray();
+            byte[] Q = pubKey.getParams().getQ().toByteArray();
+            byte[] G = pubKey.getParams().getG().toByteArray();
+            byte[] Y = pubKey.getY().toByteArray();
+
+            DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
+            dsaKeyValue.setP(Base64.encodeBytes(P).getBytes());
+            dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
+            dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
+            dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
+            return dsaKeyValue;
+        }
+        throw logger.unsupportedType(key.toString());
     }
 }

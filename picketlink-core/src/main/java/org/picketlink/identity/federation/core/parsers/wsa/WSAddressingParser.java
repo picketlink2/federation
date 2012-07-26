@@ -27,7 +27,6 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -69,7 +68,7 @@ public class WSAddressingParser extends AbstractParser {
                     StaxParserUtil.validate(startElement, ADDRESS);
 
                     if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                        throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "endpointURI");
+                        throw logger.parserExpectedTextValue("endpointURI");
 
                     String endpointURI = StaxParserUtil.getElementText(xmlEventReader);
 
@@ -89,7 +88,7 @@ public class WSAddressingParser extends AbstractParser {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }
         }
-        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+        throw logger.parserFailed(WSTrustConstants.WSA_NS);
     }
 
     /**

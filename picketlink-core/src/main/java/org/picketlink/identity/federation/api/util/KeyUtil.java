@@ -28,7 +28,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -43,6 +44,9 @@ import org.w3c.dom.Element;
  * @since Apr 29, 2009
  */
 public class KeyUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static String EOL = getSystemProperty("line.separator", "\n");
 
     /**
@@ -69,7 +73,7 @@ public class KeyUtil {
     public static Element getKeyInfo(Certificate certificate) throws CertificateException, ConfigurationException,
             ParsingException, ProcessingException {
         if (certificate == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "certificate is null");
+            throw logger.nullArgumentError("certificate is null");
 
         StringBuilder builder = new StringBuilder();
 
@@ -83,7 +87,7 @@ public class KeyUtil {
                     .append(EOL).append("<X509Certificate>").append(EOL).append(certStr).append(EOL)
                     .append("</X509Certificate>").append("</X509Data>").append("</KeyInfo>");
         } else
-            throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+            throw logger.notImplementedYet("Only X509Certificate are supported");
 
         return DocumentUtil.getDocument(builder.toString()).getDocumentElement();
     }

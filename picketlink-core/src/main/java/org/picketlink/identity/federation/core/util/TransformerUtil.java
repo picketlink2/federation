@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.util.JAXBSource;
 import javax.xml.namespace.QName;
-import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
@@ -51,7 +50,8 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -69,10 +69,11 @@ import org.w3c.dom.Node;
  * @since Oct 22, 2010
  */
 public class TransformerUtil {
-    private static Logger log = Logger.getLogger(TransformerUtil.class);
-
-    private static final boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
+    private static TransformerFactory transformerFactory;
+    
     /**
      * Get the Default Transformer
      *
@@ -82,15 +83,31 @@ public class TransformerUtil {
     public static Transformer getTransformer() throws ConfigurationException {
         Transformer transformer;
         try {
-            transformer = TransformerFactory.newInstance().newTransformer();
+            transformer = getTransformerFactory().newTransformer();
         } catch (TransformerConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         } catch (TransformerFactoryConfigurationError e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         }
+        
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        
         return transformer;
+    }
+
+    /**
+     * <p>Creates a {@link TransformerFactory}. The returned instance is cached and shared between different threads.</p>
+     * 
+     * @return
+     * @throws TransformerFactoryConfigurationError
+     */
+    private static TransformerFactory getTransformerFactory() throws TransformerFactoryConfigurationError {
+        if (transformerFactory == null) {
+            transformerFactory = TransformerFactory.newInstance();
+        }
+
+        return transformerFactory;
     }
 
     /**
@@ -116,7 +133,7 @@ public class TransformerUtil {
         try {
             transformer.transform(stax, result);
         } catch (TransformerException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         }
     }
 
@@ -127,7 +144,7 @@ public class TransformerUtil {
 
             transformer.transform(jaxbSource, result);
         } catch (Exception e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         }
     }
 
@@ -140,16 +157,16 @@ public class TransformerUtil {
         @Override
         public void transform(Source xmlSource, Result outputTarget) throws TransformerException {
             if (!(xmlSource instanceof StAXSource))
-                throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "xmlSource should be a stax source");
+                throw logger.wrongTypeError("xmlSource should be a stax source");
             if (outputTarget instanceof DOMResult == false)
-                throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "outputTarget should be a dom result");
+                throw logger.wrongTypeError("outputTarget should be a dom result");
 
             String rootTag = null;
 
             StAXSource staxSource = (StAXSource) xmlSource;
             XMLEventReader xmlEventReader = staxSource.getXMLEventReader();
             if (xmlEventReader == null)
-                throw new TransformerException(ErrorCodes.NULL_VALUE + "XMLEventReader");
+                throw new TransformerException(logger.nullValueError("XMLEventReader"));
 
             DOMResult domResult = (DOMResult) outputTarget;
             Document doc = (Document) domResult.getNode();
@@ -293,8 +310,8 @@ public class TransformerUtil {
                 localPart = attrName.getLocalPart();
                 qual = prefix != null && prefix != "" ? prefix + ":" + localPart : localPart;
 
-                if (trace) {
-                    log.trace("Creating an Attribute Namespace=" + ns + ":" + qual);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Creating an Attribute Namespace=" + ns + ":" + qual);
                 }
                 doc.createAttributeNS(ns, qual);
                 el.setAttributeNS(ns, qual, attr.getValue());
@@ -313,8 +330,8 @@ public class TransformerUtil {
 
                 if (qual.equals("xmlns"))
                     continue;
-                if (trace) {
-                    log.trace("Set Attribute Namespace=" + name.getNamespaceURI() + "::Qual=:" + qual + "::Value="
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Set Attribute Namespace=" + name.getNamespaceURI() + "::Qual=:" + qual + "::Value="
                             + namespace.getNamespaceURI());
                 }
                 if (qual != null && qual.startsWith("xmlns")) {
@@ -341,8 +358,7 @@ public class TransformerUtil {
                         textNode = doc.importNode(textNode, true);
                         el.appendChild(textNode);
                     } catch (Exception e) {
-                        Location location = characterEvent.getLocation();
-                        throw new ParsingException(" Location:" + location.toString(), e);
+                        throw logger.parserException(e);
                     }
                 }
             }

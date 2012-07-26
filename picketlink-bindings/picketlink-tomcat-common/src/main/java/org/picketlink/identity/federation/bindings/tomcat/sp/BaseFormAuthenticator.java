@@ -49,9 +49,11 @@ import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -90,9 +92,11 @@ import org.w3c.dom.Document;
  * @since Jun 9, 2009
  */
 public abstract class BaseFormAuthenticator extends FormAuthenticator {
-    protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
-
-    protected final boolean trace = log.isTraceEnabled();
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
+    protected boolean enableAudit = false;
+    protected PicketLinkAuditHelper auditHelper = null;
 
     protected TrustKeyManager keyManager;
 
@@ -129,8 +133,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-    protected String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
-
     /**
      * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
      */
@@ -162,26 +164,51 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.idpAddress = idpAddress;
     }
 
+    /**
+     * Get the name of the configuration file
+     * @return
+     */
     public String getConfigFile() {
         return configFile;
     }
 
+    /**
+     * Set the name of the configuration file
+     * @param configFile
+     */
     public void setConfigFile(String configFile) {
         this.configFile = configFile;
     }
 
+    /**
+     * Set the SAML Handler Chain Class fqn
+     * @param samlHandlerChainClass
+     */
     public void setSamlHandlerChainClass(String samlHandlerChainClass) {
         this.samlHandlerChainClass = samlHandlerChainClass;
     }
 
+    /**
+     * Set the service URL
+     * @param serviceURL
+     */
     public void setServiceURL(String serviceURL) {
         this.serviceURL = serviceURL;
     }
 
+    /**
+     * Set whether the authenticator saves/restores the request
+     * during form authentication
+     * @param saveRestoreRequest
+     */
     public void setSaveRestoreRequest(boolean saveRestoreRequest) {
         this.saveRestoreRequest = saveRestoreRequest;
     }
 
+    /**
+     * Set the {@link SAMLConfigurationProvider} fqn
+     * @param cp fqn of a {@link SAMLConfigurationProvider}
+     */
     public void setConfigProvider(String cp) {
         if (cp == null)
             throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
@@ -194,7 +221,19 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
         }
     }
+    
+    /**
+     * Set an instance of the {@link SAMLConfigurationProvider}
+     * @param configProvider
+     */
+    public void setConfigProvider(SAMLConfigurationProvider configProvider) {
+        this.configProvider = configProvider;
+    }
 
+    /**
+     * Get the {@link SPType}
+     * @return
+     */
     public SPType getConfiguration() {
         return spConfiguration;
     }
@@ -208,8 +247,13 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.issuerID = issuerID;
     }
 
+    /**
+     * Set the logout page
+     * @param logOutPage
+     */
     public void setLogOutPage(String logOutPage) {
-        this.logOutPage = logOutPage;
+        logger.warn("Option logOutPage is now configured with the PicketLinkSP element.");
+
     }
 
     /**
@@ -222,13 +266,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      */
     protected boolean validate(Request request) {
         return request.getParameter("SAMLResponse") != null;
-    }
-
-    @Override
-    public void start() throws LifecycleException {
-        super.start();
-        SystemPropertiesUtil.ensure();
-        processStart();
     }
 
     /**
@@ -295,7 +332,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      */
     protected boolean localAuthentication(Request request, Response response, LoginConfig loginConfig) throws IOException {
         if (request.getUserPrincipal() == null) {
-            log.error("Falling back on local Form Authentication if available");// fallback
+            logger.samlSPFallingBackToLocalFormAuthentication();// fallback
             try {
                 return super.authenticate(request, response, loginConfig);
             } catch (NoSuchMethodError e) {
@@ -306,7 +343,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                     return (Boolean) method.invoke(this, new Object[] { request.getRequest(), response.getResponse(),
                             loginConfig });
                 } catch (Exception ex) {
-                    throw new IOException(ErrorCodes.UNABLE_LOCAL_AUTH, ex);
+                    throw logger.unableLocalAuthentication(ex);
                 }
             }
         } else
@@ -347,7 +384,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             idpSSO = handleMetadata((EntityDescriptorType) metadata);
         }
         if (idpSSO == null) {
-            log.error("Unable to obtain the IDP SSO Descriptor from metadata");
+            logger.samlSPUnableToGetIDPDescriptorFromMetadata();
             return;
         }
         List<EndpointType> endpoints = idpSSO.getSingleSignOnService();
@@ -371,15 +408,36 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     /**
      * Process the configuration from the configuration file
      */
+    @SuppressWarnings("deprecation")
     protected void processConfiguration() {
         ServletContext servletContext = context.getServletContext();
         InputStream is = servletContext.getResourceAsStream(configFile);
 
         try {
+            // Work on the IDP Configuration
             if (configProvider != null) {
-                spConfiguration = configProvider.getSPConfiguration();
-                if (configProvider instanceof AbstractSAMLConfigurationProvider) {
-                    ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                try {
+                    if (is == null) {
+                        // Try the older version
+                        is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                        
+                        // Additionally parse the deprecated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                        }
+                    } else {
+                        // Additionally parse the consolidated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConsolidatedConfigFile(is);
+                        }
+                    }
+
+                    picketLinkConfiguration = configProvider.getPicketLinkConfiguration();
+                    spConfiguration = configProvider.getSPConfiguration();
+                } catch (ProcessingException e) {
+                    throw logger.samlSPConfigurationError(e);
+                } catch (ParsingException e) {
+                    throw logger.samlSPConfigurationError(e);
                 }
             } else {
                 if (is != null) {
@@ -387,15 +445,34 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                         picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                         spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
                     } catch (ParsingException e) {
-                        if (trace)
-                            log.trace(e);
-                        throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                        logger.trace(e);
+                        throw logger.samlSPConfigurationError(e);
                     }
                 } else {
                     is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
                     if (is == null)
-                        throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
+                        throw logger.configurationFileMissing(configFile);
                     spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+                }
+            }
+            
+            if (this.picketLinkConfiguration != null) {
+                enableAudit = picketLinkConfiguration.isEnableAudit();
+
+                //See if we have the system property enabled
+                if(!enableAudit){
+                    String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                    if(!"NULL".equals(sysProp)){
+                        enableAudit = Boolean.parseBoolean(sysProp);   
+                    }
+                }
+
+                if (enableAudit) {
+                    if (auditHelper == null) {
+                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(servletContext);
+                        
+                        auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                    }
                 }
             }
 
@@ -407,12 +484,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             this.serviceURL = spConfiguration.getServiceURL();
             this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
 
-            log.info("BaseFormAuthenticator:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
-                    + canonicalizationMethod);
+            logger.samlSPSettingCanonicalizationMethod(canonicalizationMethod);
             XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
 
-            if (trace)
-                log.trace("Identity Provider URL=" + this.identityURL);
+            logger.trace("Identity Provider URL=" + this.identityURL);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -462,7 +537,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected void populateChainConfig() throws ConfigurationException, ProcessingException {
         chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-        chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
         chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
 
         if (doSupportSignature()) {
@@ -472,10 +546,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException, ServletException {
         // we are invalidated.
-        RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
+        RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.getConfiguration().getLogOutPage());
         if (dispatch == null)
-            log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
+            logger.samlSPCouldNotDispatchToLogoutPage(this.getConfiguration().getLogOutPage());
         else {
+            logger.trace("Forwarding request to logOutPage: " + this.getConfiguration().getLogOutPage());
             session.expire();
             try {
                 dispatch.forward(request, response);
@@ -491,10 +566,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.saveRestoreRequest = false;
         if (context == null)
             throw new RuntimeException("Catalina Context not set up");
-        processStart();
+        startPicketLink();
     }
 
-    protected void processStart() throws LifecycleException {
+    protected void startPicketLink() throws LifecycleException {
+        SystemPropertiesUtil.ensure();
         Handlers handlers = null;
 
         // Get the chain from config
@@ -555,4 +631,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     }
 
     protected abstract void initKeyProvider(Context context) throws LifecycleException;
+    
+    public void setAuditHelper(PicketLinkAuditHelper auditHelper) {
+        this.auditHelper = auditHelper;
+    }
 }

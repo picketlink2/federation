@@ -23,7 +23,8 @@ package org.picketlink.identity.federation.web.util;
 
 import java.io.InputStream;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -39,9 +40,12 @@ import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
  * @since Aug 21, 2009
  */
 public class ConfigurationUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static PicketLinkType getConfiguration(InputStream is) throws ParsingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("inputstream");
         PicketLinkConfigParser parser = new PicketLinkConfigParser();
         PicketLinkType picketLinkType = (PicketLinkType) parser.parse(is);
         return picketLinkType;
@@ -56,7 +60,7 @@ public class ConfigurationUtil {
      */
     public static IDPType getIDPConfiguration(InputStream is) throws ParsingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("inputstream");
 
         SAMLConfigParser parser = new SAMLConfigParser();
         return (IDPType) parser.parse(is);
@@ -71,7 +75,7 @@ public class ConfigurationUtil {
      */
     public static SPType getSPConfiguration(InputStream is) throws ParsingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("inputstream");
         return (SPType) (new SAMLConfigParser()).parse(is);
     }
 
@@ -84,7 +88,7 @@ public class ConfigurationUtil {
      */
     public static Handlers getHandlers(InputStream is) throws ParsingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("inputstream");
         return (Handlers) (new SAMLConfigParser()).parse(is);
     }
 }

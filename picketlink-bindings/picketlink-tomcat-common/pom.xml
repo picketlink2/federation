@@ -3,7 +3,7 @@
    <parent>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-fed-parent</artifactId>
-      <version>2.1.1.Final-redhat-1</version>
+      <version>2.1.4.test-redhat-1</version>
       <relativePath>../../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
@@ -54,6 +54,7 @@
     <profile>
       <id>long-tests</id>
      <activation>
+       <activeByDefault>false</activeByDefault>
      </activation>
      <build>
       <plugins>
@@ -163,7 +164,8 @@
             <artifactId>apiviz</artifactId>
             <version>1.2.5.GA</version>
           </docletArtifact>
-          <additionalparam>-charset UTF-8
+          <additionalparam>
+            -charset UTF-8
             -docencoding UTF-8
             -version
             -author
@@ -172,7 +174,8 @@
             -doctitle "${project.name} ${project.version} API Reference"
             -bottom "Copyright © ${project.inceptionYear}-Present ${project.organization.name}. All Rights Reserved."
             -link http://java.sun.com/javase/6/docs/api/
-            -sourceclasspath ${project.build.outputDirectory}</additionalparam>
+            -sourceclasspath ${project.build.outputDirectory}
+          </additionalparam>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>

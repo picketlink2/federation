@@ -36,8 +36,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -60,11 +60,13 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.DecisionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
@@ -86,9 +88,8 @@ import org.w3c.dom.Node;
  * @since Jan 5, 2009
  */
 public class SAML2Response {
-    private static Logger log = Logger.getLogger(SAML2Response.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private SAMLDocumentHolder samlDocumentHolder = null;
 
@@ -184,16 +185,21 @@ public class SAML2Response {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(sp.getRequestID());
         subjectConfirmationData.setRecipient(responseDestinationURI);
-        subjectConfirmationData.setNotBefore(issueInstant);
+        //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
         subjectType.addConfirmation(subjectConfirmation);
-
+        
+        ConditionsType conditions = assertion.getConditions();
         // Update the subjectConfirmationData expiry based on the assertion
-        if (assertion.getConditions() != null) {
-            subjectConfirmationData.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter());
+        if (conditions != null) {
+            subjectConfirmationData.setNotOnOrAfter(conditions.getNotOnOrAfter());
+            //Add conditions -> AudienceRestriction
+            AudienceRestrictionType audience = new AudienceRestrictionType();
+            audience.addAudience(URI.create(sp.getResponseDestinationURI()));
+            conditions.addCondition(audience);
         }
 
         ResponseType responseType = createResponseType(ID, issuerInfo, assertion);
@@ -245,7 +251,7 @@ public class SAML2Response {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(sp.getRequestID());
         subjectConfirmationData.setRecipient(responseDestinationURI);
-        subjectConfirmationData.setNotBefore(issueInstant);
+        //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
@@ -267,9 +273,15 @@ public class SAML2Response {
 
         assertionType = samlProtocolContext.getIssuedAssertion();
 
+        ConditionsType conditions = assertionType.getConditions();
         // Update the subjectConfirmationData expiry based on the assertion
-        if (assertionType.getConditions() != null) {
-            subjectConfirmationData.setNotOnOrAfter(assertionType.getConditions().getNotOnOrAfter());
+        if (conditions != null) {
+            subjectConfirmationData.setNotOnOrAfter(conditions.getNotOnOrAfter());
+            
+            //Add conditions -> AudienceRestriction
+            AudienceRestrictionType audience = new AudienceRestrictionType();
+            audience.addAudience(URI.create(sp.getIssuer()));
+            conditions.addCondition(audience);
         }
 
         ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
@@ -347,7 +359,7 @@ public class SAML2Response {
     public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
         SAMLParser samlParser = new SAMLParser();
@@ -368,7 +380,7 @@ public class SAML2Response {
      */
     public AssertionType getAssertionType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("InputStream");
         Document samlDocument = DocumentUtil.getDocument(is);
 
         SAMLParser samlParser = new SAMLParser();
@@ -395,7 +407,7 @@ public class SAML2Response {
      */
     public ResponseType getResponseType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -420,12 +432,13 @@ public class SAML2Response {
     public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
-        if (trace)
-            log.trace("RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
+        if (logger.isTraceEnabled()) {
+            logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
+        }
 
         SAMLParser samlParser = new SAMLParser();
         JAXPValidationUtil.checkSchemaValidation(samlResponseDocument);
@@ -447,7 +460,7 @@ public class SAML2Response {
      */
     public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException {
         if (encryptedElementType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "encryptedElementType");
+            throw logger.nullArgumentError("encryptedElementType");
         Document doc = DocumentUtil.createDocument();
         Node importedNode = doc.importNode(encryptedElementType.getEncryptedElement(), true);
         doc.appendChild(importedNode);

@@ -23,11 +23,14 @@ package org.picketlink.identity.federation.web.config;
 
 import java.io.InputStream;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
@@ -38,26 +41,76 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
  * @since Feb 22, 2012
  */
 public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
     protected IDPType configParsedIDPType = null;
 
     protected SPType configParsedSPType = null;
+    
+    protected PicketLinkType configParsedPicketLinkType = null;
 
+    /**
+     * <p>
+     * Sets a {@link InputStream} created from a picketlink-idfed.xml file.
+     * This method expects to parse the deprecated configuration, PicketLinkIDP or PicketLinkSP element/type, as the first element.
+     * </p>
+     * 
+     * @param is
+     * @throws ParsingException
+     */
+    @Deprecated
     public void setConfigFile(InputStream is) throws ParsingException {
         if (is == null) {
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
+            throw logger.nullArgumentError("InputStream");
         }
-
+        
         SAMLConfigParser parser = new SAMLConfigParser();
+        
         Object parsedObject = parser.parse(is);
+        
         if (parsedObject instanceof IDPType)
             configParsedIDPType = (IDPType) parsedObject;
         else
             configParsedSPType = (SPType) parsedObject;
+
+    }
+
+    /**
+     * <p>
+     * Sets a {@link InputStream} created from a picketlink.xml file.
+     * This method expects to parse the consolidated configuration, PicketLink element/type, as the first element.
+     * </p>
+     * 
+     * @param is
+     * @throws ParsingException
+     */
+    public void setConsolidatedConfigFile(InputStream is) throws ParsingException {
+        if (is == null) {
+            throw logger.nullArgumentError("InputStream");
+        }
+        
+        PicketLinkConfigParser parser = new PicketLinkConfigParser();
+        
+        PicketLinkType parsedObject = (PicketLinkType) parser.parse(is);
+        
+        if (parsedObject.getIdpOrSP() instanceof IDPType)
+            configParsedIDPType = (IDPType) parsedObject.getIdpOrSP();
+        else
+            configParsedSPType = (SPType) parsedObject.getIdpOrSP();
+        
+        this.configParsedPicketLinkType = parsedObject;
+        
     }
 
     public abstract IDPType getIDPConfiguration() throws ProcessingException;
 
     public abstract SPType getSPConfiguration() throws ProcessingException;
+    
+    @Override
+    public PicketLinkType getPicketLinkConfiguration() throws ProcessingException {
+        return this.configParsedPicketLinkType;
+    }
 }

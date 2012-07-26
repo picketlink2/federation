@@ -29,8 +29,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +37,22 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
 
-import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.STSType;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -56,15 +61,14 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
@@ -79,7 +83,7 @@ import org.w3c.dom.Element;
  */
 public class WSTrustUtil {
 
-    private static Logger logger = Logger.getLogger(WSTrustUtil.class);
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * <p>
@@ -175,6 +179,29 @@ public class WSTrustUtil {
         }
         return null;
     }
+    
+
+
+    public static RenewingType parseRenewingType(XMLEventReader xmlEventReader) throws ParsingException {
+        RenewingType renewingType = new RenewingType();
+
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.RENEWING);
+
+        Attribute allowAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.ALLOW));
+        if (allowAttribute != null) {
+            renewingType.setAllow(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowAttribute)));
+        }
+
+        Attribute okAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.OK));
+        if (allowAttribute != null) {
+            renewingType.setOK(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(okAttribute)));
+        }
+
+        EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+        StaxParserUtil.validate(endElement, WSTrustConstants.RENEWING);
+        return renewingType;
+    }
 
     /**
      * <p>
@@ -231,9 +258,8 @@ public class WSTrustUtil {
             };
         }
 
-        // TODO: check for other types of tokens that could be included in the OnBehalfOfType.
-        if (logger.isDebugEnabled())
-            logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
+        logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
+        
         return null;
     }
 
@@ -399,10 +425,10 @@ public class WSTrustUtil {
                 keyInfo = new KeyInfoType();
                 keyInfo.addContent(encryptedKeyElement);
             } catch (Exception e) {
-                throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
+                throw logger.stsKeyInfoTypeCreationError(e);
             }
         } else {
-            logger.warn("Secret key could not be encrypted because the endpoint's PKC has not been specified");
+            logger.stsSecretKeyNotEncrypted();
         }
         return keyInfo;
     }
@@ -432,7 +458,7 @@ public class WSTrustUtil {
             keyInfo = new KeyInfoType();
             keyInfo.addContent(x509);
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
+            throw logger.stsKeyInfoTypeCreationError(e);
         }
         return keyInfo;
     }
@@ -446,36 +472,7 @@ public class WSTrustUtil {
      * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
      */
     public static KeyValueType createKeyValue(PublicKey key) {
-        if (key instanceof RSAPublicKey) {
-            RSAPublicKey pubKey = (RSAPublicKey) key;
-            byte[] modulus = pubKey.getModulus().toByteArray();
-            byte[] exponent = pubKey.getPublicExponent().toByteArray();
-
-            RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
-            rsaKeyValue.setModulus(Base64.encodeBytes(modulus).getBytes());
-            rsaKeyValue.setExponent(Base64.encodeBytes(exponent).getBytes());
-
-            KeyValueType keyValue = new KeyValueType();
-            keyValue.getContent().add(rsaKeyValue);
-            return keyValue;
-        } else if (key instanceof DSAPublicKey) {
-            DSAPublicKey pubKey = (DSAPublicKey) key;
-            byte[] P = pubKey.getParams().getP().toByteArray();
-            byte[] Q = pubKey.getParams().getQ().toByteArray();
-            byte[] G = pubKey.getParams().getG().toByteArray();
-            byte[] Y = pubKey.getY().toByteArray();
-
-            DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
-            dsaKeyValue.setP(Base64.encodeBytes(P).getBytes());
-            dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
-            dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
-            dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
-
-            KeyValueType keyValue = new KeyValueType();
-            keyValue.getContent().add(dsaKeyValue);
-            return keyValue;
-        } else
-            return null;
+        return XMLSignatureUtil.createKeyValue(key);
     }
 
     public static String getServiceNameFromAppliesTo(RequestSecurityToken requestSecurityToken) {

@@ -1,6 +1,7 @@
 package org.picketlink.test.identity.federation.core.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -12,6 +13,7 @@ import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 
 /**
@@ -31,6 +33,12 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         PicketLinkType picketlink = (PicketLinkType) result;
         IDPType idp = (IDPType) picketlink.getIdpOrSP();
         assertNotNull(idp);
+        assertTrue(picketlink.isEnableAudit());
+        
+        // asserts the StrictPostBinding attribute. Default is true, but for this test it was changed to true in the configuration file. 
+        assertFalse(idp.isStrictPostBinding());
+        
+        assertEquals("TestIdentityParticipantStack", idp.getIdentityParticipantStack());
     }
 
     @Test
@@ -47,7 +55,9 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("tomcat", sp.getServerEnvironment());
         assertEquals("someURL", sp.getRelayState());
         assertEquals("/someerror.jsp", sp.getErrorPage());
+        assertEquals("/customLogoutPage.jsp", sp.getLogOutPage());
         assertTrue(sp.isSupportsSignature());
+        assertTrue(picketlink.isEnableAudit());
     }
 
     @Test
@@ -60,5 +70,20 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         PicketLinkType picketlink = (PicketLinkType) result;
         STSType sts = picketlink.getStsType();
         assertNotNull(sts);
+        assertTrue(picketlink.isEnableAudit());
+    }
+    
+    @Test
+    public void testHandlers() throws ParsingException {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-handlers.xml");
+        PicketLinkConfigParser parser = new PicketLinkConfigParser();
+        Object result = parser.parse(configStream);
+        assertNotNull(result);
+        PicketLinkType picketlink = (PicketLinkType) result;
+        Handlers handlers = picketlink.getHandlers();
+        assertNotNull(handlers);
+        assertNotNull(handlers.getHandlerChainClass());
+        assertFalse(handlers.getHandler().isEmpty());
     }
 }

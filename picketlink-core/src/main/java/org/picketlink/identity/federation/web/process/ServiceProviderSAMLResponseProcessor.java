@@ -23,31 +23,23 @@ package org.picketlink.identity.federation.web.process;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 
 /**
@@ -58,7 +50,6 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
  */
 public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBaseProcessor {
 
-    private boolean validateSignature = false;
     private boolean idpPostBinding = false;
 
     public void setIdpPostBinding(boolean idpPostBinding) {
@@ -73,15 +64,6 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      */
     public ServiceProviderSAMLResponseProcessor(boolean postBinding, String serviceURL) {
         super(postBinding, serviceURL);
-    }
-
-    /**
-     * Flag to indicate whether the response should be validated for signature
-     *
-     * @param validateSignature
-     */
-    public void setValidateSignature(boolean validateSignature) {
-        this.validateSignature = validateSignature;
     }
 
     /**
@@ -101,8 +83,6 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             throws ProcessingException, IOException, ParsingException, ConfigurationException {
         SAMLDocumentHolder documentHolder = getSAMLDocumentHolder(samlResponse);
 
-        validateSignature(httpContext, documentHolder);
-
         SAML2HandlerResponse saml2HandlerResponse = processHandlersChain(httpContext, handlers, chainLock, documentHolder);
 
         return saml2HandlerResponse;
@@ -118,20 +98,9 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
         SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
 
         // Set some request options
-        if (spConfiguration != null) {
-            Map<String, Object> requestOptions = new HashMap<String, Object>();
-
-            requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-
-            if (keyManager != null) {
-                PublicKey validatingKey = getIDPPublicKey();
-
-                requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
-            }
-
-            saml2HandlerRequest.setOptions(requestOptions);
-        }
+        setRequestOptions(saml2HandlerRequest);
+        saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
+        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
 
         chainProcessor.callHandlerChain(documentHolder.getSamlObject(), saml2HandlerRequest, saml2HandlerResponse, httpContext,
                 chainLock);
@@ -141,32 +110,6 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
 
     private boolean isPostBinding() {
         return this.postBinding || idpPostBinding;
-    }
-
-    /**
-     * <p>
-     * Validates the SAML token signature of this option is enabled.
-     * </p>
-     *
-     * @param httpContext
-     * @param documentHolder
-     * @throws ProcessingException
-     */
-    private void validateSignature(HTTPContext httpContext, SAMLDocumentHolder documentHolder) throws ProcessingException {
-        if (this.validateSignature) {
-            try {
-                if (isPostBinding()) {
-                    this.verifyPostBindingSignature(documentHolder);
-                } else {
-                    this.verifyRedirectBindingSignature(httpContext);
-                }
-            } catch (IssuerNotTrustedException e) {
-                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-                        + "Signature Validation failed. Issuer is not trusted by this Service Provider", e);
-            } catch (Exception e) {
-                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
-            }
-        }
     }
 
     private SAMLDocumentHolder getSAMLDocumentHolder(String samlResponse) throws ParsingException, ConfigurationException,
@@ -183,105 +126,17 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             dataStream = RedirectBindingUtil.base64DeflateDecode(samlResponse);
         }
 
-        saml2Response.getSAML2ObjectFromStream(dataStream);
+        try {
+            saml2Response.getSAML2ObjectFromStream(dataStream);
+        } catch (ProcessingException pe) {
+            logger.samlResponseFromIDPParsingFailed();
+            throw pe;
+        } catch (ParsingException pe) {
+            logger.samlResponseFromIDPParsingFailed();
+            throw pe;
+        }
+        
 
         return saml2Response.getSamlDocumentHolder();
-    }
-
-    /**
-     * <p>
-     * Validates the signature for SAML tokens received via HTTP Redirect Binding.
-     * </p>
-     *
-     * @param httpContext
-     * @throws IssuerNotTrustedException
-     * @throws ProcessingException
-     */
-    private void verifyRedirectBindingSignature(HTTPContext httpContext) throws IssuerNotTrustedException, ProcessingException {
-        if (keyManager == null) {
-            throw new IllegalStateException(ErrorCodes.TRUST_MANAGER_MISSING);
-        }
-
-        boolean isValidSignature = false;
-
-        try {
-            String queryString = httpContext.getRequest().getQueryString();
-
-            // Check if there is a signature
-            byte[] sigValue;
-
-            sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
-
-            if (sigValue == null) {
-                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-                        + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
-            }
-
-            isValidSignature = RedirectBindingSignatureUtil.validateSignature(queryString, getIDPPublicKey(), sigValue);
-        } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
-        }
-
-        if (!isValidSignature) {
-            throw new IssuerNotTrustedException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed");
-        }
-
-    }
-
-    /**
-     * <p>
-     * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
-     * </p>
-     *
-     * @return
-     * @throws TrustKeyConfigurationException
-     * @throws TrustKeyProcessingException
-     */
-    private PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
-        if (this.keyManager == null) {
-            throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
-        }
-        String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
-
-        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
-            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
-        }
-
-        return keyManager.getValidatingKey(idpValidatingAlias);
-    }
-
-    /**
-     * Validate the signature of the IDP response
-     *
-     * @param samlDocumentHolder
-     * @return
-     * @throws IssuerNotTrustedException
-     * @throws ProcessingException
-     */
-    private void verifyPostBindingSignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException,
-            ProcessingException {
-        if (keyManager == null) {
-            throw new IllegalStateException(ErrorCodes.TRUST_MANAGER_MISSING);
-        }
-
-        boolean sigResult = false;
-
-        try {
-            PublicKey publicKey = getIDPPublicKey();
-
-            if (trace)
-                log.trace("Going to verify signature in the saml response from IDP");
-
-            sigResult = new SAML2Signature().validate(samlDocumentHolder.getSamlDocument(), publicKey);
-
-            if (trace)
-                log.trace("Signature verification=" + sigResult);
-        } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
-        }
-
-        if (!sigResult) {
-            throw new IssuerNotTrustedException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed");
-        }
     }
 }

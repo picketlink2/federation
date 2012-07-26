@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -114,7 +113,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
         String issuerID = samlProtocolContext.getIssuerID();
         if (issuerID == null)
-            throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Issuer in SAML Protocol Context");
+            throw logger.nullArgumentError("Issuer in SAML Protocol Context");
 
         XMLGregorianCalendar issueInstant;
         try {
@@ -134,7 +133,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
         try {
             AssertionUtil.createSAML11TimedConditions(assertionType, ASSERTION_VALIDITY, CLOCK_SKEW);
         } catch (Exception e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         // Create authentication statement
@@ -146,7 +145,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
         try {
             this.tokenRegistry.addToken(assertionID, assertionType);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         samlProtocolContext.setIssuedAssertion(assertionType);
     }
@@ -170,21 +169,21 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
             XMLGregorianCalendar currentTime = XMLTimeUtil.getIssueInstant();
             issuedAssertion.updateIssueInstant(currentTime);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             AssertionUtil.createTimedConditions(issuedAssertion, ASSERTION_VALIDITY, CLOCK_SKEW);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (IssueInstantMissingException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             this.tokenRegistry.addToken(issuedAssertion.getID(), issuedAssertion);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         samlProtocolContext.setIssuedAssertion(issuedAssertion);
     }
@@ -193,19 +192,19 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
      */
     public void cancelToken(ProtocolContext context) throws ProcessingException {
-        if (!(context instanceof SAMLProtocolContext))
+        if (!(context instanceof SAML11ProtocolContext))
             return;
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
             sm.checkPermission(PicketLinkCoreSTS.rte);
 
-        SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
-        AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
+        SAML11ProtocolContext samlProtocolContext = (SAML11ProtocolContext) context;
+        SAML11AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
         try {
             this.tokenRegistry.removeToken(issuedAssertion.getID());
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -213,28 +212,28 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
      */
     public void validateToken(ProtocolContext context) throws ProcessingException {
-        if (!(context instanceof SAMLProtocolContext))
+        if (!(context instanceof SAML11ProtocolContext))
             return;
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
             sm.checkPermission(PicketLinkCoreSTS.rte);
 
-        SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
+        SAML11ProtocolContext samlProtocolContext = (SAML11ProtocolContext) context;
 
-        AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
+        SAML11AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
 
         try {
             if (!AssertionUtil.hasExpired(issuedAssertion))
-                throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
+                throw logger.samlAssertionExpiredError();
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         if (issuedAssertion == null)
-            throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Assertion");
+            throw logger.assertionInvalidError();
         if (this.tokenRegistry.getToken(issuedAssertion.getID()) == null)
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION);
+            throw logger.assertionInvalidError();
     }
 
     /**

@@ -31,7 +31,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
@@ -41,6 +42,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants.XMLDSig;
+import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -65,9 +67,8 @@ import org.w3c.dom.Element;
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
-    protected Logger log = Logger.getLogger(WSTRequestSecurityTokenParser.class);
-
-    protected boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String X509CERTIFICATE = "X509Certificate";
 
@@ -102,7 +103,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                 else if (endElementTag.equals(WSTrustConstants.USE_KEY))
                     continue;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementTag);
+                    throw logger.parserUnknownEndElement(endElementTag);
             }
 
             try {
@@ -275,14 +276,25 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                         requestToken.setUseKey(useKeyType);
                     } else
                         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + StaxParserUtil.getStartElementName(subEvent));
+                } else if (tag.equals(WSTrustConstants.COMPUTED_KEY_ALGORITHM)) { 
+                    subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+                    if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                        throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + WSTrustConstants.COMPUTED_KEY_ALGORITHM);
+
+                    String computedKeyAlgo = StaxParserUtil.getElementText(xmlEventReader);
+
+                    requestToken.setComputedKeyAlgorithm(URI.create(computedKeyAlgo));
+                } else if (tag.equals(WSTrustConstants.RENEWING)) {
+                    requestToken.setRenewing(WSTrustUtil.parseRenewingType(xmlEventReader));
                 } else {
                     QName qname = subEvent.getName();
-                    if (trace) {
-                        log.trace("Looking for Parser for :" + qname);
-                    }
+                    
+                    logger.trace("Looking for parser for element: " + qname);
+                    
                     ParserNamespaceSupport parser = ParserController.get(qname);
                     if (parser == null)
-                        throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + qname);
+                        throw logger.parserUnknownTag(qname.getLocalPart(), subEvent.getLocation());
 
                     Object parsedObject = parser.parse(xmlEventReader);
                     if (parsedObject instanceof AppliesTo) {

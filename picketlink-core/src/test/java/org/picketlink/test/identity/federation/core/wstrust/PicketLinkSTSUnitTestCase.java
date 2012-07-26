@@ -211,7 +211,6 @@ public class PicketLinkSTSUnitTestCase {
         assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
         Map<String, String> properties = ((SpecialTokenProvider) provider).getProperties();
         assertNotNull("Unexpected null properties map", properties);
-        assertEquals("Unexpected number of properties", 2, properties.size());
         assertEquals("Invalid property found", "Value1", properties.get("Property1"));
         assertEquals("Invalid property found", "Value2", properties.get("Property2"));
         provider = config.getProviderForTokenType(SAMLUtil.SAML2_TOKEN_TYPE);
@@ -1171,7 +1170,7 @@ public class PicketLinkSTSUnitTestCase {
             assertNotNull("Unexpected null cause", t);
             assertTrue("Unexpected cause type", t instanceof WSTrustException);
             String msg = t.getMessage();
-            if (msg.contains("Unable to renew token: request does not have a renew target") == false)
+            if (msg.contains("PL00092: Null Value:renew target") == false)
                 throw new RuntimeException("Unexpected exception message");
         }
 
@@ -1557,10 +1556,7 @@ public class PicketLinkSTSUnitTestCase {
             // if the public key has been used as proof, we should be able to retrieve it from KeyValueType.
             if (usePublicKey == true) {
                 KeyValueType keyValue = (KeyValueType) keyInfo.getContent().get(0);
-                List<Object> keyValueContent = keyValue.getContent();
-                assertEquals("Unexpected key value content size", 1, keyValueContent.size());
-                assertEquals("Unexpected key value content type", RSAKeyValueType.class, keyValueContent.get(0).getClass());
-                RSAKeyValueType rsaKeyValue = (RSAKeyValueType) keyValueContent.get(0);
+                RSAKeyValueType rsaKeyValue = (RSAKeyValueType) keyValue;
 
                 // reconstruct the public key and check if it matches the public key of the provided certificate.
                 BigInteger modulus = new BigInteger(1, Base64.decode(new String(rsaKeyValue.getModulus())));

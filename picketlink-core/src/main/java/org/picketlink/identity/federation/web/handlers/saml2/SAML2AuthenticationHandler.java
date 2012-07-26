@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.io.StringWriter;
+import java.net.URI;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -33,11 +33,14 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.SerializablePrincipal;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -70,6 +73,8 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
@@ -102,9 +107,6 @@ import org.w3c.dom.Node;
  * @since Oct 8, 2009
  */
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2AuthenticationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private final IDPAuthenticationHandler idp = new IDPAuthenticationHandler();
 
@@ -161,11 +163,11 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             AuthnRequestType art = (AuthnRequestType) request.getSAML2Object();
             if (art == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
+                throw logger.samlHandlerAuthnRequestIsNull();
 
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
-            if (trace)
-                log.trace("Destination=" + destination);
+            
+            logger.trace("Destination = " + destination);
 
             response.setDestination(destination);
 
@@ -190,14 +192,28 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // Update the Identity Server
                 boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
                 IdentityServer identityServer = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
-                identityServer.stack().register(session.getId(), destination, isPost);
+                // We will try to find URL for global logout from SP metadata (if they are provided) and use SP logout URL
+                // for registration to IdentityServer
+                String participantLogoutURL = getParticipantURL(destination, request);
 
+                logger.trace("Participant " + destination + " will be registered to IdentityServer with logout URL " + participantLogoutURL);
+                
+                // If URL is null, participant doesn't support global logout
+                if (participantLogoutURL != null) {
+                    identityServer.stack().register(session.getId(), participantLogoutURL, isPost);
+                }
+
+                // Check whether we use POST binding for response
+                boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
+                        && (Boolean) request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+                boolean postBindingForResponse = isPost || strictPostBinding;
+                
                 response.setResultingDocument(samlResponse);
                 response.setRelayState(request.getRelayState());
-                response.setPostBindingForResponse(isPost);
+                response.setPostBindingForResponse(postBindingForResponse);
             } catch (Exception e) {
-                log.error("Exception in processing authentication:", e);
-                throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "authentication issue");
+                logger.samlHandlerAuthenticationError(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -214,15 +230,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
             String identityURL = request.getIssuer().getValue();
             Map<String, Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
-            long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
             String requestID = art.getID();
 
             Document samlResponseDocument = null;
 
             String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
 
-            if (trace)
-                log.trace("AssertionConsumerURL=" + assertionConsumerURL + "::assertion validity=" + assertionValidity);
+            logger.trace("AssertionConsumerURL=" + assertionConsumerURL);
+            
             ResponseType responseType = null;
 
             SAML2Response saml2Response = new SAML2Response();
@@ -249,6 +264,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             SPInfoHolder sp = new SPInfoHolder();
             sp.setResponseDestinationURI(assertionConsumerURL);
             sp.setRequestID(requestID);
+            sp.setIssuer(art.getIssuer().getValue());
             responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
 
             // Add information on the roles
@@ -265,9 +281,11 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 assertion.addStatement(authnStatement);
             }
 
-            if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null) {
+            if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
                 AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-                assertion.addStatement(attrStatement);
+                if(attrStatement != null){
+                    assertion.addStatement(attrStatement);   
+                }
             }
 
             // Add in the attributes information
@@ -277,25 +295,49 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             // Add assertion to the session
-            session.setAttribute(GeneralConstants.ASSERTION, assertion);
+            session.setAttribute(GeneralConstants.ASSERTION, assertion); 
 
-            // Lets see how the response looks like
-            if (log.isTraceEnabled()) {
-                StringWriter sw = new StringWriter();
-                try {
-                    saml2Response.marshall(responseType, sw);
-                } catch (ProcessingException e) {
-                    log.trace(e);
-                }
-                log.trace("Response=" + sw.toString());
+            Map<String, Object> requestOptions = request.getOptions();
+            PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+            if (auditHelper != null) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                auditEvent.setType(PicketLinkAuditEventType.CREATED_ASSERTION);
+                auditEvent.setAssertionID(id);
+                auditHelper.audit(auditEvent);
             }
+
             try {
                 samlResponseDocument = saml2Response.convert(responseType);
+                
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
+                }
             } catch (Exception e) {
-                if (trace)
-                    log.trace(e);
+                logger.samlAssertionMarshallError(e);
             }
+            
             return samlResponseDocument;
+        }
+
+        private String getParticipantURL(String destination, SAML2HandlerRequest request) {
+            SPSSODescriptorType spMetadata = (SPSSODescriptorType)request.getOptions().get(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
+
+            // Metadata not found. We will use destination for registration to IdentityServer
+            if (spMetadata == null) {
+                return destination;
+            }
+
+            List<EndpointType> logoutEndpoints = spMetadata.getSingleLogoutService();
+
+            // If endpoint not found, we assume that SP doesn't support logout profile
+            if (logoutEndpoints == null || logoutEndpoints.size() == 0) {
+                return null;
+            }
+
+            // Use first endpoint for now (Maybe later we can find logoutType according to bindingType from SAMLRequest)
+            EndpointType logoutEndpoint = logoutEndpoints.get(0);
+            return logoutEndpoint.getLocation().toASCIIString();
         }
     }
 
@@ -319,14 +361,36 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             try {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
-
+                
+                String bindingType = getSPConfiguration().getBindingType();
+                
+                if (bindingType != null) {
+                    if (bindingType.equals("POST")) {
+                        authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get()));
+                    } else if (bindingType.equals("REDIRECT")) {
+                        authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get()));
+                    } else {
+                        throw logger.samlInvalidProtocolBinding();
+                    }
+                }
+                
                 response.setResultingDocument(samlRequest.convert(authn));
                 response.setSendRequest(true);
+
+                Map<String, Object> requestOptions = request.getOptions();
+                PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+                if (auditHelper != null) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                    auditEvent.setType(PicketLinkAuditEventType.CREATED_ASSERTION);
+                    auditEvent.setAssertionID(id);
+                    auditHelper.audit(auditEvent);
+                }
 
                 // Save AuthnRequest ID into sharedState, so that we can later process it by another handler
                 request.addOption(GeneralConstants.AUTH_REQUEST_ID, id);
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -336,7 +400,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             ResponseType responseType = (ResponseType) request.getSAML2Object();
             List<RTChoiceType> assertions = responseType.getAssertions();
             if (assertions.size() == 0)
-                throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
+                throw logger.samlHandlerNoAssertionFromIDP();
 
             PrivateKey privateKey = (PrivateKey) request.getOptions().get(GeneralConstants.DECRYPTING_KEY);
 
@@ -366,14 +430,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
         private ResponseType decryptAssertion(ResponseType responseType, PrivateKey privateKey) throws ProcessingException {
             if (privateKey == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "privateKey");
+                throw logger.nullArgumentError("privateKey");
             SAML2Response saml2Response = new SAML2Response();
             try {
                 Document doc = saml2Response.convert(responseType);
 
                 Element enc = DocumentUtil.getElement(doc, new QName(JBossSAMLConstants.ENCRYPTED_ASSERTION.get()));
                 if (enc == null)
-                    throw new ProcessingException(ErrorCodes.NULL_VALUE + "Null encrypted assertion element");
+                    throw logger.samlHandlerNullEncryptedAssertion();
                 String oldID = enc.getAttribute(JBossSAMLConstants.ID.get());
                 Document newDoc = DocumentUtil.createDocument();
                 Node importedNode = newDoc.importNode(enc, true);
@@ -389,26 +453,26 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 responseType.replaceAssertion(oldID, new RTChoiceType(assertion));
                 return responseType;
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
         private Principal handleSAMLResponse(ResponseType responseType, SAML2HandlerResponse response)
                 throws ProcessingException {
             if (responseType == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "response type");
+                throw logger.nullArgumentError("response type");
 
             StatusType statusType = responseType.getStatus();
             if (statusType == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Status Type from the IDP");
+                throw logger.nullArgumentError("Status Type from the IDP");
 
             String statusValue = statusType.getStatusCode().getValue().toASCIIString();
             if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
-                throw new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
+                throw logger.samlHandlerIDPAuthenticationFailedError();
 
             List<RTChoiceType> assertions = responseType.getAssertions();
             if (assertions.size() == 0)
-                throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
+                throw logger.samlHandlerNoAssertionFromIDP();
 
             AssertionType assertion = assertions.get(0).getAssertion();
             // Check for validity of assertion
@@ -425,7 +489,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
             if (expiredAssertion) {
                 AssertionExpiredException aee = new AssertionExpiredException();
-                throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee);
+                aee.setId(assertion.getID());
+                throw logger.assertionExpiredError(aee);
             }
 
             SubjectType subject = assertion.getSubject();
@@ -434,15 +499,15 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
              * jnameID.getValue();
              */
             if (subject == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "Subject in the assertion");
+                throw logger.nullValueError("Subject in the assertion");
 
             STSubType subType = subject.getSubType();
             if (subType == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find subtype via subject");
+                throw logger.nullValueError("Unable to find subtype via subject");
             NameIDType nameID = (NameIDType) subType.getBaseID();
 
             if (nameID == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find username via subject");
+                throw logger.nullValueError("Unable to find username via subject");
 
             final String userName = nameID.getValue();
             List<String> roles = new ArrayList<String>();
@@ -465,12 +530,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 IRoleValidator roleValidator = (IRoleValidator) handlerChainConfig
                         .getParameter(GeneralConstants.ROLE_VALIDATOR);
                 if (roleValidator == null)
-                    throw new ProcessingException(ErrorCodes.NULL_VALUE + "Role Validator not provided");
+                    throw logger.nullValueError("Role Validator");
 
                 boolean validRole = roleValidator.userInRole(principal, roles);
+                
                 if (!validRole) {
-                    if (trace)
-                        log.trace("Invalid role:" + roles);
+                    logger.trace("Invalid role: " + roles);
                     principal = null;
                 }
             }
@@ -519,11 +584,22 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                             Node roleNode = (Node) attrValue;
                             roles.add(roleNode.getFirstChild().getNodeValue());
                         } else
-                            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
+                            throw logger.unsupportedRoleType(attrValue);
                     }
                 }
             }
             return roles;
         }
+        
+        private SPType getSPConfiguration() {
+            SPType spConfiguration = (SPType) handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
+            
+            if (spConfiguration == null) {
+                throw logger.samlHandlerServiceProviderConfigNotFound();
+            }
+            
+            return spConfiguration;
+        }
     }
+    
 }

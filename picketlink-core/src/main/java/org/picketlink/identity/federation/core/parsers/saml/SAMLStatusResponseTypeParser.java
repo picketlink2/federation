@@ -31,15 +31,18 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 /**
  * Base Class for all Response Type parsing for SAML2
@@ -48,6 +51,9 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
  * @since Nov 2, 2010
  */
 public abstract class SAMLStatusResponseTypeParser {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Parse the attributes that are common to all SAML Response Types
      *
@@ -58,18 +64,18 @@ public abstract class SAMLStatusResponseTypeParser {
     protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException {
         Attribute idAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ID.get()));
         if (idAttr == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "ID");
+            throw logger.parserRequiredAttribute("ID");
         String id = StaxParserUtil.getAttributeValue(idAttr);
 
         Attribute version = startElement.getAttributeByName(new QName(JBossSAMLConstants.VERSION.get()));
         if (version == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Version");
+            throw logger.parserRequiredAttribute("Version");
 
         StringUtil.match(JBossSAMLConstants.VERSION_2_0.get(), StaxParserUtil.getAttributeValue(version));
 
         Attribute issueInstant = startElement.getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
         if (issueInstant == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "IssueInstant");
+            throw logger.parserRequiredAttribute("IssueInstant");
         XMLGregorianCalendar issueInstantVal = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant));
 
         StatusResponseType response = new StatusResponseType(id, issueInstantVal);
@@ -129,7 +135,9 @@ public abstract class SAMLStatusResponseTypeParser {
                 if (startElement == null) {
                     // Go to Status code end element.
                     EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-                    StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
+                    if (endElement != null) {
+                        StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
+                    }
                     continue;
                 }
                 elementTag = startElement.getName().getLocalPart();
@@ -148,6 +156,22 @@ public abstract class SAMLStatusResponseTypeParser {
                     continue;
                 }
             }
+            if (JBossSAMLConstants.STATUS_MESSAGE.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                status.setStatusMessage(StaxParserUtil.getElementText(xmlEventReader));
+            }
+            
+            if (JBossSAMLConstants.STATUS_DETAIL.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                StatusDetailType statusDetailType = new StatusDetailType();
+                statusDetailType.addStatusDetail(domElement);
+                status.setStatusDetail(statusDetailType);
+            }
 
             // Get the next end element
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
@@ -156,7 +180,7 @@ public abstract class SAMLStatusResponseTypeParser {
                 if (StaxParserUtil.matches(endElement, STATUS))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
+                    throw logger.parserUnknownEndElement(StaxParserUtil.getEndElementName(endElement));
             } else
                 break;
         }

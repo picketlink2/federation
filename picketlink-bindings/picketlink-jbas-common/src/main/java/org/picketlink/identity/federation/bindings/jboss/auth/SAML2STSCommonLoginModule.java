@@ -37,18 +37,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.callback.ObjectCallback;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -122,10 +121,9 @@ import org.w3c.dom.Element;
  */
 @SuppressWarnings("unchecked")
 public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModule {
-    protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
-
-    protected boolean trace = log.isTraceEnabled();
-
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected String stsConfigurationFile;
 
     protected Principal principal;
@@ -199,8 +197,8 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         this.options.putAll(options);
         this.rawOptions.putAll(options);
 
-        if (trace) {
-            log.trace(options);
+        if (logger.isTraceEnabled()) {
+            logger.trace(options.toString());
         }
         // save the config file and cache validation options, removing them from the map - all remaining properties will
         // be set in the request context of the Dispatch instance used to send requests to the STS.
@@ -211,7 +209,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
             this.securityDomain = (String) this.options.remove(SecurityConstants.SECURITY_DOMAIN_OPTION);
             if (this.securityDomain == null || this.securityDomain.isEmpty())
-                throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + SecurityConstants.SECURITY_DOMAIN_OPTION);
+                throw logger.optionNotSet(SecurityConstants.SECURITY_DOMAIN_OPTION);
         }
 
         String roleKeyStr = (String) options.get("roleKey");
@@ -250,7 +248,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 try {
                     this.principal = createIdentity(sharedPrincipal.toString());
                 } catch (Exception e) {
-                    throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to create principal: " + e.getMessage());
+                    throw logger.authFailedToCreatePrincipal(e);
                 }
             }
 
@@ -258,14 +256,13 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             if (credential instanceof SamlCredential)
                 this.credential = (SamlCredential) credential;
             else
-                throw new LoginException(ErrorCodes.WRONG_TYPE
-                        + "SAML2STSLoginModule: Shared credential is not a SAML credential");
+                throw logger.authSharedCredentialIsNotSAMLCredential(credential.getClass().getName());
             return true;
         }
 
         // if there is no shared data, validate the assertion using the STS.
         if (this.stsConfigurationFile == null)
-            throw new LoginException(ErrorCodes.SAML2STSLM_CONF_FILE_MISSING);
+            throw logger.authSTSConfigFileNotFound();
 
         // obtain the assertion from the callback handler.
         ObjectCallback callback = new ObjectCallback(null);
@@ -273,28 +270,19 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         try {
             super.callbackHandler.handle(new Callback[] { callback });
             if (callback.getCredential() instanceof SamlCredential == false)
-                throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE
-                        + "SAML2STSLoginModule: Supplied credential is not a SAML credential.We got "
-                        + callback.getCredential().getClass());
+                throw logger.authSharedCredentialIsNotSAMLCredential(callback.getCredential().getClass().getName());
             this.credential = (SamlCredential) callback.getCredential();
             assertionElement = this.credential.getAssertionAsElement();
         } catch (Exception e) {
-            LoginException exception = new LoginException("PL00041: SAML2STSLoginModule: Error handling callback::"
-                    + e.getMessage());
-            exception.initCause(e);
-            throw exception;
+            throw logger.authErrorHandlingCallback(e);
         }
 
         if (localValidation) {
-            if (trace) {
-                log.trace("Local Validation is being Performed");
-            }
+            logger.trace("Local Validation is being Performed");
             try {
                 boolean isValid = localValidation(assertionElement);
                 if (isValid) {
-                    if (trace) {
-                        log.trace("Local Validation passed.");
-                    }
+                    logger.trace("Local Validation passed.");
                 }
             } catch (Exception e) {
                 LoginException le = new LoginException();
@@ -302,22 +290,17 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 throw le;
             }
         } else {
-            if (trace) {
-                log.trace("Local Validation is disabled. Verifying with STS");
-            }
+            logger.trace("Local Validation is disabled. Verifying with STS");
+
             // send the assertion to the STS for validation.
             STSClient client = this.getSTSClient();
             try {
                 boolean isValid = client.validateToken(assertionElement);
                 // if the STS says the assertion is invalid, throw an exception to signal that authentication has failed.
                 if (isValid == false)
-                    throw new LoginException(ErrorCodes.INVALID_ASSERTION
-                            + "SAML2STSLoginModule: Supplied assertion was considered invalid by the STS");
+                    throw logger.authInvalidSAMLAssertionBySTS();
             } catch (WSTrustException we) {
-                LoginException exception = new LoginException(ErrorCodes.INVALID_ASSERTION
-                        + "SAML2STSLoginModule: Failed to validate assertion using STS: " + we.getMessage());
-                exception.initCause(we);
-                throw exception;
+                throw logger.authAssertionValidationError(we);
             }
         }
 
@@ -333,26 +316,22 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
                     // If the user has configured cache invalidation of subject based on saml token expiry
                     if (enableCacheInvalidation) {
-                        TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
+                        TimeCacheExpiry cacheExpiry = this.getCacheExpiry();
                         XMLGregorianCalendar expiry = AssertionUtil.getExpiration(assertion);
                         if (expiry != null) {
                             Date expiryDate = expiry.toGregorianCalendar().getTime();
-                            if (trace) {
-                                log.trace("Creating Cache Entry for JBoss at [" + new Date()
-                                        + " ] , with expiration set to SAML expiry=" + expiryDate);
-                            }
+
+                            logger.trace("Creating Cache Entry for JBoss at [" + new Date() + "] , with expiration set to SAML expiry = " + expiryDate);
+
                             cacheExpiry.register(securityDomain, expiryDate, principal);
                         } else {
-                            log.warn("SAML Assertion has been found to have no expiration: ID = " + assertion.getID());
+                            logger.samlAssertionWithoutExpiration(assertion.getID());
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            LoginException exception = new LoginException("PL00044: SAML2STSLoginModule: Failed to parse assertion element:"
-                    + e.getMessage());
-            exception.initCause(e);
-            throw exception;
+            throw logger.authFailedToParseSAMLAssertion(e);
         }
 
         // if password-stacking has been configured, set the principal and the assertion in the shared map.
@@ -384,15 +363,12 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             try {
                 this.assertion = SAMLUtil.fromElement(this.credential.getAssertionAsElement());
             } catch (Exception e) {
-                LoginException le = new LoginException("PL00044: SAML2STSLoginModule: Failed to parse assertion element: "
-                        + e.getMessage());
-                le.initCause(e);
-                throw le;
+                throw logger.authFailedToParseSAMLAssertion(e);
             }
         }
-        if (trace) {
+        if (logger.isTraceEnabled()) {
             try {
-                log.trace("Assertion from where roles will be sought=" + AssertionUtil.asString(assertion));
+                logger.trace("Assertion from where roles will be sought = " + AssertionUtil.asString(assertion));
             } catch (ProcessingException ignore) {
             }
         }
@@ -438,17 +414,17 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 // password is masked
                 String salt = (String) rawOptions.get(PicketLinkFederationConstants.SALT);
                 if (StringUtil.isNullOrEmpty(salt))
-                    throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Salt");
+                    throw logger.optionNotSet("Salt");
 
                 String iCount = (String) rawOptions.get(PicketLinkFederationConstants.ITERATION_COUNT);
                 if (StringUtil.isNullOrEmpty(iCount))
-                    throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Iteration Count");
+                    throw logger.optionNotSet("Iteration Count");
 
                 int iterationCount = Integer.parseInt(iCount);
                 try {
                     builder.password(StringUtil.decode(passwordString, salt, iterationCount));
                 } catch (Exception e) {
-                    throw new RuntimeException(ErrorCodes.SAML2STSLM_UNABLE_DECODE_PWD + passwordString);
+                    throw logger.unableToDecodePasswordError(passwordString);
                 }
             }
             client = new STSClient(builder.build());
@@ -472,4 +448,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
      * @throws Exception
      */
     protected abstract boolean localValidation(Element assertionElement) throws Exception;
+
+    protected abstract TimeCacheExpiry getCacheExpiry() throws Exception;
 }

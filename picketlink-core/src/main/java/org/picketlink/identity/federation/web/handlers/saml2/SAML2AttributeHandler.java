@@ -30,8 +30,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -48,6 +46,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementTy
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
@@ -71,9 +70,6 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 12, 2009
  */
 public class SAML2AttributeHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2AttributeHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     protected AttributeManager attribManager = new EmptyAttributeManager();
 
@@ -84,19 +80,30 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
     @Override
     public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException {
         super.initChainConfig(handlerChainConfig);
+        
         Object config = this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-        if (config instanceof IDPType) {
+        
+        // if the GeneralConstants.ATTIBUTE_MANAGER parameter is defined for this handler, ignore the PicketLinkIDP AttributeManager attribute.
+        if (config instanceof IDPType && getAttributeManager() == null) {
             IDPType idpType = (IDPType) config;
             String attribStr = idpType.getAttributeManager();
             insantiateAttributeManager(attribStr);
         }
     }
 
+    private Object getAttributeManager() {
+        if (this.handlerConfig == null) {
+            return null;
+        }
+        
+        return this.handlerConfig.getParameter(GeneralConstants.ATTIBUTE_MANAGER);
+    }
+
     @Override
     public void initHandlerConfig(SAML2HandlerConfig handlerConfig) throws ConfigurationException {
         super.initHandlerConfig(handlerConfig);
 
-        String attribStr = (String) this.handlerConfig.getParameter(GeneralConstants.ATTIBUTE_MANAGER);
+        String attribStr = (String) getAttributeManager();
         this.insantiateAttributeManager(attribStr);
         // Get a list of attributes we are interested in
         String attribList = (String) this.handlerConfig.getParameter(GeneralConstants.ATTRIBUTE_KEYS);
@@ -124,6 +131,10 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         HttpSession session = httpContext.getRequest().getSession(false);
 
         Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+        
+        if (userPrincipal == null)
+            userPrincipal = httpContext.getRequest().getUserPrincipal();
+        
         Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
         if (attribs == null) {
             attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
@@ -143,24 +154,27 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         if (attribStr != null && !"".equals(attribStr)) {
             try {
                 attribManager = (AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance();
-                if (trace)
-                    log.trace("AttributeManager set to " + this.attribManager);
+                logger.samlHandlerAttributeSetup(this.attribManager.getClass().getName());
             } catch (Exception e) {
-                log.error("Exception initializing attribute manager:", e);
-                throw new ConfigurationException();
+                logger.attributeProviderInstationError(e);
+                throw logger.configurationError(e);
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     protected void handleIDPResponse(SAML2HandlerRequest request) {
+        if (!(request.getSAML2Object() instanceof ResponseType)) {
+            return;
+        }
+        
         HTTPContext httpContext = (HTTPContext) request.getContext();
         HttpSession session = httpContext.getRequest().getSession(false);
 
         AssertionType assertion = (AssertionType) request.getOptions().get(GeneralConstants.ASSERTION);
         if (assertion == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Assertion not found in the handler request:"
-                    + request.getOptions());
+            throw logger.samlHandlerAssertionNotFound();
+        
         Set<StatementAbstractType> statements = assertion.getStatements();
         for (StatementAbstractType statement : statements) {
             if (statement instanceof AttributeStatementType) {

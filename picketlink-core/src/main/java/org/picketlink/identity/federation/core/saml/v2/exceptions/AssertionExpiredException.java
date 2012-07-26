@@ -32,6 +32,8 @@ import java.security.GeneralSecurityException;
 public class AssertionExpiredException extends GeneralSecurityException {
     private static final long serialVersionUID = 1L;
 
+    protected String id;
+
     public AssertionExpiredException() {
     }
 
@@ -44,5 +46,13 @@ public class AssertionExpiredException extends GeneralSecurityException {
 
     public AssertionExpiredException(Throwable cause) {
         super(cause);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

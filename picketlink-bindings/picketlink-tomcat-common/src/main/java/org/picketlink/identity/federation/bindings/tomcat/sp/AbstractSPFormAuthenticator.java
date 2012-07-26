@@ -25,6 +25,7 @@ package org.picketlink.identity.federation.bindings.tomcat.sp;
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.Arrays;
@@ -41,18 +42,23 @@ import org.apache.catalina.authenticator.Constants;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
@@ -60,6 +66,10 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
+import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
 
@@ -73,10 +83,6 @@ import org.w3c.dom.Document;
  *
  */
 public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator {
-
-    protected Logger log = Logger.getLogger(getClass());
-
-    protected final boolean trace = log.isTraceEnabled();
 
     protected boolean jbossEnv = false;
 
@@ -92,9 +98,95 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#processStart()
      */
     @Override
-    protected void processStart() throws LifecycleException {
-        super.processStart();
+    protected void startPicketLink() throws LifecycleException {
+        super.startPicketLink();
         initKeyProvider(context);
+    }
+    
+    /**
+     * <p>
+     * Send the request to the IDP. Subclasses should override this method to implement how requests must be sent to the IDP.
+     * </p>
+     *
+     * @param destination idp url
+     * @param samlDocument request or response document
+     * @param relayState
+     * @param response
+     * @param willSendRequest are we sending Request or Response to IDP
+     * @param destinationQueryStringWithSignature used only with Redirect binding and with signature enabled.
+     * @throws ProcessingException
+     * @throws ConfigurationException
+     * @throws IOException
+     */ 
+    protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest, String destinationQueryStringWithSignature) throws ProcessingException, ConfigurationException, IOException {
+        if (isHttpPostBinding()) {
+            sendHttpPostBindingRequest(destination, samlDocument, relayState, response, willSendRequest);
+        } else {
+            sendHttpRedirectRequest(destination, samlDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
+        }
+    }
+
+    /**
+     * <p>
+     * Sends a HTTP Redirect request to the IDP.
+     * </p>
+     *
+     * @param destination
+     * @param relayState
+     * @param response
+     * @param willSendRequest
+     * @param destinationQueryStringWithSignature
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     * @throws ConfigurationException
+     * @throws ProcessingException
+     */
+    protected void sendHttpRedirectRequest(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest, String destinationQueryStringWithSignature) throws IOException,
+            ProcessingException, ConfigurationException {
+        String destinationQueryString = null;
+
+        // We already have queryString with signature from SAML2SignatureGenerationHandler
+        if (destinationQueryStringWithSignature != null) {
+            destinationQueryString = destinationQueryStringWithSignature;
+        }
+        else {
+            String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
+            destinationQueryString = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState, willSendRequest);
+        }
+
+        RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+
+        holder.setDestination(destination).setDestinationQueryString(destinationQueryString);
+
+        HTTPRedirectUtil.sendRedirectForRequestor(RedirectBindingUtil.getDestinationURL(holder), response);
+    }
+
+    /**
+     * <p>
+     * Sends a HTTP POST request to the IDP.
+     * </p>
+     *
+     * @param destination
+     * @param samlDocument
+     * @param relayState
+     * @param response
+     * @param willSendRequest
+     * @throws TrustKeyProcessingException
+     * @throws ProcessingException
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    protected void sendHttpPostBindingRequest(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest) throws ProcessingException, IOException,
+            ConfigurationException {
+        String samlMessage = PostBindingUtil.base64Encode(DocumentUtil.getDocumentAsString(samlDocument));
+
+        DestinationInfoHolder destinationHolder = new DestinationInfoHolder(destination, samlMessage, relayState);
+
+        PostBindingUtil.sendPost(destinationHolder, response, willSendRequest);
     }
 
     /**
@@ -133,15 +225,16 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
 
             String identityURL = this.spConfiguration.getIdentityURL();
-
+            
+            
+            
             keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, new URL(identityURL).getHost());
         } catch (Exception e) {
-            log.error("Exception reading configuration:", e);
+            logger.trustKeyManagerCreationError(e);
             throw new LifecycleException(e.getLocalizedMessage());
         }
 
-        if (trace)
-            log.trace("Key Provider=" + keyProvider.getClassName());
+        logger.trace("Key Provider=" + keyProvider.getClassName());
     }
 
     /**
@@ -159,7 +252,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             Response catalinaResponse = (Response) response;
             return authenticate(request, catalinaResponse, config);
         }
-        throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_NOT_CATALINA_RESPONSE);
+        throw logger.samlSPResponseNotCatalinaResponseError(response);
     }
 
     /*
@@ -180,7 +273,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 try {
                     sendToLogoutPage(request, response, session);
                 } catch (ServletException e) {
-                    log.error("Exception in logout::", e);
+                    logger.samlLogoutError(e);
                     throw new IOException(e);
                 }
                 return false;
@@ -216,7 +309,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 try {
                     request.getRequestDispatcher(spConfiguration.getErrorPage()).forward(request.getRequest(), response);
                 } catch (ServletException e1) {
-                    log.error(ErrorCodes.FILE_NOT_LOCATED, e1);
+                    logger.samlErrorPageForwardError(spConfiguration.getErrorPage(), e1);
                 }
                 return false;
             } else {
@@ -267,10 +360,17 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
         try {
             ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
-                    isPOSTBindingResponse(), this.serviceURL);
+                    request.getMethod().equals("POST"), this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
-            requestProcessor.setSupportSignatures(doSupportSignature());
+            requestProcessor.setConfiguration(spConfiguration);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
+
+            if (enableAudit) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.REQUEST_FROM_IDP);
+                auditEvent.setWhoIsAuditing(getContextPath());
+                auditHelper.audit(auditEvent);
+            }
 
             // If response is already commited, we need to stop with processing of HTTP request
             if (response.isCommitted() || response.isAppCommitted())
@@ -279,8 +379,8 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             if (result)
                 return result;
         } catch (Exception e) {
-            log.error("Server Exception:", e);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
         }
 
         return localAuthentication(request, response, loginConfig);
@@ -296,11 +396,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @throws IOException
      */
     private boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException {
-        SPUtil spUtil = new SPUtil();
         Session session = request.getSessionInternal(true);
         String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
 
-        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
         boolean willSendRequest = false;
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
         Set<SAML2Handler> handlers = chain.handlers();
@@ -313,24 +411,28 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
         // deal with SAML response from IDP
         try {
-            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
-                    isPOSTBindingResponse(), serviceURL);
+            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(request.getMethod().equals("POST"), serviceURL);
             responseProcessor.setConfiguration(spConfiguration);
-            responseProcessor.setValidateSignature(doSupportSignature());
+            if(auditHelper !=  null){
+                responseProcessor.setAuditHelper(auditHelper);   
+            }
+
             responseProcessor.setTrustKeyManager(keyManager);
 
             SAML2HandlerResponse saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers,
                     chainLock);
 
             Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-            relayState = saml2HandlerResponse.getRelayState();
+            String relayState = saml2HandlerResponse.getRelayState();
 
             String destination = saml2HandlerResponse.getDestination();
 
             willSendRequest = saml2HandlerResponse.getSendRequest();
 
+            String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
+
             if (destination != null && samlResponseDocument != null) {
-                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
             } else {
                 // See if the session has been invalidated
 
@@ -349,8 +451,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 String username = principal.getName();
                 String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
 
-                if (trace)
-                    log.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));                    
+                }
 
                 // Map to JBoss specific principal
                 if ((new ServerDetector()).isJboss() || jbossEnv) {
@@ -360,7 +463,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     ServiceProviderSAMLContext.clear();
                 } else {
                     // tomcat env
-                    principal = spUtil.createGenericPrincipal(request, username, roles);
+                    principal = getGenericPrincipal(request, username, roles);
                 }
 
                 session.setNote(Constants.SESS_USERNAME_NOTE, username);
@@ -371,22 +474,35 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     this.restoreRequest(request, session);
                 }
 
-                register(request, response, principal, org.apache.catalina.realm.Constants.FORM_METHOD, username, password);
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_FROM_IDP);
+                    auditEvent.setSubjectName(username);
+                    auditEvent.setWhoIsAuditing(getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
+                register(request, response, principal, Constants.FORM_METHOD, username, password);
 
                 return true;
             }
         } catch (ProcessingException pe) {
             Throwable t = pe.getCause();
             if (t != null && t instanceof AssertionExpiredException) {
-                log.error("Assertion has expired. Asking IDP for reissue");
+                logger.error("Assertion has expired. Asking IDP for reissue");
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.EXPIRED_ASSERTION);
+                    auditEvent.setAssertionID(((AssertionExpiredException) t).getId());
+                    auditHelper.audit(auditEvent);
+                }
                 // Just issue a fresh request back to IDP
                 return generalUserRequest(request, response, loginConfig);
             }
-            log.error("Server Exception:", pe);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
+            logger.samlSPHandleRequestError(pe);
+            throw logger.samlSPProcessingExceptionError(pe);
         } catch (Exception e) {
-            log.error("Server Exception:", e);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
         }
 
         return localAuthentication(request, response, loginConfig);
@@ -396,23 +512,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         return spConfiguration.isIdpUsesPostBinding();
     }
 
-    /**
-     * <p>
-     * Send the request to the IDP. Subclasses should override this method to implement how requests must be sent to the IDP.
-     * </p>
-     *
-     * @param destination idp url
-     * @param samlDocument request or response document
-     * @param relayState
-     * @param response
-     * @param willSendRequest are we sending Request or Response to IDP
-     * @throws ProcessingException
-     * @throws ConfigurationException
-     * @throws IOException
-     */
-    protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
-            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
-
+     
     /*
      * (non-Javadoc)
      *
@@ -438,12 +538,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
         Set<SAML2Handler> handlers = chain.handlers();
 
-        // This is the first time, the user is accessing. Get the relay state from the configuration
-        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
-        if (StringUtil.isNotNull(relayState)) {
-            relayState = spConfiguration.getRelayState();
-        }
-
         boolean postBinding = spConfiguration.getBindingType().equals("POST");
 
         // Neither saml request nor response from IDP
@@ -455,36 +549,45 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 baseProcessor.setIssuer(issuerID);
 
             baseProcessor.setIdentityURL(identityURL);
-
+            baseProcessor.setAuditHelper(auditHelper);
+            baseProcessor.setConfiguration(this.spConfiguration);
+            
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
         } catch (ProcessingException pe) {
-            log.error("Processing Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         } catch (ParsingException pe) {
-            log.error("Parsing Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         } catch (ConfigurationException pe) {
-            log.error("Config Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         }
 
         willSendRequest = saml2HandlerResponse.getSendRequest();
 
         Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-        relayState = saml2HandlerResponse.getRelayState();
+        String relayState = saml2HandlerResponse.getRelayState();
 
         String destination = saml2HandlerResponse.getDestination();
+        String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
 
         if (destination != null && samlResponseDocument != null) {
             try {
                 if (saveRestoreRequest) {
                     this.saveRequest(request, session);
                 }
-                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.REQUEST_TO_IDP);
+                    auditEvent.setWhoIsAuditing(getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
                 return false;
             } catch (Exception e) {
-                log.error("Server Exception:", e);
-                throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+                logger.samlSPHandleRequestError(e);
+                throw logger.samlSPProcessingExceptionError(e);
             }
         }
 
@@ -501,5 +604,20 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     protected boolean isHttpPostBinding() {
         return getBinding().equalsIgnoreCase("POST");
     }
+    
 
+    protected Context getContext() {
+        return (Context) getContainer();
+    }
+    
+    /**
+     * Subclasses need to return the context path
+     * based on the capability of their servlet api
+     * @return
+     */
+    protected abstract String getContextPath();
+    
+    protected Principal getGenericPrincipal(Request request, String username, List<String> roles){
+        return (new SPUtil()).createGenericPrincipal(request, username, roles);
+    }
 }
