@@ -21,6 +21,7 @@
  */
 package org.picketlink.trust.jbossws.handler;
 
+import java.security.Principal;
 import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +46,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A SAMLv2 WS handler.
- *
+ * <p>Base class for SAML handlers implementations. A default implementation is provided by the {@link SAML2Handler} class.</p>
+ * 
  * @author <a href="mmoyses@redhat.com">Marcus Moyses</a>
  * @author <a href="alessio.soldano@jboss.com">Alessio Soldano</a>
  * @author Anil Saldhana
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * 
  * @version $Revision: 1 $
  */
-public class SAML2Handler extends AbstractPicketLinkTrustHandler {
+public abstract class AbstractSAML2Handler extends AbstractPicketLinkTrustHandler {
     // The system property key that can be set to determine the keys under which the roles may be in the assertion
     public static final String ROLE_KEY_SYS_PROP = "picketlink.rolekey";
 
@@ -89,12 +92,13 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
             Element subject = Util.findElement(assertion, new QName(assertionNS, "Subject"));
             Element nameID = Util.findElement(subject, new QName(assertionNS, "NameID"));
             String username = getUsername(nameID);
+            
             // set SecurityContext
             Subject theSubject = new Subject();
-            SecurityContext sc = SecurityActions.createSecurityContext(new PicketLinkPrincipal(username), credential,
-                    theSubject);
-            SecurityActions.setSecurityContext(sc);
+            PicketLinkPrincipal principal = new PicketLinkPrincipal(username);
 
+            createSecurityContext(credential, theSubject, principal);
+            
             if (assertionType != null) {
                 List<String> roleKeys = new ArrayList<String>();
                 String roleKey = SecurityActions.getSystemProperty(ROLE_KEY_SYS_PROP, "Role");
@@ -117,6 +121,18 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
             logger.trace("We did not find any assertion");
         }
         return true;
+    }
+
+    /**
+     * <p>Subclasses can override this method to customize how the security context is created.</p>
+     * 
+     * @param credential
+     * @param theSubject
+     * @param principal
+     */
+    protected void createSecurityContext(SamlCredential credential, Subject theSubject, Principal principal) {
+        SecurityContext sc = SecurityActions.createSecurityContext(principal, credential, theSubject);
+        SecurityActions.setSecurityContext(sc);
     }
 
     /**
