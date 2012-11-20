@@ -180,6 +180,10 @@ public class XMLSignatureUtil {
 
     /**
      * Sign a node in a document
+     * NOTE: It seems that this implementation sometimes doesn't work correctly as it's signing element inside isolated document
+     * and then wrapping this element into "doc" document. Problem is that moving between documents can sometimes
+     * change structure of element (for example remove informations about namespace), which is causing that signature validation
+     * will later fail.
      *
      * @param doc
      * @param nodeToBeSigned
@@ -243,6 +247,30 @@ public class XMLSignatureUtil {
     }
 
     /**
+     * Sign only specified element (assumption is that it already has ID attribute set)
+     *
+     * @param elementToSign element to sign with set ID
+     * @param nextSibling child of elementToSign, which will be used as next sibling of created signature
+     * @param keyPair
+     * @param digestMethod
+     * @param signatureMethod
+     * @param referenceURI
+     * @throws GeneralSecurityException
+     * @throws MarshalException
+     * @throws XMLSignatureException
+     */
+    public static void sign(Element elementToSign, Node nextSibling, KeyPair keyPair, String digestMethod,
+                            String signatureMethod, String referenceURI)
+            throws GeneralSecurityException, MarshalException, XMLSignatureException {
+        PrivateKey signingKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        DOMSignContext dsc = new DOMSignContext(signingKey, elementToSign, nextSibling);
+
+        signImpl(dsc, digestMethod, signatureMethod, referenceURI, publicKey);
+    }
+
+    /**
      * Setup the ID attribute into <code>destElement</code> depending on the <code>isId</code> flag of an attribute of
      * <code>sourceNode</code>.
      *
@@ -281,35 +309,8 @@ public class XMLSignatureUtil {
         PublicKey publicKey = keyPair.getPublic();
 
         DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement());
-        dsc.setDefaultNamespacePrefix("dsig");
 
-        DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);
-        Transform transform1 = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
-        Transform transform2 = fac.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#", (TransformParameterSpec) null);
-
-        List<Transform> transformList = new ArrayList<Transform>();
-        transformList.add(transform1);
-        transformList.add(transform2);
-
-        Reference ref = fac.newReference(referenceURI, digestMethodObj, transformList, null, null);
-
-        CanonicalizationMethod canonicalizationMethod = fac.newCanonicalizationMethod(canonicalizationMethodType,
-                (C14NMethodParameterSpec) null);
-
-        List<Reference> referenceList = Collections.singletonList(ref);
-        SignatureMethod signatureMethodObj = fac.newSignatureMethod(signatureMethod, null);
-        SignedInfo si = fac.newSignedInfo(canonicalizationMethod, signatureMethodObj, referenceList);
-
-        KeyInfoFactory kif = fac.getKeyInfoFactory();
-        KeyValue kv = kif.newKeyValue(publicKey);
-        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
-
-        if (!includeKeyInfoInSignature) {
-            ki = null;
-        }
-        XMLSignature signature = fac.newXMLSignature(si, ki);
-
-        signature.sign(dsc);
+        signImpl(dsc, digestMethod, signatureMethod, referenceURI, publicKey);
 
         return doc;
     }
@@ -343,35 +344,8 @@ public class XMLSignatureUtil {
         PublicKey publicKey = keyPair.getPublic();
 
         DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement(), nextSibling);
-        dsc.setDefaultNamespacePrefix("dsig");
 
-        DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);
-        Transform transform1 = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
-        Transform transform2 = fac.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#", (TransformParameterSpec) null);
-
-        List<Transform> transformList = new ArrayList<Transform>();
-        transformList.add(transform1);
-        transformList.add(transform2);
-
-        Reference ref = fac.newReference(referenceURI, digestMethodObj, transformList, null, null);
-
-        CanonicalizationMethod canonicalizationMethod = fac.newCanonicalizationMethod(canonicalizationMethodType,
-                (C14NMethodParameterSpec) null);
-
-        List<Reference> referenceList = Collections.singletonList(ref);
-        SignatureMethod signatureMethodObj = fac.newSignatureMethod(signatureMethod, null);
-        SignedInfo si = fac.newSignedInfo(canonicalizationMethod, signatureMethodObj, referenceList);
-
-        KeyInfoFactory kif = fac.getKeyInfoFactory();
-        KeyValue kv = kif.newKeyValue(publicKey);
-        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
-
-        if (!includeKeyInfoInSignature) {
-            ki = null;
-        }
-        XMLSignature signature = fac.newXMLSignature(si, ki);
-
-        signature.sign(dsc);
+        signImpl(dsc, digestMethod, signatureMethod, referenceURI, publicKey);
 
         return doc;
     }
@@ -573,5 +547,38 @@ public class XMLSignatureUtil {
             return dsaKeyValue;
         }
         throw logger.unsupportedType(key.toString());
+    }
+
+    private static void signImpl(DOMSignContext dsc, String digestMethod, String signatureMethod, String referenceURI, PublicKey publicKey)
+            throws GeneralSecurityException, MarshalException, XMLSignatureException {
+        dsc.setDefaultNamespacePrefix("dsig");
+
+        DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);
+        Transform transform1 = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
+        Transform transform2 = fac.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#", (TransformParameterSpec) null);
+
+        List<Transform> transformList = new ArrayList<Transform>();
+        transformList.add(transform1);
+        transformList.add(transform2);
+
+        Reference ref = fac.newReference(referenceURI, digestMethodObj, transformList, null, null);
+
+        CanonicalizationMethod canonicalizationMethod = fac.newCanonicalizationMethod(canonicalizationMethodType,
+            (C14NMethodParameterSpec) null);
+
+        List<Reference> referenceList = Collections.singletonList(ref);
+        SignatureMethod signatureMethodObj = fac.newSignatureMethod(signatureMethod, null);
+        SignedInfo si = fac.newSignedInfo(canonicalizationMethod, signatureMethodObj, referenceList);
+
+        KeyInfoFactory kif = fac.getKeyInfoFactory();
+        KeyValue kv = kif.newKeyValue(publicKey);
+        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
+
+        if (!includeKeyInfoInSignature) {
+            ki = null;
+        }
+        XMLSignature signature = fac.newXMLSignature(si, ki);
+
+        signature.sign(dsc);
     }
 }
