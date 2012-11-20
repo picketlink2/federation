@@ -180,10 +180,6 @@ public class XMLSignatureUtil {
 
     /**
      * Sign a node in a document
-     * NOTE: It seems that this implementation sometimes doesn't work correctly as it's signing element inside isolated document
-     * and then wrapping this element into "doc" document. Problem is that moving between documents can sometimes
-     * change structure of element (for example remove informations about namespace), which is causing that signature validation
-     * will later fail.
      *
      * @param doc
      * @param nodeToBeSigned
