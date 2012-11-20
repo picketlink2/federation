@@ -822,11 +822,6 @@ public interface PicketLinkLogger {
     void samlHandlerRoleGeneratorSetupError(Throwable t);
 
     /**
-     * @param name
-     */
-    void samlHandlerAttributeSetup(String name);
-
-    /**
      * @return
      */
     RuntimeException samlHandlerAssertionNotFound();
