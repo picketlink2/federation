@@ -138,6 +138,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
         if (attribs == null) {
             attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+            request.addOption(GeneralConstants.ATTRIBUTES, attribs);
             session.setAttribute(GeneralConstants.ATTRIBUTES, attribs);
         }
     }
@@ -154,7 +155,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         if (attribStr != null && !"".equals(attribStr)) {
             try {
                 attribManager = (AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance();
-                logger.samlHandlerAttributeSetup(this.attribManager.getClass().getName());
+                logger.trace("AttributeManager set to " + attribStr);
             } catch (Exception e) {
                 logger.attributeProviderInstationError(e);
                 throw logger.configurationError(e);
