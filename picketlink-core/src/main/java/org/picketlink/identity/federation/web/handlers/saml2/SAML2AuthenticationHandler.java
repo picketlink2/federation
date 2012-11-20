@@ -348,7 +348,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             SAML2Request samlRequest = new SAML2Request();
             String id = IDGenerator.create("ID_");
 
-            String assertionConsumerURL = (String) handlerConfig.getParameter(SAML2Handler.ASSERTION_CONSUMER_URL);
+            // Use the requested URL first, before falling back to issuer or configured url.
+            HTTPContext httpContext = (HTTPContext) request.getContext();
+            String assertionConsumerURL = httpContext.getRequest().getRequestURL().toString();
+            if ( httpContext.getRequest().getQueryString() != null)
+            {
+            	assertionConsumerURL = assertionConsumerURL + "?" + httpContext.getRequest().getQueryString();
+            }
+            if (StringUtil.isNullOrEmpty(assertionConsumerURL)) {
+            	assertionConsumerURL = (String) handlerConfig.getParameter(SAML2Handler.ASSERTION_CONSUMER_URL);
+            }
             if (StringUtil.isNullOrEmpty(assertionConsumerURL)) {
                 assertionConsumerURL = issuerValue;
             }

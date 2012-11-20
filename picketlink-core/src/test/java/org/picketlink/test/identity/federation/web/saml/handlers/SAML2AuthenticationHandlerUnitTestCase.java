@@ -23,6 +23,7 @@ package org.picketlink.test.identity.federation.web.saml.handlers;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -33,8 +34,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.namespace.QName;
 
+import junit.framework.Assert;
+
 import org.junit.Ignore;
 import org.junit.Test;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -74,6 +78,7 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}
@@ -127,6 +132,46 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
     }
 
+    @Test
+    public void generateSAMLRequest() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "GET");
+        servletRequest.setRequestURL(new StringBuffer("http://test.myserver.com/myApp/")); 
+        servletRequest.setQueryString("testval=foo");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), null,
+                SAML2Handler.HANDLER_TYPE.SP);
+        request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+        		SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        handler.generateSAMLRequest(request, response); 
+        
+        Assert.assertNotNull(response);
+        Document doc = response.getResultingDocument();
+        String val = doc.getDocumentElement().getAttribute("AssertionConsumerServiceURL");
+        Assert.assertEquals("http://test.myserver.com/myApp/?testval=foo", val);
+    }
+    
     @Ignore
     @Test
     public void handleEncryptedAssertion() throws Exception {

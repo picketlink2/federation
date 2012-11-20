@@ -63,6 +63,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String methodType;
 
     private String queryString;
+    
+    private StringBuffer urlBuffer;
 
     public MockHttpServletRequest(HttpSession session, String methodType) {
         this.session = session;
@@ -159,9 +161,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         throw new RuntimeException("NYI");
     }
 
+    public void setRequestURL(StringBuffer urlBuffer) {
+    	this.urlBuffer = urlBuffer;
+    }
+    
     public StringBuffer getRequestURL() {
-
-        throw new RuntimeException("NYI");
+    	return urlBuffer;
     }
 
     public String getRequestedSessionId() {
@@ -394,7 +399,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return null;
     }
 
-    @Override
+    //@Override
     public Part getPart(String name) throws IOException, ServletException {
         return null;
     }
