@@ -120,6 +120,7 @@ public class PostBindingUtil {
         if (isNotNull(relayState)) {
             builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
         }
+        builder.append("<NOSCRIPT><INPUT TYPE=\"SUBMIT\" VALUE=\"CONTINUE\" /></NOSCRIPT>");
         builder.append("</FORM></BODY></HTML>");
 
         String str = builder.toString();
