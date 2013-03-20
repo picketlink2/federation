@@ -195,6 +195,7 @@ public class IDPWebRequestUtil {
 
         String destination = holder.getDestination();
         String relayState = holder.getRelayState();
+        String target = holder.getTarget();
         boolean supportSignature = holder.isSupportSignature();
         boolean sendRequest = holder.isAreWeSendingRequest();
         HttpServletResponse response = holder.getServletResponse();
@@ -231,7 +232,7 @@ public class IDPWebRequestUtil {
 
             String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
 
-            PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlResponse, relayState), response, sendRequest);
+            PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlResponse, relayState, target), response, sendRequest);
         }
     }
 
@@ -347,6 +348,8 @@ public class IDPWebRequestUtil {
         private Document responseDoc;
 
         private String relayState;
+        
+        private String target;
 
         private String destination;
 
@@ -392,6 +395,15 @@ public class IDPWebRequestUtil {
         public WebRequestUtilHolder setRelayState(String relayState) {
             this.relayState = relayState;
             return this;
+        }
+        
+        public WebRequestUtilHolder setTarget(String target) {
+           this.target = target;
+           return this;
+        }
+        
+        public String getTarget() {
+        	return target;
         }
 
         public String getDestination() {

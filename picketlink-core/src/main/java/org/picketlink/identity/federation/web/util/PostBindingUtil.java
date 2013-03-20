@@ -94,6 +94,7 @@ public class PostBindingUtil {
         String key = request ? GeneralConstants.SAML_REQUEST_KEY : GeneralConstants.SAML_RESPONSE_KEY;
 
         String relayState = holder.getRelayState();
+        String target = holder.getTarget();
         String destination = holder.getDestination();
         String samlMessage = holder.getSamlMessage();
 
@@ -119,6 +120,9 @@ public class PostBindingUtil {
         builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"" + key + "\"" + " VALUE=\"" + samlMessage + "\"/>");
         if (isNotNull(relayState)) {
             builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
+        }
+        if (isNotNull(target)) {
+        	builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"TARGET\" " + "VALUE=\"" + target + "\"/>");
         }
         builder.append("</FORM></BODY></HTML>");
 

@@ -80,6 +80,8 @@ public interface SAML11Constants {
 
     String DNS_ADDRESS = "DNSAddress";
 
+    String ENDPOINT = "ENDPOINT";
+
     String EVIDENCE = "Evidence";
 
     String FORMAT = "Format";
