@@ -31,18 +31,33 @@ public class DestinationInfoHolder {
     private String destination;
     private String samlMessage;
     private String relayState;
+    private String target;
 
     /**
      * Create an holder
      *
      * @param destination The destination where the post will be sent
      * @param samlMessage SAML Message
-     * @param relayState
+     * @param relayState 
      */
     public DestinationInfoHolder(String destination, String samlMessage, String relayState) {
         this.destination = destination;
         this.samlMessage = samlMessage;
         this.relayState = relayState;
+    }
+    
+    /**
+     * Create an holder
+     *
+     * @param destination The destination where the post will be sent
+     * @param samlMessage SAML Message
+     * @param relayState 
+     * @param target this is for SAMLv11 where the relayState is named target
+     */
+    public DestinationInfoHolder(String destination, String samlMessage, String relayState, String target) {
+    	this(destination, samlMessage, relayState);
+    	
+        this.target = target;
     }
 
     public String getDestination() {
@@ -55,5 +70,9 @@ public class DestinationInfoHolder {
 
     public String getRelayState() {
         return relayState;
+    }
+    
+    public String getTarget() {
+    	return target;
     }
 }

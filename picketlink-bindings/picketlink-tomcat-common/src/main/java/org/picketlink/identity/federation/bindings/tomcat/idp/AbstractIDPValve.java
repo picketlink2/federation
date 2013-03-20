@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -104,10 +105,12 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
@@ -409,7 +412,16 @@ public abstract class AbstractIDPValve extends ValveBase {
             Principal userPrincipal = request.getPrincipal();
             String contextPath = getContextPath();
 
+            /**
+             * Target is the final destination and the endpoint is the saml consumer
+             * on the SP side.
+             */
             String target = request.getParameter(SAML11Constants.TARGET);
+            String endPoint = request.getParameter(SAML11Constants.ENDPOINT);
+
+            if (StringUtil.isNullOrEmpty(endPoint)) {
+            	endPoint = target;
+            }
 
             Session session = request.getSessionInternal();
             SAML11AssertionType saml11Assertion = (SAML11AssertionType) session.getNote("SAML11");
@@ -422,6 +434,13 @@ public abstract class AbstractIDPValve extends ValveBase {
                 subject.setChoice(subjectChoice);
                 saml11Protocol.setSubjectType(subject);
 
+				/**
+				 * Add SubjectConfirmation
+				 */
+				SAML11SubjectConfirmationType subjectConfirmation = new SAML11SubjectConfirmationType();
+				subjectConfirmation.addConfirmationMethod(URI.create(SAMLUtil.SAML11_BEARER_URI));
+				subject.setSubjectConfirmation(subjectConfirmation);
+				
                 PicketLinkCoreSTS.instance().issueToken(saml11Protocol);
                 saml11Assertion = saml11Protocol.getIssuedAssertion();
                 session.setNote("SAML11", saml11Assertion);
@@ -450,11 +469,17 @@ public abstract class AbstractIDPValve extends ValveBase {
             SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
             writer.write(saml11Response);
 
+			/**
+			 * Add recipient
+			 */
+			saml11Response.setRecipient(new URI(endPoint));
+            
             Document samlResponse = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
 
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
-            holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
-            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+            holder.setResponseDoc(samlResponse).setDestination(endPoint).setTarget(target).setAreWeSendingRequest(false)
+            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response)
+            .setPostBindingRequested(idpConfiguration.isStrictPostBinding());
 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -465,6 +490,9 @@ public abstract class AbstractIDPValve extends ValveBase {
             }
             webRequestUtil.send(holder);
         } catch (GeneralSecurityException e) {
+            logger.samlIDPHandlingSAML11Error(e);
+            throw new ServletException();
+        } catch (URISyntaxException e) {
             logger.samlIDPHandlingSAML11Error(e);
             throw new ServletException();
         }
