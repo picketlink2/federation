@@ -84,8 +84,10 @@ public class IDPWebRequestUtil {
     public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym) {
         this.idpConfiguration = idp;
         this.keyManager = keym;
-        this.redirectProfile = "GET".equals(request.getMethod());
-        this.postProfile = "POST".equals(request.getMethod());
+        String method = request.getSession().getAttribute("SAML_REQUEST_BINDING_TYPE");
+        method = StringUtils.isBlank(method) ? request.getMethod() : method;
+        this.redirectProfile = "GET".equals(method);
+        this.postProfile = "POST".equals(method);
     }
 
     public String getCanonicalizationMethod() {

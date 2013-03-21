@@ -301,8 +301,11 @@ public abstract class AbstractIDPValve extends ValveBase {
 
         if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
             logger.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
-            if (isNotNull(samlRequestMessage))
+            if (isNotNull(samlRequestMessage)) {
+                String samlRequestBindingType = request.getMethod();
+                session.setAttribute("SAML_REQUEST_BINDING_TYPE", samlRequestBindingType);
                 session.setNote(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
+            }
             if (isNotNull(samlResponseMessage))
                 session.setNote(GeneralConstants.SAML_RESPONSE_KEY, samlResponseMessage);
             if (isNotNull(relayState))
