@@ -99,6 +99,8 @@ public interface GeneralConstants {
 
     String SAML_RESPONSE_KEY = "SAMLResponse";
 
+    String SAML_REQUEST_BINDING_TYPE = "SAML_REQUEST_BINDING_TYPE";
+
     String SAML_SIG_ALG_REQUEST_KEY = "SigAlg";
 
     String SAML_SIGNATURE_REQUEST_KEY = "Signature";

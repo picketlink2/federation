@@ -32,7 +32,6 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
@@ -81,13 +80,11 @@ public class IDPWebRequestUtil {
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-    public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym) {
+    public IDPWebRequestUtil(String samlRequestBindingType, IDPType idp, TrustKeyManager keym) {
         this.idpConfiguration = idp;
         this.keyManager = keym;
-        String method = request.getSession().getAttribute("SAML_REQUEST_BINDING_TYPE");
-        method = StringUtils.isBlank(method) ? request.getMethod() : method;
-        this.redirectProfile = "GET".equals(method);
-        this.postProfile = "POST".equals(method);
+        this.redirectProfile = "GET".equals(samlRequestBindingType);
+        this.postProfile = "POST".equals(samlRequestBindingType);
     }
 
     public String getCanonicalizationMethod() {

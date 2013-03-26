@@ -301,9 +301,9 @@ public abstract class AbstractIDPValve extends ValveBase {
 
         if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
             logger.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
-            if (isNotNull(samlRequestMessage)) {
+            if (isNotNull(samlRequestMessage)) { // if SAML request comes in, store the current binding type in session.
                 String samlRequestBindingType = request.getMethod();
-                session.setAttribute("SAML_REQUEST_BINDING_TYPE", samlRequestBindingType);
+                session.setNote(GeneralConstants.SAML_REQUEST_BINDING_TYPE, samlRequestBindingType);
                 session.setNote(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
             }
             if (isNotNull(samlResponseMessage))
@@ -330,7 +330,9 @@ public abstract class AbstractIDPValve extends ValveBase {
             }
         }
 
-        IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
+        String samlRequestBindingType = (String)session.getNote(GeneralConstants.SAML_REQUEST_BINDING_TYPE);
+        samlRequestBindingType = isNotNull(samlRequestBindingType) ? samlRequestBindingType : request.getMethod();
+        IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(samlRequestBindingType, idpConfiguration, keyManager);
 
         Document samlErrorResponse = null;
         // Look for unauthorized status
@@ -843,7 +845,7 @@ public abstract class AbstractIDPValve extends ValveBase {
          * state from the SP
          */
         String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
-
+        String samlRequestBindingType = (String) session.getNote(GeneralConstants.SAML_REQUEST_BINDING_TYPE);
         String samlResponseMessage = (String) session.getNote(GeneralConstants.SAML_RESPONSE_KEY);
         String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
         String signature = (String) session.getNote(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
@@ -862,6 +864,10 @@ public abstract class AbstractIDPValve extends ValveBase {
 
         if (isNotNull(samlRequestMessage))
             session.removeNote(GeneralConstants.SAML_REQUEST_KEY);
+
+        if (isNotNull(samlRequestBindingType))
+            session.removeNote(GeneralConstants.SAML_REQUEST_BINDING_TYPE);
+
         if (isNotNull(samlResponseMessage))
             session.removeNote(GeneralConstants.SAML_RESPONSE_KEY);
 
