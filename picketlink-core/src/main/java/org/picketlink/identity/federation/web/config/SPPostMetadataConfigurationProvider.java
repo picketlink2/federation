@@ -26,6 +26,7 @@ import java.io.InputStream;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -72,6 +73,8 @@ public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurati
                 EntitiesDescriptorType entities = parseMDFile();
                 spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
             } catch (ParsingException e) {
+                throw logger.processingError(e);
+            } catch (ConfigurationException e) {
                 throw logger.processingError(e);
             }
         } else {
