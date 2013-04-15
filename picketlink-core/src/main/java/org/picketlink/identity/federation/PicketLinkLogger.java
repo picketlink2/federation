@@ -1277,6 +1277,10 @@ public interface PicketLinkLogger {
     void samlSecurityTokenNotFoundInRegistry(String id);
 
     IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue);
+    
+    ConfigurationException samlMetaDataNoIdentityProviderDefined();
+    
+    ConfigurationException samlMetaDataNoServiceProviderDefined();
 
     ConfigurationException securityDomainNotFound();
 
