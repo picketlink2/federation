@@ -37,6 +37,7 @@ import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -151,11 +152,21 @@ public class ServiceProviderBaseProcessor {
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
         saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
         saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
+        saml2HandlerRequest.addOption(GeneralConstants.CONFIGURATION, this.spConfiguration.isSupportsSignature());
         
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
         saml2HandlerResponse.setPostBindingForResponse(postBinding);
         saml2HandlerResponse.setDestination(identityURL);
+        
+        // if the request is a GLO. Check if there is a specific URL for logout.
+        if (isLogOutRequest(httpContext)) {
+            String logoutUrl = ((SPType) this.spConfiguration).getLogoutUrl();
+            
+            if (logoutUrl != null) {
+                saml2HandlerResponse.setDestination(logoutUrl);
+            }
+        }
 
         // Reset the state
         try {
