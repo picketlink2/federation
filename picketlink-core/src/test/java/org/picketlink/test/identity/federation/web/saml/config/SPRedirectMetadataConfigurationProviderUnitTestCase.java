@@ -42,6 +42,7 @@ public class SPRedirectMetadataConfigurationProviderUnitTestCase {
         SPType sp = provider.getSPConfiguration();
         assertNotNull(sp);
         assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
+        assertEquals("https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO", sp.getLogoutUrl());
     }
 
 }

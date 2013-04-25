@@ -72,6 +72,11 @@ public class SPType extends ProviderType {
     protected boolean idpUsesPostBinding = true;
 
     private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
+    
+    /**
+     * <p>The URL that should be used during a GLO logout. This would usually be an URL from the IDP.</p>
+     */
+    private String logoutUrl;
 
     /**
      * Gets the value of the serviceURL property.
@@ -153,5 +158,13 @@ public class SPType extends ProviderType {
     
     public void setLogOutPage(String logOutPage) {
         this.logOutPage = logOutPage;
+    }
+    
+    public String getLogoutUrl() {
+        return this.logoutUrl;
+    }
+    
+    public void setLogoutUrl(String logoutUrl) {
+        this.logoutUrl = logoutUrl;
     }
 }

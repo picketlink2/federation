@@ -26,6 +26,7 @@ import java.io.InputStream;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -74,6 +75,8 @@ public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigu
                 spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
             } catch (ParsingException e) {
                 throw logger.processingError(e);
+            } catch (ConfigurationException ce) {
+                throw logger.processingError(ce);
             }
         }
         if (configParsedSPType != null) {
