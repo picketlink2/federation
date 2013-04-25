@@ -105,22 +105,22 @@ public class PostBindingUtil {
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
 
-        builder.append("<HTML>");
-        builder.append("<HEAD>");
+        builder.append("<html>");
+        builder.append("<head>");
         if (request)
-            builder.append("<TITLE>HTTP Post Binding (Request)</TITLE>");
+            builder.append("<title>HTTP Post Binding (Request)</title>");
         else
-            builder.append("<TITLE>HTTP Post Binding Response (Response)</TITLE>");
+            builder.append("<title>HTTP Post Binding Response (Response)</title>");
 
-        builder.append("</HEAD>");
-        builder.append("<BODY Onload=\"document.forms[0].submit()\">");
+        builder.append("</head>");
+        builder.append("<body onload=\"document.forms[0].submit()\">");
 
-        builder.append("<FORM METHOD=\"POST\" ACTION=\"" + destination + "\">");
-        builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"" + key + "\"" + " VALUE=\"" + samlMessage + "\"/>");
+        builder.append("<form method=\"POST\" action=\"" + destination + "\">");
+        builder.append("<input type=\"HIDDEN\" name=\"" + key + "\"" + " value=\"" + samlMessage + "\"/>");
         if (isNotNull(relayState)) {
-            builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
+            builder.append("<input type=\"HIDDEN\" name=\"RelayState\" " + "value=\"" + relayState + "\"/>");
         }
-        builder.append("</FORM></BODY></HTML>");
+        builder.append("</form></body></html>");
 
         String str = builder.toString();
         logger.trace(str);
