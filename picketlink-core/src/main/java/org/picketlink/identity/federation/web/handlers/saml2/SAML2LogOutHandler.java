@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -364,7 +365,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 NameIDType nameID = new NameIDType();
                 nameID.setValue(userPrincipal.getName());
                 lot.setNameID(nameID);
-
+                
+                SPType spConfiguration = (SPType) getProviderconfig();
+                String logoutUrl = spConfiguration.getLogoutUrl();
+                
+                if (logoutUrl == null) {
+                    logoutUrl = spConfiguration.getIdentityURL();
+                }
+                
+                lot.setDestination(URI.create(logoutUrl));
+                
                 response.setResultingDocument(samlRequest.convert(lot));
                 response.setSendRequest(true);
             } catch (Exception e) {
