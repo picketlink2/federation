@@ -27,6 +27,8 @@ import javax.servlet.http.HttpSession;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
@@ -49,7 +51,8 @@ public abstract class BaseSAML2Handler implements SAML2Handler {
     
     protected SAML2HandlerConfig handlerConfig = null;
     protected SAML2HandlerChainConfig handlerChainConfig = null;
-    protected HANDLER_TYPE handlerType;
+
+    private ProviderType providerConfig;
 
     /**
      * Initialize the handler
@@ -62,11 +65,12 @@ public abstract class BaseSAML2Handler implements SAML2Handler {
 
     public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException {
         this.handlerChainConfig = handlerChainConfig;
-        Object config = this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-        if (config instanceof IDPType)
-            this.handlerType = HANDLER_TYPE.IDP;
-        else
-            this.handlerType = HANDLER_TYPE.SP;
+        this.providerConfig = (ProviderType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
+        
+        if (!isSupportedProviderType(this.providerConfig)) {
+            throw logger.unsupportedType(this.providerConfig.getClass().getName());
+        }
+
     }
 
     /**
@@ -75,7 +79,11 @@ public abstract class BaseSAML2Handler implements SAML2Handler {
      * @return
      */
     public HANDLER_TYPE getType() {
-        return this.handlerType;
+        if (this.providerConfig instanceof IDPType) {
+            return HANDLER_TYPE.IDP;
+        } else {
+            return HANDLER_TYPE.SP;
+        }
     }
 
     public void reset() throws ProcessingException {
@@ -102,4 +110,22 @@ public abstract class BaseSAML2Handler implements SAML2Handler {
         HTTPContext context = (HTTPContext) request.getContext();
         return context.getRequest().getSession(false);
     }
+    
+    protected ProviderType getProviderconfig() {
+        return this.providerConfig;
+    }
+    
+    /**
+     * <p>Checks if the given {@link ProviderType} is supported by the handler.</p>
+     * 
+     * @return
+     */
+    private boolean isSupportedProviderType(ProviderType providerType) {
+        if (providerType == null) {
+            throw logger.nullArgumentError("ProviderType configuration.");
+        }
+
+        return (providerType instanceof IDPType) || (providerType instanceof SPType);
+    }
+
 }
