@@ -419,9 +419,17 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             if (userPrincipal == null) {
                 response.setError(403, "User Principal not determined: Forbidden");
             } else {
-                // add it to the session
                 HttpSession session = httpContext.getRequest().getSession(false);
+                
+                // add the principal to the session
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
+                
+                // if a session attribute name was provided, add it to the session
+                String assertionSessionAttributeName = (String) handlerConfig.getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+                
+                if (assertionSessionAttributeName != null) {
+                    session.setAttribute(assertionSessionAttributeName, AssertionUtil.asDocument((AssertionType) assertion));
+                }
             }
         }
 

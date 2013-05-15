@@ -21,6 +21,10 @@
  */
 package org.picketlink.identity.federation.web.constants;
 
+import javax.servlet.http.HttpSession;
+
+import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
+
 /**
  * Constants
  *
@@ -129,4 +133,9 @@ public interface GeneralConstants {
     String ERROR_PAGE_NAME = "/error.jsp";
     String SAML_ENC_KEY_SIZE = "SAML_ENC_KEY_SIZE";
     String SAML_ENC_ALGORITHM = "SAML_ENC_ALGORITHM";
+    
+    /**
+     * <p>{@link SAML2AuthenticationHandler} configuration option to set the assertion into the {@link HttpSession}.</p>
+     */
+    String ASSERTION_SESSION_ATTRIBUTE_NAME = "ASSERTION_SESSION_ATTRIBUTE_NAME";
 }
