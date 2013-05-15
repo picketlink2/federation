@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -78,6 +79,26 @@ public class AssertionUtil {
         SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         return new String(baos.toByteArray());
+    }
+
+    /**
+     * Given {@code AssertionType}, convert it into a DOM Document.
+     *
+     * @param assertion
+     * @return
+     * @throws ProcessingException
+     */
+    public static Document asDocument(AssertionType assertion) throws ProcessingException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+        
+        writer.write(assertion);
+        
+        try {
+            return DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        } catch (Exception e) {
+            throw logger.processingError(e);
+        }
     }
 
     /**
