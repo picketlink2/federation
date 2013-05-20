@@ -278,7 +278,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
     }
     
     /**
-     * PLINK2-10
+     * PLINK2-10 : Handle nested attribute value
      * @throws Exception
      */
     @Test
