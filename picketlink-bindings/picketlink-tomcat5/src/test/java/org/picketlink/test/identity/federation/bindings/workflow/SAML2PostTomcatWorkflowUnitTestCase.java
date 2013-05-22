@@ -23,7 +23,6 @@ package org.picketlink.test.identity.federation.bindings.workflow;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -91,7 +90,7 @@ public class SAML2PostTomcatWorkflowUnitTestCase extends TestCase {
 
         MockCatalinaResponse catalinaResponse = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        catalinaResponse.setWriter(new PrintWriter(baos));
+        catalinaResponse.setOutputStream(baos);
 
         LoginConfig loginConfig = new LoginConfig();
         spEmpl.authenticate(catalinaRequest, catalinaResponse, loginConfig);
@@ -125,7 +124,7 @@ public class SAML2PostTomcatWorkflowUnitTestCase extends TestCase {
 
         MockCatalinaResponse response = new MockCatalinaResponse();
         baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         context = new MockCatalinaContext();
         IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
