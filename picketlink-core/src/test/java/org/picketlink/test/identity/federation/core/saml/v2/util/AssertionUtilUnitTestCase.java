@@ -126,4 +126,22 @@ public class AssertionUtilUnitTestCase {
         assertTrue(roles.contains("manager"));
         assertTrue(roles.contains("employee"));
     }
+
+    @Test
+    public void testRoleExtractionForMultiValuedAttribute() throws Exception {
+        String file = "parser/saml2/saml2-response-assertion-rolemultivalue.xml";
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
+        assertNotNull(is);
+        SAMLParser parser = new SAMLParser();
+        ResponseType response = (ResponseType) parser.parse(is);
+        List<RTChoiceType> assertionList = response.getAssertions();
+        assertEquals(1, assertionList.size());
+        RTChoiceType rtc = assertionList.get(0);
+        AssertionType assertion = rtc.getAssertion();
+        List<String> roles = AssertionUtil.getRoles(assertion, null);
+        assertEquals(2, roles.size());
+        assertTrue(roles.contains("manager"));
+        assertTrue(roles.contains("employee"));
+    }
+
 }
