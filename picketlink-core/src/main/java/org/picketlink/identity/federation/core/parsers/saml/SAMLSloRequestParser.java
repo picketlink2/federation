@@ -71,7 +71,7 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
 
             if (JBossSAMLConstants.SESSION_INDEX.get().equals(elementName)) {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-                logoutRequest.getSessionIndex().add(StaxParserUtil.getElementText(xmlEventReader));
+                logoutRequest.addSessionIndex(StaxParserUtil.getElementText(xmlEventReader));
             } else if (JBossSAMLConstants.NAMEID.get().equals(elementName)) {
                 NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
                 logoutRequest.setNameID(nameID);

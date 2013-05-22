@@ -184,6 +184,17 @@ public class SAMLRequestWriter extends BaseWriter {
         if (nameID != null) {
             write(nameID, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
         }
+        
+        List<String> sessionIndexes = logOutRequest.getSessionIndex();
+        
+        for (String sessionIndex : sessionIndexes) {
+            StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.SESSION_INDEX.get(), JBossSAMLURIConstants.PROTOCOL_NSURI.get());
+
+            StaxUtil.writeCharacters(writer, sessionIndex);
+
+            StaxUtil.writeEndElement(writer);
+            StaxUtil.flush(writer);
+        }
 
         StaxUtil.writeEndElement(writer);
         StaxUtil.flush(writer);
