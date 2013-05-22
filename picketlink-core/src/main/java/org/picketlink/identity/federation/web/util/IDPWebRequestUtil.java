@@ -431,7 +431,7 @@ public class IDPWebRequestUtil {
         }
 
         public boolean isPostBindingRequested() {
-            return postBindingRequested;
+            return postBindingRequested || isStrictPostBinding();
         }
 
         public WebRequestUtilHolder setPostBindingRequested(boolean postBindingRequested) {
