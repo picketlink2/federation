@@ -127,7 +127,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
         assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
     }
-
+    
     @Ignore
     @Test
     public void handleEncryptedAssertion() throws Exception {
