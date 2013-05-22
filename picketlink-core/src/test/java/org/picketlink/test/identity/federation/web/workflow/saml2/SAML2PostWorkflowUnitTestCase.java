@@ -23,7 +23,6 @@ package org.picketlink.test.identity.federation.web.workflow.saml2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 
 import javax.servlet.ServletContext;
@@ -91,7 +90,7 @@ public class SAML2PostWorkflowUnitTestCase extends TestCase {
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
-        filterResponse.setWriter(new PrintWriter(filterbaos));
+        filterResponse.setOutputStream(filterbaos);
 
         spEmpl.doFilter(filterRequest, filterResponse, new MockFilterChain());
         String spResponse = new String(filterbaos.toByteArray());
@@ -124,7 +123,7 @@ public class SAML2PostWorkflowUnitTestCase extends TestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         IDPLoginServlet login = new IDPLoginServlet();
         login.init(servletConfig);

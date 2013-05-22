@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.Principal;
@@ -114,7 +113,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
-        filterResponse.setWriter(new PrintWriter(filterbaos));
+        filterResponse.setOutputStream(filterbaos);
 
         spEmpl.doFilter(filterRequest, filterResponse, new MockFilterChain());
 
@@ -183,7 +182,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         // The IDP is preloaded with 2 participants : "http://localhost:8080/sales/"
         // and "http://localhost:8080/employee"
@@ -227,7 +226,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
-        filterResponse.setWriter(new PrintWriter(filterbaos));
+        filterResponse.setOutputStream(filterbaos);
 
         spEmpl.doFilter(filterRequest, filterResponse, new MockFilterChain());
         String spResponse = new String(filterbaos.toByteArray());
