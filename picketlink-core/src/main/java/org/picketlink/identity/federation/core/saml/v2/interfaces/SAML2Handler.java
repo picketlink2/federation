@@ -42,6 +42,8 @@ public interface SAML2Handler {
 
     String DISABLE_ROLE_PICKING = "DISABLE_ROLE_PICKING";
 
+    String USE_MULTI_VALUED_ROLES = "USE_MULTI_VALUED_ROLES";
+
     String ROLE_KEY = "ROLE_KEY";
 
     /**

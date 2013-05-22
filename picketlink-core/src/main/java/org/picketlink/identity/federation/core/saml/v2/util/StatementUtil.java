@@ -22,10 +22,7 @@
 package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -98,11 +95,7 @@ public class StatementUtil {
                 Object value = attributes.get(key);
                 if (value instanceof Collection<?>) {
                     Collection<?> roles = (Collection<?>) value;
-                    for (Object role : roles) {
-                        AttributeType roleAttr = new AttributeType("Role");
-                        roleAttr.addAttributeValue(role);
-                        attrStatement.addAttribute(new ASTChoiceType(roleAttr));
-                    }
+                    attrStatement = createAttributeStatement(new ArrayList(roles));
                 }
             }
 
@@ -139,10 +132,30 @@ public class StatementUtil {
             if(attrStatement == null){
                 attrStatement = new AttributeStatementType();
             }
-            AttributeType attr = new AttributeType("Role");
+            AttributeType attr = new AttributeType(AttributeConstants.ROLE_IDENTIFIER_ASSERTION);
             attr.addAttributeValue(role);
             attrStatement.addAttribute(new ASTChoiceType(attr));
         }
+        return attrStatement;
+    }
+
+    /**
+     * Given a set of roles, create an attribute statement
+     * 
+     * @param roles
+     * @param multivalued if you want the attribute to be multi valued
+     * @return
+     */
+    public static AttributeStatementType createAttributeStatementForRoles(List<String> roles, boolean multivalued) {
+        if (multivalued == false) {
+            return createAttributeStatement(roles);
+        }
+        AttributeStatementType attrStatement = new AttributeStatementType();
+        AttributeType attr = new AttributeType(AttributeConstants.ROLE_IDENTIFIER_ASSERTION);
+        for (String role : roles) {
+            attr.addAttributeValue(role);
+        }
+        attrStatement.addAttribute(new ASTChoiceType(attr));
         return attrStatement;
     }
 

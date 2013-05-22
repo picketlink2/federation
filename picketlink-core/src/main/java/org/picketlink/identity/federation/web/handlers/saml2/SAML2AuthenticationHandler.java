@@ -97,6 +97,7 @@ import org.w3c.dom.Node;
  * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP Setting)
  * @see SAML2Handler#DISABLE_AUTHN_STATEMENT Setting a value will disable the generation of an AuthnStatement (IDP Setting)
  * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
+ * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
@@ -286,9 +287,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
-                AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-                if (attrStatement != null) {
-                    assertion.addStatement(attrStatement);
+                AttributeStatementType attrStatement = null;
+                if(handlerConfig.getParameter(USE_MULTI_VALUED_ROLES) != null){
+                    attrStatement = StatementUtil.createAttributeStatementForRoles(roles,true);
+                }else {
+                    attrStatement = StatementUtil.createAttributeStatement(roles);
+                }
+                if(attrStatement != null){
+                    assertion.addStatement(attrStatement);   
                 }
             }
 
