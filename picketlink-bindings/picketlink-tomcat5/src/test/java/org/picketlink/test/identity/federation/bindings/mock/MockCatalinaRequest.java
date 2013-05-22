@@ -39,7 +39,7 @@ import org.apache.catalina.connector.Request;
 public class MockCatalinaRequest extends Request {
     private Map<String, String> params = new HashMap<String, String>();
     private Map<String, String> headers = new HashMap<String, String>();
-    private Session session;
+    private Session session = new MockCatalinaSession();
     private Principal principal;
     private String method;
     private String remotee;
