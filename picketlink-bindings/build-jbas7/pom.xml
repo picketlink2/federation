@@ -9,7 +9,7 @@
   <groupId>org.picketlink.distribution</groupId>
   <artifactId>picketlink-jbas7</artifactId>
   <packaging>pom</packaging>
-  <name>PicketLink Federation- Assembly - JBossAS 7.1</name>
+  <name>PicketLink Federation - Assembly - JBossAS 7.1</name>
   <url>http://www.picketlink.org/</url>
   <description>PicketLink Federation</description>
   <licenses>

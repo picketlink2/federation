@@ -6,10 +6,9 @@
       <relativePath>../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.picketlink</groupId>
    <artifactId>picketlink-fed-bindings-pom</artifactId>
    <packaging>pom</packaging>
-   <name>PicketLink Federation- Aggregator</name>
+   <name>PicketLink Federation - Bindings</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink Federation is the federated identity project for JEMS projects</description>
 
