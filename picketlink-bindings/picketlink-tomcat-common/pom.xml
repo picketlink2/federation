@@ -8,7 +8,7 @@
    <modelVersion>4.0.0</modelVersion>
    <artifactId>picketlink-tomcat-common</artifactId>
    <packaging>jar</packaging>
-   <name>PicketLink Federation Common Server Bindings for Apache Tomcat</name>
+   <name>PicketLink Federation - Common Server Bindings for Apache Tomcat</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
    <description>PicketLink contains the foundation for Federated Identity Needs.</description>
    <licenses>
