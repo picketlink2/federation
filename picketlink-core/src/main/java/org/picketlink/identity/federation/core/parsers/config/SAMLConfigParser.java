@@ -90,6 +90,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String ROLE_GENERATOR = "RoleGenerator";
 
     public static final String ENCRYPT = "Encrypt";
+    
+    public static final String HOSTED_URI = "HostedURI";
 
     public static final String ATTRIBUTE_MANAGER = "AttributeManager";
 
@@ -181,6 +183,11 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             idp.setEncrypt(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        
+        attributeQName = new QName("", HOSTED_URI);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setHostedURI(StaxParserUtil.getAttributeValue(attribute));
 
         attributeQName = new QName("", CANONICALIZATION_METHOD);
         attribute = startElement.getAttributeByName(attributeQName);
