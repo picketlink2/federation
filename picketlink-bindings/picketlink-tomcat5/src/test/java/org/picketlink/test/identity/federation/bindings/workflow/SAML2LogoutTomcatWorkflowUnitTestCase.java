@@ -118,8 +118,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         sp.getConfiguration().setIdpUsesPostBinding(false);
 
         MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
-
-        catalinaRequest.setSession(session);
+        catalinaRequest.setSession(new MockCatalinaSession());
         catalinaRequest.setUserPrincipal(principal);
         MockCatalinaResponse response = new MockCatalinaResponse();
         MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
