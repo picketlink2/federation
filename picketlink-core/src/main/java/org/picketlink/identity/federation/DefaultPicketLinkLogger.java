@@ -1233,7 +1233,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public ProcessingException samlAssertionMarshallError(Throwable t) {
-        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", t);
+        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall assertion", t);
     }
 
     /*

@@ -836,7 +836,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#saml11MarshallError(java.lang.Throwable)
      */
     public ProcessingException samlAssertionMarshallError(Throwable t) {
-        return MESSAGES.saml11MarshallError(t);
+        return MESSAGES.samlMarshallError(t);
     }
 
     /* (non-Javadoc)
@@ -850,7 +850,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#saml11UnmarshallError(java.lang.Throwable)
      */
     public ProcessingException samlAssertionUnmarshallError(Throwable t) {
-        return MESSAGES.saml11UnmarshallError(t);
+        return MESSAGES.samlUnmarshallError(t);
     }
 
     /* (non-Javadoc)

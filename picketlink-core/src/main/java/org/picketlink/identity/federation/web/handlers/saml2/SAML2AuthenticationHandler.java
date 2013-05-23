@@ -324,7 +324,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
                 }
             } catch (Exception e) {
-                logger.samlAssertionMarshallError(e);
+                throw logger.samlAssertionMarshallError(e);
             }
 
             return samlResponseDocument;

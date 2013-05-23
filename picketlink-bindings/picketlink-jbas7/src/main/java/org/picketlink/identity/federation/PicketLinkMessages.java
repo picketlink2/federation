@@ -335,14 +335,14 @@ public interface PicketLinkMessages {
     @Message(id = 121, value = "Invalid cancel request: missing required CancelTarget")
     ProcessingException wsTrustNullCancelTargetError();
 
-    @Message(id = 122, value = "Failed to marshall SAMLV1.1 assertion")
-    ProcessingException saml11MarshallError(@Cause Throwable t);
+    @Message(id = 122, value = "Failed to marshall assertion")
+    ProcessingException samlMarshallError(@Cause Throwable t);
 
     @Message(id = 123, value = "Invalid renew request: missing required RenewTarget")
     ProcessingException wsTrustNullRenewTargetError();
 
     @Message(id = 124, value = "Error unmarshalling assertion")
-    ProcessingException saml11UnmarshallError(@Cause Throwable t);
+    ProcessingException samlUnmarshallError(@Cause Throwable t);
 
     @Message(id = 125, value = "SAML Assertion with id %s has been canceled and cannot be renewed")
     ProcessingException samlAssertionRevokedCouldNotRenew(String id);
