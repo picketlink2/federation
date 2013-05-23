@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>picketlink-jbas5-single</artifactId>
 	<packaging>jar</packaging>
-	<name>PicketLink Federation Server Bindings for JBoss5/6</name>
+	<name>PicketLink Federation - Server Bindings for JBoss5/6</name>
 	<url>http://labs.jboss.org/portal/picketlink/</url>
 	<description>PicketLink contains the foundation for Federated Identity Needs.</description>
 	<licenses>
