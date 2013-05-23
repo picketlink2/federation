@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.bindings.tomcat.idp;
 
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNullOrEmpty;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -326,8 +327,8 @@ public abstract class AbstractIDPValve extends ValveBase {
             String samlResponseMessage = (String) session.getNote(GeneralConstants.SAML_RESPONSE_KEY);
 
             /**
-             * Since the container has finished the authentication, we can retrieve the original saml message as well as any relay
-             * state from the SP
+             * Since the container has finished the authentication, we can retrieve the original saml message as well as any
+             * relay state from the SP
              */
             String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
             String signature = (String) session.getNote(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
@@ -370,13 +371,14 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     private void forwardHosted(Request request, Response response) throws ServletException, IOException {
         logger.trace("SAML 1.1::Proceeding to IDP index page");
-        RequestDispatcher dispatch = getContext().getServletContext().getRequestDispatcher("/hosted/");
+        RequestDispatcher dispatch = getContext().getServletContext()
+                .getRequestDispatcher(this.idpConfiguration.getHostedURI());
 
         recycle(response);
 
         try {
             includeResource(request, response, dispatch);
-        } catch (Exception e) {
+        } catch (ClassCastException cce) {
             // JBAS5.1 and 6 quirkiness
             includeResource(request.getRequest(), response, dispatch);
         }
@@ -395,10 +397,12 @@ public abstract class AbstractIDPValve extends ValveBase {
      * @throws ServletException
      * @throws IOException
      */
-    private void includeResource(ServletRequest request, Response response, RequestDispatcher dispatch) throws ServletException,
-            IOException {
+    private void includeResource(ServletRequest request, Response response, RequestDispatcher dispatch)
+            throws ServletException, IOException {
         dispatch.include(request, response);
-        // we need to re-configure the content length because Tomcat will truncate the output with the size of the welcome page (eg.: index.html).
+
+        // we need to re-configure the content length because Tomcat will truncate the output with the size of the welcome page
+        // (eg.: index.html).
         response.getCoyoteResponse().setContentLength(response.getContentCount());
     }
 
@@ -511,11 +515,10 @@ public abstract class AbstractIDPValve extends ValveBase {
         return userPrincipal;
     }
 
-    protected void handleSAML11(Request request, Response response) throws ServletException,
-            IOException {
+    protected void handleSAML11(Request request, Response response) throws ServletException, IOException {
         try {
             IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
-            
+
             Principal userPrincipal = request.getPrincipal();
             String contextPath = getContextPath();
 
@@ -583,8 +586,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         }
     }
 
-    protected void processSAMLRequestMessage(Request request, Response response)
-            throws IOException {
+    protected void processSAMLRequestMessage(Request request, Response response) throws IOException {
         Principal userPrincipal = request.getPrincipal();
         Session session = request.getSessionInternal();
         SAMLDocumentHolder samlDocumentHolder = null;
@@ -614,7 +616,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         String loginType = determineLoginType(isSecure);
 
         IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
-        
+
         try {
             samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
             samlObject = samlDocumentHolder.getSamlObject();
@@ -812,8 +814,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         return issuerPublicKey;
     }
 
-    protected void processSAMLResponseMessage(Request request, Response response)
-            throws ServletException, IOException {
+    protected void processSAMLResponseMessage(Request request, Response response) throws ServletException, IOException {
         Session session = request.getSessionInternal();
         SAMLDocumentHolder samlDocumentHolder = null;
         SAML2Object samlObject = null;
@@ -838,7 +839,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         cleanUpSessionNote(request);
 
         IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
-        
+
         try {
             samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
             samlObject = samlDocumentHolder.getSamlObject();
@@ -1260,6 +1261,8 @@ public abstract class AbstractIDPValve extends ValveBase {
         } catch (Exception e) {
             throw logger.samlIDPConfigurationError(e);
         }
+
+        initHostedURI();
     }
 
     /**
@@ -1381,4 +1384,18 @@ public abstract class AbstractIDPValve extends ValveBase {
 
         return !isRequestSigned;
     }
+
+    private void initHostedURI() {
+        String hostedURI = this.idpConfiguration.getHostedURI();
+
+        if (isNullOrEmpty(hostedURI)) {
+            hostedURI = "/hosted/";
+        } else if (!hostedURI.contains(".") && !hostedURI.endsWith("/")) {
+            // make sure the hosted uri have a slash at the end if it points to a directory
+            hostedURI = hostedURI + "/";
+        }
+
+        this.idpConfiguration.setHostedURI(hostedURI);
+    }
+
 }
