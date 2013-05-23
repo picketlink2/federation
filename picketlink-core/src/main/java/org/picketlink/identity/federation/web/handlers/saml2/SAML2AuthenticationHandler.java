@@ -441,7 +441,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 String assertionAttributeName = (String) handlerConfig
                         .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
                 
-                session.setAttribute(assertionAttributeName, assertionDocument);
+                if (assertionAttributeName != null) {
+                    session.setAttribute(assertionAttributeName, assertionDocument);
+                }
+                
                 session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
             }
         }
