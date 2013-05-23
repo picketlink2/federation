@@ -173,14 +173,15 @@ public class XMLSignatureUtilUnitTestCase {
              "Assertion").item(0);
         String referenceURI = "#" + assertionElement.getAttribute("ID");
         assertionElement.setIdAttribute("ID", true);
-        rstrDocument = XMLSignatureUtil.sign(rstrDocument, assertionElement, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
+        
+        XMLSignatureUtil.sign(rstrDocument.getDocumentElement(), assertionElement, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
 
         assertNotNull(rstrDocument);
 
         Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
 
         // TODO: This test is currently failing because of https://issues.jboss.org/browse/PLFED-377
-        //assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
+        assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
     
     @Test
