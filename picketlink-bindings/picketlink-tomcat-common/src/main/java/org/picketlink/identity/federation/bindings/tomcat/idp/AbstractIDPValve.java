@@ -348,8 +348,8 @@ public abstract class AbstractIDPValve extends ValveBase {
                 processSAMLRequestMessage(request, response);
             } else if (isNotNull(samlResponseMessage)) {
                 processSAMLResponseMessage(request, response);
-            } else {
-                // no SAML processing, the user will be redirected to the IDP's hosted pages
+            } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
+                // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
             }
         }
