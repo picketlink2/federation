@@ -62,6 +62,8 @@ public class IDPType extends ProviderType {
     protected String attributeManager;
 
     protected Boolean encrypt;
+    
+    protected String hostedURI;
 
     /**
      * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to false
@@ -164,6 +166,24 @@ public class IDPType extends ProviderType {
      */
     public void setEncrypt(Boolean value) {
         this.encrypt = value;
+    }
+
+    /**
+     * Gets the value of the encrypt property.
+     * 
+     * @return possible object is {@link String}
+     */
+    public String getHostedURI() {
+        return hostedURI;
+    }
+
+    /**
+     * Sets the value of the hostedURI property.
+     * 
+     * @param value allowed object is {@link String}
+     */
+    public void setHostedURI(String hostedURI) {
+        this.hostedURI = hostedURI;
     }
 
     /**
