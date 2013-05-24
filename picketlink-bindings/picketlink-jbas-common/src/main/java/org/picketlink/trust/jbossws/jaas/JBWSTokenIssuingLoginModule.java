@@ -46,6 +46,7 @@ import javax.xml.ws.handler.Handler;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
@@ -147,7 +148,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
             super();
 
             try {
-                this.dataTypefactory = DatatypeFactory.newInstance();
+                this.dataTypefactory = XMLTimeUtil.newDatatypeFactory();
             } catch (DatatypeConfigurationException dce) {
                 throw logger.wsTrustUnableToGetDataTypeFactory(dce);
             }
@@ -158,7 +159,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
             requestType = config.getRequestType();
             
             try {
-                this.dataTypefactory = DatatypeFactory.newInstance();
+                this.dataTypefactory = XMLTimeUtil.newDatatypeFactory();
             } catch (DatatypeConfigurationException dce) {
                 throw logger.wsTrustUnableToGetDataTypeFactory(dce);
             }
@@ -170,7 +171,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
             super(config);
         
             try {
-                this.dataTypefactory = DatatypeFactory.newInstance();
+                this.dataTypefactory = XMLTimeUtil.newDatatypeFactory();
             } catch (DatatypeConfigurationException dce) {
                 throw logger.wsTrustUnableToGetDataTypeFactory(dce);
             }
