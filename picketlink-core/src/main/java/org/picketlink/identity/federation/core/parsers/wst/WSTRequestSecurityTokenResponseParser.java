@@ -246,7 +246,9 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                 } else if (tag.equals(WSTrustConstants.REQUESTED_TOKEN)) {
                     responseToken.setRequestedSecurityToken(parseRequestedSecurityTokenType(xmlEventReader));
                 } else if (tag.equals(WSTrustConstants.REQUESTED_ATTACHED_REFERENCE)) {
-                    responseToken.setRequestedAttachedReference(parseRequestedReference(xmlEventReader));
+                    responseToken.setRequestedAttachedReference(parseRequestedReference(xmlEventReader, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE));
+                } else if (tag.equals(WSTrustConstants.REQUESTED_UNATTACHED_REFERENCE)) {
+                    responseToken.setRequestedUnattachedReference(parseRequestedReference(xmlEventReader, WSTrustConstants.REQUESTED_UNATTACHED_REFERENCE));
                 } else if (tag.equals(WSTrustConstants.STATUS)) {
                     responseToken.setStatus(this.parseStatusType(xmlEventReader));
                 }
@@ -346,9 +348,9 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
         return requestedSecurityTokenType;
     }
 
-    private RequestedReferenceType parseRequestedReference(XMLEventReader xmlEventReader) throws ParsingException {
+    private RequestedReferenceType parseRequestedReference(XMLEventReader xmlEventReader, String requestedReferenceTag) throws ParsingException {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-        StaxParserUtil.validate(startElement, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE);
+        StaxParserUtil.validate(startElement, requestedReferenceTag);
 
         RequestedReferenceType ref = new RequestedReferenceType();
 
@@ -358,8 +360,9 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
         ref.setSecurityTokenReference(secref);
 
         EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-        StaxParserUtil.validate(endElement, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE);
+        StaxParserUtil.validate(endElement, requestedReferenceTag);
 
         return ref;
     }
+    
 }

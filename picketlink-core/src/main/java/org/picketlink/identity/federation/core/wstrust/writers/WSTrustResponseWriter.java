@@ -200,6 +200,15 @@ public class WSTrustResponseWriter {
             StaxUtil.writeEndElement(this.writer);
         }
 
+        // write the unattached reference, if available.
+        if (response.getRequestedUnattachedReference() != null) {
+            RequestedReferenceType ref = response.getRequestedUnattachedReference();
+            StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_UNATTACHED_REFERENCE,
+                    WSTrustConstants.BASE_NAMESPACE);
+            new WSSecurityWriter(this.writer).writeSecurityTokenReference(ref.getSecurityTokenReference());
+            StaxUtil.writeEndElement(this.writer);
+        }
+
         // write the requested proof token, if available.
         if (response.getRequestedProofToken() != null) {
             RequestedProofTokenType requestedProof = response.getRequestedProofToken();

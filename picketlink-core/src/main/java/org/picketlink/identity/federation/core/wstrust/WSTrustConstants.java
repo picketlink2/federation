@@ -144,6 +144,8 @@ public interface WSTrustConstants {
     String REQUESTED_PROOF_TOKEN = "RequestedProofToken";
 
     String REQUESTED_ATTACHED_REFERENCE = "RequestedAttachedReference";
+    
+    String REQUESTED_UNATTACHED_REFERENCE = "RequestedUnattachedReference";
 
     String REQUEST_TYPE = "RequestType";
 
