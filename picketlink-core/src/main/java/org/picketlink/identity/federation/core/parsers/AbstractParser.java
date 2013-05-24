@@ -61,7 +61,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
             if (tccl_jaxp) {
                 setTCCL(getClass().getClassLoader());
             }
-            return XMLInputFactory.newFactory();
+            return XMLInputFactory.newInstance();
         } finally {
             if (tccl_jaxp) {
                 setTCCL(prevTCCL);
