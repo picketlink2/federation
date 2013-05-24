@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -54,7 +55,7 @@ public final class SamlCredential implements Serializable {
     
     private static final long serialVersionUID = -8496414959425288835L;
 
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerUtil.getTransformerFactory();
 
     private final String assertion;
 

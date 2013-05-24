@@ -24,6 +24,7 @@
 package org.picketlink.identity.federation.core.parsers.saml.metadata;
 
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.AbstractParser;
 
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
@@ -36,11 +37,11 @@ import javax.xml.stream.events.XMLEvent;
  * <p>Abstract entity descriptor parser, which provides common parser functionality</p>
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class AbstractDescriptorParser {
+public abstract class AbstractDescriptorParser  extends AbstractParser {
 
     protected XMLEventReader filterWhiteSpaceCharacters(XMLEventReader xmlEventReader) throws ParsingException {
 
-        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        XMLInputFactory xmlInputFactory = getXMLInputFactory();
 
         try {
             xmlEventReader = xmlInputFactory.createFilteredReader(xmlEventReader, new EventFilter() {

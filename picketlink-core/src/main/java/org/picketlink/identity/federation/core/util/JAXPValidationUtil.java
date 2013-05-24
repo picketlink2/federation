@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -94,10 +95,22 @@ public class JAXPValidationUtil {
     }
 
     private static Schema getSchema() throws IOException {
-        schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP,"false").equalsIgnoreCase("true");
 
-        schemaFactory.setResourceResolver(new IDFedLSInputResolver());
-        schemaFactory.setErrorHandler(new CustomErrorHandler());
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(JAXPValidationUtil.class.getClassLoader());
+            }
+            schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+
+            schemaFactory.setResourceResolver(new IDFedLSInputResolver());
+            schemaFactory.setErrorHandler(new CustomErrorHandler());
+        } finally{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
         Schema schemaGrammar = null;
         try {
             schemaGrammar = schemaFactory.newSchema(sources());

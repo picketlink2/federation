@@ -35,6 +35,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
@@ -49,7 +50,9 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -135,7 +138,7 @@ public class StaxParserUtil {
             Document resultDocument = DocumentUtil.createDocument();
             DOMResult domResult = new DOMResult(resultDocument);
 
-            StAXSource source = new StAXSource(xmlEventReader);
+            Source source = new StAXSource(xmlEventReader);
 
             TransformerUtil.transform(transformer, source, domResult);
 
@@ -176,7 +179,7 @@ public class StaxParserUtil {
         XMLInputFactory xmlInputFactory = null;
         XMLEventReader xmlEventReader = null;
         try {
-            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory = getXMLInputFactory();
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.TRUE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
@@ -436,5 +439,21 @@ public class StaxParserUtil {
      */
     public static Validator getSchemaValidator() throws SAXException, IOException {
         return JAXPValidationUtil.validator();
+    }
+
+    private static XMLInputFactory getXMLInputFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(StaxParserUtil.class.getClassLoader());
+            }
+            return XMLInputFactory.newFactory();
+        } finally {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
     }
 }
