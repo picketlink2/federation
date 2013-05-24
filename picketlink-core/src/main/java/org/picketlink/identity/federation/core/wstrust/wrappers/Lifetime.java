@@ -29,6 +29,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 
@@ -62,7 +63,7 @@ public class Lifetime {
      */
     public Lifetime(GregorianCalendar created, GregorianCalendar expires) {
         try {
-            this.factory = DatatypeFactory.newInstance();
+            this.factory = XMLTimeUtil.newDatatypeFactory();
         } catch (DatatypeConfigurationException dce) {
             throw logger.wsTrustUnableToGetDataTypeFactory(dce);
         }
@@ -95,7 +96,7 @@ public class Lifetime {
             throw logger.nullArgumentError("LifetimeType");
 
         try {
-            this.factory = DatatypeFactory.newInstance();
+            this.factory = XMLTimeUtil.newDatatypeFactory();
         } catch (DatatypeConfigurationException dce) {
             throw logger.wsTrustUnableToGetDataTypeFactory(dce);
         }
