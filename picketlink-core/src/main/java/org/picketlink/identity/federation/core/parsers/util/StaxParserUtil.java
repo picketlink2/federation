@@ -449,7 +449,7 @@ public class StaxParserUtil {
             if (tccl_jaxp) {
                 SecurityActions.setTCCL(StaxParserUtil.class.getClassLoader());
             }
-            return XMLInputFactory.newFactory();
+            return XMLInputFactory.newInstance();
         } finally {
             if (tccl_jaxp) {
                 SecurityActions.setTCCL(prevTCCL);
