@@ -543,7 +543,7 @@ public class StaxUtil {
             if (tccl_jaxp) {
                 SecurityActions.setTCCL(StaxUtil.class.getClassLoader());
             }
-            return XMLOutputFactory.newFactory();
+            return XMLOutputFactory.newInstance();
         } finally {
             if (tccl_jaxp) {
                 SecurityActions.setTCCL(prevTCCL);
