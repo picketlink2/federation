@@ -49,7 +49,9 @@ import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -452,10 +454,10 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            transformer.transform(source, result);
+            TransformerUtil.transform(transformer,source,result);
             return result.getNode();
-        } catch (TransformerException te) {
-            throw logger.processingError(te);
+        } catch (ParsingException pe){
+            throw logger.processingError(pe);
         }
     }
 
@@ -463,9 +465,9 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            transformer.transform(source, result);
+            TransformerUtil.transform(transformer,source,result);
             return (Document) result.getNode();
-        } catch (TransformerException te) {
+        } catch (ParsingException te) {
             throw logger.processingError(te);
         }
     }
@@ -485,17 +487,32 @@ public class DocumentUtil {
     }
 
     /**
-     * <p>Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different threads.</p>
-     *
+     * <p>
+     * Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different
+     * threads.
+     * </p>
+     * 
      * @return
      */
     private static DocumentBuilderFactory getDocumentBuilderFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
         if (documentBuilderFactory == null) {
-            documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            documentBuilderFactory.setXIncludeAware(true);
+            try {
+                if (tccl_jaxp) {
+                    SecurityActions.setTCCL(DocumentUtil.class.getClassLoader());
+                }
+                documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                documentBuilderFactory.setNamespaceAware(true);
+                documentBuilderFactory.setXIncludeAware(true);
+            } finally {
+                if (tccl_jaxp) {
+                    SecurityActions.setTCCL(prevTCCL);
+                }
+            }
         }
-        
+
         return documentBuilderFactory;
     }
 }

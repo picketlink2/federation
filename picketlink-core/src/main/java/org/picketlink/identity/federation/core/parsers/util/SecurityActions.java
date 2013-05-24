@@ -91,4 +91,29 @@ public class SecurityActions {
             return url;
         }
     }
+    static ClassLoader getTCCL(){
+        if(System.getSecurityManager() != null){
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        } else {
+            return Thread.currentThread().getContextClassLoader();
+        }
+    }
+
+    static void setTCCL(final ClassLoader paramCl){
+        if(System.getSecurityManager() != null){
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                public Void run() {
+                    Thread.currentThread().setContextClassLoader(paramCl);
+                    return null;
+                }
+            });
+        } else {
+
+            Thread.currentThread().setContextClassLoader(paramCl);
+        }
+    }
 }
