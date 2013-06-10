@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.sts;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -156,6 +157,16 @@ public interface STSCoreConfig {
      * @return a reference to the provider's {@code PublicKey}
      */
     public PublicKey getServiceProviderPublicKey(String serviceName);
+    
+    /**
+     * <p>
+     * Obtains the certificate of the specified service provider. The returned certificate is used to encrypt issued tokens.
+     * </p>
+     *
+     * @param serviceName the name of the service provider (normally the provider URL).
+     * @return a reference to the provider's {@code PublicKey}
+     */
+    public X509Certificate getServiceProviderCertificate(String serviceName);
 
     /**
      * <p>
