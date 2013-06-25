@@ -264,6 +264,12 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     @Override
     public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException {
         try {
+            // needs to be done first, *before* accessing any parameters. super.authenticate(..) gets called to late
+            String characterEncoding = getCharacterEncoding();
+            if (characterEncoding != null) {
+                request.setCharacterEncoding(characterEncoding);
+            }
+
             Session session = request.getSessionInternal(true);
 
             // check if this call is resulting from the redirect after successful authentication.
