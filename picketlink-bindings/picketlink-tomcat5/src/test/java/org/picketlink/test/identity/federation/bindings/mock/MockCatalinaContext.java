@@ -775,4 +775,42 @@ public class MockCatalinaContext implements Context, Container, ServletContext {
     public String getForwardPage() {
         return forwardPage;
     }
+
+    public void logAccess(Request arg0, Response arg1, long arg2, boolean arg3) {
+    }
+
+    public String getSessionCookieDomain() {
+        return null;
+    }
+
+    public String getSessionCookieName() {
+        return null;
+    }
+
+    public String getSessionCookiePath() {
+        return null;
+    }
+
+    public boolean getUseHttpOnly() {
+        return false;
+    }
+
+    public boolean isDisableURLRewriting() {
+        return false;
+    }
+
+    public void setDisableURLRewriting(boolean arg0) {
+    }
+
+    public void setSessionCookieDomain(String arg0) {
+    }
+
+    public void setSessionCookieName(String arg0) {
+    }
+
+    public void setSessionCookiePath(String arg0) {
+    }
+
+    public void setUseHttpOnly(boolean arg0) {
+    }
 }

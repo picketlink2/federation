@@ -243,4 +243,7 @@ public class MockCatalinaSession implements Session, HttpSession {
     public void clear() {
         this.notes.clear();
     }
+
+    public void setId(String arg0, boolean arg1) {
+    }
 }
