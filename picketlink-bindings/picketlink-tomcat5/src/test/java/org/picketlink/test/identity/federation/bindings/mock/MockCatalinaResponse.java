@@ -119,4 +119,9 @@ public class MockCatalinaResponse extends Response {
             }
         };
     }
+
+    @Override
+    public void reset() {
+
+    }
 }
