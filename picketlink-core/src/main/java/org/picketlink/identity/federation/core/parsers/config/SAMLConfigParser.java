@@ -21,26 +21,19 @@
  */
 package org.picketlink.identity.federation.core.parsers.config;
 
+import org.picketlink.identity.federation.core.config.*;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.handler.config.Handler;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.parsers.AbstractParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.MetadataProviderType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
 /**
  * Parse the SAML IDP/SP config as well as the handlers
@@ -114,6 +107,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String IDENTITY_PARTICIPANT_STACK = "IdentityParticipantStack";
     
     public static final String STRICT_POST_BINDING = "StrictPostBinding";
+
+    public static final String SSL_CLIENT_AUTHENTICATION = "SSLClientAuthentication";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -214,6 +209,12 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
             idp.setIdentityParticipantStack(StaxParserUtil.getAttributeValue(attribute));
+        }
+
+        attributeQName = new QName("", SSL_CLIENT_AUTHENTICATION);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setSSLClientAuthentication(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
         }
 
         while (xmlEventReader.hasNext()) {

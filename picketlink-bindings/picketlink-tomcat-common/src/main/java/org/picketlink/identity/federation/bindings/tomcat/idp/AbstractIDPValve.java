@@ -21,42 +21,14 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.idp;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-import static org.picketlink.identity.federation.core.util.StringUtil.isNullOrEmpty;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Session;
+import org.apache.catalina.*;
+import org.apache.catalina.authenticator.SSLAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.coyote.ActionCode;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
@@ -89,28 +61,16 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.*;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.util.*;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
+import org.picketlink.identity.federation.saml.v1.assertion.*;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
@@ -132,9 +92,28 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNullOrEmpty;
+
 /**
  * Base Class for the IDPWebBrowserSSOValve
- * 
+ *
  * @author anil saldhana
  */
 public abstract class AbstractIDPValve extends ValveBase {
@@ -170,6 +149,7 @@ public abstract class AbstractIDPValve extends ValveBase {
     private final Lock chainLock = new ReentrantLock();
 
     private Map<String, SPSSODescriptorType> spSSOMetadataMap = new HashMap<String, SPSSODescriptorType>();
+    private SSLAuthenticator sslAuthenticator;
 
     // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
@@ -181,7 +161,7 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     /**
      * Set the {@link SAMLConfigurationProvider} fqn
-     * 
+     *
      * @param cp fqn of a {@link SAMLConfigurationProvider}
      */
     public void setConfigProvider(String cp) {
@@ -244,7 +224,7 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     /**
      * IDP should not do any attributes such as generation of roles etc
-     * 
+     *
      * @param ignoreAttributes
      */
     public void setIgnoreAttributesGeneration(Boolean ignoreAttributes) {
@@ -269,7 +249,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * <p>
      * Returns the configurations used.
      * </p>
-     * 
+     *
      * @return
      */
     public PicketLinkType getConfiguration() {
@@ -278,7 +258,7 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     /**
      * Return the {@link TrustKeyManager}
-     * 
+     *
      * @return
      */
     public TrustKeyManager getKeyManager() {
@@ -309,7 +289,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * <p>
      * Handles SAML messages.
      * </p>
-     * 
+     *
      * @param request
      * @param response
      * @throws IOException
@@ -361,7 +341,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * Checks if the given {@link Request} containes a SAML11 Target parameter. Usually this indicates that the given request is
      * a SAML11 request.
      * </p>
-     * 
+     *
      * @param request
      * @return
      */
@@ -390,7 +370,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * This is necessary because the valve already have written to the response, and we want to override with the target
      * resource data.
      * </p>
-     * 
+     *
      * @param request
      * @param response
      * @param dispatch
@@ -411,7 +391,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * SAML parameters are also populated into session if they are present in the request. This allows the IDP to retrieve them
      * later when handling a specific SAML request or response.
      * </p>
-     * 
+     *
      * @param request
      * @return
      * @throws IOException
@@ -452,7 +432,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * <p>
      * Handles an unauthorized response returned by a service provider.
      * </p>
-     * 
+     *
      * @param request
      * @param response
      * @throws IOException
@@ -497,7 +477,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * <p>
      * Returns the authenticated principal. If there is no principal associated with the {@link Request}, null is returned.
      * </p>
-     * 
+     *
      * @param request
      * @param response
      * @return
@@ -508,11 +488,72 @@ public abstract class AbstractIDPValve extends ValveBase {
         Principal userPrincipal = request.getPrincipal();
 
         if (userPrincipal == null) {
-            getNext().invoke(request, response);
+            if (this.idpConfiguration.isSSLClientAuthentication()) {
+                if (request.isSecure()) {
+                    getSSLAuthenticator().invoke(request, response);
+
+                    // we always reset/recycle the response to remove any data written to the response by the ssl
+                    // authenticator
+                    response.resetBuffer();
+                    response.recycle();
+                }
+            }
+
+            userPrincipal = request.getPrincipal();
+
+            // we always fall back to the configured authentication method.
+            if (userPrincipal == null) {
+                getNext().invoke(request, response);
+            }
+
             userPrincipal = request.getPrincipal();
         }
 
         return userPrincipal;
+    }
+
+    public Principal authenticateSSL(Request request, Response response) throws IOException {
+        // Retrieve the certificate chain for this client
+        if (containerLog.isDebugEnabled())
+            containerLog.debug(" Looking up certificates");
+
+        X509Certificate certs[] = (X509Certificate[])
+                request.getAttribute(Globals.CERTIFICATES_ATTR);
+
+        if ((certs == null) || (certs.length < 1)) {
+            try {
+                request.getCoyoteRequest().action
+                        (ActionCode.ACTION_REQ_SSL_CERTIFICATE, null);
+            } catch (IllegalStateException ise) {
+                // Request body was too large for save buffer
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                        sm.getString("authenticator.certificates"));
+                return null;
+            }
+            certs = (X509Certificate[])
+                    request.getAttribute(Globals.CERTIFICATES_ATTR);
+        }
+
+        if ((certs == null) || (certs.length < 1)) {
+            if (containerLog.isDebugEnabled())
+                containerLog.debug("  No certificates included with this request");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                    sm.getString("authenticator.certificates"));
+            return null;
+        }
+
+        // Authenticate the specified certificate chain
+        Principal principal = getContext().getRealm().authenticate(certs);
+
+        if (principal == null) {
+            if (containerLog.isDebugEnabled())
+                containerLog.debug("  Realm.authenticate() returned false");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                    sm.getString("authenticator.unauthorized"));
+            return null;
+        }
+
+        return principal;
     }
 
     protected void handleSAML11(Request request, Response response) throws ServletException, IOException {
@@ -777,7 +818,7 @@ public abstract class AbstractIDPValve extends ValveBase {
     /**
      * Returns the PublicKey to be used for the token's signature verification. This key is related with the issuer of the SAML
      * message received by the IDP.
-     * 
+     *
      * @param request
      * @param issuer
      * @return
@@ -1067,7 +1108,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      * <p>
      * Initialize the Handlers chain.
      * </p>
-     * 
+     *
      * @throws LifecycleException
      */
     protected void initHandlersChain() throws LifecycleException {
@@ -1335,15 +1376,15 @@ public abstract class AbstractIDPValve extends ValveBase {
         initIdentityServer();
 
         // Add some keys to the attibutes
-        String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
-                "facsimileTelephoneNumber" };
+        String[] ak = new String[]{"mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
+                "facsimileTelephoneNumber"};
 
         this.attributeKeys.addAll(Arrays.asList(ak));
     }
 
     /**
      * Given a set of roles, create an attribute statement
-     * 
+     *
      * @param roles
      * @return
      */
@@ -1367,7 +1408,7 @@ public abstract class AbstractIDPValve extends ValveBase {
     /**
      * We will ignore signatures of current SAMLRequest if SP Metadata are provided for current SP and if metadata specifies
      * that SAMLRequest is not signed for this SP.
-     * 
+     *
      * @param spIssuer
      * @return true if signature is not expected in SAMLRequest and so signature validation should be ignored
      */
@@ -1396,6 +1437,32 @@ public abstract class AbstractIDPValve extends ValveBase {
         }
 
         this.idpConfiguration.setHostedURI(hostedURI);
+    }
+
+    private SSLAuthenticator getSSLAuthenticator() {
+        if (this.sslAuthenticator == null) {
+            this.sslAuthenticator = new SSLAuthenticator() {
+                @Override
+                public Valve getNext() {
+                    return new ValveBase() {
+                        @Override
+                        public void invoke(Request request, Response response) throws IOException, ServletException {
+                            // no-op
+                        }
+                    };
+                }
+            };
+
+            this.sslAuthenticator.setContainer(getContainer());
+
+            try {
+                this.sslAuthenticator.start();
+            } catch (LifecycleException e) {
+                throw new RuntimeException("Error starting SSL authenticator.", e);
+            }
+        }
+
+        return this.sslAuthenticator;
     }
 
 }
