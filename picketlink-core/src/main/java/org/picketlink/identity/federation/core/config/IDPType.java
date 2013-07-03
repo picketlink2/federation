@@ -72,6 +72,11 @@ public class IDPType extends ProviderType {
     private boolean strictPostBinding = true;
 
     /**
+     * Tells the IDP if SSL clients should be authenticated.
+     */
+    private boolean sslClientAuthentication = false;
+
+    /**
      * If the user wants to set a particular {@link IdentityParticipantStack}
      */
     private String identityParticipantStack = null;
@@ -223,6 +228,24 @@ public class IDPType extends ProviderType {
      */
     public boolean isStrictPostBinding() {
         return this.strictPostBinding;
+    }
+
+    /**
+     * Gets the value of the supportsSSL property.
+     *
+     * @return
+     */
+    public boolean isSSLClientAuthentication() {
+        return this.sslClientAuthentication;
+    }
+
+    /**
+     * Sets the value of the supportsSSL property.
+     *
+     * @param sslClientAuthentication
+     */
+    public void setSSLClientAuthentication(boolean sslClientAuthentication) {
+        this.sslClientAuthentication = sslClientAuthentication;
     }
 
     /**
