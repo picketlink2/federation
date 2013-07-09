@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.security.KeyPair;
 import java.security.Principal;
 
@@ -251,7 +250,7 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
 
         MockCatalinaResponse response = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         spAuthenticator.authenticate(request, response, new LoginConfig());
 
@@ -270,7 +269,7 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
 
         MockCatalinaResponse catalinaResponse = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        catalinaResponse.setWriter(new PrintWriter(baos));
+        catalinaResponse.setOutputStream(baos);
 
         LoginConfig loginConfig = new LoginConfig();
 
@@ -292,7 +291,7 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         // signed SAML Response.
         MockCatalinaResponse response = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         String samlAuth = DocumentUtil.getDocumentAsString(new SAML2Request().convert(art));
 

@@ -27,8 +27,8 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -214,13 +214,13 @@ public class IDPWebBrowserSSOTestCase {
         MockCatalinaRequest request = AuthenticatorTestUtils.createRequest(SERVICE_PROVIDER_HOST_ADDRESS, true);
         MockCatalinaResponse response = new MockCatalinaResponse();
 
-        StringWriter responseWriter = new StringWriter();
-
-        response.setWriter(new PrintWriter(responseWriter));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        
+        response.setOutputStream(bos);
 
         sendAuthenticationRequest(request, response, SERVICE_PROVIDER_URL, true);
 
-        ResponseType responseType = getResponseTypeAndCheckSignature(response, responseWriter);
+        ResponseType responseType = getResponseTypeAndCheckSignature(response, bos);
 
         assertNotNull(responseType);
         assertEquals(1, responseType.getAssertions().size());
@@ -418,17 +418,17 @@ public class IDPWebBrowserSSOTestCase {
      * </p>
      * 
      * @param response
-     * @param responseWriter if not null, try to get the {@link ResponseType} from the this writer. Otherwise try to get from
+     * @param bos if not null, try to get the {@link ResponseType} from the this writer. Otherwise try to get from
      *        the response querystring.
      * @return
      */
-    private ResponseType getResponseType(MockCatalinaResponse response, StringWriter responseWriter) {
+    private ResponseType getResponseType(MockCatalinaResponse response, ByteArrayOutputStream bos) {
         ResponseType responseType = null;
 
         try {
             SAML2Response samlResponse = new SAML2Response();
 
-            if (responseWriter == null) {
+            if (bos == null) {
                 MockCatalinaRequest requestTmp = new MockCatalinaRequest();
 
                 AuthenticatorTestUtils.populateParametersWithQueryString(response.redirectString, requestTmp);
@@ -436,7 +436,7 @@ public class IDPWebBrowserSSOTestCase {
                 responseType = (ResponseType) samlResponse.getSAML2ObjectFromStream(RedirectBindingUtil
                         .base64DeflateDecode(requestTmp.getParameter(GeneralConstants.SAML_RESPONSE_KEY)));
             } else {
-                Document postBindingForm = DocumentUtil.getDocument(responseWriter.toString());
+                Document postBindingForm = DocumentUtil.getDocument(bos.toString());
 
                 logger.info("POST Binding response from the IDP:");
                 logger.info(prettyPrintDocument(postBindingForm).toString());
@@ -461,11 +461,11 @@ public class IDPWebBrowserSSOTestCase {
         return responseType;
     }
 
-    private ResponseType getResponseTypeAndCheckSignature(MockCatalinaResponse response, StringWriter responseWriter) {
-        ResponseType responseType = getResponseType(response, responseWriter);
+    private ResponseType getResponseTypeAndCheckSignature(MockCatalinaResponse response, ByteArrayOutputStream bos) {
+        ResponseType responseType = getResponseType(response, bos);
 
         try {
-            if (responseWriter == null) {
+            if (bos == null) {
                 assertTrue(RedirectBindingSignatureUtil.validateSignature(response.redirectString, getAuthenticator()
                         .getKeyManager().getPublicKey(CERTIFICATE_ALIAS), RedirectBindingSignatureUtil
                         .getSignatureValueFromSignedURL(response.redirectString)));
