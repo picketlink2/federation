@@ -50,11 +50,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.picketlink</groupId>
-			<artifactId>picketlink-jbas-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.picketbox</groupId>
 			<artifactId>picketbox</artifactId>
 			<version>4.0.7.Final</version>
@@ -64,6 +59,11 @@
 			<artifactId>jbossweb</artifactId>
 			<version>7.0.13.Final</version>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-jbas-common</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
