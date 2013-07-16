@@ -39,7 +39,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.SecurityConstants;
-import org.jboss.wsf.common.handler.GenericSOAPHandler;
+import org.jboss.ws.api.handler.GenericSOAPHandler;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
