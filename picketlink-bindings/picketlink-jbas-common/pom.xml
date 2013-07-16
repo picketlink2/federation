@@ -121,7 +121,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.logging</groupId>
-			<artifactId>jboss-logging-spi</artifactId>
+			<artifactId>jboss-logging</artifactId>
 			<version>2.1.0.GA</version>
 			<optional>true</optional>
 		</dependency>
