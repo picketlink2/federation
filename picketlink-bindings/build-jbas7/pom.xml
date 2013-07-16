@@ -34,7 +34,7 @@
            <id>create-binary</id>
             <phase>package</phase>
             <goals>
-              <goal>attached</goal>
+              <goal>single</goal>
             </goals>
             <configuration>
               <appendAssemblyId>false</appendAssemblyId>
@@ -55,14 +55,12 @@
               </descriptors>
             </configuration>
           </execution>
-
           <execution>
              <id>create-source-file</id>
              <phase>package</phase>
              <goals>
-               <goal>assembly</goal>
+               <goal>single</goal>
              </goals>
-
              <configuration>
               <archive>
                <manifestEntries>
@@ -82,7 +80,7 @@
             </configuration>
           </execution>
         </executions>
-        <inherited>false</inherited>
+        <inherited>true</inherited>
       </plugin>
     </plugins>
   </build>
