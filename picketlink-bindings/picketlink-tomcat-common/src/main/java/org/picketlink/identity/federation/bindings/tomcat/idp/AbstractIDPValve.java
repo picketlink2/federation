@@ -731,11 +731,6 @@ public abstract class AbstractIDPValve extends ValveBase {
                 if (destination == null) {
                     response.sendRedirect(getIdentityURL());
                 } else {
-                    boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-
-                    if (postProfile)
-                        recycle(response);
-
                     WebRequestUtilHolder holder = webRequestUtil.getHolder();
                     holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                             .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
@@ -747,11 +742,14 @@ public abstract class AbstractIDPValve extends ValveBase {
                     if (requestedPostProfile != null)
                         holder.setPostBindingRequested(requestedPostProfile);
                     else
-                        holder.setPostBindingRequested(postProfile);
+                        holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
                     if (this.idpConfiguration.isSupportsSignature()) {
                         holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                     }
+
+                    if (holder.isPostBinding())
+                        recycle(response);
 
                     if (enableAudit) {
                         PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -915,10 +913,6 @@ public abstract class AbstractIDPValve extends ValveBase {
             isErrorResponse = true;
         } finally {
             try {
-                boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-                if (postProfile)
-                    recycle(response);
-
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 if (destination == null)
                     throw new ServletException(logger.nullValueError("Destination"));
@@ -938,6 +932,9 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+
+                if (holder.isPostBinding())
+                    recycle(response);
 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -1005,20 +1002,19 @@ public abstract class AbstractIDPValve extends ValveBase {
                 getIdentityURL(), this.idpConfiguration.isSupportsSignature());
         try {
 
-            boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-            if (postProfile)
-                recycle(response);
-
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState)
                     .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
-            holder.setPostBindingRequested(postProfile);
+            holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
             if (this.idpConfiguration.isSupportsSignature()) {
                 holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
 
             holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+
+            if (holder.isPostBinding())
+                recycle(response);
 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
