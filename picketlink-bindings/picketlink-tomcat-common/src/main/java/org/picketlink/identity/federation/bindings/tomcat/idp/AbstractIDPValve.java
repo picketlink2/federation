@@ -517,28 +517,23 @@ public abstract class AbstractIDPValve extends ValveBase {
         if (containerLog.isDebugEnabled())
             containerLog.debug(" Looking up certificates");
 
-        X509Certificate certs[] = (X509Certificate[])
-                request.getAttribute(Globals.CERTIFICATES_ATTR);
+        X509Certificate certs[] = (X509Certificate[]) request.getAttribute(Globals.CERTIFICATES_ATTR);
 
         if ((certs == null) || (certs.length < 1)) {
             try {
-                request.getCoyoteRequest().action
-                        (ActionCode.ACTION_REQ_SSL_CERTIFICATE, null);
+                request.getCoyoteRequest().action(ActionCode.ACTION_REQ_SSL_CERTIFICATE, null);
             } catch (IllegalStateException ise) {
                 // Request body was too large for save buffer
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                        sm.getString("authenticator.certificates"));
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, sm.getString("authenticator.certificates"));
                 return null;
             }
-            certs = (X509Certificate[])
-                    request.getAttribute(Globals.CERTIFICATES_ATTR);
+            certs = (X509Certificate[]) request.getAttribute(Globals.CERTIFICATES_ATTR);
         }
 
         if ((certs == null) || (certs.length < 1)) {
             if (containerLog.isDebugEnabled())
                 containerLog.debug("  No certificates included with this request");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                    sm.getString("authenticator.certificates"));
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, sm.getString("authenticator.certificates"));
             return null;
         }
 
@@ -548,8 +543,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         if (principal == null) {
             if (containerLog.isDebugEnabled())
                 containerLog.debug("  Realm.authenticate() returned false");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                    sm.getString("authenticator.unauthorized"));
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, sm.getString("authenticator.unauthorized"));
             return null;
         }
 
@@ -772,11 +766,6 @@ public abstract class AbstractIDPValve extends ValveBase {
                 if (destination == null) {
                     response.sendRedirect(getIdentityURL());
                 } else {
-                    boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-
-                    if (postProfile)
-                        recycle(response);
-
                     WebRequestUtilHolder holder = webRequestUtil.getHolder();
                     holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                             .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
@@ -788,11 +777,14 @@ public abstract class AbstractIDPValve extends ValveBase {
                     if (requestedPostProfile != null)
                         holder.setPostBindingRequested(requestedPostProfile);
                     else
-                        holder.setPostBindingRequested(postProfile);
+                        holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
                     if (this.idpConfiguration.isSupportsSignature()) {
                         holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                     }
+
+                    if (holder.isPostBinding())
+                        recycle(response);
 
                     if (enableAudit) {
                         PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -956,10 +948,6 @@ public abstract class AbstractIDPValve extends ValveBase {
             isErrorResponse = true;
         } finally {
             try {
-                boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-                if (postProfile)
-                    recycle(response);
-
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 if (destination == null)
                     throw new ServletException(logger.nullValueError("Destination"));
@@ -979,6 +967,9 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+
+                if (holder.isPostBinding())
+                    recycle(response);
 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -1046,20 +1037,19 @@ public abstract class AbstractIDPValve extends ValveBase {
                 getIdentityURL(), this.idpConfiguration.isSupportsSignature());
         try {
 
-            boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-            if (postProfile)
-                recycle(response);
-
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState)
                     .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
-            holder.setPostBindingRequested(postProfile);
+            holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
             if (this.idpConfiguration.isSupportsSignature()) {
                 holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
 
             holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+
+            if (holder.isPostBinding())
+                recycle(response);
 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -1376,8 +1366,8 @@ public abstract class AbstractIDPValve extends ValveBase {
         initIdentityServer();
 
         // Add some keys to the attibutes
-        String[] ak = new String[]{"mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
-                "facsimileTelephoneNumber"};
+        String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
+                "facsimileTelephoneNumber" };
 
         this.attributeKeys.addAll(Arrays.asList(ak));
     }
