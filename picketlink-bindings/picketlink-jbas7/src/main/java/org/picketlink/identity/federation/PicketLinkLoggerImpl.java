@@ -1579,4 +1579,19 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         ROOT_LOGGER.authorizationManagerError(e);
     }
 
+    public IllegalStateException jbdcInitializationError(Throwable throwable) {
+        return MESSAGES.jbdcInitializationError(throwable);
+    }
+
+    public RuntimeException errorUnmarshallingToken(Throwable e) {
+        return MESSAGES.errorUnmarshallingToken(e);
+    }
+
+    public RuntimeException runtimeException(String msg, Throwable e) {
+        return MESSAGES.runtimeException(msg,e);
+    }
+
+    public IllegalStateException datasourceIsNull() {
+        return MESSAGES.datasourceIsNull();
+    }
 }
