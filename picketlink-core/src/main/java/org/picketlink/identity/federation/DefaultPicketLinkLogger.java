@@ -55,10 +55,6 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
- */
 public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     private Logger logger = Logger.getLogger(PicketLinkLogger.class.getPackage().getName());
@@ -2321,4 +2317,19 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         error("Error loading AuthorizationManager.", e);
     }
 
+    public IllegalStateException jbdcInitializationError(Throwable throwable) {
+        return new IllegalStateException(throwable);
+    }
+
+    public RuntimeException errorUnmarshallingToken(Throwable e) {
+        return new RuntimeException(e);
+    }
+
+    public RuntimeException runtimeException(String msg, Throwable e) {
+        return new RuntimeException(msg,e);
+    }
+
+    public IllegalStateException datasourceIsNull() {
+        return new IllegalStateException();
+    }
 }
