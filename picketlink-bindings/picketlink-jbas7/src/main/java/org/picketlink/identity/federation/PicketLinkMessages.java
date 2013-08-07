@@ -499,4 +499,15 @@ public interface PicketLinkMessages {
     @Message(id = 175, value = "No configuration provided for the Service Provider..")
     ConfigurationException samlMetaDataNoServiceProviderDefined();
 
+    @Message(id = 176, value = "JDBC Initialization Error.")
+    IllegalStateException jbdcInitializationError(@Cause Throwable throwable);
+
+    @Message(id = 177, value = "Error Unmarshalling Token.")
+    RuntimeException errorUnmarshallingToken(@Cause Throwable e);
+
+    @Message(id = 178, value = "RuntimeException %s")
+    RuntimeException runtimeException(String msg, @Cause Throwable e);
+
+    @Message(id = 179, value = "Datasource is null.")
+    IllegalStateException datasourceIsNull();
 }

@@ -1288,4 +1288,11 @@ public interface PicketLinkLogger {
 
     void authorizationManagerError(ConfigurationException e);
 
+    IllegalStateException jbdcInitializationError(Throwable throwable);
+
+    RuntimeException errorUnmarshallingToken(Throwable e);
+
+    RuntimeException runtimeException(String msg, Throwable e);
+
+    IllegalStateException datasourceIsNull();
 }
