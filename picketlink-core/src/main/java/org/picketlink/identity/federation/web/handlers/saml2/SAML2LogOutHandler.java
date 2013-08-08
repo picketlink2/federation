@@ -37,6 +37,7 @@ import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -65,6 +66,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Document;
 
 /**
@@ -438,7 +440,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             SAML2Object samlObject = request.getSAML2Object();
             if (samlObject instanceof LogoutRequestType == false)
                 return;
-
+            //get the configuration to handle a logout request from idp and set the correct response location
+            SPType spConfiguration = (SPType) getProviderconfig();
+            
             LogoutRequestType logOutRequest = (LogoutRequestType) samlObject;
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
@@ -473,6 +477,15 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             statusResponse.setInResponseTo(logOutRequest.getID());
 
             statusResponse.setIssuer(request.getIssuer());
+            
+            String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
+            if(logoutResponseLocation == null) {
+            	response.setDestination(request.getIssuer().getValue());
+            } else {
+            	response.setDestination(logoutResponseLocation);
+            }
+            
+            statusResponse.setDestination(response.getDestination());
 
             SAML2Response saml2Response = new SAML2Response();
             try {
@@ -482,7 +495,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             response.setRelayState(relayState);
-            response.setDestination(logOutRequest.getIssuer().getValue());
             response.setSendRequest(false);
         }
     }
