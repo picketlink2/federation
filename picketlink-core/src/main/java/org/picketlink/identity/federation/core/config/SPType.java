@@ -77,6 +77,13 @@ public class SPType extends ProviderType {
      * <p>The URL that should be used during a GLO logout. This would usually be an URL from the IDP.</p>
      */
     private String logoutUrl;
+    
+    /**
+     * The URL used to send a response for an IDP logout request
+     */
+    private String logoutResponseLocation;
+    
+    
 
     /**
      * Gets the value of the serviceURL property.
@@ -167,4 +174,12 @@ public class SPType extends ProviderType {
     public void setLogoutUrl(String logoutUrl) {
         this.logoutUrl = logoutUrl;
     }
+
+	public String getLogoutResponseLocation() {
+		return logoutResponseLocation;
+	}
+
+	public void setLogoutResponseLocation(String logoutResponseLocation) {
+		this.logoutResponseLocation = logoutResponseLocation;
+	}
 }
