@@ -359,6 +359,7 @@ public class CoreConfigUtil {
 
             spType.setIdentityURL(identityURL);
             spType.setLogoutUrl(getLogoutURL(idpSSO, bindingURI));
+            spType.setLogoutResponseLocation(getLogoutResponseLocation(idpSSO, bindingURI));
 
             String serviceURL = getServiceURL(spSSO, bindingURI);
 
@@ -456,7 +457,7 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a binding uri, get the IDP identity url
+     * Given a binding uri, get the IDP logout url
      * 
      * @param idp
      * @param bindingURI
@@ -474,6 +475,29 @@ public class CoreConfigUtil {
 
         }
         return logoutURL;
+    }
+    
+    /**
+     * Given a binding uri, get the IDP logout response url (used for global logouts)
+     * 
+     */
+    public static String getLogoutResponseLocation(IDPSSODescriptorType idp, String bindingURI) {
+    	String logoutResponseLocation = null;
+
+        List<EndpointType> endpoints = idp.getSingleLogoutService();
+        for (EndpointType endpoint : endpoints) {
+            if (endpoint.getBinding().toString().equals(bindingURI)) {
+            	if(endpoint.getResponseLocation() != null) {
+            		logoutResponseLocation = endpoint.getResponseLocation().toString();
+            	} else {
+            		logoutResponseLocation = null;
+            	}
+            		
+                break;
+            }
+
+        }
+        return logoutResponseLocation;
     }
 
     /**
