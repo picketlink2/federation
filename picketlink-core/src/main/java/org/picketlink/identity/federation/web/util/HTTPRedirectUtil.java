@@ -21,9 +21,8 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Utility Class for http/redirect
@@ -62,6 +61,7 @@ public class HTTPRedirectUtil {
     }
 
     private static void sendRedirect(HttpServletResponse response, String destination) throws IOException {
+        response.reset();
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         response.sendRedirect(destination);
     }

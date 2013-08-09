@@ -44,8 +44,6 @@ import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -118,6 +116,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         sp.getConfiguration().setIdpUsesPostBinding(false);
 
         MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
+        catalinaRequest.setSession(new MockCatalinaSession());
         catalinaRequest.setUserPrincipal(principal);
         MockCatalinaResponse response = new MockCatalinaResponse();
         MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();

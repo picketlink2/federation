@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
@@ -79,7 +80,7 @@ public class StaxUtil {
      * @throws ProcessingException
      */
     public static XMLEventWriter getXMLEventWriter(final OutputStream outStream) throws ProcessingException {
-        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+        XMLOutputFactory xmlOutputFactory = getXMLOutputFactory();
         try {
             return xmlOutputFactory.createXMLEventWriter(outStream, "UTF-8");
         } catch (XMLStreamException e) {
@@ -95,7 +96,7 @@ public class StaxUtil {
      * @throws ProcessingException
      */
     public static XMLStreamWriter getXMLStreamWriter(final OutputStream outStream) throws ProcessingException {
-        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+        XMLOutputFactory xmlOutputFactory = getXMLOutputFactory();
         try {
             return xmlOutputFactory.createXMLStreamWriter(outStream, "UTF-8");
         } catch (XMLStreamException e) {
@@ -111,7 +112,7 @@ public class StaxUtil {
      * @throws ProcessingException
      */
     public static XMLStreamWriter getXMLStreamWriter(final Writer writer) throws ProcessingException {
-        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+        XMLOutputFactory xmlOutputFactory = getXMLOutputFactory();
         try {
             return xmlOutputFactory.createXMLStreamWriter(writer);
         } catch (XMLStreamException e) {
@@ -120,7 +121,7 @@ public class StaxUtil {
     }
 
     public static XMLStreamWriter getXMLStreamWriter(final Result result) throws ProcessingException {
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        XMLOutputFactory factory = getXMLOutputFactory();
         try {
             return factory.createXMLStreamWriter(result);
         } catch (XMLStreamException xe) {
@@ -532,5 +533,21 @@ public class StaxUtil {
         }
         
         writeEndElement(writer);
+    }
+
+    private static XMLOutputFactory getXMLOutputFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(StaxUtil.class.getClassLoader());
+            }
+            return XMLOutputFactory.newInstance();
+        } finally {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
     }
 }

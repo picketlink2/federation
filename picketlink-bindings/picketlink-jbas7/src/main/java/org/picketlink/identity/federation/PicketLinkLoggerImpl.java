@@ -836,7 +836,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#saml11MarshallError(java.lang.Throwable)
      */
     public ProcessingException samlAssertionMarshallError(Throwable t) {
-        return MESSAGES.saml11MarshallError(t);
+        return MESSAGES.samlMarshallError(t);
     }
 
     /* (non-Javadoc)
@@ -850,7 +850,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#saml11UnmarshallError(java.lang.Throwable)
      */
     public ProcessingException samlAssertionUnmarshallError(Throwable t) {
-        return MESSAGES.saml11UnmarshallError(t);
+        return MESSAGES.samlUnmarshallError(t);
     }
 
     /* (non-Javadoc)
@@ -1579,4 +1579,19 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         ROOT_LOGGER.authorizationManagerError(e);
     }
 
+    public IllegalStateException jbdcInitializationError(Throwable throwable) {
+        return MESSAGES.jbdcInitializationError(throwable);
+    }
+
+    public RuntimeException errorUnmarshallingToken(Throwable e) {
+        return MESSAGES.errorUnmarshallingToken(e);
+    }
+
+    public RuntimeException runtimeException(String msg, Throwable e) {
+        return MESSAGES.runtimeException(msg,e);
+    }
+
+    public IllegalStateException datasourceIsNull() {
+        return MESSAGES.datasourceIsNull();
+    }
 }

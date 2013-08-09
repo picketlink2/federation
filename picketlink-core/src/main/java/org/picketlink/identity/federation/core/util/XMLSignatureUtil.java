@@ -410,7 +410,7 @@ public class XMLSignatureUtil {
      * @throws TransformerException
      */
     public static void marshall(Document signedDocument, OutputStream os) throws TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance();
+        TransformerFactory tf = TransformerUtil.getTransformerFactory();
         Transformer trans = tf.newTransformer();
         trans.transform(DocumentUtil.getXMLSource(signedDocument), new StreamResult(os));
     }

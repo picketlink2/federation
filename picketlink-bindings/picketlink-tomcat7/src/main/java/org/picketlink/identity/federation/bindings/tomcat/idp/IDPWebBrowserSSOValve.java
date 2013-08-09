@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.bindings.tomcat.idp;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.util.LifecycleSupport;
 import org.picketlink.identity.federation.core.ErrorCodes;
 
@@ -82,7 +83,7 @@ public class IDPWebBrowserSSOValve extends AbstractIDPValve implements Lifecycle
             throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_ALREADY_STARTED);
         super.startInternal();
         started = true;
-        
+
         startPicketLink();
     } 
 
@@ -104,4 +105,6 @@ public class IDPWebBrowserSSOValve extends AbstractIDPValve implements Lifecycle
     protected String getContextPath() {
         return getContext().getServletContext().getContextPath();
     }
+
+
 }

@@ -335,14 +335,14 @@ public interface PicketLinkMessages {
     @Message(id = 121, value = "Invalid cancel request: missing required CancelTarget")
     ProcessingException wsTrustNullCancelTargetError();
 
-    @Message(id = 122, value = "Failed to marshall SAMLV1.1 assertion")
-    ProcessingException saml11MarshallError(@Cause Throwable t);
+    @Message(id = 122, value = "Failed to marshall assertion")
+    ProcessingException samlMarshallError(@Cause Throwable t);
 
     @Message(id = 123, value = "Invalid renew request: missing required RenewTarget")
     ProcessingException wsTrustNullRenewTargetError();
 
     @Message(id = 124, value = "Error unmarshalling assertion")
-    ProcessingException saml11UnmarshallError(@Cause Throwable t);
+    ProcessingException samlUnmarshallError(@Cause Throwable t);
 
     @Message(id = 125, value = "SAML Assertion with id %s has been canceled and cannot be renewed")
     ProcessingException samlAssertionRevokedCouldNotRenew(String id);
@@ -499,4 +499,15 @@ public interface PicketLinkMessages {
     @Message(id = 175, value = "No configuration provided for the Service Provider..")
     ConfigurationException samlMetaDataNoServiceProviderDefined();
 
+    @Message(id = 176, value = "JDBC Initialization Error.")
+    IllegalStateException jbdcInitializationError(@Cause Throwable throwable);
+
+    @Message(id = 177, value = "Error Unmarshalling Token.")
+    RuntimeException errorUnmarshallingToken(@Cause Throwable e);
+
+    @Message(id = 178, value = "RuntimeException %s")
+    RuntimeException runtimeException(String msg, @Cause Throwable e);
+
+    @Message(id = 179, value = "Datasource is null.")
+    IllegalStateException datasourceIsNull();
 }

@@ -152,7 +152,6 @@ public class ServiceProviderBaseProcessor {
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
         saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
         saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
-        saml2HandlerRequest.addOption(GeneralConstants.CONFIGURATION, this.spConfiguration.isSupportsSignature());
         
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 

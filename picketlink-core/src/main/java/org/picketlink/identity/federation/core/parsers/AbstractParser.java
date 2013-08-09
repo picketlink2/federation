@@ -22,6 +22,8 @@
 package org.picketlink.identity.federation.core.parsers;
 
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
@@ -34,6 +36,8 @@ import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Base class for parsers
@@ -44,6 +48,27 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 public abstract class AbstractParser implements ParserNamespaceSupport {
     
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
+    /**
+     * Get the JAXP {@link XMLInputFactory}
+     * @return
+     */
+    protected XMLInputFactory getXMLInputFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = getTCCL();
+        try {
+            if (tccl_jaxp) {
+                setTCCL(getClass().getClassLoader());
+            }
+            return XMLInputFactory.newInstance();
+        } finally {
+            if (tccl_jaxp) {
+                setTCCL(prevTCCL);
+            }
+        }
+
+    }
     
     /**
      * Parse an InputStream for payload
@@ -57,7 +82,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
         if (configStream == null)
             throw logger.nullArgumentError("InputStream");
 
-        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        XMLInputFactory xmlInputFactory = getXMLInputFactory();
 
         XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(configStream);
 
@@ -86,4 +111,28 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
         return parse(xmlEventReader);
     }
 
+    private ClassLoader getTCCL(){
+        if(System.getSecurityManager() != null){
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        } else {
+            return Thread.currentThread().getContextClassLoader();
+        }
+    }
+
+    private void setTCCL(final ClassLoader paramCl){
+        if(System.getSecurityManager() != null){
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                public Void run() {
+                    Thread.currentThread().setContextClassLoader(paramCl);
+                    return null;
+                }
+            });
+        } else {
+            Thread.currentThread().setContextClassLoader(paramCl);
+        }
+    }
 }

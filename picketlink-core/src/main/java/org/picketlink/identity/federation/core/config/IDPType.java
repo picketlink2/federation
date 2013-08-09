@@ -62,12 +62,19 @@ public class IDPType extends ProviderType {
     protected String attributeManager;
 
     protected Boolean encrypt;
+    
+    protected String hostedURI;
 
     /**
      * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to false
      * if you want to force the IDP to respond to SPs using the Redirect Binding.
      */
     private boolean strictPostBinding = true;
+
+    /**
+     * Tells the IDP if SSL clients should be authenticated.
+     */
+    private boolean sslClientAuthentication = false;
 
     /**
      * If the user wants to set a particular {@link IdentityParticipantStack}
@@ -167,6 +174,24 @@ public class IDPType extends ProviderType {
     }
 
     /**
+     * Gets the value of the encrypt property.
+     * 
+     * @return possible object is {@link String}
+     */
+    public String getHostedURI() {
+        return hostedURI;
+    }
+
+    /**
+     * Sets the value of the hostedURI property.
+     * 
+     * @param value allowed object is {@link String}
+     */
+    public void setHostedURI(String hostedURI) {
+        this.hostedURI = hostedURI;
+    }
+
+    /**
      * Import values from another {@link IDPType}
      * 
      * @param other
@@ -203,6 +228,24 @@ public class IDPType extends ProviderType {
      */
     public boolean isStrictPostBinding() {
         return this.strictPostBinding;
+    }
+
+    /**
+     * Gets the value of the supportsSSL property.
+     *
+     * @return
+     */
+    public boolean isSSLClientAuthentication() {
+        return this.sslClientAuthentication;
+    }
+
+    /**
+     * Sets the value of the supportsSSL property.
+     *
+     * @param sslClientAuthentication
+     */
+    public void setSSLClientAuthentication(boolean sslClientAuthentication) {
+        this.sslClientAuthentication = sslClientAuthentication;
     }
 
     /**

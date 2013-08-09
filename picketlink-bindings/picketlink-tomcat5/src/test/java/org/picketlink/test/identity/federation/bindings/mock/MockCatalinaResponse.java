@@ -21,15 +21,17 @@
  */
 package org.picketlink.test.identity.federation.bindings.mock;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.catalina.connector.Response;
-
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.connector.Response;
 
 /**
  * Mock catalina response
@@ -42,6 +44,7 @@ public class MockCatalinaResponse extends Response {
     private int status;
     public String redirectString;
     private PrintWriter mywriter;
+    private ServletOutputStream os;
 
     @Override
     public void setCharacterEncoding(String charset) {
@@ -97,5 +100,28 @@ public class MockCatalinaResponse extends Response {
 
     @Override
     public void recycle() {
+    }
+    
+    @Override
+    public void resetBuffer() {
+    }
+    
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        return this.os;
+    }
+
+    public void setOutputStream(final ByteArrayOutputStream os) {
+        this.os = new ServletOutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                os.write(b);
+            }
+        };
+    }
+
+    @Override
+    public void reset() {
+
     }
 }

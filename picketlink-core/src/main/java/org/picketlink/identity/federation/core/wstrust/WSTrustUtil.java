@@ -29,6 +29,7 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ import javax.xml.stream.events.StartElement;
 
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
+import org.apache.xml.security.keys.KeyInfo;
+import org.apache.xml.security.keys.content.X509Data;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.STSType;
@@ -51,6 +54,9 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.identity.federation.core.util.ProvidersUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -84,7 +90,23 @@ import org.w3c.dom.Element;
 public class WSTrustUtil {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-
+    
+    // Set some system properties and Santuario providers. Run this block before any other class initialization.
+    static {
+        ProvidersUtil.ensure();
+        SystemPropertiesUtil.ensure();
+        String keyInfoProp = SystemPropertiesUtil.getSystemProperty("picketlink.encryption.includeKeyInfo", null);
+        if (StringUtil.isNotNull(keyInfoProp)) {
+            includeKeyInfoInEncryptedKey = Boolean.parseBoolean(keyInfoProp);
+        }
+    };
+    
+    /**
+     * By default, we include the keyinfo in the EncryptedKey
+     */
+    private static boolean includeKeyInfoInEncryptedKey = true;
+    
+    
     /**
      * <p>
      * Creates an instance of {@code KeyIdentifierType} with the specified values.
@@ -402,6 +424,53 @@ public class WSTrustUtil {
     /**
      * <p>
      * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
+     * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}. It also create a 
+     * keyinfo with the information about the key used for the encryption 
+     * </p>
+     *
+     * @param secret a {@code byte[]} representing the secret (symmetric key).
+     * @param encryptionKey the {@code PublicKey} that must be used to encrypt the secret.
+     * @param keyWrapAlgo the key wrap algorithm to be used.
+     * @return the constructed {@code KeyInfoType} instance.
+     * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
+     */
+    public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo, X509Certificate cer) throws WSTrustException {
+        KeyInfoType keyInfo = null;
+
+        // if a public key has been specified, encrypt the secret using the public key.
+        if (encryptionKey != null) {
+            try {
+                Document document = DocumentUtil.createDocument();
+                // TODO: XMLEncryptionUtil should allow for the specification of the key wrap algorithm.
+                EncryptedKey key = XMLEncryptionUtil.encryptKey(document, new SecretKeySpec(secret, "AES"), encryptionKey,
+                        secret.length * 8);
+                
+                //if certificate is not null provide the information about the key
+                if(cer != null && includeKeyInfoInEncryptedKey == true) {
+                	KeyInfo kiEnc = new KeyInfo(document);
+                	X509Data xData = new X509Data(document);
+                	xData.addIssuerSerial(cer.getIssuerDN().getName(), cer.getSerialNumber());
+                	kiEnc.add(xData);
+                    key.setKeyInfo(kiEnc);
+                }
+                
+                Element encryptedKeyElement = XMLCipher.getInstance().martial(key);
+                keyInfo = new KeyInfoType();
+                keyInfo.addContent(encryptedKeyElement);
+                
+                
+            } catch (Exception e) {
+                throw logger.stsKeyInfoTypeCreationError(e);
+            }
+        } else {
+            logger.stsSecretKeyNotEncrypted();
+        }
+        return keyInfo;
+    }
+    
+    /**
+     * <p>
+     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
      * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}.
      * </p>
      *
@@ -412,25 +481,7 @@ public class WSTrustUtil {
      * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
      */
     public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo) throws WSTrustException {
-        KeyInfoType keyInfo = null;
-
-        // if a public key has been specified, encrypt the secret using the public key.
-        if (encryptionKey != null) {
-            try {
-                Document document = DocumentUtil.createDocument();
-                // TODO: XMLEncryptionUtil should allow for the specification of the key wrap algorithm.
-                EncryptedKey key = XMLEncryptionUtil.encryptKey(document, new SecretKeySpec(secret, "AES"), encryptionKey,
-                        secret.length * 8);
-                Element encryptedKeyElement = XMLCipher.getInstance().martial(key);
-                keyInfo = new KeyInfoType();
-                keyInfo.addContent(encryptedKeyElement);
-            } catch (Exception e) {
-                throw logger.stsKeyInfoTypeCreationError(e);
-            }
-        } else {
-            logger.stsSecretKeyNotEncrypted();
-        }
-        return keyInfo;
+    	return createKeyInfo(secret, encryptionKey, keyWrapAlgo, null);
     }
 
     /**

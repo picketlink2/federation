@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,8 @@ import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.ProviderType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -48,9 +51,12 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -60,6 +66,8 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.w3c.dom.Document;
 
 /**
  * SAML2 LogOut Profile
@@ -364,11 +372,47 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 NameIDType nameID = new NameIDType();
                 nameID.setValue(userPrincipal.getName());
                 lot.setNameID(nameID);
-
+                
+                SPType spConfiguration = (SPType) getProviderconfig();
+                String logoutUrl = spConfiguration.getLogoutUrl();
+                
+                if (logoutUrl == null) {
+                    logoutUrl = spConfiguration.getIdentityURL();
+                }
+                
+                lot.setDestination(URI.create(logoutUrl));
+                
+                populateSessionIndex(httpRequest, lot);
+                
                 response.setResultingDocument(samlRequest.convert(lot));
                 response.setSendRequest(true);
             } catch (Exception e) {
                 throw logger.processingError(e);
+            }
+        }
+
+        private void populateSessionIndex(HttpServletRequest httpRequest, LogoutRequestType lot) throws ProcessingException,
+                ConfigurationException, ParsingException {
+            Document currentAssertion = (Document) httpRequest.getSession().getAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+            
+            if (currentAssertion != null) {
+                AssertionType assertionType = SAMLUtil.fromElement(currentAssertion.getDocumentElement());
+                
+                Set<StatementAbstractType> statements = assertionType.getStatements();
+                
+                for (StatementAbstractType statementAbstractType : statements) {
+                    if (AuthnStatementType.class.isInstance(statementAbstractType)) {
+                        AuthnStatementType authnStatement = (AuthnStatementType) statementAbstractType;
+                        
+                        String sessionIndex = authnStatement.getSessionIndex();
+                        
+                        if (sessionIndex != null) {
+                            lot.addSessionIndex(sessionIndex);
+                        }
+                        
+                        break;
+                    }
+                }
             }
         }
 
@@ -396,7 +440,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             SAML2Object samlObject = request.getSAML2Object();
             if (samlObject instanceof LogoutRequestType == false)
                 return;
-
+            //get the configuration to handle a logout request from idp and set the correct response location
+            SPType spConfiguration = (SPType) getProviderconfig();
+            
             LogoutRequestType logOutRequest = (LogoutRequestType) samlObject;
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
@@ -431,6 +477,15 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             statusResponse.setInResponseTo(logOutRequest.getID());
 
             statusResponse.setIssuer(request.getIssuer());
+            
+            String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
+            if(logoutResponseLocation == null) {
+            	response.setDestination(request.getIssuer().getValue());
+            } else {
+            	response.setDestination(logoutResponseLocation);
+            }
+            
+            statusResponse.setDestination(response.getDestination());
 
             SAML2Response saml2Response = new SAML2Response();
             try {
@@ -440,7 +495,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             response.setRelayState(relayState);
-            response.setDestination(logOutRequest.getIssuer().getValue());
             response.setSendRequest(false);
         }
     }

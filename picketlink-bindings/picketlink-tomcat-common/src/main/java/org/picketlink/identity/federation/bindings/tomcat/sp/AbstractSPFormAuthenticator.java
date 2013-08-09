@@ -22,19 +22,6 @@
 
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
@@ -72,6 +59,18 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * <p>
@@ -264,6 +263,12 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     @Override
     public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException {
         try {
+            // needs to be done first, *before* accessing any parameters. super.authenticate(..) gets called to late
+            String characterEncoding = getCharacterEncoding();
+            if (characterEncoding != null) {
+                request.setCharacterEncoding(characterEncoding);
+            }
+
             Session session = request.getSessionInternal(true);
 
             // check if this call is resulting from the redirect after successful authentication.
@@ -510,6 +515,11 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     // prevent reauthentication
                     String requestURI = savedRequestURL(session);
                     logger.trace("Redirecting back to original Request URI: " + requestURI);
+
+                    if (requestURI == null) {
+                        requestURI = getConfiguration().getServiceURL();
+                    }
+
                     response.sendRedirect(response.encodeRedirectURL(requestURI));
                     return false;
                 }

@@ -93,16 +93,17 @@ import org.w3c.dom.Node;
  * </p>
  * <p>
  * Configuration Options:
- *
+ * 
  * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP Setting)
  * @see SAML2Handler#DISABLE_AUTHN_STATEMENT Setting a value will disable the generation of an AuthnStatement (IDP Setting)
  * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
+ * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
  * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL (SP Setting)
  *      </p>
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Oct 8, 2009
  */
@@ -166,7 +167,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 throw logger.samlHandlerAuthnRequestIsNull();
 
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
-            
+
             logger.trace("Destination = " + destination);
 
             response.setDestination(destination);
@@ -196,8 +197,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // for registration to IdentityServer
                 String participantLogoutURL = getParticipantURL(destination, request);
 
-                logger.trace("Participant " + destination + " will be registered to IdentityServer with logout URL " + participantLogoutURL);
-                
+                logger.trace("Participant " + destination + " will be registered to IdentityServer with logout URL "
+                        + participantLogoutURL);
+
                 // If URL is null, participant doesn't support global logout
                 if (participantLogoutURL != null) {
                     identityServer.stack().register(session.getId(), participantLogoutURL, isPost);
@@ -207,7 +209,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
                         && (Boolean) request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
                 boolean postBindingForResponse = isPost || strictPostBinding;
-                
+
                 response.setResultingDocument(samlResponse);
                 response.setRelayState(request.getRelayState());
                 response.setPostBindingForResponse(postBindingForResponse);
@@ -237,7 +239,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
 
             logger.trace("AssertionConsumerURL=" + assertionConsumerURL);
-            
+
             ResponseType responseType = null;
 
             SAML2Response saml2Response = new SAML2Response();
@@ -278,11 +280,19 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 AuthnStatementType authnStatement = StatementUtil.createAuthnStatement(XMLTimeUtil.getIssueInstant(),
                         authContextRef);
+
+                authnStatement.setSessionIndex(assertion.getID());
+
                 assertion.addStatement(authnStatement);
             }
 
             if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
-                AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
+                AttributeStatementType attrStatement = null;
+                if(handlerConfig.getParameter(USE_MULTI_VALUED_ROLES) != null){
+                    attrStatement = StatementUtil.createAttributeStatementForRoles(roles,true);
+                }else {
+                    attrStatement = StatementUtil.createAttributeStatement(roles);
+                }
                 if(attrStatement != null){
                     assertion.addStatement(attrStatement);   
                 }
@@ -295,7 +305,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             // Add assertion to the session
-            session.setAttribute(GeneralConstants.ASSERTION, assertion); 
+            session.setAttribute(GeneralConstants.ASSERTION, assertion);
 
             Map<String, Object> requestOptions = request.getOptions();
             PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
@@ -309,19 +319,20 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             try {
                 samlResponseDocument = saml2Response.convert(responseType);
-                
+
                 if (logger.isTraceEnabled()) {
                     logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
                 }
             } catch (Exception e) {
-                logger.samlAssertionMarshallError(e);
+                throw logger.samlAssertionMarshallError(e);
             }
-            
+
             return samlResponseDocument;
         }
 
         private String getParticipantURL(String destination, SAML2HandlerRequest request) {
-            SPSSODescriptorType spMetadata = (SPSSODescriptorType)request.getOptions().get(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
+            SPSSODescriptorType spMetadata = (SPSSODescriptorType) request.getOptions().get(
+                    GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
 
             // Metadata not found. We will use destination for registration to IdentityServer
             if (spMetadata == null) {
@@ -361,11 +372,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             try {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
-                
+
                 String bindingType = getSPConfiguration().getBindingType();
-                
+                boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
+
                 if (bindingType != null) {
-                    if (bindingType.equals("POST")) {
+                    if (bindingType.equals("POST") || isIdpUsesPostBinding) {
                         authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get()));
                     } else if (bindingType.equals("REDIRECT")) {
                         authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get()));
@@ -373,7 +385,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                         throw logger.samlInvalidProtocolBinding();
                     }
                 }
-                
+
                 response.setResultingDocument(samlRequest.convert(authn));
                 response.setSendRequest(true);
 
@@ -419,9 +431,21 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             if (userPrincipal == null) {
                 response.setError(403, "User Principal not determined: Forbidden");
             } else {
-                // add it to the session
                 HttpSession session = httpContext.getRequest().getSession(false);
+
+                // add the principal to the session
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
+
+                Document assertionDocument = AssertionUtil.asDocument((AssertionType) assertion);
+                
+                String assertionAttributeName = (String) handlerConfig
+                        .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+                
+                if (assertionAttributeName != null) {
+                    session.setAttribute(assertionAttributeName, assertionDocument);
+                }
+                
+                session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
             }
         }
 
@@ -533,7 +557,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     throw logger.nullValueError("Role Validator");
 
                 boolean validRole = roleValidator.userInRole(principal, roles);
-                
+
                 if (!validRole) {
                     logger.trace("Invalid role: " + roles);
                     principal = null;
@@ -544,7 +568,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
         /**
          * Get the roles from the attribute statement
-         *
+         * 
          * @param attributeStatement
          * @return
          */
@@ -590,16 +614,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
             return roles;
         }
-        
+
         private SPType getSPConfiguration() {
             SPType spConfiguration = (SPType) handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-            
+
             if (spConfiguration == null) {
                 throw logger.samlHandlerServiceProviderConfigNotFound();
             }
-            
+
             return spConfiguration;
         }
     }
-    
+
 }

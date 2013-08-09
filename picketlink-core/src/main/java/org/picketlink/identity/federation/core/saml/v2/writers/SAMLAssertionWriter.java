@@ -199,6 +199,12 @@ public class SAMLAssertionWriter extends BaseWriter {
         if (authnInstant != null) {
             StaxUtil.writeAttribute(writer, JBossSAMLConstants.AUTHN_INSTANT.get(), authnInstant.toString());
         }
+        
+        String sessionIndex = authnStatement.getSessionIndex();
+        
+        if (sessionIndex != null) {
+            StaxUtil.writeAttribute(writer, JBossSAMLConstants.SESSION_INDEX.get(), sessionIndex);
+        }
 
         AuthnContextType authnContext = authnStatement.getAuthnContext();
         if (authnContext != null)

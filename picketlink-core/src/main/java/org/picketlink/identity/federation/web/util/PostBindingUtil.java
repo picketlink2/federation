@@ -26,8 +26,8 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
@@ -97,16 +97,17 @@ public class PostBindingUtil {
         String destination = holder.getDestination();
         String samlMessage = holder.getSamlMessage();
 
-        if (destination == null)
+        if (destination == null) {
             throw logger.nullValueError("Destination is null");
-
+        }
+        
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
 
         builder.append("<html>");
         builder.append("<head>");
+
         if (request)
             builder.append("<title>HTTP Post Binding (Request)</title>");
         else
@@ -117,15 +118,26 @@ public class PostBindingUtil {
 
         builder.append("<form method=\"POST\" action=\"" + destination + "\">");
         builder.append("<input type=\"HIDDEN\" name=\"" + key + "\"" + " value=\"" + samlMessage + "\"/>");
+
         if (isNotNull(relayState)) {
             builder.append("<input type=\"HIDDEN\" name=\"RelayState\" " + "value=\"" + relayState + "\"/>");
         }
+
         builder.append("</form></body></html>");
 
+
         String str = builder.toString();
+        
         logger.trace(str);
-        out.println(str);
-        out.close();
+
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        // we need to re-configure the content length, because Tomcat may have written some content.
+        response.resetBuffer();
+        response.setContentLength(str.length());
+        
+        outputStream.println(str);
+        outputStream.close();
     }
 
     private static void common(String destination, HttpServletResponse response) {
