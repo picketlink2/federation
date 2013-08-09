@@ -332,6 +332,8 @@ public abstract class AbstractIDPValve extends ValveBase {
             } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
                 // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
+            } else {
+                getNext().invoke(request, response);
             }
         }
     }
