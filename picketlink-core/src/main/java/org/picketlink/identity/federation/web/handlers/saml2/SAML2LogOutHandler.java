@@ -480,7 +480,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             
             String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
             if(logoutResponseLocation == null) {
-            	response.setDestination(request.getIssuer().getValue());
+            	response.setDestination(logOutRequest.getIssuer().getValue());
             } else {
             	response.setDestination(logoutResponseLocation);
             }
