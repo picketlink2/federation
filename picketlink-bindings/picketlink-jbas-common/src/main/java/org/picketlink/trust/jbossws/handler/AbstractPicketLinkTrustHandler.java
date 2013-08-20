@@ -39,7 +39,6 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.SecurityConstants;
-import org.jboss.wsf.common.handler.GenericSOAPHandler;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -55,7 +54,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>Abstract base class for the PicketLink Trust Handlers</p>
- * <p>This class implements directly the {@link SOAPHandler} interface because the {@link GenericSOAPHandler} package name changes between JBossWS versions.</p>
+ * <p>This class implements directly the {@link SOAPHandler} interface because the {@link org.jboss.wsf.common.handler.GenericSOAPHandler} package name changes between JBossWS versions.</p>
  *
  * @author Anil.Saldhana@redhat.com
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
