@@ -37,7 +37,7 @@ public interface IRoleValidator {
      *
      * @param options
      */
-    void intialize(Map<String, String> options);
+    void initialize(Map<String, String> options);
 
     /**
      * Validate whether the principal with the given list of roles is valid
