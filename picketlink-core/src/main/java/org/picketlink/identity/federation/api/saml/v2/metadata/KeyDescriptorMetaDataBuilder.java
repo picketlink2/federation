@@ -27,11 +27,14 @@ import java.math.BigInteger;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType.EncryptionMethod;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * MetaDataBuilder for the KeyDescriptor
@@ -107,4 +110,28 @@ public class KeyDescriptorMetaDataBuilder {
 
         return keyDescriptor;
     }
+    
+    public static KeyDescriptorType createKeyDescriptor(Element keyDescriptorElement) {
+        if (keyDescriptorElement == null)
+            throw logger.nullArgumentError("keyDescriptorElement");
+        
+        KeyDescriptorType keyDescriptor = new KeyDescriptorType();
+        
+        String use = keyDescriptorElement.getAttribute("use");
+        if (use != null) { 
+            keyDescriptor.setUse(KeyTypes.fromValue(use));
+        }
+        
+        Element keyInfoElement = (Element)keyDescriptorElement.getElementsByTagNameNS(JBossSAMLURIConstants.XMLDSIG_NSURI.get(), JBossSAMLConstants.KEY_INFO.get()).item(0);
+        keyDescriptor.setKeyInfo(keyInfoElement);
+        
+        NodeList nl = keyDescriptorElement.getElementsByTagNameNS(JBossSAMLURIConstants.METADATA_NSURI.get(), "EncryptionMethod");
+        for (int i = 0; i < nl.getLength(); i++) {
+            String algo = ((Element)nl.item(i)).getAttribute("Algorithm");
+            keyDescriptor.addEncryptionMethod(new EncryptionMethodType(algo));
+        }
+        
+        return keyDescriptor;
+    }
+    
 }

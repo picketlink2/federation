@@ -1594,4 +1594,8 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public IllegalStateException datasourceIsNull() {
         return MESSAGES.datasourceIsNull();
     }
+    
+    public ConfigurationException wrongMetadataRootElement() {
+        return MESSAGES.wrongMetadataRootElement();
+    }
 }

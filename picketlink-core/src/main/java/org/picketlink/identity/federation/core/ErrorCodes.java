@@ -204,4 +204,5 @@ public interface ErrorCodes {
     
     String COMPRESSION_ENABLED_SAML_CRED = "When compression is enabled, received credential should be SamlCredential, but got ";
     
+    String WRONG_METADATA_ROOT_ELEMENT = "PL00107: Wrong metadata root element should be EntitiesDescriptor or EntityDescriptor.";
 }

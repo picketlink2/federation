@@ -510,4 +510,7 @@ public interface PicketLinkMessages {
 
     @Message(id = 179, value = "Datasource is null.")
     IllegalStateException datasourceIsNull();
+    
+    @Message(id = 180, value = "Wrong metadata root element should be EntitiesDescriptor or EntityDescriptor.")
+    ConfigurationException wrongMetadataRootElement();
 }

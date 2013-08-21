@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
@@ -70,8 +71,16 @@ public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurati
         SPType spType = null;
         if (fileAvailable()) {
             try {
-                EntitiesDescriptorType entities = parseMDFile();
-                spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
+                Object metadata = parseMDFile();
+                if (metadata instanceof EntitiesDescriptorType) {
+                    EntitiesDescriptorType entities = (EntitiesDescriptorType) metadata;
+                    spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
+                } else if (metadata instanceof EntityDescriptorType) {
+                    EntityDescriptorType entity = (EntityDescriptorType) metadata;
+                    spType = (SPType) CoreConfigUtil.getSPConfiguration(entity, bindingURI);
+                } else {
+                    throw logger.wrongMetadataRootElement();
+                }
             } catch (ParsingException e) {
                 throw logger.processingError(e);
             } catch (ConfigurationException e) {
@@ -92,13 +101,13 @@ public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurati
         return is != null;
     }
 
-    private EntitiesDescriptorType parseMDFile() throws ParsingException {
+    private Object parseMDFile() throws ParsingException {
         InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
 
         if (is == null)
             throw logger.nullValueError(SP_MD_FILE);
 
         SAMLParser parser = new SAMLParser();
-        return (EntitiesDescriptorType) parser.parse(is);
+        return parser.parse(is);
     }
 }

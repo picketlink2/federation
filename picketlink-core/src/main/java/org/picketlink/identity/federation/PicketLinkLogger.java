@@ -1295,4 +1295,6 @@ public interface PicketLinkLogger {
     RuntimeException runtimeException(String msg, Throwable e);
 
     IllegalStateException datasourceIsNull();
+    
+    ConfigurationException wrongMetadataRootElement();
 }

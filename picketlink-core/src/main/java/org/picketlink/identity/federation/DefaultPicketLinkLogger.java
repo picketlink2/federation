@@ -2332,4 +2332,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public IllegalStateException datasourceIsNull() {
         return new IllegalStateException();
     }
+
+    @Override
+    public ConfigurationException wrongMetadataRootElement() {
+        return new ConfigurationException(ErrorCodes.WRONG_METADATA_ROOT_ELEMENT);
+    }
 }

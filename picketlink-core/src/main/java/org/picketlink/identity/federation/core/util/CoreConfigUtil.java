@@ -296,8 +296,10 @@ public class CoreConfigUtil {
             IDPSSODescriptorType idpSSO = getIDPDescriptor(entityDescriptor);
             if (idpSSO != null) {
                 identityURL = getIdentityURL(idpSSO, bindingURI);
+                spType.setIdentityURL(identityURL);
+                spType.setLogoutUrl(getLogoutURL(idpSSO, bindingURI));
+                spType.setLogoutResponseLocation(getLogoutResponseLocation(idpSSO, bindingURI));
             }
-            spType.setIdentityURL(identityURL);
         }
         if (serviceURL == null) {
             SPSSODescriptorType spSSO = getSPDescriptor(entityDescriptor);
