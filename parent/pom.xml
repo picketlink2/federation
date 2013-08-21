@@ -228,6 +228,12 @@
          <version>6.1.18</version>
          <scope>test</scope>
       </dependency>
+	<dependency>
+		<groupId>org.bouncycastle</groupId>
+		<artifactId>bcprov-jdk16</artifactId>
+		<version>1.46</version>
+		<optional>true</optional>
+	</dependency>
    </dependencies>
   </dependencyManagement>
 
