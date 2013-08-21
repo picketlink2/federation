@@ -145,7 +145,7 @@ public class SPFilter implements Filter {
 
     private transient SAML2HandlerChain chain = null;
 
-    protected boolean ignoreSignatures = false;
+    protected boolean ignoreSignatures = true;
 
     private IRoleValidator roleValidator = new DefaultRoleValidator();
 

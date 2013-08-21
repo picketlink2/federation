@@ -41,7 +41,7 @@ public class DefaultRoleValidator implements IRoleValidator {
 
     private Set<String> roleNames = new HashSet<String>();
 
-    public void intialize(Map<String, String> options) {
+    public void initialize(Map<String, String> options) {
         String csv = options.get("ROLES");
         if (csv == null) {
             if (trace)
