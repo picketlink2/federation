@@ -350,8 +350,14 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             HttpServletRequest httpRequest = httpContext.getRequest();
 			Principal userPrincipal = (Principal) httpRequest.getSession()
 					.getAttribute(GeneralConstants.PRINCIPAL_ID);
-			if (userPrincipal == null)
+
+			if (userPrincipal == null) {
 				userPrincipal = httpRequest.getUserPrincipal();
+            }
+
+            if (userPrincipal == null) {
+                throw logger.samlHandlerPrincipalNotFoundError();
+            }
 
 			try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
