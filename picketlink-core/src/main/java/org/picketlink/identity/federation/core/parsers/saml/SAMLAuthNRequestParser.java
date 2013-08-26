@@ -171,12 +171,21 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
 
         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         String elName = StaxParserUtil.getStartElementName(startElement);
-
-        if (elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get())) {
+        
+        if(!elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get())) {
+            throw new RuntimeException(ErrorCodes.EXPECTED_TAG + JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get());
+        }
+        
+        while (elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get())) {
             String value = StaxParserUtil.getElementText(xmlEventReader);
             ract.addAuthnContextClassRef(value);
-        } else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elName);
+            
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            if(startElement == null) {
+            	break;
+            }
+            elName = StaxParserUtil.getStartElementName(startElement);
+        }
 
         return ract;
     }

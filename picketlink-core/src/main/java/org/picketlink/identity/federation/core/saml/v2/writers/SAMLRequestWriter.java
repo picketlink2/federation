@@ -52,6 +52,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.AttributeQueryType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -135,6 +136,11 @@ public class SAMLRequestWriter extends BaseWriter {
         Element sig = request.getSignature();
         if (sig != null) {
             StaxUtil.writeDOMElement(writer, sig);
+        }
+        
+        RequestedAuthnContextType requestedAuthnContext = request.getRequestedAuthnContext();
+        if(requestedAuthnContext != null) {
+        	write(requestedAuthnContext);
         }
 
         NameIDPolicyType nameIDPolicy = request.getNameIDPolicy();
@@ -227,6 +233,32 @@ public class SAMLRequestWriter extends BaseWriter {
 
         StaxUtil.writeEndElement(writer);
         StaxUtil.flush(writer);
+    }
+    
+    public void write(RequestedAuthnContextType authnContextType) throws ProcessingException {
+    	
+    	if(authnContextType != null) {
+    		
+	    	StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get(), PROTOCOL_NSURI.get());
+	    	if(authnContextType.getComparison() != null) {
+	    		StaxUtil.writeAttribute(writer, JBossSAMLConstants.COMPARISON.get(), authnContextType.getComparison().value());
+	    	} 
+	    	
+	    	if(authnContextType.getAuthnContextClassRef() != null && authnContextType.getAuthnContextClassRef().size() != 0) {
+	    		for(String type : authnContextType.getAuthnContextClassRef()) {
+		    		StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get(), ASSERTION_NSURI.get());
+		    		StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
+			    	StaxUtil.writeCharacters(writer, type);
+			    	StaxUtil.writeEndElement(writer);
+		    	}
+	    	}
+	    	
+	    	
+	    	StaxUtil.writeEndElement(writer);
+    	}
+    	
+    	
+    	
     }
 
     public void write(ArtifactResolveType request) throws ProcessingException {
