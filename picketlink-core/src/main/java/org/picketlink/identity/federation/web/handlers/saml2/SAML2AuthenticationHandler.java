@@ -76,6 +76,8 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubTyp
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
@@ -375,6 +377,25 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
+                
+                //setting authnContextClassRef if it's configured
+                String authnContextClassRef = (String) handlerConfig.getParameter(GeneralConstants.AUTHN_CONTEXT_CLASS_REF);
+                if(StringUtil.isNotNull(authnContextClassRef)) {
+                	RequestedAuthnContextType authnContext = new RequestedAuthnContextType();
+                	String[] contexts = authnContextClassRef.split(",");
+                	
+                	for(String context: contexts) {
+                		authnContext.addAuthnContextClassRef(context);
+                	}
+                	
+                	
+                	String authnContextComparison = (String) handlerConfig.getParameter(GeneralConstants.AUTHN_CONTEXT_COMPARISON);
+                	if(authnContextComparison != null) {
+                		authnContext.setComparison(AuthnContextComparisonType.fromValue(authnContextComparison));
+                	}
+                	
+                	authn.setRequestedAuthnContext(authnContext);
+                }
 
                 if (bindingType != null) {
                     if (bindingType.equals("POST") || isIdpUsesPostBinding) {
