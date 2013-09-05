@@ -31,6 +31,7 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
 
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -56,6 +57,7 @@ import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -77,6 +79,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     private static long KEY_SIZE = 128;
 
     private STSConfiguration configuration;
+
+    private boolean base64EncodeSecretKey = Boolean.parseBoolean(SystemPropertiesUtil.getSystemProperty(GeneralConstants.BASE64_ENCODE_WSTRUST_SECRET_KEY, "true"));
 
     /*
      * (non-Javadoc)
@@ -206,8 +210,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 requestedProofToken.add(new ComputedKeyType(WSTrustConstants.CK_PSHA1));
                 byte[] combinedSecret = null;
                 try {
+    
+    
+                  if( base64EncodeSecretKey == true ) {
                     combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
                             .getBytes();
+                  }
+                  else
+                    combinedSecret = WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8);
+
                 } catch (Exception e) {
                     throw logger.wsTrustCombinedSecretKeyError(e);
                 }
