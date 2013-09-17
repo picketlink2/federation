@@ -21,23 +21,12 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.net.URI;
-import java.security.Principal;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -57,17 +46,20 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.protocol.*;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
-import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Document;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.ParserConfigurationException;
+import java.net.URI;
+import java.security.Principal;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * SAML2 LogOut Profile
@@ -301,13 +293,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
-
-            // 2nd level status code
-            StatusCodeType status2ndLevel = new StatusCodeType();
-            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
-            statusCodeType.setStatusCode(status2ndLevel);
-
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
@@ -362,11 +348,18 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest httpRequest = httpContext.getRequest();
-            Principal userPrincipal = httpRequest.getUserPrincipal();
+			Principal userPrincipal = (Principal) httpRequest.getSession()
+					.getAttribute(GeneralConstants.PRINCIPAL_ID);
+
+			if (userPrincipal == null) {
+				userPrincipal = httpRequest.getUserPrincipal();
+            }
+
             if (userPrincipal == null) {
                 throw logger.samlHandlerPrincipalNotFoundError();
             }
-            try {
+
+			try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
 
                 NameIDType nameID = new NameIDType();
@@ -429,10 +422,14 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             StatusType statusType = statusResponseType.getStatus();
             StatusCodeType statusCode = statusType.getStatusCode();
-            StatusCodeType secondLevelstatusCode = statusCode.getStatusCode();
-            if (secondLevelstatusCode.getValue().toString().equals(JBossSAMLURIConstants.STATUS_SUCCESS.get())) {
-                // we are successfully logged out
-                session.invalidate();
+            URI statusCodeValueURI = statusCode.getValue();
+            boolean success = false;
+            if(statusCodeValueURI != null){
+                String statusCodeValue = statusCodeValueURI.toString();
+                if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)){
+                    success = true;
+                    session.invalidate();
+                }
             }
         }
 
@@ -463,13 +460,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
-
-            // 2nd level status code
-            StatusCodeType status2ndLevel = new StatusCodeType();
-            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
-            statusCodeType.setStatusCode(status2ndLevel);
-
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
@@ -480,7 +471,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             
             String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
             if(logoutResponseLocation == null) {
-            	response.setDestination(request.getIssuer().getValue());
+            	response.setDestination(logOutRequest.getIssuer().getValue());
             } else {
             	response.setDestination(logoutResponseLocation);
             }

@@ -43,9 +43,9 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since May 22, 2009
  */
 public class PostBindingUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Apply base64 encoding on the message
      *
@@ -100,7 +100,7 @@ public class PostBindingUtil {
         if (destination == null) {
             throw logger.nullValueError("Destination is null");
         }
-        
+
         response.setContentType("text/html");
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
@@ -116,18 +116,21 @@ public class PostBindingUtil {
         builder.append("</head>");
         builder.append("<body onload=\"document.forms[0].submit()\">");
 
-        builder.append("<form method=\"POST\" action=\"" + destination + "\">");
-        builder.append("<input type=\"HIDDEN\" name=\"" + key + "\"" + " value=\"" + samlMessage + "\"/>");
+        builder.append("<form method=\"post\" action=\"" + destination + "\">");
+        builder.append("<input type=\"hidden\" name=\"" + key + "\"" + " value=\"" + samlMessage + "\"/>");
 
         if (isNotNull(relayState)) {
             builder.append("<input type=\"HIDDEN\" name=\"RelayState\" " + "value=\"" + relayState + "\"/>");
         }
 
+        builder.append("<noscript>");
+        builder.append("<p>JavaScript is disabled. We strongly recommend to enable it. Click the button below to continue.</p>");
+        builder.append("<input type=\"submit\" value=\"continue\" />");
+        builder.append("</noscript>");
         builder.append("</form></body></html>");
 
-
         String str = builder.toString();
-        
+
         logger.trace(str);
 
         ServletOutputStream outputStream = response.getOutputStream();
@@ -135,7 +138,7 @@ public class PostBindingUtil {
         // we need to re-configure the content length, because Tomcat may have written some content.
         response.resetBuffer();
         response.setContentLength(str.length());
-        
+
         outputStream.println(str);
         outputStream.close();
     }
