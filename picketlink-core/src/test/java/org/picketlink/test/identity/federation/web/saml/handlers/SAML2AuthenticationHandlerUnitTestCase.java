@@ -65,8 +65,10 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.*;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -76,7 +78,10 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
+import org.picketlink.identity.federation.core.saml.v2.constants.SAMLAuthenticationContextClass;
 import org.w3c.dom.Document;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}
@@ -369,6 +374,64 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handler.handleStatusResponseType(request, response);
         
         assertNotNull(session.getAttribute("org.picketlink.sp.SAML_ASSERTION"));
+    }
+
+    public void handleRequestedAuthnContextCustomization() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        String contextClasses = "password,X509, internetProtocol";
+        handlerConfig.addParameter(GeneralConstants.AUTHN_CONTEXT_CLASSES, contextClasses);
+        handlerConfig.addParameter(GeneralConstants.REQUESTED_AUTHN_CONTEXT_COMPARISON, AuthnContextComparisonType.MINIMUM.value());
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        SAML2Object saml2Object = new SAML2Object() {
+        };
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        handler.generateSAMLRequest(request, response);
+
+        Document samlReq = response.getResultingDocument();
+
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
+        RequestedAuthnContextType requestedAuthnContextType = authnRequest.getRequestedAuthnContext();
+
+        assertNotNull(requestedAuthnContextType.getAuthnContextClassRef());
+        assertFalse(requestedAuthnContextType.getAuthnContextClassRef().isEmpty());
+
+        for (String aliasClasses: contextClasses.split(",")) {
+            SAMLAuthenticationContextClass contextClass = SAMLAuthenticationContextClass.forAlias(aliasClasses);
+            if (!requestedAuthnContextType.getAuthnContextClassRef().contains(contextClass.getFqn())) {
+                fail("Expected authentication context class not found.");
+            }
+        }
+
+        assertEquals(AuthnContextComparisonType.MINIMUM, requestedAuthnContextType.getComparison());
     }
 
 }

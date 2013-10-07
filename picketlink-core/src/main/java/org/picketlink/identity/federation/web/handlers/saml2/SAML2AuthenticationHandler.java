@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.SAMLAuthenticationContextClass;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -75,7 +76,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
@@ -373,6 +376,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
 
+                createRequestAuthnContext(authn);
+
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
 
@@ -623,6 +628,36 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             return spConfiguration;
+        }
+    }
+
+    private void createRequestAuthnContext(final AuthnRequestType authn) {
+        String authnContextClasses = (String) handlerConfig.getParameter(GeneralConstants.AUTHN_CONTEXT_CLASSES);
+
+        if (StringUtil.isNotNull(authnContextClasses)) {
+            RequestedAuthnContextType requestAuthnContext = new RequestedAuthnContextType();
+
+            for (String contextClass: authnContextClasses.split(",")) {
+                SAMLAuthenticationContextClass standardClass = SAMLAuthenticationContextClass.forAlias(contextClass);
+
+                if (standardClass != null) {
+                    contextClass = standardClass.getFqn();
+                }
+
+                requestAuthnContext.addAuthnContextClassRef(contextClass);
+            }
+
+            if (!requestAuthnContext.getAuthnContextClassRef().isEmpty()) {
+                authn.setRequestedAuthnContext(requestAuthnContext);
+
+                String comparison = (String) handlerConfig.getParameter(GeneralConstants.REQUESTED_AUTHN_CONTEXT_COMPARISON);
+
+                if (StringUtil.isNotNull(comparison)) {
+                    requestAuthnContext.setComparison(AuthnContextComparisonType.fromValue(comparison));
+                }
+            } else {
+                logger.debug("RequestedAuthnContext not set for AuthnRequest. No context class was provided.");
+            }
         }
     }
 
