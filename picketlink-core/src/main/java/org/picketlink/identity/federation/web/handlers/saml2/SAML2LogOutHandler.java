@@ -428,6 +428,15 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 String statusCodeValue = statusCodeValueURI.toString();
                 if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)){
                     success = true;
+                }
+            }
+            if(success){
+                // we are successfully logged out
+                session.invalidate();
+            } else {
+                StatusCodeType secondLevelstatusCode = statusCode.getStatusCode();
+                if (secondLevelstatusCode != null && secondLevelstatusCode.getValue().toString().equals(JBossSAMLURIConstants.STATUS_SUCCESS.get())) {
+                    // we are successfully logged out
                     session.invalidate();
                 }
             }
