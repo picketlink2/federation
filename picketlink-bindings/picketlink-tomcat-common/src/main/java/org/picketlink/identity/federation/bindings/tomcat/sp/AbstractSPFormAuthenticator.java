@@ -224,9 +224,18 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
 
             String identityURL = this.spConfiguration.getIdentityURL();
-            
-            
-            
+
+            //Special case when you need X509Data in SignedInfo
+            if(authProperties != null){
+                for(AuthPropertyType authPropertyType: authProperties){
+                    String key = authPropertyType.getKey();
+                    if(GeneralConstants.X509CERTIFICATE.equals(key)){
+                        //we need X509Certificate in SignedInfo. The value is the alias name
+                        keyManager.addAdditionalOption(GeneralConstants.X509CERTIFICATE, authPropertyType.getValue());
+                        break;
+                    }
+                }
+            }
             keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, new URL(identityURL).getHost());
         } catch (Exception e) {
             logger.trustKeyManagerCreationError(e);

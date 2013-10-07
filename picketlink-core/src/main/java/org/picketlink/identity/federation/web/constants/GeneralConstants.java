@@ -137,6 +137,8 @@ public interface GeneralConstants {
     String SAML_ENC_KEY_SIZE = "SAML_ENC_KEY_SIZE";
     String SAML_ENC_ALGORITHM = "SAML_ENC_ALGORITHM";
     
+    String X509CERTIFICATE = "X509CERTIFICATE";
+    
     /**
      * <p>{@link SAML2AuthenticationHandler} configuration option to set the assertion into the {@link HttpSession}.</p>
      */

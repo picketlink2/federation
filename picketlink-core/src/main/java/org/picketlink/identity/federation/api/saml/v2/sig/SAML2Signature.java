@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.DigestMethod;
@@ -71,6 +72,11 @@ public class SAML2Signature {
 
     private Node sibling;
 
+    /**
+     * Set the X509Certificate if X509Data is needed in signed info
+     */
+    private X509Certificate x509Certificate;
+
     public String getSignatureMethod() {
         return signatureMethod;
     }
@@ -101,6 +107,19 @@ public class SAML2Signature {
         if (!val) {
             XMLSignatureUtil.setIncludeKeyInfoInSignature(false);
         }
+    }
+
+    /**
+     * Set the {@link X509Certificate} if you desire
+     * to have the SignedInfo have X509 Data
+     *
+     * This method needs to be called before any of the sign methods.
+     *
+     * @param x509Certificate
+     * @since v2.5.0
+     */
+    public void setX509Certificate(X509Certificate x509Certificate) {
+        this.x509Certificate = x509Certificate;
     }
 
     /**
@@ -186,6 +205,10 @@ public class SAML2Signature {
             dto.setSignatureMethod(signatureMethod);
             dto.setReferenceURI(referenceURI);
             dto.setNextSibling(sibling);
+
+            if(x509Certificate != null){
+                dto.setX509Certificate(x509Certificate);
+            }
 
             return XMLSignatureUtil.sign(dto);
         }

@@ -541,6 +541,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
         if (doSupportSignature()) {
             chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
+            //If there is a need for X509Data in signedinfo
+            String certificateAlias = (String)keyManager.getAdditionalOption(GeneralConstants.X509CERTIFICATE);
+            if(certificateAlias != null){
+                chainConfigOptions.put(GeneralConstants.X509CERTIFICATE, keyManager.getCertificate(certificateAlias));
+            }
         }
     }
 

@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.core.transfer;
 
 import java.security.KeyPair;
+import java.security.cert.X509Certificate;
 
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.w3c.dom.Document;
@@ -33,6 +34,8 @@ import org.w3c.dom.Node;
  * @author anil saldhana
  */
 public class SignatureUtilTransferObject {
+    private X509Certificate x509Certificate;
+
     private Document documentToBeSigned;
     private KeyPair keyPair;
 
@@ -91,4 +94,23 @@ public class SignatureUtilTransferObject {
     public void setSignatureMethod(String signatureMethod) {
         this.signatureMethod = signatureMethod;
     }
+
+    /**
+     * Get the {@link X509Certificate} used for signing
+     * @since 2.5.0
+     * @return
+     */
+    public X509Certificate getX509Certificate() {
+        return x509Certificate;
+    }
+
+    /**
+     * Set the {@link X509Certificate} used for signing
+     * @since 2.5.0
+     * @param x509Certificate
+     */
+    public void setX509Certificate(X509Certificate x509Certificate) {
+        this.x509Certificate = x509Certificate;
+    }
+
 }

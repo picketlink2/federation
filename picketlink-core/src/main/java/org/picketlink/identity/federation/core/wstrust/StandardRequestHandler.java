@@ -563,11 +563,17 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
                     logger.trace("NamespaceURI of element to be signed: " + tokenElement.getNamespaceURI());
 
+                    //Is there a certificate?
+                    X509Certificate x509Certificate = null;
+                    String signingCertificateAlias = this.configuration.getSigningCertificateAlias();
+                    if(signingCertificateAlias != null){
+                        x509Certificate = (X509Certificate) this.configuration.getCertificate(signingCertificateAlias);
+                    }
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
                     rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                            signatureMethod, setupIDAttribute(tokenElement));
+                            signatureMethod, setupIDAttribute(tokenElement),x509Certificate);
                     if (logger.isTraceEnabled()) {
                         try {
                             Document tokenDocument = DocumentUtil.createDocument();
