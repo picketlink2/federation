@@ -118,7 +118,7 @@ public class KeyDescriptorMetaDataBuilder {
         KeyDescriptorType keyDescriptor = new KeyDescriptorType();
         
         String use = keyDescriptorElement.getAttribute("use");
-        if (use != null) { 
+        if (use != null && !use.isEmpty()) { 
             keyDescriptor.setUse(KeyTypes.fromValue(use));
         }
         
