@@ -18,11 +18,7 @@
      <module>picketlink-tomcat5</module>
      <module>picketlink-tomcat7</module>
      <module>picketlink-jbas-common</module>
-     <module>picketlink-jbas5</module>
      <module>picketlink-jbas7</module>
-     <module>build-tomcat5</module>
-     <module>build-tomcat7</module>
-     <module>build-jbas5</module>
      <module>build-jbas7</module>
    </modules>
 
