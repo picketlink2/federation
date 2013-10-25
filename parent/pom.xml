@@ -26,6 +26,12 @@
       <connection>scm:svn:http://anonsvn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</connection>
       <developerConnection>scm:svn:https://svn.jboss.org/repos/picketlink/federation/tags/1.0.0.alpha1</developerConnection>
    </scm>
+   
+    <properties>
+        <!-- maven-compiler-plugin default source and target set -->
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+    </properties>
   
    <build>
      <plugins>
