@@ -80,7 +80,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
     private STSConfiguration configuration;
 
-    private boolean base64EncodeSecretKey = Boolean.parseBoolean(SystemPropertiesUtil.getSystemProperty(GeneralConstants.BASE64_ENCODE_WSTRUST_SECRET_KEY, "true"));
+    private boolean base64EncodeSecretKey = Boolean.parseBoolean(SystemPropertiesUtil.getSystemProperty(GeneralConstants.BASE64_ENCODE_WSTRUST_SECRET_KEY, "false"));
 
     /*
      * (non-Javadoc)
@@ -216,8 +216,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
                             .getBytes();
                   }
-                  else
+                  else {
                     combinedSecret = WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8);
+                  }  
 
                 } catch (Exception e) {
                     throw logger.wsTrustCombinedSecretKeyError(e);
@@ -226,7 +227,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             } else {
                 // client secret has not been specified - use the sts secret only.
                 requestedProofToken.add(serverBinarySecret);
-                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(), providerPublicKey,
+                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverSecret, providerPublicKey,
                         keyWrapAlgo, providerCertificate));
             }
         } else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString())) {
