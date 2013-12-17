@@ -1590,6 +1590,35 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public RuntimeException runtimeException(String msg, Throwable e) {
         return MESSAGES.runtimeException(msg,e);
     }
+    
+    public IllegalArgumentException cannotParseParameterValue(String parameter, Throwable e) {
+        return MESSAGES.cannotParseParameterError(parameter , e);
+    }
+
+	public RuntimeException cannotGetFreeClientPoolKey(String key) {
+		return MESSAGES.cannotGetFreeClientPoolKey(key);
+	}
+
+	public RuntimeException cannotGetSTSConfigByKey(String key) {
+		return MESSAGES.cannotGetSTSConfigByKey(key);
+	}
+
+	public RuntimeException cannotGetUsedClientsByKey(String key) {
+		return MESSAGES.cannotGetUsedClientsByKey(key);
+	}
+
+	public RuntimeException freePoolAlreadyContainsGivenKey(String key) {
+		return MESSAGES.freePoolAlreadyContainsGivenKey(key);
+	}
+
+	public RuntimeException maximumNumberOfClientsReachedforPool(String max) {
+		return MESSAGES.maximumNumberOfClientsReachedforPool(max);
+	}
+
+	public RuntimeException removingNonExistingClientFromUsedClientsByKey(String key) {
+		return MESSAGES.removingNonExistingClientFromUsedClientsByKey(key);
+	}
+
 
     public IllegalStateException datasourceIsNull() {
         return MESSAGES.datasourceIsNull();

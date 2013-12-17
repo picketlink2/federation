@@ -235,6 +235,16 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     public static final String IS_BATCH = "isBatch";
 
     /**
+     * Paramater name.
+     */
+    public static final String MAX_CLIENTS_IN_POOL = "maxClientsInPool";
+
+    /**
+     * Paramater name.
+     */
+    public static final String INITIAL_NUMBER_OF_CLIENTS = "initialNumberOfClients";
+
+    /**
      * The subject to be populated.
      */
     protected Subject subject;
@@ -300,6 +310,16 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     protected boolean isBatch = false;
 
     /**
+     * Maximal number of clients in the STS Client Pool.
+     */
+    protected int maxClientsInPool = 0;
+
+    /**
+     * Number of clients initialized for in case pool is out of free clients.
+     */
+    protected int initialNumberOfClients = 0;
+
+    /**
      * Initialized this login module. Simple stores the passed in fields and also validates the options.
      *
      * @param subject The subject to authenticate/populate.
@@ -344,6 +364,25 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         if (StringUtil.isNotNull(batchIssueString)) {
             this.isBatch = Boolean.parseBoolean(batchIssueString);
         }
+
+        String maxClientsString = (String) options.get(MAX_CLIENTS_IN_POOL);
+        if (StringUtil.isNotNull(maxClientsString)) {
+            try {
+                this.maxClientsInPool = Integer.parseInt(maxClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(MAX_CLIENTS_IN_POOL, e);
+            }
+        }
+
+        String initialNumberOfClientsString = (String) options.get(INITIAL_NUMBER_OF_CLIENTS);
+        if (StringUtil.isNotNull(initialNumberOfClientsString)) {
+            try {
+                this.initialNumberOfClients = Integer.parseInt(initialNumberOfClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(INITIAL_NUMBER_OF_CLIENTS, e);
+            }
+        }
+
     }
 
     /**
@@ -518,8 +557,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
 
     protected STSClient createWSTrustClient(final STSClientConfig config) {
         try {
-            return STSClientFactory.getInstance().create(config);
-        } catch (final ParsingException e) {
+            return STSClientFactory.getInstance(maxClientsInPool).create(initialNumberOfClients, config);
+        } catch (final Exception e) {
             throw logger.authCouldNotCreateWSTrustClient(e);
         }
     }

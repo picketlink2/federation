@@ -52,6 +52,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
@@ -159,6 +160,16 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
 
     protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
+    /**
+     * Maximal number of clients in the STS Client Pool.
+     */
+    protected int maxClientsInPool = 0;
+    
+    /**
+     * Number of clients initialized for in case pool is out of free clients. 
+     */
+    protected int initialNumberOfClients = 0;
+
     
     /**
      * Options that are computed by this login module. Few options are removed and the rest are set in the dispatch sts call
@@ -202,6 +213,16 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
 
     // A variable used by the unit test to pass local validation
     protected boolean localTestingOnly = false;
+
+    /**
+     * Paramater name.
+     */
+    public static final String MAX_CLIENTS_IN_POOL = "maxClientsInPool";
+
+    /**
+     * Paramater name.
+     */
+    public static final String INITIAL_NUMBER_OF_CLIENTS = "initialNumberOfClients";
 
     /*
      * (non-Javadoc)
@@ -253,6 +274,25 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
                 localTestingOnly = Boolean.valueOf(localTestingOnlyStr);
             }
         }
+
+        String maxClientsString = (String) options.get(MAX_CLIENTS_IN_POOL);
+        if (StringUtil.isNotNull(maxClientsString)) {
+            try {
+                this.maxClientsInPool = Integer.parseInt(maxClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(MAX_CLIENTS_IN_POOL, e);
+            }
+        }
+        
+        String initialNumberOfClientsString = (String) options.get(INITIAL_NUMBER_OF_CLIENTS);
+        if (StringUtil.isNotNull(initialNumberOfClientsString)) {
+            try {
+                this.initialNumberOfClients = Integer.parseInt(initialNumberOfClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(INITIAL_NUMBER_OF_CLIENTS, e);
+            }
+        }
+        
         
     }
 
@@ -477,7 +517,7 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
         STSClient client = null;
         if (rawOptions.containsKey(STS_CONFIG_FILE)) {
             builder = new Builder(this.stsConfigurationFile);
-            client = new STSClient(builder.build());
+            client = STSClientFactory.getInstance(maxClientsInPool).create(initialNumberOfClients, builder.build());
         } else {
             builder = new Builder();
             builder.endpointAddress((String) rawOptions.get(ENDPOINT_ADDRESS));
@@ -502,7 +542,7 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
                     throw logger.unableToDecodePasswordError(passwordString);
                 }
             }
-            client = new STSClient(builder.build());
+            client = STSClientFactory.getInstance(maxClientsInPool).create(initialNumberOfClients, builder.build());
         }
 
         // if the login module options map still contains any properties, assume they are for configuring the connection

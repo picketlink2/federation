@@ -2334,6 +2334,41 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     @Override
+    public IllegalArgumentException cannotParseParameterValue(String parameter, Throwable e) {
+        return new IllegalArgumentException("Cannot parse: " + parameter , e);
+    }
+
+    @Override
+    public RuntimeException cannotGetFreeClientPoolKey(String key) {
+        return new RuntimeException("Cannot get free client pool key: " + key);
+    }
+
+    @Override
+    public RuntimeException cannotGetSTSConfigByKey(String key) {
+        return new RuntimeException("Cannot get STS config by key: " + key);
+    }
+
+    @Override
+    public RuntimeException cannotGetUsedClientsByKey(String key) {
+        return new RuntimeException("Cannot get used clients by key: " + key);
+    }
+
+    @Override
+    public RuntimeException removingNonExistingClientFromUsedClientsByKey(String key) {
+        return new RuntimeException("removing non existing client from used clients by key: " + key);
+    }
+
+    @Override
+    public RuntimeException freePoolAlreadyContainsGivenKey(String key) {
+        return new RuntimeException("Free pool already contains given key: " + key);
+    }
+
+    @Override
+    public RuntimeException maximumNumberOfClientsReachedforPool(String max) {
+        return new RuntimeException("Pool reached miximum number of clients within the pool (" + max + ")");
+    }
+
+    @Override
     public ConfigurationException wrongMetadataRootElement() {
         return new ConfigurationException(ErrorCodes.WRONG_METADATA_ROOT_ELEMENT);
     }

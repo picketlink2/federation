@@ -510,7 +510,28 @@ public interface PicketLinkMessages {
 
     @Message(id = 179, value = "Datasource is null.")
     IllegalStateException datasourceIsNull();
+
+    @Message(id = 180, value = "Cannot parse: %s")
+    IllegalArgumentException cannotParseParameterError(String parameterName, @Cause Throwable e);
+
+    @Message(id = 181, value = "Cannot get free client pool key: %s")
+    RuntimeException cannotGetFreeClientPoolKey(String key);
     
-    @Message(id = 180, value = "Wrong metadata root element should be EntitiesDescriptor or EntityDescriptor.")
+    @Message(id = 182, value = "Cannot get STS config by key:  %s")
+    RuntimeException cannotGetSTSConfigByKey(String key);
+    
+    @Message(id = 183, value = "Cannot get used clients by key:  %s")
+    RuntimeException cannotGetUsedClientsByKey(String key);
+    
+    @Message(id = 184, value = "Free pool already contains given key:  %s")
+    RuntimeException freePoolAlreadyContainsGivenKey(String key);
+    
+    @Message(id = 185, value = "removing non existing client from used clients by key: %s")
+    RuntimeException removingNonExistingClientFromUsedClientsByKey(String key); 
+    
+    @Message(id = 186, value = "Pool reached miximum number of clients within the pool (%s)")
+    RuntimeException maximumNumberOfClientsReachedforPool(String max); 
+    
+    @Message(id = 187, value = "Wrong metadata root element should be EntitiesDescriptor or EntityDescriptor.")
     ConfigurationException wrongMetadataRootElement();
 }
