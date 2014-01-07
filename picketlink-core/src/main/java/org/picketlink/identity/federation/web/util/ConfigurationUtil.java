@@ -29,6 +29,7 @@ import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.handler.config.Handler;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
@@ -91,4 +92,5 @@ public class ConfigurationUtil {
             throw logger.nullArgumentError("inputstream");
         return (Handlers) (new SAMLConfigParser()).parse(is);
     }
+
 }
