@@ -269,6 +269,22 @@ public class SAML2Signature {
     }
 
     /**
+     * Given a {@link Document}, find the {@link Node} which is the sibling of the Issuer element
+     * @param doc
+     * @return
+     */
+    public Node getNextSiblingOfIssuer(Document doc) {
+        // Find the sibling of Issuer
+        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
+        if (nl.getLength() > 0) {
+            Node issuer = nl.item(0);
+
+            return issuer.getNextSibling();
+        }
+        return null;
+    }
+
+    /**
      * Sign a SAML Document
      *
      * @param samlDocument
@@ -315,7 +331,7 @@ public class SAML2Signature {
     private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
         document.getDocumentElement().setIdAttribute(ID_ATTRIBUTE_NAME, true);
-        
+
         NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                 JBossSAMLConstants.ASSERTION.get());
 
@@ -325,16 +341,5 @@ public class SAML2Signature {
                 ((Element) n).setIdAttribute(ID_ATTRIBUTE_NAME, true);
             }
         }
-    }
-
-    public Node getNextSiblingOfIssuer(Document doc) {
-        // Find the sibling of Issuer
-        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
-        if (nl.getLength() > 0) {
-            Node issuer = nl.item(0);
-
-            return issuer.getNextSibling();
-        }
-        return null;
     }
 }

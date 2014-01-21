@@ -142,7 +142,10 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
             signDocument(samlDocument, keypair, x509Certificate);
         }
 
-        if (!response.isPostBindingForResponse()) {
+        if (response.isPostBindingForResponse()) {
+            logger.trace("Going to sign response document with POST binding type");
+            signPost(samlDocument, keypair, x509Certificate);
+        }  else {
             logger.trace("Going to sign response document with REDIRECT binding type");
             String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
                     response.getSendRequest());
@@ -167,6 +170,16 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     }
 
     private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
+        SAML2Signature samlSignature = new SAML2Signature();
+        Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+        samlSignature.setNextSibling(nextSibling);
+        if(x509Certificate != null){
+            samlSignature.setX509Certificate(x509Certificate);
+        }
+        samlSignature.signSAMLDocument(samlDocument, keypair);
+    }
+
+    private void signPost(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
         samlSignature.setNextSibling(nextSibling);
