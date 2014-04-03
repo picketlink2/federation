@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
@@ -181,6 +182,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         GenericPrincipal genericPrincipal = new GenericPrincipal(realm, "anil", "test", roles);
         request.setUserPrincipal(genericPrincipal);
 
+        //We start the workflow with the sales application sending a logout request
         String samlMessage = RedirectBindingUtil.deflateBase64Encode(createLogOutRequest(sales).getBytes());
         request.setParameter("SAMLRequest", samlMessage);
 
@@ -209,7 +211,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         assertEquals("Match Employee URL", employee, destination);
         assertEquals("Destination exists", employee, lor.getDestination().toString());
 
-        // Let us feed the LogOutRequest to the SPFilter
+        // IDP has sent a LogOutRequest which we feed to SPRedirectFormAuthenticator for Employee
         MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/sp/employee");
         Thread.currentThread().setContextClassLoader(mclSPEmp);
 
@@ -258,6 +260,9 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         request.setParameter("SAMLResponse", RedirectBindingUtil.urlDecode(logoutResponse));
         request.setParameter("RelayState", relayState);
 
+        baos = new ByteArrayOutputStream();
+        response.setOutputStream(baos);
+        response.setWriter(new PrintWriter(baos));
         idp.invoke(request, response);
 
         destination = redirectStr.substring(0, redirectStr.indexOf(SAML_RESPONSE_KEY) - 1);
@@ -286,10 +291,13 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         request.setParameter("RelayState", relayState);
         request.setContext(context);
 
+        //IDP should now send the final logout response to Sales application who sent the original request
         sp.authenticate(request, response, new LoginConfig());
 
-        assertEquals(0, server.stack().getParticipants(session.getId()));
-        assertEquals(0, server.stack().getNumOfParticipantsInTransit(session.getId()));
+        //Ensure that at the IDP we do not have any participants in the session (both employee and sales are logged out)
+        IdentityParticipantStack stack = server.stack();
+        assertEquals(0, stack.getParticipants(session.getId()));
+        assertEquals(0, stack.getNumOfParticipantsInTransit(session.getId()));
 
         // Finally the session should be invalidated
         assertTrue(session.isInvalidated());

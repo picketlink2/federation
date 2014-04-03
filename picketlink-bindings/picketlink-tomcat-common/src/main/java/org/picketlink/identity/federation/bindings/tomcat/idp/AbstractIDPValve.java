@@ -407,10 +407,6 @@ public abstract class AbstractIDPValve extends ValveBase {
         String sigAlg = request.getParameter(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
         String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
-        if (isNotNull(relayState)) {
-            relayState = RedirectBindingUtil.urlDecode(relayState);
-        }
-
         Session session = request.getSessionInternal();
 
         if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
@@ -443,9 +439,6 @@ public abstract class AbstractIDPValve extends ValveBase {
         Document samlErrorResponse = null;
         String referer = request.getHeader("Referer");
         String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
-
-        if (isNotNull(relayState))
-            relayState = RedirectBindingUtil.urlDecode(relayState);
 
         try {
             samlErrorResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
