@@ -135,17 +135,14 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 parentNode.replaceChild(clonedAssertionElement, originalAssertionElement);
             }
 
-            if (isSignResponse()) {
+            if (!isSignAssertionOnly()) {
                 signDocument(samlDocument, keypair, x509Certificate);
             }
         } else {
             signDocument(samlDocument, keypair, x509Certificate);
         }
 
-        if (response.isPostBindingForResponse()) {
-            logger.trace("Going to sign response document with POST binding type");
-            signPost(samlDocument, keypair, x509Certificate);
-        }  else {
+        if (!response.isPostBindingForResponse()) {
             logger.trace("Going to sign response document with REDIRECT binding type");
             String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
                     response.getSendRequest());
@@ -157,10 +154,6 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         return samlDocument.getDocumentElement().getLocalName().equals(JBossSAMLConstants.RESPONSE.get());
     }
 
-    private boolean isSignResponse() {
-        return !isSignAssertionOnly() && (isSignResponseAndAssertion() || this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) == null);
-    }
-
     private boolean isSignAssertionOnly() {
         return this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) != null ? Boolean.valueOf(this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY).toString()) : false;
     }
@@ -170,16 +163,6 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     }
 
     private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
-        SAML2Signature samlSignature = new SAML2Signature();
-        Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
-        samlSignature.setNextSibling(nextSibling);
-        if(x509Certificate != null){
-            samlSignature.setX509Certificate(x509Certificate);
-        }
-        samlSignature.signSAMLDocument(samlDocument, keypair);
-    }
-
-    private void signPost(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
         samlSignature.setNextSibling(nextSibling);
