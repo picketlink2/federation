@@ -153,6 +153,25 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     private Boolean passUserPrincipalToAttributeManager = false;
 
+    /**
+     * Character encoding to use when reading the request parameters
+     */
+    protected String characterEncoding = null;
+
+    /**
+     * Return the character encoding to use when reading the request parameters
+     */
+    public String getCharacterEncoding() {
+        return characterEncoding;
+    }
+
+    /**
+     * Set the character encoding to use when reading the request parameters
+     */
+    public void setCharacterEncoding(String encoding) {
+        characterEncoding = encoding;
+    }
+
     // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
         if (StringUtil.isNotNull(attribList)) {
@@ -278,6 +297,11 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
+        String characterEncoding = getCharacterEncoding();
+        if (characterEncoding != null) {
+            request.setCharacterEncoding(characterEncoding);
+        }
+
         // Look for unauthorized status
         if (isUnauthorized(response)) {
             handleUnauthorizedResponse(request, response);
