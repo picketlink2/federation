@@ -65,7 +65,7 @@ public final class STSClientFactory {
 
     public STSClient create(int initialNumberOfClients, final STSClientCreationCallBack callBack) {
         if (POOL.isPoolingDisabled()) {
-            return null;
+            return callBack.createClient();
         }
         POOL.initialize(initialNumberOfClients, callBack);
         return POOL.takeOut(callBack.getKey());
